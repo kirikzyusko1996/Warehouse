@@ -1,30 +1,38 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 
 @Entity
+@Table(name = "invoice")
 public class Invoice {
-    private Long idInvoice;
+    private Long id;
     private String number;
     private Date issueDate;
     private String transportNumber;
     private String transportName;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
-    private String batchDescription;
+    private String description;
+    private TransportCompany transportCompany;
+    private WarehouseCompany warehouseCompany;
+    private WarehouseCustomerCompany supplierCompany;
+    private WarehouseCustomerCompany receiverCompany;
+    private Driver driver;
+    private Unit goodsQuantityUnit;
+    private Unit goodsEntryCountUnit;
+
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_invoice")
-    public Long getIdInvoice() {
-        return idInvoice;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdInvoice(Long idInvoice) {
-        this.idInvoice = idInvoice;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Column(name = "number")
@@ -82,48 +90,81 @@ public class Invoice {
     }
 
     @Column(name = "batch_description")
-    public String getBatchDescription() {
-        return batchDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBatchDescription(String batchDescription) {
-        this.batchDescription = batchDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Invoice invoice = (Invoice) o;
-
-        if (idInvoice != null ? !idInvoice.equals(invoice.idInvoice) : invoice.idInvoice != null) return false;
-        if (number != null ? !number.equals(invoice.number) : invoice.number != null) return false;
-        if (issueDate != null ? !issueDate.equals(invoice.issueDate) : invoice.issueDate != null) return false;
-        if (transportNumber != null ? !transportNumber.equals(invoice.transportNumber) : invoice.transportNumber != null)
-            return false;
-        if (transportName != null ? !transportName.equals(invoice.transportName) : invoice.transportName != null)
-            return false;
-        if (goodsQuantity != null ? !goodsQuantity.equals(invoice.goodsQuantity) : invoice.goodsQuantity != null)
-            return false;
-        if (goodsEntryCount != null ? !goodsEntryCount.equals(invoice.goodsEntryCount) : invoice.goodsEntryCount != null)
-            return false;
-        if (batchDescription != null ? !batchDescription.equals(invoice.batchDescription) : invoice.batchDescription != null)
-            return false;
-
-        return true;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_transport_company")
+    public TransportCompany getTransportCompany() {
+        return transportCompany;
     }
 
-    @Override
-    public int hashCode() {
-        int result = idInvoice != null ? idInvoice.hashCode() : 0;
-        result = 31 * result + (number != null ? number.hashCode() : 0);
-        result = 31 * result + (issueDate != null ? issueDate.hashCode() : 0);
-        result = 31 * result + (transportNumber != null ? transportNumber.hashCode() : 0);
-        result = 31 * result + (transportName != null ? transportName.hashCode() : 0);
-        result = 31 * result + (goodsQuantity != null ? goodsQuantity.hashCode() : 0);
-        result = 31 * result + (goodsEntryCount != null ? goodsEntryCount.hashCode() : 0);
-        result = 31 * result + (batchDescription != null ? batchDescription.hashCode() : 0);
-        return result;
+    public void setTransportCompany(TransportCompany transportCompany) {
+        this.transportCompany = transportCompany;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_warehouse_company")
+    public WarehouseCompany getWarehouseCompany() {
+        return warehouseCompany;
+    }
+
+    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
+        this.warehouseCompany = warehouseCompany;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_supplier_company")
+    public WarehouseCustomerCompany getSupplierCompany() {
+        return supplierCompany;
+    }
+
+    public void setSupplierCompany(WarehouseCustomerCompany supplierCompany) {
+        this.supplierCompany = supplierCompany;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_receiver_company")
+    public WarehouseCustomerCompany getReceiverCompany() {
+        return receiverCompany;
+    }
+
+    public void setReceiverCompany(WarehouseCustomerCompany receiverCompany) {
+        this.receiverCompany = receiverCompany;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_driver")
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_goods_quantity_unit")
+    public Unit getGoodsQuantityUnit() {
+        return goodsQuantityUnit;
+    }
+
+    public void setGoodsQuantityUnit(Unit goodsQuantityUnit) {
+        this.goodsQuantityUnit = goodsQuantityUnit;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_goods_entry_count_unit")
+    public Unit getGoodsEntryCountUnit() {
+        return goodsEntryCountUnit;
+    }
+
+    public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit) {
+        this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 }
