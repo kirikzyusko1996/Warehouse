@@ -2,26 +2,24 @@ package entity;
 
 import javax.persistence.*;
 
-/**
- * Created by Анна on 17.04.2017.
- */
+
 @Entity
-@Table(name = "invoice_status_name", schema = "warehouse", catalog = "")
+@Table(name = "invoice_status_name")
 public class InvoiceStatusName {
-    private Short idInvoiceStatusName;
+    private Short id;
     private String name;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_invoice_status_name")
-    public Short getIdInvoiceStatusName() {
-        return idInvoiceStatusName;
+    public Short getId() {
+        return id;
     }
 
-    public void setIdInvoiceStatusName(Short idInvoiceStatusName) {
-        this.idInvoiceStatusName = idInvoiceStatusName;
+    public void setId(Short id) {
+        this.id = id;
     }
 
-    @Basic
     @Column(name = "name")
     public String getName() {
         return name;
@@ -29,26 +27,5 @@ public class InvoiceStatusName {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        InvoiceStatusName that = (InvoiceStatusName) o;
-
-        if (idInvoiceStatusName != null ? !idInvoiceStatusName.equals(that.idInvoiceStatusName) : that.idInvoiceStatusName != null)
-            return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = idInvoiceStatusName != null ? idInvoiceStatusName.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
     }
 }

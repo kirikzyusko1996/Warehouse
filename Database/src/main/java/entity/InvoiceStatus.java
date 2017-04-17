@@ -3,26 +3,27 @@ package entity;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-/**
- * Created by Анна on 17.04.2017.
- */
+
 @Entity
-@Table(name = "invoice_status", schema = "warehouse", catalog = "")
+@Table(name = "invoice_status")
 public class InvoiceStatus {
-    private Long idInvoiceStatus;
+    private Long id;
     private Timestamp date;
+    private InvoiceStatusName statusName;
+    private User user;
+    private Invoice invoice;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_invoice_status")
-    public Long getIdInvoiceStatus() {
-        return idInvoiceStatus;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdInvoiceStatus(Long idInvoiceStatus) {
-        this.idInvoiceStatus = idInvoiceStatus;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @Basic
     @Column(name = "date")
     public Timestamp getDate() {
         return date;
@@ -32,24 +33,33 @@ public class InvoiceStatus {
         this.date = date;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        InvoiceStatus that = (InvoiceStatus) o;
-
-        if (idInvoiceStatus != null ? !idInvoiceStatus.equals(that.idInvoiceStatus) : that.idInvoiceStatus != null)
-            return false;
-        if (date != null ? !date.equals(that.date) : that.date != null) return false;
-
-        return true;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_status_name")
+    public InvoiceStatusName getStatusName() {
+        return statusName;
     }
 
-    @Override
-    public int hashCode() {
-        int result = idInvoiceStatus != null ? idInvoiceStatus.hashCode() : 0;
-        result = 31 * result + (date != null ? date.hashCode() : 0);
-        return result;
+    public void setStatusName(InvoiceStatusName statusName) {
+        this.statusName = statusName;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_user")
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_invoice")
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
     }
 }
