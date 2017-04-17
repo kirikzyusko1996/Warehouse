@@ -7,14 +7,14 @@ import java.sql.Date;
 @Entity
 @Table(name = "invoice")
 public class Invoice {
-    private Long idInvoice;
+    private Long id;
     private String number;
     private Date issueDate;
     private String transportNumber;
     private String transportName;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
-    private String batchDescription;
+    private String description;
     private TransportCompany transportCompany;
     private WarehouseCompany warehouseCompany;
     private WarehouseCustomerCompany supplierCompany;
@@ -27,12 +27,12 @@ public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_invoice")
-    public Long getIdInvoice() {
-        return idInvoice;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdInvoice(Long idInvoice) {
-        this.idInvoice = idInvoice;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Column(name = "number")
@@ -90,12 +90,12 @@ public class Invoice {
     }
 
     @Column(name = "batch_description")
-    public String getBatchDescription() {
-        return batchDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBatchDescription(String batchDescription) {
-        this.batchDescription = batchDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @OneToOne(cascade = CascadeType.ALL)
