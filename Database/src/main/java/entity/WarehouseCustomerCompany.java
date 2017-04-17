@@ -5,18 +5,18 @@ import javax.persistence.*;
 @Entity
 @Table(name = "warehouse_customer_company")
 public class WarehouseCustomerCompany{
-    private Long idWarehouseCustomerCompany;
+    private Long id;
     private String name;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_warehouse_customer_company")
-    public Long getIdWarehouseCustomerCompany() {
-        return idWarehouseCustomerCompany;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdWarehouseCustomerCompany(Long idWarehouseCustomerCompany) {
-        this.idWarehouseCustomerCompany = idWarehouseCustomerCompany;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Column(name = "name")
