@@ -3,10 +3,11 @@ package entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "storage_cell")
 public class StorageCell {
     private Long idStorageCell;
     private String number;
+    private StorageSpace storageSpace;
+    private Goods goods;
 
     @Id
     @Column(name = "id_storage_cell")
@@ -25,6 +26,26 @@ public class StorageCell {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "id_storage_space")
+    public StorageSpace getStorageSpace() {
+        return storageSpace;
+    }
+
+    public void setStorageSpace(StorageSpace storageSpace) {
+        this.storageSpace = storageSpace;
+    }
+
+    @OneToOne
+    @JoinColumn(name = "id_goods")
+    public Goods getGoods() {
+        return goods;
+    }
+
+    public void setGoods(Goods goods) {
+        this.goods = goods;
     }
 
     @Override
