@@ -1,12 +1,16 @@
 package entity;
 
+import org.hibernate.annotations.IndexColumn;
+
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-@Table(name = "storage_space_type", schema = "warehouse", catalog = "")
 public class StorageSpaceType {
     private Short idStorageSpaceType;
     private String name;
+    private Set<StorageSpace> storageSpaces;
+    private Set<PriceList> priceList;
 
     @Id
     @Column(name = "id_storage_space_type")
@@ -25,6 +29,33 @@ public class StorageSpaceType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @OneToMany(mappedBy = "storageSpaceType")
+    public void addStorageSpace(StorageSpace storageSpace){
+        storageSpace.setStorageSpaceType(this);
+        storageSpaces.add(storageSpace);
+    }
+
+    public Set<StorageSpace> getStorageSpaces() {
+        return storageSpaces;
+    }
+
+    public void setStorageSpaces(Set<StorageSpace> storageSpaces) {
+        this.storageSpaces = storageSpaces;
+    }
+
+    @OneToMany(mappedBy = "storageSpaceType")
+    public void addPrice(PriceList price){
+        price.setStorageSpaceType(this);
+        priceList.add(price);
+    }
+
+    public Set<PriceList> getPriceList() {
+        return priceList;
+    }
+    public void setPriceList(Set<PriceList> priceList) {
+        this.priceList = priceList;
     }
 
     @Override
