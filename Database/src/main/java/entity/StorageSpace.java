@@ -1,14 +1,14 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "storage_space", schema = "warehouse", catalog = "")
 public class StorageSpace {
     private Long idStorageSpace;
+    private StorageSpaceType storageSpaceType;
+    private List<StorageCell> storageCellList;
+    private Warehouse warehouse;
 
     @Id
     @Column(name = "id_storage_space")
@@ -18,6 +18,40 @@ public class StorageSpace {
 
     public void setIdStorageSpace(Long idStorageSpace) {
         this.idStorageSpace = idStorageSpace;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "id_storage_space_type")
+    public StorageSpaceType getStorageSpaceType() {
+        return storageSpaceType;
+    }
+
+    public void setStorageSpaceType(StorageSpaceType storageSpaceType) {
+        this.storageSpaceType = storageSpaceType;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "id_warehouse")
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
+    @OneToMany(mappedBy = "storageSpace")
+    public void addStorageCell(StorageCell storageCell){
+        storageCell.setStorageSpace(this);
+        storageCellList.add(storageCell);
+    }
+
+    public List<StorageCell> getStorageCellList() {
+        return storageCellList;
+    }
+
+    public void setStorageCellList(List<StorageCell> storageCellList) {
+        this.storageCellList = storageCellList;
     }
 
     @Override
