@@ -5,7 +5,7 @@ import java.sql.Date;
 
 @Entity
 public class Driver {
-    private Long idDriver;
+    private Long id;
     private String fullName;
     private String passportNumber;
     private String countryCode;
@@ -16,12 +16,12 @@ public class Driver {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_driver", unique = true, nullable = false)
-    public Long getIdDriver() {
-        return idDriver;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdDriver(Long idDriver) {
-        this.idDriver = idDriver;
+    public void setId(Long idDriver) {
+        this.id = idDriver;
     }
 
     @Column(name = "full_name", nullable = false)
@@ -86,7 +86,7 @@ public class Driver {
 
         Driver driver = (Driver) o;
 
-        if (idDriver != null ? !idDriver.equals(driver.idDriver) : driver.idDriver != null) return false;
+        if (id != null ? !id.equals(driver.id) : driver.id != null) return false;
         if (fullName != null ? !fullName.equals(driver.fullName) : driver.fullName != null) return false;
         if (passportNumber != null ? !passportNumber.equals(driver.passportNumber) : driver.passportNumber != null)
             return false;
@@ -99,7 +99,7 @@ public class Driver {
 
     @Override
     public int hashCode() {
-        int result = idDriver != null ? idDriver.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
         result = 31 * result + (passportNumber != null ? passportNumber.hashCode() : 0);
         result = 31 * result + (countryCode != null ? countryCode.hashCode() : 0);

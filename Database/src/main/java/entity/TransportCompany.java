@@ -5,19 +5,19 @@ import javax.persistence.*;
 @Entity
 @Table(name = "transport_company", schema = "warehouse", catalog = "")
 public class TransportCompany {
-    private Long idTransportCompany;
+    private Long id;
     private String name;
     private Boolean isTrusted;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_transport_company", unique = true, nullable = false)
-    public Long getIdTransportCompany() {
-        return idTransportCompany;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdTransportCompany(Long idTransportCompany) {
-        this.idTransportCompany = idTransportCompany;
+    public void setId(Long idTransportCompany) {
+        this.id = idTransportCompany;
     }
 
     @Column(name = "name", unique = true, nullable = false)
@@ -45,7 +45,7 @@ public class TransportCompany {
 
         TransportCompany that = (TransportCompany) o;
 
-        if (idTransportCompany != null ? !idTransportCompany.equals(that.idTransportCompany) : that.idTransportCompany != null)
+        if (id != null ? !id.equals(that.id) : that.id != null)
             return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (isTrusted != null ? !isTrusted.equals(that.isTrusted) : that.isTrusted != null) return false;
@@ -55,7 +55,7 @@ public class TransportCompany {
 
     @Override
     public int hashCode() {
-        int result = idTransportCompany != null ? idTransportCompany.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (isTrusted != null ? isTrusted.hashCode() : 0);
         return result;
