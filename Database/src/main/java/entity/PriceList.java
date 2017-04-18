@@ -4,15 +4,12 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-/**
- * Created by Анна on 17.04.2017.
- */
 @Entity
-@Table(name = "price_list", schema = "warehouse", catalog = "")
 public class PriceList {
     private Long idPriceList;
     private Timestamp settingTime;
     private BigDecimal dailyPrice;
+    private StorageSpaceType storageSpaceType;
 
     @Id
     @Column(name = "id_price_list")
@@ -24,8 +21,8 @@ public class PriceList {
         this.idPriceList = idPriceList;
     }
 
-    @Basic
     @Column(name = "setting_time")
+    @Temporal(TemporalType.TIMESTAMP)
     public Timestamp getSettingTime() {
         return settingTime;
     }
@@ -34,7 +31,6 @@ public class PriceList {
         this.settingTime = settingTime;
     }
 
-    @Basic
     @Column(name = "daily_price")
     public BigDecimal getDailyPrice() {
         return dailyPrice;
@@ -43,6 +39,19 @@ public class PriceList {
     public void setDailyPrice(BigDecimal dailyPrice) {
         this.dailyPrice = dailyPrice;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "id_storage_space_type")
+    public StorageSpaceType getStorageSpaceType() {
+        return storageSpaceType;
+    }
+
+    public void setStorageSpaceType(StorageSpaceType storageSpaceType) {
+        this.storageSpaceType = storageSpaceType;
+    }
+
+
+
 
     @Override
     public boolean equals(Object o) {
