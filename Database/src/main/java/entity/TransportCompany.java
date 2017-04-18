@@ -10,7 +10,8 @@ public class TransportCompany {
     private Boolean isTrusted;
 
     @Id
-    @Column(name = "id_transport_company")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_transport_company", unique = true, nullable = false)
     public Long getIdTransportCompany() {
         return idTransportCompany;
     }
@@ -19,7 +20,7 @@ public class TransportCompany {
         this.idTransportCompany = idTransportCompany;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true, nullable = false)
     public String getName() {
         return name;
     }
@@ -28,7 +29,7 @@ public class TransportCompany {
         this.name = name;
     }
 
-    @Column(name = "is_trusted")
+    @Column(name = "is_trusted", nullable = false)
     public Boolean getTrusted() {
         return isTrusted;
     }

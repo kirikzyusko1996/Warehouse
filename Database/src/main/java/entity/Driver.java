@@ -1,8 +1,6 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
@@ -13,9 +11,11 @@ public class Driver {
     private String countryCode;
     private String issuedBy;
     private Date issueDate;
+    private TransportCompany transportCompany;
 
     @Id
-    @Column(name = "id_driver")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_driver", unique = true, nullable = false)
     public Long getIdDriver() {
         return idDriver;
     }
@@ -24,7 +24,7 @@ public class Driver {
         this.idDriver = idDriver;
     }
 
-    @Column(name = "full_name")
+    @Column(name = "full_name", nullable = false)
     public String getFullName() {
         return fullName;
     }
@@ -33,7 +33,7 @@ public class Driver {
         this.fullName = fullName;
     }
 
-    @Column(name = "passport_number")
+    @Column(name = "passport_number", unique = true, nullable = false)
     public String getPassportNumber() {
         return passportNumber;
     }
@@ -42,7 +42,7 @@ public class Driver {
         this.passportNumber = passportNumber;
     }
 
-    @Column(name = "country_code")
+    @Column(name = "country_code", nullable = false)
     public String getCountryCode() {
         return countryCode;
     }
@@ -51,7 +51,7 @@ public class Driver {
         this.countryCode = countryCode;
     }
 
-    @Column(name = "issued_by")
+    @Column(name = "issued_by", nullable = false)
     public String getIssuedBy() {
         return issuedBy;
     }
@@ -60,13 +60,23 @@ public class Driver {
         this.issuedBy = issuedBy;
     }
 
-    @Column(name = "issue_date")
+    @Column(name = "issue_date", nullable = false)
     public Date getIssueDate() {
         return issueDate;
     }
 
     public void setIssueDate(Date issueDate) {
         this.issueDate = issueDate;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_transport_company", nullable = false)
+    public TransportCompany getTransportCompany() {
+        return transportCompany;
+    }
+
+    public void setTransportCompany(TransportCompany transportCompany) {
+        this.transportCompany = transportCompany;
     }
 
     @Override
