@@ -5,7 +5,7 @@ import org.hibernate.Session;
 
 public class TransportCompanyDAO extends DAO<TransportCompany> {
 
-    public TransportCompanyDAO(Session session) {
-        super(TransportCompany.class, session);
+    public TransportCompanyDAO() {
+        super(TransportCompany.class);
     }
 }
