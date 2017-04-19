@@ -1,34 +1,55 @@
 package dao;
 
 import exceptions.GenericDAOException;
-import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class DAO<T> {
     private final Class<T> entityClass;
-    private Session session;
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected HibernateTemplate hibernateTemplate;
+    private final Logger logger;
 
-    public DAO(Class<T> entityClass, Session session) {
+    public DAO(Class<T> entityClass) {
         this.entityClass = entityClass;
-        this.session = session;
+        this.logger = LoggerFactory.getLogger(entityClass);
     }
 
-    public List<T> findAll(int firstResult, int maxResults) throws GenericDAOException {
-        return (List<T>) session.createCriteria(entityClass).setFirstResult(firstResult).setMaxResults(maxResults);
+    @Autowired
+    public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
+        this.hibernateTemplate = hibernateTemplate;
     }
 
-    public T findById(Long id) throws GenericDAOException {
-        return id != null ? (T) session.get(entityClass, id) : null;
+    @Transactional(readOnly = true)
+    public boolean isExistsEntity(Long id) throws GenericDAOException {
+        Optional<? extends T> resultFind = findById(id);
+        resultFind.ifPresent(hibernateTemplate::evict);
+        return resultFind.isPresent();
     }
 
-    T insert(T entity) throws GenericDAOException {
+    @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    public List<T> findAll(DetachedCriteria criteria, int firstResult, int maxResults) throws GenericDAOException {
+        return (List<T>) hibernateTemplate.findByCriteria(criteria, firstResult, maxResults);
+    }
+
+    @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    public Optional<T> findById(Long id) throws GenericDAOException {
+        return id != null ? Optional.ofNullable(hibernateTemplate.get(entityClass, id)) : Optional.empty();
+    }
+
+    @Transactional
+    public T insert(T entity) throws GenericDAOException {
         if (entity == null) return null;
         try {
-            session.save(entity);
+            hibernateTemplate.save(entity);
             return entity;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -36,10 +57,11 @@ public abstract class DAO<T> {
         }
     }
 
-    T update(T entity) throws GenericDAOException {
+    @Transactional
+    public T update(T entity) throws GenericDAOException {
         try {
             if (entity != null) {
-                session.update(entity);
+                hibernateTemplate.update(entity);
                 return entity;
             }
             return null;
@@ -49,11 +71,12 @@ public abstract class DAO<T> {
         }
     }
 
+    @Transactional
     public void delete(T entity) throws GenericDAOException {
         if (entity == null) return;
         try {
-            session.delete(entity);
-            session.flush();
+            hibernateTemplate.delete(entity);
+            hibernateTemplate.flush();
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new GenericDAOException(e);
