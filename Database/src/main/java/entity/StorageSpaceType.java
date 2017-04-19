@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(name = "storage_space_type")
 public class StorageSpaceType {
     private Short idStorageSpaceType;
     private String name;
@@ -13,7 +14,8 @@ public class StorageSpaceType {
     private Set<PriceList> priceList;
 
     @Id
-    @Column(name = "id_storage_space_type")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_storage_space_type", unique = true, nullable = false)
     public Short getIdStorageSpaceType() {
         return idStorageSpaceType;
     }
@@ -22,7 +24,7 @@ public class StorageSpaceType {
         this.idStorageSpaceType = idStorageSpaceType;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     public String getName() {
         return name;
     }

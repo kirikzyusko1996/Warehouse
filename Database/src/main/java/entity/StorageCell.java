@@ -3,6 +3,7 @@ package entity;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "storage_cell")
 public class StorageCell {
     private Long idStorageCell;
     private String number;
@@ -10,7 +11,8 @@ public class StorageCell {
     private Goods goods;
 
     @Id
-    @Column(name = "id_storage_cell")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_storage_cell", unique = true, nullable = false)
     public Long getIdStorageCell() {
         return idStorageCell;
     }
@@ -19,7 +21,7 @@ public class StorageCell {
         this.idStorageCell = idStorageCell;
     }
 
-    @Column(name = "number")
+    @Column(name = "number", nullable = false)
     public String getNumber() {
         return number;
     }
@@ -29,7 +31,7 @@ public class StorageCell {
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_storage_space")
+    @JoinColumn(name = "id_storage_space", nullable = false)
     public StorageSpace getStorageSpace() {
         return storageSpace;
     }

@@ -4,14 +4,16 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "storage_space")
 public class StorageSpace {
     private Long idStorageSpace;
     private StorageSpaceType storageSpaceType;
-    private List<StorageCell> storageCellList;
     private Warehouse warehouse;
+    private List<StorageCell> storageCellList;
 
     @Id
-    @Column(name = "id_storage_space")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_storage_space", unique = true, nullable = false)
     public Long getIdStorageSpace() {
         return idStorageSpace;
     }
@@ -21,7 +23,7 @@ public class StorageSpace {
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_storage_space_type")
+    @JoinColumn(name = "id_storage_space_type", nullable = false)
     public StorageSpaceType getStorageSpaceType() {
         return storageSpaceType;
     }
@@ -31,7 +33,7 @@ public class StorageSpace {
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_warehouse")
+    @JoinColumn(name = "id_warehouse", nullable = false)
     public Warehouse getWarehouse() {
         return warehouse;
     }

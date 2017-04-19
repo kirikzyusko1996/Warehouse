@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
+@Table(name = "price_list")
 public class PriceList {
     private Long idPriceList;
     private Timestamp settingTime;
@@ -12,7 +13,8 @@ public class PriceList {
     private StorageSpaceType storageSpaceType;
 
     @Id
-    @Column(name = "id_price_list")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_price_list", unique = true, nullable = false)
     public Long getIdPriceList() {
         return idPriceList;
     }
@@ -21,7 +23,7 @@ public class PriceList {
         this.idPriceList = idPriceList;
     }
 
-    @Column(name = "setting_time")
+    @Column(name = "setting_time", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     public Timestamp getSettingTime() {
         return settingTime;
@@ -31,7 +33,7 @@ public class PriceList {
         this.settingTime = settingTime;
     }
 
-    @Column(name = "daily_price")
+    @Column(name = "daily_price", nullable = false)
     public BigDecimal getDailyPrice() {
         return dailyPrice;
     }
@@ -41,7 +43,7 @@ public class PriceList {
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_storage_space_type")
+    @JoinColumn(name = "id_storage_space_type", nullable = false)
     public StorageSpaceType getStorageSpaceType() {
         return storageSpaceType;
     }
