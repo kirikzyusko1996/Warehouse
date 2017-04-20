@@ -1,26 +1,64 @@
 package entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "goods_status")
 public class GoodsStatus {
-    private Long idGoodsStatus;
+    private Long id;
     private Timestamp date;
     private String note;
 
+    private GoodsStatusName goodsStatusName;
+    private User user;
+    private Goods goods;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_goods_status_name")
+    public GoodsStatusName getGoodsStatusName() {
+        return goodsStatusName;
+    }
+
+    public void setGoodsStatusName(GoodsStatusName goodsStatusName) {
+        this.goodsStatusName = goodsStatusName;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user")
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_goods")
+    public Goods getGoods() {
+        return goods;
+    }
+
+    public void setGoods(Goods goods) {
+        this.goods = goods;
+    }
+
     @Id
-    @Column(name = "id_goods_status")
-    public Long getIdGoodsStatus() {
-        return idGoodsStatus;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_goods_status", nullable = false, insertable = true, updatable = false)
+    public Long getId() {
+        return id;
     }
 
-    public void setIdGoodsStatus(Long idGoodsStatus) {
-        this.idGoodsStatus = idGoodsStatus;
+    public void setId(Long idGoodsStatus) {
+        this.id = idGoodsStatus;
     }
 
-    @Column(name = "date")
+    @Column(name = "date", nullable = false, insertable = true, updatable = false)
     public Timestamp getDate() {
         return date;
     }
@@ -29,7 +67,7 @@ public class GoodsStatus {
         this.date = date;
     }
 
-    @Column(name = "note")
+    @Column(name = "note", nullable = true, insertable = true, updatable = true)
     public String getNote() {
         return note;
     }
@@ -45,7 +83,7 @@ public class GoodsStatus {
 
         GoodsStatus that = (GoodsStatus) o;
 
-        if (idGoodsStatus != null ? !idGoodsStatus.equals(that.idGoodsStatus) : that.idGoodsStatus != null)
+        if (id != null ? !id.equals(that.id) : that.id != null)
             return false;
         if (date != null ? !date.equals(that.date) : that.date != null) return false;
         if (note != null ? !note.equals(that.note) : that.note != null) return false;
@@ -55,9 +93,21 @@ public class GoodsStatus {
 
     @Override
     public int hashCode() {
-        int result = idGoodsStatus != null ? idGoodsStatus.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (date != null ? date.hashCode() : 0);
         result = 31 * result + (note != null ? note.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("idGoodsStatus", id)
+                .append("date", date)
+                .append("note", note)
+                .append("goodsStatusName", goodsStatusName)
+                .append("user", user)
+                .append("goods", goods)
+                .toString();
     }
 }

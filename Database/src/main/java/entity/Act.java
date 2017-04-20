@@ -1,26 +1,61 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
+@Table(name = "act")
 public class Act {
-    private Long idAct;
+    private Long id;
     private Timestamp date;
+    private User user;
+    private Goods goods;
+    private ActType actType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user")
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_goods")
+    public Goods getGoods() {
+        return goods;
+    }
+
+    public void setGoods(Goods goods) {
+        this.goods = goods;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_act_type")
+    public ActType getActType() {
+        return actType;
+    }
+
+    public void setActType(ActType actType) {
+        this.actType = actType;
+    }
 
     @Id
-    @Column(name = "id_act")
-    public Long getIdAct() {
-        return idAct;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_act", nullable = false, insertable = true, updatable = false)
+    public Long getId() {
+        return id;
     }
 
-    public void setIdAct(Long idAct) {
-        this.idAct = idAct;
+    public void setId(Long idAct) {
+        this.id = idAct;
     }
 
-    @Column(name = "date")
+    @Column(name = "date", nullable = false, insertable = true, updatable = false)
     public Timestamp getDate() {
         return date;
     }
@@ -36,7 +71,7 @@ public class Act {
 
         Act act = (Act) o;
 
-        if (idAct != null ? !idAct.equals(act.idAct) : act.idAct != null) return false;
+        if (id != null ? !id.equals(act.id) : act.id != null) return false;
         if (date != null ? !date.equals(act.date) : act.date != null) return false;
 
         return true;
@@ -44,8 +79,19 @@ public class Act {
 
     @Override
     public int hashCode() {
-        int result = idAct != null ? idAct.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (date != null ? date.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("idAct", id)
+                .append("date", date)
+                .append("user", user)
+                .append("goods", goods)
+                .append("actType", actType)
+                .toString();
     }
 }

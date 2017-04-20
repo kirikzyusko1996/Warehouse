@@ -1,24 +1,27 @@
 package entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "act_type")
 public class ActType {
-    private Short idActType;
+    private Short id;
     private String name;
 
     @Id
-    @Column(name = "id_act_type")
-    public Short getIdActType() {
-        return idActType;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_act_type", nullable = false, insertable = true, updatable = false)
+    public Short getId() {
+        return id;
     }
 
-    public void setIdActType(Short idActType) {
-        this.idActType = idActType;
+    public void setId(Short idActType) {
+        this.id = idActType;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true, nullable = false, insertable = true, updatable = true)
     public String getName() {
         return name;
     }
@@ -34,7 +37,7 @@ public class ActType {
 
         ActType actType = (ActType) o;
 
-        if (idActType != null ? !idActType.equals(actType.idActType) : actType.idActType != null) return false;
+        if (id != null ? !id.equals(actType.id) : actType.id != null) return false;
         if (name != null ? !name.equals(actType.name) : actType.name != null) return false;
 
         return true;
@@ -42,8 +45,16 @@ public class ActType {
 
     @Override
     public int hashCode() {
-        int result = idActType != null ? idActType.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("idActType", id)
+                .append("name", name)
+                .toString();
     }
 }

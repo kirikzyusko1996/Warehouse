@@ -1,24 +1,27 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import javax.persistence.*;
 
 @Entity
+@Table(name = "unit")
 public class Unit {
-    private Short idUnit;
+    private Short id;
     private String name;
 
     @Id
-    @Column(name = "id_unit")
-    public Short getIdUnit() {
-        return idUnit;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_unit", nullable = false, insertable = true, updatable = false)
+    public Short getId() {
+        return id;
     }
 
-    public void setIdUnit(Short idUnit) {
-        this.idUnit = idUnit;
+    public void setId(Short idUnit) {
+        this.id = idUnit;
     }
-    @Column(name = "name")
+
+    @Column(name = "name", nullable = false, insertable = true, updatable = true)
     public String getName() {
         return name;
     }
@@ -34,7 +37,7 @@ public class Unit {
 
         Unit unit = (Unit) o;
 
-        if (idUnit != null ? !idUnit.equals(unit.idUnit) : unit.idUnit != null) return false;
+        if (id != null ? !id.equals(unit.id) : unit.id != null) return false;
         if (name != null ? !name.equals(unit.name) : unit.name != null) return false;
 
         return true;
@@ -42,8 +45,16 @@ public class Unit {
 
     @Override
     public int hashCode() {
-        int result = idUnit != null ? idUnit.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("idUnit", id)
+                .append("name", name)
+                .toString();
     }
 }

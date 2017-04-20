@@ -1,24 +1,28 @@
 package entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "goods_status_name")
 public class GoodsStatusName {
-    private Short idGoodsStatusName;
+    private Short id;
     private String name;
 
+
     @Id
-    @Column(name = "id_goods_status_name")
-    public Short getIdGoodsStatusName() {
-        return idGoodsStatusName;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_goods_status_name", nullable = false, insertable = true, updatable = false)
+    public Short getId() {
+        return id;
     }
 
-    public void setIdGoodsStatusName(Short idGoodsStatusName) {
-        this.idGoodsStatusName = idGoodsStatusName;
+    public void setId(Short idGoodsStatusName) {
+        this.id = idGoodsStatusName;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true,nullable = false, insertable = true, updatable = true)
     public String getName() {
         return name;
     }
@@ -34,7 +38,7 @@ public class GoodsStatusName {
 
         GoodsStatusName that = (GoodsStatusName) o;
 
-        if (idGoodsStatusName != null ? !idGoodsStatusName.equals(that.idGoodsStatusName) : that.idGoodsStatusName != null)
+        if (id != null ? !id.equals(that.id) : that.id != null)
             return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
@@ -43,8 +47,16 @@ public class GoodsStatusName {
 
     @Override
     public int hashCode() {
-        int result = idGoodsStatusName != null ? idGoodsStatusName.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("idGoodsStatusName", id)
+                .append("name", name)
+                .toString();
     }
 }
