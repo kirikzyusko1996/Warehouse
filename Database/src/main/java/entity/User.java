@@ -1,8 +1,6 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
@@ -20,8 +18,10 @@ public class User {
     private String email;
     private String login;
     private String password;
+    private WarehouseCompany warehouseCompany;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
     public Long getIdUser() {
         return idUser;
@@ -31,7 +31,7 @@ public class User {
         this.idUser = idUser;
     }
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = 50)
     public String getFirstName() {
         return firstName;
     }
@@ -40,7 +40,7 @@ public class User {
         this.firstName = firstName;
     }
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", length = 50)
     public String getLastName() {
         return lastName;
     }
@@ -49,7 +49,7 @@ public class User {
         this.lastName = lastName;
     }
 
-    @Column(name = "patronymic")
+    @Column(name = "patronymic", length = 50)
     public String getPatronymic() {
         return patronymic;
     }
@@ -67,7 +67,7 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    @Column(name = "city")
+    @Column(name = "city", length = 50)
     public String getCity() {
         return city;
     }
@@ -76,7 +76,7 @@ public class User {
         this.city = city;
     }
 
-    @Column(name = "street")
+    @Column(name = "street", length = 50)
     public String getStreet() {
         return street;
     }
@@ -85,7 +85,7 @@ public class User {
         this.street = street;
     }
 
-    @Column(name = "house")
+    @Column(name = "house", length = 50)
     public String getHouse() {
         return house;
     }
@@ -94,7 +94,7 @@ public class User {
         this.house = house;
     }
 
-    @Column(name = "apartment")
+    @Column(name = "apartment", length = 50)
     public String getApartment() {
         return apartment;
     }
@@ -112,7 +112,7 @@ public class User {
         this.idCompany = idCompany;
     }
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, length = 50)
     public String getEmail() {
         return email;
     }
@@ -121,7 +121,7 @@ public class User {
         this.email = email;
     }
 
-    @Column(name = "login")
+    @Column(name = "login", unique = true, length = 50)
     public String getLogin() {
         return login;
     }
@@ -130,13 +130,23 @@ public class User {
         this.login = login;
     }
 
-    @Column(name = "password")
+    @Column(name = "password", length = 50)
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_warehouse_company")
+    public WarehouseCompany getWarehouseCompany() {
+        return warehouseCompany;
+    }
+
+    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
+        this.warehouseCompany = warehouseCompany;
     }
 
     @Override
@@ -159,8 +169,7 @@ public class User {
         if (email != null ? !email.equals(user.email) : user.email != null) return false;
         if (login != null ? !login.equals(user.login) : user.login != null) return false;
         if (password != null ? !password.equals(user.password) : user.password != null) return false;
-
-        return true;
+        return warehouseCompany != null ? warehouseCompany.equals(user.warehouseCompany) : user.warehouseCompany == null;
     }
 
     @Override
@@ -178,6 +187,27 @@ public class User {
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (login != null ? login.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (warehouseCompany != null ? warehouseCompany.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "idUser=" + idUser +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", patronymic='" + patronymic + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", city='" + city + '\'' +
+                ", street='" + street + '\'' +
+                ", house='" + house + '\'' +
+                ", apartment='" + apartment + '\'' +
+                ", idCompany=" + idCompany +
+                ", email='" + email + '\'' +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", warehouseCompany=" + warehouseCompany +
+                '}';
     }
 }

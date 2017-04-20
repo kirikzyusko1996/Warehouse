@@ -19,7 +19,7 @@ public class WarehouseCompany {
         this.idWarehouseCompany = idWarehouseCompany;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", length = 50)
     public String getName() {
         return name;
     }
@@ -58,5 +58,14 @@ public class WarehouseCompany {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "WarehouseCompany{" +
+                "idWarehouseCompany=" + idWarehouseCompany +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                '}';
     }
 }
