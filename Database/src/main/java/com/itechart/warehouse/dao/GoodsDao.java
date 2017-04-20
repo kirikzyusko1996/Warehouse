@@ -1,4 +1,4 @@
-package dao;
+package com.itechart.warehouse.dao;
 
 import entity.Goods;
 import org.springframework.stereotype.Repository;
