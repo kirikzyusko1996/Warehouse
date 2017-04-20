@@ -26,7 +26,7 @@ public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_invoice")
+    @Column(name = "id_invoice", unique = true, nullable = false)
     public Long getId() {
         return id;
     }
@@ -35,7 +35,7 @@ public class Invoice {
         this.id = id;
     }
 
-    @Column(name = "number")
+    @Column(name = "number", nullable = false)
     public String getNumber() {
         return number;
     }
@@ -44,7 +44,7 @@ public class Invoice {
         this.number = number;
     }
 
-    @Column(name = "issue_date")
+    @Column(name = "issue_date", nullable = false)
     public Date getIssueDate() {
         return issueDate;
     }
@@ -98,7 +98,7 @@ public class Invoice {
         this.description = description;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_transport_company")
     public TransportCompany getTransportCompany() {
         return transportCompany;
@@ -108,7 +108,7 @@ public class Invoice {
         this.transportCompany = transportCompany;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_warehouse_company")
     public WarehouseCompany getWarehouseCompany() {
         return warehouseCompany;
@@ -118,7 +118,7 @@ public class Invoice {
         this.warehouseCompany = warehouseCompany;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_supplier_company")
     public WarehouseCustomerCompany getSupplierCompany() {
         return supplierCompany;
@@ -128,7 +128,7 @@ public class Invoice {
         this.supplierCompany = supplierCompany;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_receiver_company")
     public WarehouseCustomerCompany getReceiverCompany() {
         return receiverCompany;
@@ -138,7 +138,7 @@ public class Invoice {
         this.receiverCompany = receiverCompany;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_driver")
     public Driver getDriver() {
         return driver;
@@ -148,7 +148,7 @@ public class Invoice {
         this.driver = driver;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_goods_quantity_unit")
     public Unit getGoodsQuantityUnit() {
         return goodsQuantityUnit;
@@ -158,7 +158,7 @@ public class Invoice {
         this.goodsQuantityUnit = goodsQuantityUnit;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_goods_entry_count_unit")
     public Unit getGoodsEntryCountUnit() {
         return goodsEntryCountUnit;

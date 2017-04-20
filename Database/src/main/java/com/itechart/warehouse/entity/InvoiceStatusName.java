@@ -11,7 +11,7 @@ public class InvoiceStatusName {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_invoice_status_name")
+    @Column(name = "id_invoice_status_name", nullable = false, unique = true)
     public Short getId() {
         return id;
     }

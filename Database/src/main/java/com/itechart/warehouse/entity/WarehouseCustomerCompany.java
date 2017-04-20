@@ -10,7 +10,7 @@ public class WarehouseCustomerCompany{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_warehouse_customer_company")
+    @Column(name = "id_warehouse_customer_company", unique = true, nullable = false)
     public Long getId() {
         return id;
     }

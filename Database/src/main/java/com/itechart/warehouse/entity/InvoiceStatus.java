@@ -15,7 +15,7 @@ public class InvoiceStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_invoice_status")
+    @Column(name = "id_invoice_status", unique = true, nullable = false)
     public Long getId() {
         return id;
     }
@@ -33,8 +33,8 @@ public class InvoiceStatus {
         this.date = date;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_status_name")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_status_name", nullable = false)
     public InvoiceStatusName getStatusName() {
         return statusName;
     }
@@ -43,7 +43,7 @@ public class InvoiceStatus {
         this.statusName = statusName;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     public User getUser() {
         return user;
@@ -53,8 +53,8 @@ public class InvoiceStatus {
         this.user = user;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_invoice")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_invoice", nullable = false)
     public Invoice getInvoice() {
         return invoice;
     }
