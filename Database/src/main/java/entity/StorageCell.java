@@ -7,9 +7,12 @@ import javax.persistence.*;
 public class StorageCell {
     private Long idStorageCell;
     private String number;
+    private StorageSpace storageSpace;
+    private Goods goods;
 
     @Id
-    @Column(name = "id_storage_cell")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_storage_cell", unique = true, nullable = false)
     public Long getIdStorageCell() {
         return idStorageCell;
     }
@@ -18,13 +21,33 @@ public class StorageCell {
         this.idStorageCell = idStorageCell;
     }
 
-    @Column(name = "number")
+    @Column(name = "number", nullable = false)
     public String getNumber() {
         return number;
     }
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "id_storage_space", nullable = false)
+    public StorageSpace getStorageSpace() {
+        return storageSpace;
+    }
+
+    public void setStorageSpace(StorageSpace storageSpace) {
+        this.storageSpace = storageSpace;
+    }
+
+    @OneToOne
+    @JoinColumn(name = "id_goods")
+    public Goods getGoods() {
+        return goods;
+    }
+
+    public void setGoods(Goods goods) {
+        this.goods = goods;
     }
 
     @Override
