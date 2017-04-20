@@ -50,7 +50,7 @@
     </http>
     <authentication-manager id="web">
         <authentication-provider ref='userAuthProvider'>
-            <password-encoder hash="sha1"/>
+            <password-encoder hash="sha"/>
         </authentication-provider>
     </authentication-manager>
 </beans:beans>
