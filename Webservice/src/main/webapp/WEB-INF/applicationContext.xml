@@ -22,12 +22,29 @@
     <import resource="dataSource-dev.xml"/>
     <import resource="dataSource-production.xml"/>
     <import resource="security-context.xml"/>
-    <bean id="transactionManager"
-          class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="emf"/>
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="packagesToScan" value="com.itechart.warehouse.entity"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="hibernate.max_fetch_depth">3</prop>
+                <prop key="hibernate.jdЬc.fetch_size">30</prop>
+                <prop key="hibernate.jdbc.batch_size">10</prop>
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
     </bean>
+
+    <bean id="template" class="org.springframework.orm.hibernate4.HibernateTemplate">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+
     <tx:annotation-driven transaction-manager="transactionManager"/>
-    <context:component-scan base-package="dao, entity"/>
+    <context:component-scan base-package="com.itechart.warehouse.dao"/>
 
 
 </beans>
