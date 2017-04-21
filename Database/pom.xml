@@ -59,6 +59,12 @@
             <artifactId>spring-orm</artifactId>
             <version>4.3.4.RELEASE</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>3.4.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -66,6 +72,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <propertyFile>src/main/resources/liquibase/mysql/liquibase-mysql.properties</propertyFile>
+                    <changeLogFile>src/main/resources/liquibase/mysql/changelog/db.changelog-master.xml</changeLogFile>
+                </configuration>
             </plugin>
         </plugins>
         <finalName>Database</finalName>

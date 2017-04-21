@@ -1,0 +1,47 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="ulad_bondar" id="22">
+        <addUniqueConstraint columnNames="email" constraintName="email" tableName="user"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="23">
+        <addUniqueConstraint columnNames="login" constraintName="login" tableName="user"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="24">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="goods"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="25">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="goods_status_name"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="26">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="invoice_status_name"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="27">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="role"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="28">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="storage_space_type"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="29">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="transport_company"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="30">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="unit"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="31">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="warehouse"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="32">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="warehouse_company"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="33">
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="warehouse_customer_company"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="34">
+        <addUniqueConstraint columnNames="number" constraintName="number" tableName="invoice"/>
+    </changeSet>
+    <changeSet author="ulad_bondar" id="35">
+        <addUniqueConstraint columnNames="passport_number" constraintName="passport_number" tableName="driver"/>
+    </changeSet>
+</databaseChangeLog>
