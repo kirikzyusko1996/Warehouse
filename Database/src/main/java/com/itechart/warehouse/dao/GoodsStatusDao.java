@@ -1,6 +1,7 @@
 package com.itechart.warehouse.dao;
 
-import entity.GoodsStatus;
+
+import com.itechart.warehouse.entity.GoodsStatus;
 import org.springframework.stereotype.Repository;
 
 /**
