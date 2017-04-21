@@ -42,16 +42,15 @@ public class StorageSpace {
         this.warehouse = warehouse;
     }
 
-    @OneToMany(mappedBy = "storageSpace")
     public void addStorageCell(StorageCell storageCell){
         storageCell.setStorageSpace(this);
         storageCellList.add(storageCell);
     }
 
+    @OneToMany(mappedBy = "storageSpace")
     public List<StorageCell> getStorageCellList() {
         return storageCellList;
     }
-
     public void setStorageCellList(List<StorageCell> storageCellList) {
         this.storageCellList = storageCellList;
     }

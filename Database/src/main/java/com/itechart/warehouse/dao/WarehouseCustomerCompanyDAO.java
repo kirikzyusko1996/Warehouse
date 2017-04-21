@@ -5,8 +5,8 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class WarehouseCustomerCompanyDAO extends DAO<WarehouseCustomerCompany>{
-    public WarehouseCustomerCompanyDAO(Class<WarehouseCustomerCompany> entityClass) {
-        super(entityClass);
+public class WarehouseCustomerCompanyDAO extends DAO<WarehouseCustomerCompany> {
+    public WarehouseCustomerCompanyDAO() {
+        super(WarehouseCustomerCompany.class);
     }
 }

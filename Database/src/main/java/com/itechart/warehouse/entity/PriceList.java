@@ -24,7 +24,7 @@ public class PriceList {
     }
 
     @Column(name = "setting_time", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+//    @Temporal(TemporalType.TIMESTAMP)
     public Timestamp getSettingTime() {
         return settingTime;
     }
