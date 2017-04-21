@@ -5,8 +5,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate4.HibernateTemplate;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,26 +25,22 @@ public abstract class DAO<T> {
         this.hibernateTemplate = hibernateTemplate;
     }
 
-    @Transactional(readOnly = true)
     public boolean isExistsEntity(Long id) throws GenericDAOException {
         Optional<? extends T> resultFind = findById(id);
         resultFind.ifPresent(hibernateTemplate::evict);
         return resultFind.isPresent();
     }
 
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<T> findAll(DetachedCriteria criteria, int firstResult, int maxResults) throws GenericDAOException {
         return (List<T>) hibernateTemplate.findByCriteria(criteria, firstResult, maxResults);
     }
 
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public Optional<T> findById(Long id) throws GenericDAOException {
         return id != null ? Optional.ofNullable(hibernateTemplate.get(entityClass, id)) : Optional.empty();
     }
 
-    @Transactional
     public T insert(T entity) throws GenericDAOException {
         if (entity == null) return null;
         try {
@@ -57,7 +52,6 @@ public abstract class DAO<T> {
         }
     }
 
-    @Transactional
     public T update(T entity) throws GenericDAOException {
         try {
             if (entity != null) {
@@ -71,7 +65,6 @@ public abstract class DAO<T> {
         }
     }
 
-    @Transactional
     public void delete(T entity) throws GenericDAOException {
         if (entity == null) return;
         try {

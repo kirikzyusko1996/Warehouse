@@ -31,12 +31,11 @@ public class StorageSpaceType {
         this.name = name;
     }
 
-    @OneToMany(mappedBy = "storageSpaceType")
     public void addStorageSpace(StorageSpace storageSpace){
         storageSpace.setStorageSpaceType(this);
         storageSpaces.add(storageSpace);
     }
-
+    @OneToMany(mappedBy = "storageSpaceType")
     public Set<StorageSpace> getStorageSpaces() {
         return storageSpaces;
     }
@@ -45,12 +44,12 @@ public class StorageSpaceType {
         this.storageSpaces = storageSpaces;
     }
 
-    @OneToMany(mappedBy = "storageSpaceType")
+
     public void addPrice(PriceList price){
         price.setStorageSpaceType(this);
         priceList.add(price);
     }
-
+    @OneToMany(mappedBy = "storageSpaceType")
     public Set<PriceList> getPriceList() {
         return priceList;
     }
