@@ -40,6 +40,10 @@ public abstract class DAO<T> {
     public Optional<T> findById(Long id) throws GenericDAOException {
         return id != null ? Optional.ofNullable(hibernateTemplate.get(entityClass, id)) : Optional.empty();
     }
+    @SuppressWarnings("unchecked")
+    public Optional<T> findById(Short id) throws GenericDAOException {
+        return id != null ? Optional.ofNullable(hibernateTemplate.get(entityClass, id)) : Optional.empty();
+    }
 
     public T insert(T entity) throws GenericDAOException {
         if (entity == null) return null;
