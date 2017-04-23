@@ -116,18 +116,22 @@ public class GoodsDaoTest {
     @Test
     @Transactional
     public void testUnitDao() throws GenericDAOException {
-//        unitDao.insert(unit);
-//        Optional<Unit> optional = unitDao.findById(unit.getId());
-//        Unit fetchedUnit = optional.get();
-//        assertEquals("кг", fetchedUnit.getName());
-//        unit.setName("литр");
-//        optional = unitDao.findById(Long.valueOf(unit.getId()));
-//        fetchedUnit = optional.get();
-//        assertEquals("литр", fetchedUnit.getName());
-//        unitDao.delete(unit);
-//        optional = unitDao.findById(Long.valueOf(unit.getId()));
-//        fetchedUnit = optional.get();
-//        assertNull(fetchedUnit);
+        unitDao.insert(unit);
+        Optional<Unit> optional = unitDao.findById(unit.getId());
+        Unit fetchedUnit = optional.get();
+        assertEquals("кг", fetchedUnit.getName());
+        unit.setName("литр");
+        optional = unitDao.findById(unit.getId());
+        fetchedUnit = optional.get();
+        assertEquals("литр", fetchedUnit.getName());
+        unitDao.delete(unit);
+        optional = unitDao.findById(unit.getId());
+        try {
+            fetchedUnit = optional.get();
+        } catch (Exception e) {
+
+        }
+        assertNull(fetchedUnit);
     }
 
     @Test

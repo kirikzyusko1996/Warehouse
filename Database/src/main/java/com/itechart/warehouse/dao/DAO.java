@@ -26,6 +26,7 @@ public abstract class DAO<T> {
     }
 
     public boolean isExistsEntity(Long id) throws GenericDAOException {
+        logger.info("Check if entity  with id: {} exists", id);
         Optional<? extends T> resultFind = findById(id);
         resultFind.ifPresent(hibernateTemplate::evict);
         return resultFind.isPresent();
@@ -33,19 +34,23 @@ public abstract class DAO<T> {
 
     @SuppressWarnings("unchecked")
     public List<T> findAll(DetachedCriteria criteria, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find all entities");
         return (List<T>) hibernateTemplate.findByCriteria(criteria, firstResult, maxResults);
     }
 
     @SuppressWarnings("unchecked")
     public Optional<T> findById(Long id) throws GenericDAOException {
+        logger.info("Find entity  with id: {}", id);
         return id != null ? Optional.ofNullable(hibernateTemplate.get(entityClass, id)) : Optional.empty();
     }
     @SuppressWarnings("unchecked")
     public Optional<T> findById(Short id) throws GenericDAOException {
+        logger.info("Find entity  with id: {}", id);
         return id != null ? Optional.ofNullable(hibernateTemplate.get(entityClass, id)) : Optional.empty();
     }
 
     public T insert(T entity) throws GenericDAOException {
+        logger.info("Insert entity: {}", entity);
         if (entity == null) return null;
         try {
             hibernateTemplate.save(entity);
@@ -57,6 +62,7 @@ public abstract class DAO<T> {
     }
 
     public T update(T entity) throws GenericDAOException {
+        logger.info("Update entity: {}", entity);
         try {
             if (entity != null) {
                 hibernateTemplate.update(entity);
@@ -70,6 +76,7 @@ public abstract class DAO<T> {
     }
 
     public void delete(T entity) throws GenericDAOException {
+        logger.info("Delete entity: {}", entity);
         if (entity == null) return;
         try {
             hibernateTemplate.delete(entity);
