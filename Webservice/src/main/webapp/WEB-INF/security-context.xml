@@ -39,14 +39,14 @@
         <intercept-url pattern='/index.html' access='permitAll'/>
         <intercept-url pattern='/company/**' access='ROLE_ADMIN'/>
         <intercept-url pattern='/warehouse/**' access='ROLE_SUPERVISOR'/>
-        <intercept-url pattern='/goods/**' access='ROLE_MANAGER,ROLE_OWNER'/>
-        <intercept-url pattern='/invoice/**' access='ROLE_DISPATCHER,ROLE_CONTROLLER,ROLE_MANAGER'/>
+        <intercept-url pattern='/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/invoice/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
         <intercept-url pattern='/user/**' access='ROLE_SUPERVISOR'/>
         <intercept-url pattern='/tr-company/**' access='ROLE_DISPATCHER'/>
         <intercept-url pattern='/customer/**' access='ROLE_DISPATCHER'/>
         <intercept-url pattern='/finance/**' access='ROLE_ADMIN'/>
         <intercept-url pattern='/report/**' access='ROLE_OWNER'/>
-        <intercept-url pattern='/act/**' access='ROLE_CONTROLLER,ROLE_DISPATCHER,ROLE_OWNER'/>
+        <intercept-url pattern='/act/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_OWNER')"/>
         <intercept-url pattern='/settings/**' access='ROLE_ADMIN'/>
 
         <form-login login-page="/login"
