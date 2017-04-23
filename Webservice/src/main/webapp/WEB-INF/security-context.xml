@@ -33,16 +33,22 @@
 
     <!--User form authentication-->
     <beans:bean id="userAuthProvider"
-                class="com.itechart.warehouse.security.UserAuthenticationProvider">
+                class="com.itechart.warehouse.security.WarehouseCompanyUserAuthenticationProvider">
     </beans:bean>
     <http use-expressions="true" authentication-manager-ref="web">
         <intercept-url pattern='/index.html' access='permitAll'/>
-        <intercept-url pattern='/company/warehouse/**' access='ROLE_ADMINISTRATOR'/>
-        <intercept-url pattern='/company/invoice/**' access='ROLE_DISPATCHER'/>
-        <intercept-url pattern='/company/storage/**' access='ROLE_MANAGER'/>
-        <intercept-url pattern='/company/control/**' access='ROLE_CONTROLLER'/>
-        <intercept-url pattern='/company/company/**' access='ROLE_OWNER'/>
-        <intercept-url pattern='/**' access='ROLE_SUPER'/>
+        <intercept-url pattern='/company/**' access='ROLE_ADMIN'/>
+        <intercept-url pattern='/warehouse/**' access='ROLE_SUPERVISOR'/>
+        <intercept-url pattern='/goods/**' access='ROLE_MANAGER,ROLE_OWNER'/>
+        <intercept-url pattern='/invoice/**' access='ROLE_DISPATCHER,ROLE_CONTROLLER,ROLE_MANAGER'/>
+        <intercept-url pattern='/user/**' access='ROLE_SUPERVISOR'/>
+        <intercept-url pattern='/tr-company/**' access='ROLE_DISPATCHER'/>
+        <intercept-url pattern='/customer/**' access='ROLE_DISPATCHER'/>
+        <intercept-url pattern='/finance/**' access='ROLE_ADMIN'/>
+        <intercept-url pattern='/report/**' access='ROLE_OWNER'/>
+        <intercept-url pattern='/act/**' access='ROLE_CONTROLLER,ROLE_DISPATCHER,ROLE_OWNER'/>
+        <intercept-url pattern='/settings/**' access='ROLE_ADMIN'/>
+
         <form-login login-page="/login"
                     authentication-failure-url="/security/login-fail"/>
         <logout logout-success-url="/logout"/>
@@ -50,7 +56,6 @@
     </http>
     <authentication-manager id="web">
         <authentication-provider ref='userAuthProvider'>
-            <!--<password-encoder hash="sha"/>-->
         </authentication-provider>
     </authentication-manager>
     <context:component-scan base-package="com.itechart.warehouse.security"/>
