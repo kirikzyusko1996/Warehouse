@@ -14,6 +14,8 @@ public interface UserService {
 
     User findUserById(Long id) throws DataAccessException;
 
+    User findUserByLogin(String login) throws DataAccessException;
+
     List<User> findUsersForCompany(Long companyId) throws DataAccessException;
 
     User saveUser(User user) throws DataAccessException;

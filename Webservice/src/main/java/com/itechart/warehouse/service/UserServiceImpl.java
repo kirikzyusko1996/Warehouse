@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Optional;
 /**
  * Implementation of user service.
  */
+@Service
 public class UserServiceImpl implements UserService {
     private UserDAO userDAO;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -58,6 +60,22 @@ public class UserServiceImpl implements UserService {
             throw new DataAccessException(e.getCause());
         }
         return user;
+    }
+
+    @Override
+    public User findUserByLogin(String login) throws DataAccessException {
+        logger.info("Find user by login name: {}", login);
+        if (login == null) return null;
+        DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
+        criteria.add(Restrictions.eq("login", login));
+        List<User> users = null;
+        try {
+            return (users = userDAO.findAll(criteria, -1, -1)).isEmpty() ? null : users.get(0);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for contacts: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+
     }
 
     @Override
