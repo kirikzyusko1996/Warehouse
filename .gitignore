@@ -7,3 +7,4 @@ target
 *.iws
 *.log
 /Database/src/main/resources/liquibase/mysql/liquibase-mysql.properties
+/Database/src/test/resources/application.properties
