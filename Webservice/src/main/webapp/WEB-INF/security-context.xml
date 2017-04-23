@@ -44,8 +44,7 @@
         <intercept-url pattern='/company/company/**' access='ROLE_OWNER'/>
         <intercept-url pattern='/**' access='ROLE_SUPER'/>
         <form-login login-page="/login"
-                    authentication-failure-url="/security/loginfail"
-                    default-target-url="/main"/>
+                    authentication-failure-url="/security/login-fail"/>
         <logout logout-success-url="/logout"/>
         <csrf/>
     </http>
