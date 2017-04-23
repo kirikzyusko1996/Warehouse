@@ -17,7 +17,6 @@ import java.util.ArrayList;
 /**
  * Class for authenticating user.
  */
-@Service
 public class WarehouseCompanyUserAuthenticationProvider implements AuthenticationProvider {
     private Logger logger = LoggerFactory.getLogger(WarehouseCompanyUserAuthenticationProvider.class);
 

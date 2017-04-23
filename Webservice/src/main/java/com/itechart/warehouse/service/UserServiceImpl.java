@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
         try {
             users = userDAO.findAll(criteria, -1, -1);
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for contact: {}", e.getMessage());
+            logger.error("Error during searching for user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         return users;
@@ -56,13 +56,14 @@ public class UserServiceImpl implements UserService {
             Optional<User> result = userDAO.findById(id);
             user = result.get();
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for contacts: {}", e.getMessage());
+            logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         return user;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByLogin(String login) throws DataAccessException {
         logger.info("Find user by login name: {}", login);
         if (login == null) return null;
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
         try {
             return (users = userDAO.findAll(criteria, -1, -1)).isEmpty() ? null : users.get(0);
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for contacts: {}", e.getMessage());
+            logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
 
@@ -89,7 +90,7 @@ public class UserServiceImpl implements UserService {
         try {
             users = userDAO.findAll(criteria, -1, -1);
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for contacts: {}", e.getMessage());
+            logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         return users;
@@ -107,9 +108,31 @@ public class UserServiceImpl implements UserService {
                 updatedUser = userDAO.insert(user);
             }
         } catch (GenericDAOException e) {
-            logger.error("Error during saving contact: {}", e.getMessage());
+            logger.error("Error during saving user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         return updatedUser;
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(User user) throws DataAccessException {
+        logger.info("Deleting user: {}", user);
+        try {
+            userDAO.delete(user);
+        } catch (GenericDAOException e) {
+            logger.error("Error during saving user: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    public boolean isUserExists(User user) throws DataAccessException {
+        try {
+            return userDAO.isExistsEntity(user.getIdUser());
+        } catch (GenericDAOException e) {
+            logger.error("Error while determine if user with id: {} exists", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
     }
 }

@@ -19,4 +19,8 @@ public interface UserService {
     List<User> findUsersForCompany(Long companyId) throws DataAccessException;
 
     User saveUser(User user) throws DataAccessException;
+
+    void deleteUser(User user) throws DataAccessException;
+
+    boolean isUserExists(User user) throws DataAccessException;
 }

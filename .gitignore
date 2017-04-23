@@ -6,4 +6,4 @@ target
 *.iml
 *.iws
 *.log
-/Database/src/main/resources/liquibase/mysql/liquibase-mysql.properties
+*.properties
