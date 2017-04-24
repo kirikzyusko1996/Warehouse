@@ -3,7 +3,7 @@ package com.itechart.warehouse.controller;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
-import com.itechart.warehouse.service.UserService;
+import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.validation.ValidationError;
 import com.itechart.warehouse.validation.ValidationErrorBuilder;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.ValidationException;
 import java.util.List;
 
 /**

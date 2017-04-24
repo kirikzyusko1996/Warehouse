@@ -1,6 +1,6 @@
 package com.itechart.warehouse.dao;
 
-import com.itechart.warehouse.exceptions.GenericDAOException;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

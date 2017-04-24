@@ -1,4 +1,4 @@
-package com.itechart.warehouse.service;
+package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.service.exception.DataAccessException;

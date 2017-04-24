@@ -1,6 +1,6 @@
 package com.itechart.warehouse.security;
 
-import com.itechart.warehouse.service.UserService;
+import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

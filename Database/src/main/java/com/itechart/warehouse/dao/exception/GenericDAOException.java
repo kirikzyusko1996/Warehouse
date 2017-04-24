@@ -1,4 +1,4 @@
-package com.itechart.warehouse.exceptions;
+package com.itechart.warehouse.dao.exception;
 
 public class GenericDAOException extends Exception {
     public GenericDAOException(Exception e) {

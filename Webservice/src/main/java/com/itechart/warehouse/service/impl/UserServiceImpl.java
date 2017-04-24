@@ -1,9 +1,10 @@
-package com.itechart.warehouse.service;
+package com.itechart.warehouse.service.impl;
 
 import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.entity.User;
-import com.itechart.warehouse.exceptions.GenericDAOException;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.services.UserService;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;

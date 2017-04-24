@@ -1,6 +1,6 @@
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.entity.*;
-import com.itechart.warehouse.exceptions.GenericDAOException;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
