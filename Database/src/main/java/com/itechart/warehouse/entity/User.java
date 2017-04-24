@@ -1,6 +1,10 @@
 package com.itechart.warehouse.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -11,20 +15,33 @@ import java.sql.Date;
 @Entity
 public class User {
     private Long idUser;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String firstName;
     @NotEmpty(message = "Can not be empty")
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String lastName;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String patronymic;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date dateOfBirth;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String city;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String street;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String house;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String apartment;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private Long idCompany;
     @Email(message = "Illegal email")
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String email;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String login;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String password;
+    @JsonIgnore
     private WarehouseCompany warehouseCompany;
 
     @Id

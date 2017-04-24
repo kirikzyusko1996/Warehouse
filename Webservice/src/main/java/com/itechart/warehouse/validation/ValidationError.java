@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * Class containing validation errors.
+ * Class containing errors encountered during validation process.
  */
 public class ValidationError {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
