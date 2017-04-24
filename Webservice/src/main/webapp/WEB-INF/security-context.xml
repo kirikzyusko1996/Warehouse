@@ -8,56 +8,65 @@
        http://www.springframework.org/schema/security
        http://www.springframework.org/schema/security/spring-security.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <http pattern="*.css" security="none"/>
-    <http pattern="*.js" security="none"/>
-
     <!--Transport company digest authentication-->
     <beans:bean id="transportCompanyDetailsService"
                 class="com.itechart.warehouse.security.TransportCompanyDetailsService">
-    </beans:bean>
-    <http pattern="/api/**" use-expressions="false" create-session="stateless">
-        <intercept-url pattern="/api/**" access="ROLE_TRUSTED_COMPANY"/>
-        <http-basic/>
-        <custom-filter ref="digestFilter" after="BASIC_AUTH_FILTER"/>
-    </http>
-    <beans:bean id="digestFilter"
-                class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
-        <beans:property name="userDetailsService" ref="transportCompanyDetailsService"/>
-        <beans:property name="authenticationEntryPoint" ref="digestEntryPoint"/>
     </beans:bean>
     <beans:bean id="digestEntryPoint" class=
             "org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">
         <beans:property name="realmName" value="Transport companies"/>
         <beans:property name="key" value="acegi"/>
     </beans:bean>
+    <beans:bean id="digestFilter"
+                class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
+        <beans:property name="userDetailsService" ref="transportCompanyDetailsService"/>
+        <beans:property name="authenticationEntryPoint" ref="digestEntryPoint"/>
+    </beans:bean>
+    <http pattern="/api/**" use-expressions="false" create-session="stateless" authentication-manager-ref="api">
+        <intercept-url pattern="/api/**" access="ROLE_TRUSTED_COMPANY"/>
+        <http-basic/>
+        <custom-filter ref="digestFilter" after="BASIC_AUTH_FILTER"/>
+    </http>
+
 
     <!--User form authentication-->
-    <beans:bean id="userAuthProvider"
-                class="com.itechart.warehouse.security.WarehouseCompanyUserAuthenticationProvider">
+    <beans:bean id="userDetailsService"
+                class="com.itechart.warehouse.security.WarehouseCompanyUserDetailsService">
     </beans:bean>
-    <http use-expressions="true" authentication-manager-ref="web">
-        <!--<intercept-url pattern='/**' access='permitAll'/>-->
-        <intercept-url pattern='/index.html' access='permitAll'/>
-        <intercept-url pattern='/company/**' access='ROLE_ADMIN'/>
-        <intercept-url pattern='/warehouse/**' access='ROLE_SUPERVISOR'/>
-        <intercept-url pattern='/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER')"/>
-        <intercept-url pattern='/invoice/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
-        <intercept-url pattern='/user/**' access='ROLE_SUPERVISOR'/>
-        <intercept-url pattern='/tr-company/**' access='ROLE_DISPATCHER'/>
-        <intercept-url pattern='/customer/**' access='ROLE_DISPATCHER'/>
-        <intercept-url pattern='/finance/**' access='ROLE_ADMIN'/>
-        <intercept-url pattern='/report/**' access='ROLE_OWNER'/>
-        <intercept-url pattern='/act/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_OWNER')"/>
-        <intercept-url pattern='/settings/**' access='ROLE_ADMIN'/>
+    <beans:bean id="userDigestEntryPoint" class=
+            "org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">
+        <beans:property name="realmName" value="Warehouse clients"/>
+        <beans:property name="key" value="acegi"/>
+    </beans:bean>
+    <beans:bean id="userDigestFilter"
+                class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
+        <beans:property name="userDetailsService" ref="userDetailsService"/>
+        <beans:property name="authenticationEntryPoint" ref="userDigestEntryPoint"/>
+    </beans:bean>
 
-        <form-login login-page="/login"
-                    authentication-failure-url="/security/login-fail"/>
-        <logout logout-success-url="/logout"/>
-        <csrf/>
+    <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web">
+        <intercept-url pattern='/web/company/**' access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern='/web/warehouse/**' access="hasRole('ROLE_SUPERVISOR')"/>
+        <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/invoice/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/user/**' access="hasRole('ROLE_SUPERVISOR')"/>
+        <intercept-url pattern='/web/tr-company/**' access="hasRole('ROLE_DISPATCHER')"/>
+        <intercept-url pattern='/web/customer/**' access="hasRole('ROLE_DISPATCHER')"/>
+        <intercept-url pattern='/web/finance/**' access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern='/web/report/**' access="hasRole('ROLE_OWNER')"/>
+        <intercept-url pattern='/web/act/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_OWNER')"/>
+        <intercept-url pattern='/web/settings/**' access="hasRole('ROLE_ADMIN')"/>
+        <http-basic/>
+        <custom-filter ref="userDigestFilter" after="BASIC_AUTH_FILTER"/>
     </http>
+
+
     <authentication-manager id="web">
-        <authentication-provider ref='userAuthProvider'>
-        </authentication-provider>
+        <authentication-provider user-service-ref="userDetailsService"/>
+    </authentication-manager>
+
+    <authentication-manager id="api">
+        <authentication-provider user-service-ref="transportCompanyDetailsService"/>
     </authentication-manager>
     <context:component-scan base-package="com.itechart.warehouse.security"/>
 </beans:beans>

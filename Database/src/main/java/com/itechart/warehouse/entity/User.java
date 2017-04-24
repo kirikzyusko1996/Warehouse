@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.List;
 
 
 @Entity
@@ -40,9 +41,21 @@ public class User {
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String login;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    @JsonIgnore
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
+    @JsonIgnore
+    private List<Role> roles;
+
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

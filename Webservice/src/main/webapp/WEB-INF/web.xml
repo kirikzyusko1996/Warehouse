@@ -45,11 +45,11 @@
             <param-name>contextConfigLocation</param-name>
             <param-value>/WEB-INF/web-servlet.xml</param-value>
         </init-param>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>2</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>web</servlet-name>
-        <url-pattern></url-pattern>
+        <url-pattern>/web/*</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>remote</servlet-name>
@@ -58,10 +58,15 @@
             <param-name>contextConfigLocation</param-name>
             <param-value>/WEB-INF/remote-servlet.xml</param-value>
         </init-param>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>2</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>remote</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+
+
+
+
+
 </web-app>

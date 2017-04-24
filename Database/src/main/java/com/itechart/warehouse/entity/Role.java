@@ -25,7 +25,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "role", unique = true, length = 20)
+    @Column(name = "name", unique = true, length = 20)
     public String getRole() {
         return role;
     }
@@ -39,7 +39,7 @@ public class Role {
     }
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "role_user",
+    @JoinTable(name = "user_role",
             joinColumns = {@JoinColumn(name = "id_role")},
             inverseJoinColumns = {@JoinColumn(name = "id_user")})
     public List<User> getUsers() {

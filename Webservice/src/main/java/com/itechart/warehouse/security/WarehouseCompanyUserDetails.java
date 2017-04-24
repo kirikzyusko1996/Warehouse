@@ -3,7 +3,6 @@ package com.itechart.warehouse.security;
 import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
-import netscape.security.Privilege;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,9 +24,7 @@ public class WarehouseCompanyUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //todo get authorities
-//        return getGrantedAuthorities(user.getRoles());
-        return null;
+        return getGrantedAuthorities(user.getRoles());
     }
 
     @Override

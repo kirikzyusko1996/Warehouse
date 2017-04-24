@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
  * Class for loading user data from the database during authentication.
  */
 
-@Service
 public class WarehouseCompanyUserDetailsService implements UserDetailsService {
     private Logger logger = LoggerFactory.getLogger(WarehouseCompanyUserDetailsService.class);
 

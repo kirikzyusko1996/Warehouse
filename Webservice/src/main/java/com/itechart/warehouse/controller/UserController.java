@@ -1,6 +1,7 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.services.UserService;
@@ -39,13 +40,17 @@ public class UserController {
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<User>> getUsers() {
         logger.info("Handling request for list of registered users");
-        List<User> users;
+        List<User> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         try {
-            users = userService.findUsersForCompany(userDetails.getCompany().getIdWarehouseCompany());
+            WarehouseCompany company = userDetails.getCompany();
+            if (company != null) {
+                users = userService.findUsersForCompany(company.getIdWarehouseCompany());
+            }
+            else return new ResponseEntity<>(users, HttpStatus.CONFLICT);
         } catch (DataAccessException e) {
             logger.error("Error during users retrieval: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
@@ -91,9 +96,11 @@ public class UserController {
         }
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException .class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody ValidationError handleException(MethodArgumentNotValidException e) {
+    public
+    @ResponseBody
+    ValidationError handleException(MethodArgumentNotValidException e) {
         return createValidationError(e);
     }
 
