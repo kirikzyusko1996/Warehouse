@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,6 @@ public class WarehouseCompanyUserAuthenticationProvider implements Authenticatio
     }
 
     public boolean supports(Class<?> aClass) {
-        return true;
+        return WarehouseCompanyUserDetails.class.isAssignableFrom(aClass);
     }
 }

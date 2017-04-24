@@ -44,6 +44,11 @@
           class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
+<!--Validation-->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"></bean>
+    <bean id="methodValidationPostProcessor" class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor">
+        <property name="validator" value="validator"/>
+    </bean>
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
     <context:component-scan base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service"/>

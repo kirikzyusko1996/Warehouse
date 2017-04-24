@@ -36,6 +36,7 @@
                 class="com.itechart.warehouse.security.WarehouseCompanyUserAuthenticationProvider">
     </beans:bean>
     <http use-expressions="true" authentication-manager-ref="web">
+        <!--<intercept-url pattern='/**' access='permitAll'/>-->
         <intercept-url pattern='/index.html' access='permitAll'/>
         <intercept-url pattern='/company/**' access='ROLE_ADMIN'/>
         <intercept-url pattern='/warehouse/**' access='ROLE_SUPERVISOR'/>

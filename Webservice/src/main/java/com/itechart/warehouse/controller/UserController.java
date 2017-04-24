@@ -5,14 +5,20 @@ import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.UserService;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.validation.ValidationError;
+import com.itechart.warehouse.validation.ValidationErrorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.util.List;
 
 /**
@@ -21,10 +27,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/user")
+@Validated
 public class UserController {
     private UserService userService;
     private Logger logger = LoggerFactory.getLogger(UserController.class);
-
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -46,7 +52,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Void> saveUser(@RequestBody User user) {
+    public ResponseEntity<Void> saveUser(@Valid @RequestBody User user) {
         logger.info("Handling request for saving new user with fields: {}", user);
         //todo set company id
         try {
@@ -59,7 +65,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @RequestBody User user) {
+    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody User user) {
         logger.info("Handling request for updating user with id: {} and fields: {}", id, user);
         //todo security check
         try {
@@ -85,4 +91,15 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException .class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ValidationError handleException(MethodArgumentNotValidException e) {
+        return createValidationError(e);
+    }
+
+    private ValidationError createValidationError(MethodArgumentNotValidException e) {
+        return ValidationErrorBuilder.fromBindingErrors(e.getBindingResult());
+    }
+
 }

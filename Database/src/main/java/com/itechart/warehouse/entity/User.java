@@ -1,12 +1,18 @@
 package com.itechart.warehouse.entity;
 
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
 import java.sql.Date;
+
 
 @Entity
 public class User {
     private Long idUser;
     private String firstName;
+    @NotEmpty(message = "Can not be empty")
     private String lastName;
     private String patronymic;
     private Date dateOfBirth;
@@ -15,6 +21,7 @@ public class User {
     private String house;
     private String apartment;
     private Long idCompany;
+    @Email(message = "Illegal email")
     private String email;
     private String login;
     private String password;

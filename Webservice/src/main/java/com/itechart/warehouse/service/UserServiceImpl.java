@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+//    @PreAuthorize("")
     public List<User> findAllUsers() throws DataAccessException {
         logger.info("Find all users");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
@@ -127,6 +128,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isUserExists(User user) throws DataAccessException {
         try {
             return userDAO.isExistsEntity(user.getIdUser());
