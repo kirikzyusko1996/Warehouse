@@ -4,6 +4,7 @@ import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
+import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementation of goods service.
+ * Implementation of goodsList service.
  */
 @Service
 public class GoodsServiceImpl implements GoodsService {
@@ -132,26 +133,29 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goods> findGoodsByCriteria(GoodsDTO goodsDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} goods starting from index {} by criteria: {}", maxResults, firstResult, goodsDTO);
-        if (goodsDTO == null) throw new IllegalParametersException("Goods DTO is null");
+    public List<Goods> findGoodsForCompanyByCriteria(Long companyId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find {} goods for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, goodsSearchDTO);
+        if (goodsSearchDTO == null || companyId == null) throw new IllegalParametersException("Goods search DTO or company id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
-        if (goodsDTO.getName() != null)
-            criteria.add(Restrictions.eq("name", goodsDTO.getName()));
-        if (goodsDTO.getQuantity() != null)
-            criteria.add(Restrictions.eq("quantity", goodsDTO.getQuantity()));
-        if (goodsDTO.getWeight() != null)
-            criteria.add(Restrictions.eq("weight", goodsDTO.getWeight()));
-        if (goodsDTO.getPrice() != null)
-            criteria.add(Restrictions.eq("price", goodsDTO.getPrice()));
-        if (goodsDTO.getStorageTypeName() != null)
-            criteria.add(Restrictions.eq("storageType", goodsDTO.getStorageTypeName()));
-        if (goodsDTO.getQuantityUnitName() != null)
-            criteria.add(Restrictions.eq("quantityUnit", goodsDTO.getQuantityUnitName()));
-        if (goodsDTO.getWeightUnitName() != null)
-            criteria.add(Restrictions.eq("weightUnit", goodsDTO.getWeightUnitName()));
-        if (goodsDTO.getPriceUnitName() != null)
-            criteria.add(Restrictions.eq("priceUnit", goodsDTO.getPriceUnitName()));
+        criteria.add(Restrictions.eq("company_id", companyId));
+        if (goodsSearchDTO.getName() != null)
+            criteria.add(Restrictions.like("name", goodsSearchDTO.getName()));
+        if (goodsSearchDTO.getQuantity() != null)
+            criteria.add(Restrictions.eq("quantity", goodsSearchDTO.getQuantity()));
+        if (goodsSearchDTO.getWeight() != null)
+            criteria.add(Restrictions.eq("weight", goodsSearchDTO.getWeight()));
+        if (goodsSearchDTO.getPrice() != null)
+            criteria.add(Restrictions.eq("price", goodsSearchDTO.getPrice()));
+        if (goodsSearchDTO.getStorageTypeName() != null)
+            criteria.add(Restrictions.eq("storageType", goodsSearchDTO.getStorageTypeName()));
+        if (goodsSearchDTO.getQuantityUnitName() != null)
+            criteria.add(Restrictions.eq("quantityUnit", goodsSearchDTO.getQuantityUnitName()));
+        if (goodsSearchDTO.getWeightUnitName() != null)
+            criteria.add(Restrictions.eq("weightUnit", goodsSearchDTO.getWeightUnitName()));
+        if (goodsSearchDTO.getPriceUnitName() != null)
+            criteria.add(Restrictions.eq("priceUnit", goodsSearchDTO.getPriceUnitName()));
+
+        //todo add criterias: status, date...
         try {
             return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {

@@ -42,6 +42,9 @@ public class WarehouseCompanyUserDetails implements UserDetails {
     public WarehouseCompany getCompany() {
         return user.getWarehouseCompany();
     }
+    public Long getUserId() {
+        return user.getId();
+    }
 
     @Override
     public boolean isAccountNonExpired() {

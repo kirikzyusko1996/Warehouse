@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
  * Implementation of act DAO.
  */
 @Repository
-public class ActDao extends DAO<Act> {
-    public ActDao() {
+public class ActDAO extends DAO<Act> {
+    public ActDAO() {
         super(Act.class);
     }
 }

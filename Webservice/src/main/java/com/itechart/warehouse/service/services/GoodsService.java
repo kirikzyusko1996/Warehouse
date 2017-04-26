@@ -1,6 +1,7 @@
 package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.dto.GoodsDTO;
+import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -9,8 +10,8 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import java.util.List;
 
 /**
- * Service for managing goods.
- * Provides basic operations with goods such as searching, creation, updating, deleting,
+ * Service for managing goodsList.
+ * Provides basic operations with goodsList such as searching, creation, updating, deleting,
  * and setting status.
  */
 public interface GoodsService {
@@ -22,7 +23,7 @@ public interface GoodsService {
 
     List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Goods> findGoodsByCriteria(GoodsDTO goodsDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<Goods> findGoodsForCompanyByCriteria(Long companyId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
 

@@ -20,7 +20,7 @@ public interface UserService {
 
     List<User> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    User createUser(UserDTO userDTO) throws DataAccessException, IllegalParametersException;
+    User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException;
 
     User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException;
 

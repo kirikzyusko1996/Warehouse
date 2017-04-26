@@ -1,10 +1,11 @@
 package com.itechart.warehouse.service.services;
 
+import com.itechart.warehouse.dto.ActDTO;
+import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.entity.Act;
-import com.itechart.warehouse.entity.ActType;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
 
-import java.sql.Date;
 import java.util.List;
 
 /**
@@ -12,22 +13,22 @@ import java.util.List;
  * Provides basic operations with acts such as searching, creation, updating, deleting.
  */
 public interface ActService {
-    List<Act> findAllActs() throws DataAccessException;
+    List<Act> findAllActs(int firstResult, int maxResults) throws DataAccessException;
 
-    Act findActById(Long id) throws DataAccessException;
+    Act findActById(Long id) throws DataAccessException, IllegalParametersException;
 
-    List<Act> findActsForGoods(Long goodsId) throws DataAccessException;
+    List<Act> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Act> findActsForCompany(Long companyId) throws DataAccessException;
+    List<Act> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Act> findActsForCompanyByType(Long companyId, ActType actType) throws DataAccessException;
+    List<Act> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Act> findActsForCompanyBetweenDates(Long companyId, Date from, Date to) throws DataAccessException;
+    Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException;
 
-    Act saveAct(Act act) throws DataAccessException;
+    Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException;
 
-    void deleteAct(Act act) throws DataAccessException;
+    void deleteAct(Long id) throws DataAccessException, IllegalParametersException;
 
-    boolean isAcExists(Act act) throws DataAccessException;
+    boolean isAcExists(Long id) throws DataAccessException, IllegalParametersException;
 
 }
