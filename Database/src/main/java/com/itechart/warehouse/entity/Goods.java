@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "goods")
@@ -21,7 +21,35 @@ public class Goods implements Serializable {
     private Unit priceUnit;
     private Invoice incomingInvoice;
     private Invoice outgoingInvoice;
-    private Set<Act> acts;
+    private List<Act> acts;
+    private List<GoodsStatus> statuses;
+    private List<StorageCell> cells;
+
+    @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
+    public List<StorageCell> getCells() {
+        return cells;
+    }
+
+    public void setCells(List<StorageCell> cells) {
+        this.cells = cells;
+    }
+
+    public void addStatus(GoodsStatus status) {
+        statuses.add(status);
+    }
+
+    public void removeStatus(GoodsStatus status) {
+        statuses.remove(status);
+    }
+
+    @OneToMany(mappedBy = "goods", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<GoodsStatus> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<GoodsStatus> statuses) {
+        this.statuses = statuses;
+    }
 
     public void addAct(Act act) {
         acts.add(act);
@@ -32,11 +60,11 @@ public class Goods implements Serializable {
     }
 
     @OneToMany(mappedBy = "goods", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    public Set<Act> getActs() {
+    public List<Act> getActs() {
         return acts;
     }
 
-    public void setActs(Set<Act> acts) {
+    public void setActs(List<Act> acts) {
         this.acts = acts;
     }
 

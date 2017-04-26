@@ -34,6 +34,9 @@ public interface GoodsService {
 
     void setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException;
 
-    void setStorageCell(Long goodsId, Long storageCellId) throws DataAccessException, IllegalParametersException;
+    void putGoodsInCells(Long goodsId, List<Long> storageCellIds) throws DataAccessException, IllegalParametersException;
+
+    void removeGoodsFromStorage(Long goodsId) throws DataAccessException, IllegalParametersException;
+
 
 }
