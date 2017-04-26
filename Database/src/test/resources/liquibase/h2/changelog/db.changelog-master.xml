@@ -6,4 +6,5 @@
 
     <include file="liquibase/h2/changelog/db.changelog-1.0.xml"/>
     <include file="liquibase/h2/changelog/db.changelog-1.1.xml"/>
+    <include file="liquibase/h2/changelog/db.changelog-1.2.xml"/>
 </databaseChangeLog>
