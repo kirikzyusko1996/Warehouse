@@ -1,12 +1,23 @@
 package com.itechart.warehouse.entity;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Warehouse {
     private Long idWarehouse;
     private String name;
     private WarehouseCompany warehouseCompany;
+    private List<StorageSpace> storageSpaceList;
+
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<StorageSpace> getStorageSpaceList() {
+        return storageSpaceList;
+    }
+
+    public void setStorageSpaceList(List<StorageSpace> storageSpaceList) {
+        this.storageSpaceList = storageSpaceList;
+    }
 
     @Id
     @Column(name = "id_warehouse")

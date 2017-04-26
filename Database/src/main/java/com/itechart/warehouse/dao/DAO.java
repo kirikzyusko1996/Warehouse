@@ -13,7 +13,7 @@ import java.util.Optional;
 public abstract class DAO<T> {
     private final Class<T> entityClass;
     protected HibernateTemplate hibernateTemplate;
-    private final Logger logger;
+    protected final Logger logger;
 
     public DAO(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -34,7 +34,7 @@ public abstract class DAO<T> {
 
     @SuppressWarnings("unchecked")
     public List<T> findAll(DetachedCriteria criteria, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find all entities");
+        logger.info("Find entities by criteria");
         return (List<T>) hibernateTemplate.findByCriteria(criteria, firstResult, maxResults);
     }
 

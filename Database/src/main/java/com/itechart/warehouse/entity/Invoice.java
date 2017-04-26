@@ -3,6 +3,7 @@ package com.itechart.warehouse.entity;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "invoice")
@@ -22,7 +23,25 @@ public class Invoice {
     private Driver driver;
     private Unit goodsQuantityUnit;
     private Unit goodsEntryCountUnit;
+    private List<Goods> incomingGoods;
+    private List<Goods> outgoingGoods;
 
+    @OneToMany(mappedBy = "incomingInvoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<Goods> getIncomingGoods() {
+        return incomingGoods;
+    }
+
+    public void setIncomingGoods(List<Goods> incomingGoods) {
+        this.incomingGoods = incomingGoods;
+    }
+    @OneToMany(mappedBy = "outgoingInvoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<Goods> getOutgoingGoods() {
+        return outgoingGoods;
+    }
+
+    public void setOutgoingGoods(List<Goods> outgoingGoods) {
+        this.outgoingGoods = outgoingGoods;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

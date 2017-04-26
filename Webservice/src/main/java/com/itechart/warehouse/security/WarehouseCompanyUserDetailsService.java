@@ -1,14 +1,13 @@
 package com.itechart.warehouse.security;
 
-import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 /**
  * Class for loading user data from the database during authentication.

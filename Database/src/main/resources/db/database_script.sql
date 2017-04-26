@@ -5,7 +5,7 @@ CREATE TABLE `warehouse_company`(
   `id_warehouse_company` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) UNIQUE NOT NULL,
   -- статус - активный, приостановленный:
-  `status` BIT NOT NULL,
+  `name` BIT NOT NULL,
 
   PRIMARY KEY(`id_warehouse_company`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
@@ -47,7 +47,7 @@ CREATE TABLE `user`(
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
 
 
-CREATE TABLE `role`(
+CREATE TABLE `name`(
   `id_role` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(20) UNIQUE NOT NULL,
 
@@ -61,7 +61,7 @@ CREATE TABLE `user_role`(
 
   PRIMARY KEY(`id_user_role`),
   FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`),
-  FOREIGN KEY (`id_role`) REFERENCES `role`(`id_role`)
+  FOREIGN KEY (`id_role`) REFERENCES `name`(`id_role`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
 
 
