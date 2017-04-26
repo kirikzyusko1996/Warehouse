@@ -2,6 +2,9 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Creating tables -->
+
     <changeSet author="ulad_bondar" id="1">
         <createTable tableName="act">
             <column autoIncrement="true" name="id_act" type="BIGINT UNSIGNED">

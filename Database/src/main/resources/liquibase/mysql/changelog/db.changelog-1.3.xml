@@ -2,6 +2,9 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Adding foreign keys -->
+
     <changeSet author="ulad_bondar" id="68">
         <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="act" constraintName="act_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_user" referencedTableName="user"/>
     </changeSet>

@@ -2,6 +2,9 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Creating indexes -->
+
     <changeSet author="ulad_bondar" id="36">
         <createIndex indexName="id_act_type" tableName="act">
             <column name="id_act_type"/>
