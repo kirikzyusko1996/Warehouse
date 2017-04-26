@@ -7,10 +7,7 @@ import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.services.WarehouseCustomerCompanyService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.lf5.util.StreamUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -19,18 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCompanyService {
     private final static Logger logger = LoggerFactory.getLogger(WarehouseCustomerCompanyServiceImpl.class);
-    private WarehouseCustomerCompanyDAO customerCompanyDAO;
+    private WarehouseCustomerCompanyDAO customerDAO;
 
     @Autowired
     public void setDao(WarehouseCustomerCompanyDAO dao) {
-        this.customerCompanyDAO = dao;
+        this.customerDAO = dao;
     }
 
 
@@ -42,7 +38,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCustomerCompany.class);
         List<WarehouseCustomerCompany> companies;
         try {
-            companies = customerCompanyDAO.findAll(criteria, -1, -1);
+            companies = customerDAO.findAll(criteria, -1, -1);
         } catch (GenericDAOException e) {
             logger.error("Error while finding all customer companies: ", e);
             throw new DataAccessException(e);
@@ -58,7 +54,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
         WarehouseCustomerCompany company = null;
         try {
-            Optional<WarehouseCustomerCompany> optional = customerCompanyDAO.findById(id);
+            Optional<WarehouseCustomerCompany> optional = customerDAO.findById(id);
             if (optional.isPresent()) {
                 company = optional.get();
             }
@@ -82,7 +78,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
                 DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCustomerCompany.class);
                 criteria.add(Restrictions.eq("name", name));
 
-                List<WarehouseCustomerCompany> companies = customerCompanyDAO.findAll(criteria, -1, -1);
+                List<WarehouseCustomerCompany> companies = customerDAO.findAll(criteria, -1, -1);
                 if (CollectionUtils.isNotEmpty(companies)) {
                     company = companies.get(0);
                 }
@@ -102,7 +98,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
         WarehouseCustomerCompany savedCompany;
         try {
-            savedCompany = customerCompanyDAO.insert(company);
+            savedCompany = customerDAO.insert(company);
         } catch (GenericDAOException e) {
             logger.error("Error while saving customer company: ", e);
             throw new DataAccessException(e);
@@ -118,7 +114,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
         WarehouseCustomerCompany updatedCompany;
         try {
-            updatedCompany = customerCompanyDAO.update(company);
+            updatedCompany = customerDAO.update(company);
         } catch (GenericDAOException e) {
             logger.error("Error while updating customer company: ", e);
             throw new DataAccessException(e);
@@ -133,7 +129,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         logger.info("Delete customer company by id #{}", company.getId());
 
         try {
-            customerCompanyDAO.delete(company);
+            customerDAO.delete(company);
         } catch (GenericDAOException e) {
             logger.error("Error while deleting customer company: ", e);
             throw new DataAccessException(e);
@@ -146,7 +142,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         logger.error("Determine if customer company #{} exists", company.getId());
 
         try {
-            return customerCompanyDAO.isExistsEntity(company.getId());
+            return customerDAO.isExistsEntity(company.getId());
         } catch (GenericDAOException e) {
             logger.error("Error while determine if customer company exists", e);
             throw new DataAccessException(e);
