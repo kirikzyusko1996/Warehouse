@@ -40,7 +40,7 @@ public class StorageCell {
         this.storageSpace = storageSpace;
     }
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_goods")
     public Goods getGoods() {
         return goods;

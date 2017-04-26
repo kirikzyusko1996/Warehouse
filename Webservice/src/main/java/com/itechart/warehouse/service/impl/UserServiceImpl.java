@@ -88,7 +88,6 @@ public class UserServiceImpl implements UserService {
         if (login == null) throw new IllegalParametersException("Login is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", login));
-        List<User> users = null;
         try {
             return userDAO.findAll(criteria, -1, 1).get(0);
         } catch (GenericDAOException e) {
@@ -103,7 +102,7 @@ public class UserServiceImpl implements UserService {
         logger.info("Find {} users starting from index {} by company id: {}", maxResults, firstResult, companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-        criteria.add(Restrictions.eq("company_id", companyId));
+        criteria.add(Restrictions.eq("idCompany", companyId));
         try {
             return userDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
@@ -131,6 +130,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException {
         logger.info("Create supervisor for company with id: {}", companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
@@ -153,6 +153,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     private Role findRoleByName(String roleName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for role with name: {}", roleName);
         if (roleName == null) throw new IllegalParametersException("Role name is null");

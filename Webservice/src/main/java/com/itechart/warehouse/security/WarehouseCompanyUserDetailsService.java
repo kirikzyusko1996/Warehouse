@@ -1,6 +1,9 @@
 package com.itechart.warehouse.security;
 
+import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +30,12 @@ public class WarehouseCompanyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("Loading user by login name: {}", username);
         try {
-            //todo get warehouse company for user
             return new WarehouseCompanyUserDetails(userService.findUserByLogin(username));
         } catch (DataAccessException e) {
             throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
+        } catch (IllegalParametersException e) {
+            throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
+
         }
 
     }

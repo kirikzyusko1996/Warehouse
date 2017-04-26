@@ -183,7 +183,7 @@ public class User {
         this.password = password;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_warehouse_company")
     public WarehouseCompany getWarehouseCompany() {
         return warehouseCompany;
