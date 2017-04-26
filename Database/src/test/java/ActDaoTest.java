@@ -1,4 +1,4 @@
-import com.itechart.warehouse.dao.ActDao;
+import com.itechart.warehouse.dao.ActDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Act;
 import com.itechart.warehouse.entity.ActType;
@@ -15,11 +15,11 @@ import java.util.Optional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/testContext.xml"})
-public class ActDaoTest {
-    private ActDao dao;
+public class ActDAOTest {
+    private ActDAO dao;
 
     @Autowired
-    public void setDao(ActDao dao){
+    public void setDao(ActDAO dao){
         this.dao = dao;
     }
 

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Data transfer object for goods status entity.
+ * Data transfer object for goodsList status entity.
  */
 @Setter
 @Getter

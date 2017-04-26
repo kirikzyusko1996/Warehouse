@@ -60,7 +60,7 @@
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="4">
-        <createTable tableName="goods">
+        <createTable tableName="goodsList">
             <column autoIncrement="true" name="id_goods" type="BIGINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>

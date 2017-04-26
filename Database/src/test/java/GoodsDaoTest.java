@@ -32,7 +32,7 @@ public class GoodsDAOTest {
 
     private GoodsDAO goodsDAO;
     private UnitDAO unitDAO;
-    private ActDao actDao;
+    private ActDAO actDAO;
     private ActTypeDAO actTypeDAO;
     private GoodsStatusDAO goodsStatusDAO;
     private GoodsStatusNameDAO goodsStatusNameDAO;
@@ -48,8 +48,8 @@ public class GoodsDAOTest {
     }
 
     @Autowired
-    public void setActDao(ActDao actDao) {
-        this.actDao = actDao;
+    public void setActDAO(ActDAO actDAO) {
+        this.actDAO = actDAO;
     }
 
     @Autowired
@@ -151,14 +151,14 @@ public class GoodsDAOTest {
     @Test
     @Transactional
     public void testActTypeDao() {
-//        actTypeDao.create(actType);
-//        ActType fetchedActType = actTypeDao.findById(actType.getId());
+//        actTypeDao.create(type);
+//        ActType fetchedActType = actTypeDao.findById(type.getId());
 //        assertEquals("Акт списания", fetchedActType.getStatus());
-//        actType.setName("Акт несоответствия");
-//        fetchedActType = actTypeDao.findById(actType.getId());
+//        type.setName("Акт несоответствия");
+//        fetchedActType = actTypeDao.findById(type.getId());
 //        assertEquals("Акт несоответствия", fetchedActType.getStatus());
-//        actTypeDao.delete(actType);
-//        fetchedActType = actTypeDao.findById(actType.getId());
+//        actTypeDao.delete(type);
+//        fetchedActType = actTypeDao.findById(type.getId());
 //        assertNull(fetchedActType);
     }
 

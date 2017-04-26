@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Statuses of goods.
+ * Statuses of goodsList.
  */
 public enum GoodsStatusEnum {
     REGISTERED("Зарегистрирован"),

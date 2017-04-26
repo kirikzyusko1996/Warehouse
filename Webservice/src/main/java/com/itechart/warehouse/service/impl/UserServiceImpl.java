@@ -113,11 +113,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(UserDTO userDTO) throws DataAccessException, IllegalParametersException {
+    public User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException {
         logger.info("Saving user using DTO: {}", userDTO);
         if (userDTO == null) throw new IllegalParametersException("User DTO is null");
         try {
             User user = userDTO.buildUserEntity();
+            user.setIdCompany(companyId);
             List<String> roleNames = userDTO.getRoles();
             for (String roleName : roleNames) {
                 user.addRole(findRoleByName(roleName));
