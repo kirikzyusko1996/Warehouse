@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -14,8 +15,9 @@ import java.util.List;
 
 
 @Entity
+@Table(name = "user")
 public class User {
-    private Long idUser;
+    private Long id;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String firstName;
     @NotEmpty(message = "Can not be empty")
@@ -33,7 +35,6 @@ public class User {
     private String house;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String apartment;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private Long idCompany;
     @Email(message = "Illegal email")
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
@@ -41,14 +42,13 @@ public class User {
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String login;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
-    @JsonIgnore
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
     @JsonIgnore
     private List<Role> roles;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     public List<Role> getRoles() {
         return roles;
     }
@@ -57,15 +57,22 @@ public class User {
         this.roles = roles;
     }
 
+    public void addRole(Role role){
+        roles.add(role);
+    }
+    public void removeRole(Role role){
+        roles.remove(role);
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    public Long getIdUser() {
-        return idUser;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
+    public void setId(Long idUser) {
+        this.id = idUser;
     }
 
     @Column(name = "first_name", length = 50)
@@ -193,7 +200,7 @@ public class User {
 
         User user = (User) o;
 
-        if (idUser != null ? !idUser.equals(user.idUser) : user.idUser != null) return false;
+        if (id != null ? !id.equals(user.id) : user.id != null) return false;
         if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
         if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
         if (patronymic != null ? !patronymic.equals(user.patronymic) : user.patronymic != null) return false;
@@ -211,7 +218,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        int result = idUser != null ? idUser.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (patronymic != null ? patronymic.hashCode() : 0);
@@ -230,21 +237,20 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "idUser=" + idUser +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", patronymic='" + patronymic + '\'' +
-                ", dateOfBirth=" + dateOfBirth +
-                ", city='" + city + '\'' +
-                ", street='" + street + '\'' +
-                ", house='" + house + '\'' +
-                ", apartment='" + apartment + '\'' +
-                ", idCompany=" + idCompany +
-                ", email='" + email + '\'' +
-                ", login='" + login + '\'' +
-                ", password='" + password + '\'' +
-                ", warehouseCompany=" + warehouseCompany +
-                '}';
+        return new ToStringBuilder(this)
+                .append("idUser", id)
+                .append("firstName", firstName)
+                .append("lastName", lastName)
+                .append("patronymic", patronymic)
+                .append("dateOfBirth", dateOfBirth)
+                .append("city", city)
+                .append("street", street)
+                .append("house", house)
+                .append("apartment", apartment)
+                .append("idCompany", idCompany)
+                .append("email", email)
+                .append("login", login)
+                .append("password", password)
+                .toString();
     }
 }

@@ -1,6 +1,7 @@
 package com.itechart.warehouse.entity;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "warehouse_company")
@@ -8,6 +9,16 @@ public class WarehouseCompany {
     private Long idWarehouseCompany;
     private String name;
     private Boolean status;
+    private List<Warehouse> warehouses;
+
+    @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<Warehouse> getWarehouses() {
+        return warehouses;
+    }
+
+    public void setWarehouses(List<Warehouse> warehouses) {
+        this.warehouses = warehouses;
+    }
 
     @Id
     @Column(name = "id_warehouse_company")

@@ -16,7 +16,7 @@
         <sql>ALTER TABLE invoice_status CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE invoice_status_name CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE price_list CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
-        <sql>ALTER TABLE role CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE name CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE storage_cell CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE storage_space CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE storage_space_type CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>

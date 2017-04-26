@@ -1,10 +1,7 @@
 package com.itechart.warehouse.security;
 
-import com.itechart.warehouse.entity.TransportCompany;
-import com.itechart.warehouse.service.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -7,8 +7,9 @@ import org.springframework.stereotype.Repository;
  * Implementation of goods DAO.
  */
 @Repository
-public class GoodsDao extends DAO<Goods> {
-    public GoodsDao() {
+public class GoodsDAO extends DAO<Goods> {
+    public GoodsDAO() {
         super(Goods.class);
     }
+
 }

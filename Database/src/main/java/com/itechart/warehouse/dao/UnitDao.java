@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
  * Implementation of unit DAO.
  */
 @Repository
-public class UnitDao extends DAO<Unit> {
-    public UnitDao() {
+public class UnitDAO extends DAO<Unit> {
+    public UnitDAO() {
         super(Unit.class);
     }
 }

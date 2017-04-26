@@ -96,7 +96,7 @@
         <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="user_role" constraintName="user_role_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_user" referencedTableName="user"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="98">
-        <addForeignKeyConstraint baseColumnNames="id_role" baseTableName="user_role" constraintName="user_role_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_role" referencedTableName="role"/>
+        <addForeignKeyConstraint baseColumnNames="id_role" baseTableName="user_role" constraintName="user_role_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_role" referencedTableName="name"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="99">
         <addForeignKeyConstraint baseColumnNames="id_warehouse_company" baseTableName="warehouse" constraintName="warehouse_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_company" referencedTableName="warehouse_company"/>

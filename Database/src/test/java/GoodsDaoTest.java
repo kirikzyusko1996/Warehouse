@@ -1,6 +1,6 @@
 import com.itechart.warehouse.dao.*;
-import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.entity.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/testContext.xml"})
-public class GoodsDaoTest {
+public class GoodsDAOTest {
 
     private Goods goods;
     private Act act;
@@ -30,21 +30,21 @@ public class GoodsDaoTest {
     private GoodsStatusName goodsStatusName;
     private Unit unit;
 
-    private GoodsDao goodsDao;
-    private UnitDao unitDao;
+    private GoodsDAO goodsDAO;
+    private UnitDAO unitDAO;
     private ActDao actDao;
-    private ActTypeDao actTypeDao;
-    private GoodsStatusDao goodsStatusDao;
-    private GoodsStatusNameDao goodsStatusNameDao;
+    private ActTypeDAO actTypeDAO;
+    private GoodsStatusDAO goodsStatusDAO;
+    private GoodsStatusNameDAO goodsStatusNameDAO;
 
     @Autowired
-    public void setGoodsDao(GoodsDao goodsDao) {
-        this.goodsDao = goodsDao;
+    public void setGoodsDAO(GoodsDAO goodsDAO) {
+        this.goodsDAO = goodsDAO;
     }
 
     @Autowired
-    public void setUnitDao(UnitDao unitDao) {
-        this.unitDao = unitDao;
+    public void setUnitDAO(UnitDAO unitDAO) {
+        this.unitDAO = unitDAO;
     }
 
     @Autowired
@@ -53,21 +53,21 @@ public class GoodsDaoTest {
     }
 
     @Autowired
-    public void setActTypeDao(ActTypeDao actTypeDao) {
-        this.actTypeDao = actTypeDao;
+    public void setActTypeDAO(ActTypeDAO actTypeDAO) {
+        this.actTypeDAO = actTypeDAO;
     }
 
     @Autowired
-    public void setGoodsStatusDao(GoodsStatusDao goodsStatusDao) {
-        this.goodsStatusDao = goodsStatusDao;
+    public void setGoodsStatusDAO(GoodsStatusDAO goodsStatusDAO) {
+        this.goodsStatusDAO = goodsStatusDAO;
     }
 
     @Autowired
-    public void setGoodsStatusNameDao(GoodsStatusNameDao goodsStatusNameDao) {
-        this.goodsStatusNameDao = goodsStatusNameDao;
+    public void setGoodsStatusNameDAO(GoodsStatusNameDAO goodsStatusNameDAO) {
+        this.goodsStatusNameDAO = goodsStatusNameDAO;
     }
 
-    public GoodsDaoTest() {
+    public GoodsDAOTest() {
         unit = new Unit();
         unit.setName("кг");
 
@@ -95,16 +95,16 @@ public class GoodsDaoTest {
     @Test
     @Transactional
     public void testGoodsDao() throws GenericDAOException {
-        goodsDao.insert(goods);
-        Optional<Goods> optional = goodsDao.findById(goods.getId());
+        goodsDAO.insert(goods);
+        Optional<Goods> optional = goodsDAO.findById(goods.getId());
         Goods fetchedGoods = optional.get();
         assertEquals("Молоко", fetchedGoods.getName());
         goods.setName("Хлеб");
-        optional = goodsDao.findById(goods.getId());
+        optional = goodsDAO.findById(goods.getId());
         assertEquals("Хлеб", optional.get().getName());
-        goodsDao.delete(goods);
+        goodsDAO.delete(goods);
         fetchedGoods = null;
-        optional = goodsDao.findById(goods.getId());
+        optional = goodsDAO.findById(goods.getId());
         try {
             fetchedGoods = optional.get();
         } catch (Exception e) {
@@ -116,16 +116,16 @@ public class GoodsDaoTest {
     @Test
     @Transactional
     public void testUnitDao() throws GenericDAOException {
-        unitDao.insert(unit);
-        Optional<Unit> optional = unitDao.findById(unit.getId());
+        unitDAO.insert(unit);
+        Optional<Unit> optional = unitDAO.findById(unit.getId());
         Unit fetchedUnit = optional.get();
         assertEquals("кг", fetchedUnit.getName());
         unit.setName("литр");
-        optional = unitDao.findById(unit.getId());
+        optional = unitDAO.findById(unit.getId());
         fetchedUnit = optional.get();
         assertEquals("литр", fetchedUnit.getName());
-        unitDao.delete(unit);
-        optional = unitDao.findById(unit.getId());
+        unitDAO.delete(unit);
+        optional = unitDAO.findById(unit.getId());
         try {
             fetchedUnit = optional.get();
         } catch (Exception e) {
@@ -153,10 +153,10 @@ public class GoodsDaoTest {
     public void testActTypeDao() {
 //        actTypeDao.create(actType);
 //        ActType fetchedActType = actTypeDao.findById(actType.getId());
-//        assertEquals("Акт списания", fetchedActType.getName());
+//        assertEquals("Акт списания", fetchedActType.getStatus());
 //        actType.setName("Акт несоответствия");
 //        fetchedActType = actTypeDao.findById(actType.getId());
-//        assertEquals("Акт несоответствия", fetchedActType.getName());
+//        assertEquals("Акт несоответствия", fetchedActType.getStatus());
 //        actTypeDao.delete(actType);
 //        fetchedActType = actTypeDao.findById(actType.getId());
 //        assertNull(fetchedActType);
@@ -181,10 +181,10 @@ public class GoodsDaoTest {
     public void testGoodsStatusNameDao() {
 //        goodsStatusNameDao.create(goodsStatusName);
 //        GoodsStatusName fetchedGoodsStatusName = goodsStatusNameDao.findById(goodsStatusName.getId());
-//        assertEquals("Зарегистрирован", fetchedGoodsStatusName.getName());
+//        assertEquals("Зарегистрирован", fetchedGoodsStatusName.getStatus());
 //        goodsStatusName.setName("Проверен");
 //        fetchedGoodsStatusName = goodsStatusNameDao.findById(goodsStatusName.getId());
-//        assertEquals("Проверен", fetchedGoodsStatusName.getName());
+//        assertEquals("Проверен", fetchedGoodsStatusName.getStatus());
 //        goodsStatusNameDao.delete(goodsStatusName);
 //        fetchedGoodsStatusName = goodsStatusNameDao.findById(goodsStatusName.getId());
 //        assertNull(fetchedGoodsStatusName);

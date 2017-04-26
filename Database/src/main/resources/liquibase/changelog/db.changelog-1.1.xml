@@ -21,7 +21,7 @@
         <addUniqueConstraint columnNames="name" constraintName="name" tableName="invoice_status_name"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="27">
-        <addUniqueConstraint columnNames="name" constraintName="name" tableName="role"/>
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="name"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="28">
         <addUniqueConstraint columnNames="name" constraintName="name" tableName="storage_space_type"/>

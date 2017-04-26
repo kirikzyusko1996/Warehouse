@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
  * Implementation of goods status name DAO.
  */
 @Repository
-public class GoodsStatusNameDao extends DAO<GoodsStatusName> {
-    public GoodsStatusNameDao() {
+public class GoodsStatusNameDAO extends DAO<GoodsStatusName> {
+    public GoodsStatusNameDAO() {
         super(GoodsStatusName.class);
     }
 }

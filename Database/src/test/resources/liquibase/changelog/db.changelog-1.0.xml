@@ -205,7 +205,7 @@
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="11">
-        <createTable tableName="role">
+        <createTable tableName="name">
             <column autoIncrement="true" name="id_role" type="SMALLINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>
@@ -338,7 +338,7 @@
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="BIT(1)">
+            <column name="name" type="BIT(1)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

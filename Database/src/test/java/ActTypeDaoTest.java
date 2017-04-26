@@ -1,26 +1,28 @@
-import com.itechart.warehouse.dao.ActTypeDao;
-import com.itechart.warehouse.entity.ActType;
+import com.itechart.warehouse.dao.ActTypeDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
-import org.junit.*;
+import com.itechart.warehouse.entity.ActType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/testContext.xml"})
-public class ActTypeDaoTest {
-    private ActTypeDao dao;
+public class ActTypeDAOTest {
+    private ActTypeDAO dao;
 
     private ActType actType;
 
     @Autowired
-    public void setActTypeDao(ActTypeDao actTypeDao) {
-        this.dao = actTypeDao;
+    public void setActTypeDao(ActTypeDAO actTypeDAO) {
+        this.dao = actTypeDAO;
     }
 
     @Before

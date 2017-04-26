@@ -1,11 +1,13 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.dto.UserDTO;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
-import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.validation.ValidationError;
 import com.itechart.warehouse.validation.ValidationErrorBuilder;
 import org.slf4j.Logger;
@@ -37,47 +39,54 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> getUsers() {
-        logger.info("Handling request for list of registered users");
+    @RequestMapping(value = "/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<User>> getUsers(@PathVariable int page, @RequestParam int count) {
+        logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<User> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         try {
             WarehouseCompany company = userDetails.getCompany();
             if (company != null) {
-                users = userService.findUsersForCompany(company.getIdWarehouseCompany());
-            }
-            else return new ResponseEntity<>(users, HttpStatus.CONFLICT);
+                users = userService.findUsersForCompany(company.getIdWarehouseCompany(), page, count);
+            } else return new ResponseEntity<>(users, HttpStatus.CONFLICT);
         } catch (DataAccessException e) {
             logger.error("Error during users retrieval: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid parameters: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Void> saveUser(@Valid @RequestBody User user) {
-        logger.info("Handling request for saving new user with fields: {}", user);
+    public ResponseEntity<Void> saveUser(@Valid @RequestBody UserDTO userDTO) {
+        logger.info("Handling request for saving new user using DTO: {}", userDTO);
         //todo set company id
         try {
-            userService.saveUser(user);
+            userService.createUser(userDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DataAccessException e) {
             logger.error("Error during user saving: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid parameters: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody User user) {
-        logger.info("Handling request for updating user with id: {} and fields: {}", id, user);
+    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody UserDTO userDTO) {
+        logger.info("Handling request for updating user with id: {} by DTO: {}", id, userDTO);
         //todo security check
         try {
-            user.setIdUser(id);
-            userService.saveUser(user);
+            userService.updateUser(id, userDTO);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (DataAccessException e) {
             logger.error("Error during user saving: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid parameters: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
@@ -87,11 +96,13 @@ public class UserController {
         logger.info("Handling request for deleting user with id: {}", id);
         //todo security check
         try {
-            User user = userService.findUserById(id);
-            userService.deleteUser(user);
+            userService.deleteUser(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (DataAccessException e) {
             logger.error("Error during user deleting: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid parameters: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
