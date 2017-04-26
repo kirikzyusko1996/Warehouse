@@ -61,7 +61,7 @@
                 <version>3.4.1</version>
                 <configuration>
                     <propertyFile>src/main/resources/liquibase/mysql/liquibase-mysql.properties</propertyFile>
-                    <changeLogFile>src/main/resources/liquibase/mysql/changelog/db.changelog-master.xml</changeLogFile>
+                    <changeLogFile>src/main/resources/liquibase/changelog/db.changelog-master.xml</changeLogFile>
                 </configuration>
             </plugin>
         </plugins>
