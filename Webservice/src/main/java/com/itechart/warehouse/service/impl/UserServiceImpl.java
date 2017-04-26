@@ -51,8 +51,6 @@ public class UserServiceImpl implements UserService {
     public User findUserById(Long id) throws DataAccessException {
         logger.info("Find user by id: {}", id);
         if (id == null) return null;
-        DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-        criteria.add(Restrictions.eq("id", id));
         User user = null;
         try {
             Optional<User> result = userDAO.findById(id);
