@@ -35,7 +35,7 @@ public class StorageSpaceType {
         storageSpace.setStorageSpaceType(this);
         storageSpaces.add(storageSpace);
     }
-    @OneToMany(mappedBy = "storageSpaceType")
+    @OneToMany(mappedBy = "storageSpaceType", fetch = FetchType.LAZY)
     public Set<StorageSpace> getStorageSpaces() {
         return storageSpaces;
     }
@@ -49,7 +49,7 @@ public class StorageSpaceType {
         price.setStorageSpaceType(this);
         priceList.add(price);
     }
-    @OneToMany(mappedBy = "storageSpaceType")
+    @OneToMany(mappedBy = "storageSpaceType", fetch = FetchType.LAZY)
     public Set<PriceList> getPriceList() {
         return priceList;
     }

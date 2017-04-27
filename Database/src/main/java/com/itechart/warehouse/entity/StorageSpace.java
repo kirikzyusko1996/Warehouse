@@ -47,7 +47,7 @@ public class StorageSpace {
         storageCellList.add(storageCell);
     }
 
-    @OneToMany(mappedBy = "storageSpace")
+    @OneToMany(mappedBy = "storageSpace", fetch = FetchType.LAZY)
     public List<StorageCell> getStorageCellList() {
         return storageCellList;
     }
