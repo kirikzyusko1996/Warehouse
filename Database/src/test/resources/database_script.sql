@@ -36,7 +36,6 @@ CREATE TABLE `user`(
   `street` VARCHAR(50),
   `house` VARCHAR(10),
   `apartment` VARCHAR(10),
-  `id_company` BIGINT UNSIGNED NOT NULL,
   `email` VARCHAR(30) UNIQUE,
   `login` VARCHAR(20) NOT NULL UNIQUE,
   `password` VARCHAR(20) NOT NULL,

@@ -12,7 +12,7 @@
         <addUniqueConstraint columnNames="login" constraintName="login" tableName="user"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="24">
-        <addUniqueConstraint columnNames="name" constraintName="name" tableName="goodsList"/>
+        <addUniqueConstraint columnNames="name" constraintName="name" tableName="goods"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="25">
         <addUniqueConstraint columnNames="name" constraintName="name" tableName="goods_status_name"/>

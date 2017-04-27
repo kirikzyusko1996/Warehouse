@@ -9,7 +9,7 @@
         <sql>ALTER TABLE act CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE act_type CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE driver CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
-        <sql>ALTER TABLE goodsList CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE goods CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE goods_status CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE goods_status_name CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
         <sql>ALTER TABLE invoice CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>

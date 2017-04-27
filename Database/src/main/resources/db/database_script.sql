@@ -5,7 +5,7 @@ CREATE TABLE `warehouse_company`(
   `id_warehouse_company` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) UNIQUE NOT NULL,
   -- статус - активный, приостановленный:
-  `name` BIT NOT NULL,
+  `status` BIT NOT NULL,
 
   PRIMARY KEY(`id_warehouse_company`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
@@ -36,7 +36,6 @@ CREATE TABLE `user`(
   `street` VARCHAR(50),
   `house` VARCHAR(10),
   `apartment` VARCHAR(10),
-  `id_company` BIGINT UNSIGNED NOT NULL,
   `email` VARCHAR(30) UNIQUE,
   `login` VARCHAR(20) NOT NULL UNIQUE,
   `password` VARCHAR(20) NOT NULL,

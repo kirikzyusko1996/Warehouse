@@ -46,7 +46,7 @@
         </createIndex>
     </changeSet>
     <changeSet author="ulad_bondar" id="44">
-        <createIndex indexName="id_incoming_invoice" tableName="goodsList">
+        <createIndex indexName="id_incoming_invoice" tableName="goods">
             <column name="id_incoming_invoice"/>
         </createIndex>
     </changeSet>
@@ -56,17 +56,17 @@
         </createIndex>
     </changeSet>
     <changeSet author="ulad_bondar" id="46">
-        <createIndex indexName="id_outgoing_invoice" tableName="goodsList">
+        <createIndex indexName="id_outgoing_invoice" tableName="goods">
             <column name="id_outgoing_invoice"/>
         </createIndex>
     </changeSet>
     <changeSet author="ulad_bondar" id="47">
-        <createIndex indexName="id_price_unit" tableName="goodsList">
+        <createIndex indexName="id_price_unit" tableName="goods">
             <column name="id_price_unit"/>
         </createIndex>
     </changeSet>
     <changeSet author="ulad_bondar" id="48">
-        <createIndex indexName="id_quantity_unit" tableName="goodsList">
+        <createIndex indexName="id_quantity_unit" tableName="goods">
             <column name="id_quantity_unit"/>
         </createIndex>
     </changeSet>
@@ -101,7 +101,7 @@
         </createIndex>
     </changeSet>
     <changeSet author="ulad_bondar" id="55">
-        <createIndex indexName="id_storage_type" tableName="goodsList">
+        <createIndex indexName="id_storage_type" tableName="goods">
             <column name="id_storage_type"/>
         </createIndex>
     </changeSet>
@@ -161,7 +161,7 @@
         </createIndex>
     </changeSet>
     <changeSet author="ulad_bondar" id="67">
-        <createIndex indexName="id_weight_unit" tableName="goodsList">
+        <createIndex indexName="id_weight_unit" tableName="goods">
             <column name="id_weight_unit"/>
         </createIndex>
     </changeSet>

@@ -9,7 +9,7 @@
         <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="act" constraintName="act_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_user" referencedTableName="user"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="69">
-        <addForeignKeyConstraint baseColumnNames="id_goods" baseTableName="act" constraintName="act_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods" referencedTableName="goodsList"/>
+        <addForeignKeyConstraint baseColumnNames="id_goods" baseTableName="act" constraintName="act_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods" referencedTableName="goods"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="70">
         <addForeignKeyConstraint baseColumnNames="id_act_type" baseTableName="act" constraintName="act_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_act_type" referencedTableName="act_type"/>
@@ -18,28 +18,28 @@
         <addForeignKeyConstraint baseColumnNames="id_transport_company" baseTableName="driver" constraintName="driver_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_transport_company" referencedTableName="transport_company"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="72">
-        <addForeignKeyConstraint baseColumnNames="id_storage_type" baseTableName="goodsList" constraintName="goods_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_storage_space_type" referencedTableName="storage_space_type"/>
+        <addForeignKeyConstraint baseColumnNames="id_storage_type" baseTableName="goods" constraintName="goods_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_storage_space_type" referencedTableName="storage_space_type"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="73">
-        <addForeignKeyConstraint baseColumnNames="id_quantity_unit" baseTableName="goodsList" constraintName="goods_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_unit" referencedTableName="unit"/>
+        <addForeignKeyConstraint baseColumnNames="id_quantity_unit" baseTableName="goods" constraintName="goods_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_unit" referencedTableName="unit"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="74">
-        <addForeignKeyConstraint baseColumnNames="id_weight_unit" baseTableName="goodsList" constraintName="goods_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_unit" referencedTableName="unit"/>
+        <addForeignKeyConstraint baseColumnNames="id_weight_unit" baseTableName="goods" constraintName="goods_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_unit" referencedTableName="unit"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="75">
-        <addForeignKeyConstraint baseColumnNames="id_price_unit" baseTableName="goodsList" constraintName="goods_ibfk_4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_unit" referencedTableName="unit"/>
+        <addForeignKeyConstraint baseColumnNames="id_price_unit" baseTableName="goods" constraintName="goods_ibfk_4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_unit" referencedTableName="unit"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="76">
-        <addForeignKeyConstraint baseColumnNames="id_incoming_invoice" baseTableName="goodsList" constraintName="goods_ibfk_5" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice" referencedTableName="invoice"/>
+        <addForeignKeyConstraint baseColumnNames="id_incoming_invoice" baseTableName="goods" constraintName="goods_ibfk_5" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice" referencedTableName="invoice"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="77">
-        <addForeignKeyConstraint baseColumnNames="id_outgoing_invoice" baseTableName="goodsList" constraintName="goods_ibfk_6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice" referencedTableName="invoice"/>
+        <addForeignKeyConstraint baseColumnNames="id_outgoing_invoice" baseTableName="goods" constraintName="goods_ibfk_6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice" referencedTableName="invoice"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="78">
         <addForeignKeyConstraint baseColumnNames="id_goods_status_name" baseTableName="goods_status" constraintName="goods_status_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods_status_name" referencedTableName="goods_status_name"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="79">
-        <addForeignKeyConstraint baseColumnNames="id_goods" baseTableName="goods_status" constraintName="goods_status_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods" referencedTableName="goodsList"/>
+        <addForeignKeyConstraint baseColumnNames="id_goods" baseTableName="goods_status" constraintName="goods_status_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods" referencedTableName="goods"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="80">
         <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="goods_status" constraintName="goods_status_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_user" referencedTableName="user"/>
@@ -81,7 +81,7 @@
         <addForeignKeyConstraint baseColumnNames="id_storage_space" baseTableName="storage_cell" constraintName="storage_cell_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_storage_space" referencedTableName="storage_space"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="93">
-        <addForeignKeyConstraint baseColumnNames="id_goods" baseTableName="storage_cell" constraintName="storage_cell_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods" referencedTableName="goodsList"/>
+        <addForeignKeyConstraint baseColumnNames="id_goods" baseTableName="storage_cell" constraintName="storage_cell_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_goods" referencedTableName="goods"/>
     </changeSet>
     <changeSet author="ulad_bondar" id="94">
         <addForeignKeyConstraint baseColumnNames="id_storage_space_type" baseTableName="storage_space" constraintName="storage_space_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_storage_space_type" referencedTableName="storage_space_type"/>
