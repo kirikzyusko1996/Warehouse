@@ -5,7 +5,7 @@ CREATE TABLE `warehouse_company`(
   `id_warehouse_company` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) UNIQUE NOT NULL,
   -- статус - активный, приостановленный:
-  `name` BIT NOT NULL,
+  `status` BIT NOT NULL,
 
   PRIMARY KEY(`id_warehouse_company`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;

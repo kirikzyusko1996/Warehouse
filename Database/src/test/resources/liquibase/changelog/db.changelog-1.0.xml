@@ -338,7 +338,7 @@
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="name" type="BIT(1)">
+            <column name="status" type="BIT(1)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
