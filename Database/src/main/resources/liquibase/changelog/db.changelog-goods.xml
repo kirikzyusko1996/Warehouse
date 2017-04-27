@@ -1,0 +1,128 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="gilimovich" id="goods">
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Молоко"/>
+            <column name="id_storage_type" value="1"/>
+            <column name="quantity" value="500"/>
+            <column name="id_quantity_unit" value="2"/>
+            <column name="weight" value="500"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="1.30"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="1"/>
+            <column name="id_outgoing_invoice" value="2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Хлеб"/>
+            <column name="id_storage_type" value="2"/>
+            <column name="quantity" value="1000"/>
+            <column name="id_quantity_unit" value="8"/>
+            <column name="weight" value="500"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="1.30"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="1"/>
+            <column name="id_outgoing_invoice" value="2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Гвозди"/>
+            <column name="id_storage_type" value="3"/>
+            <column name="quantity" value="500"/>
+            <column name="id_quantity_unit" value="7"/>
+            <column name="weight" value="1000"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="3.33"/>
+            <column name="id_price_unit" value="10"/>
+            <column name="id_incoming_invoice" value="1"/>
+            <column name="id_outgoing_invoice" value="2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Краска"/>
+            <column name="id_storage_type" value="4"/>
+            <column name="quantity" value="25"/>
+            <column name="id_quantity_unit" value="6"/>
+            <column name="weight" value="2500"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="500"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="3"/>
+            <column name="id_outgoing_invoice" value="4"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Коммутатор"/>
+            <column name="id_storage_type" value="3"/>
+            <column name="quantity" value="100"/>
+            <column name="id_quantity_unit" value="8"/>
+            <column name="weight" value="0.5"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="500"/>
+            <column name="id_price_unit" value="10"/>
+            <column name="id_incoming_invoice" value="3"/>
+            <column name="id_outgoing_invoice" value="4"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Уголь"/>
+            <column name="id_storage_type" value="5"/>
+            <column name="quantity" value="100"/>
+            <column name="id_quantity_unit" value="2"/>
+            <column name="weight" value="10"/>
+            <column name="id_weight_unit" value="10"/>
+            <column name="price" value="13"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="5"/>
+            <column name="id_outgoing_invoice" value="6"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Щебень"/>
+            <column name="id_storage_type" value="5"/>
+            <column name="quantity" value="2500"/>
+            <column name="id_quantity_unit" value="5"/>
+            <column name="weight" value="250"/>
+            <column name="id_weight_unit" value="11"/>
+            <column name="price" value="5000"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="5"/>
+            <column name="id_outgoing_invoice" value="6"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Посуда"/>
+            <column name="id_storage_type" value="3"/>
+            <column name="quantity" value="100"/>
+            <column name="id_quantity_unit" value="7"/>
+            <column name="weight" value="1000"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="500"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="7"/>
+            <column name="id_outgoing_invoice" value="8"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Дизель-генератор"/>
+            <column name="id_storage_type" value="3"/>
+            <column name="quantity" value="100"/>
+            <column name="id_quantity_unit" value="8"/>
+            <column name="weight" value="500"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="5000"/>
+            <column name="id_price_unit" value="10"/>
+            <column name="id_incoming_invoice" value="9"/>
+            <column name="id_outgoing_invoice" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods">
+            <column name="name" value="Бумага"/>
+            <column name="id_storage_type" value="3"/>
+            <column name="quantity" value="100"/>
+            <column name="id_quantity_unit" value="7"/>
+            <column name="weight" value="1000"/>
+            <column name="id_weight_unit" value="1"/>
+            <column name="price" value="500"/>
+            <column name="id_price_unit" value="9"/>
+            <column name="id_incoming_invoice" value="9"/>
+            <column name="id_outgoing_invoice" value="10"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
