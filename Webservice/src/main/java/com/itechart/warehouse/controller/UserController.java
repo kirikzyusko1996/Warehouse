@@ -115,8 +115,8 @@ public class UserController {
         return createValidationError(e);
     }
 
+
     private ValidationError createValidationError(MethodArgumentNotValidException e) {
         return ValidationErrorBuilder.fromBindingErrors(e.getBindingResult());
     }
-
 }

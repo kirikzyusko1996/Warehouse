@@ -1,0 +1,82 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="zyusko" id="user">
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="1"/>
+            <column name="first_name" value="Кирилл"/>
+            <column name="last_name" value="Зюсько"/>
+            <column name="patronymic" value="Дмитриевич"/>
+            <column name="date_of_birth" value="1996-10-02"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Коласа"/>
+            <column name="house" value="28b"/>
+            <column name="apartment" value="401a"/>
+            <column name="email" value="zyusko.kirill@mail.ru"/>
+            <column name="login" value="kirikzyusko1996"/>
+            <column name="password" value="baobab"/>
+            <column name="id_warehouse_company" value="1"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="2"/>
+            <column name="first_name" value="Александр"/>
+            <column name="last_name" value="Гилимович"/>
+            <column name="patronymic" value=""/>
+            <column name="date_of_birth" value="1993-08-12"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Космонавтов"/>
+            <column name="house" value="34a"/>
+            <column name="apartment" value="64"/>
+            <column name="email" value="aleks.gilimovich@gmail.com"/>
+            <column name="login" value="alexander"/>
+            <column name="password" value="alexander"/>
+            <column name="id_warehouse_company" value="2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="3"/>
+            <column name="first_name" value="Алексей"/>
+            <column name="last_name" value="Малейко"/>
+            <column name="patronymic" value=""/>
+            <column name="date_of_birth" value="1997-12-12"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Независимости"/>
+            <column name="house" value="54"/>
+            <column name="apartment" value="19"/>
+            <column name="email" value="a.maleiko@yandex.by"/>
+            <column name="login" value="alexi"/>
+            <column name="password" value="alexi"/>
+            <column name="id_warehouse_company" value="2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="4"/>
+            <column name="first_name" value="Владислав"/>
+            <column name="last_name" value="Бондарь"/>
+            <column name="patronymic" value=""/>
+            <column name="date_of_birth" value="1997-11-21"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Коласа"/>
+            <column name="house" value="28b"/>
+            <column name="apartment" value="608a"/>
+            <column name="email" value="vlad.bondar@tut.by"/>
+            <column name="login" value="vlad.bondar"/>
+            <column name="password" value="bondar.vald"/>
+            <column name="id_warehouse_company" value="4"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="5"/>
+            <column name="first_name" value="Пинчук"/>
+            <column name="last_name" value="Анна"/>
+            <column name="patronymic" value=""/>
+            <column name="date_of_birth" value="1996-11-21"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Леонида Беды"/>
+            <column name="house" value="10"/>
+            <column name="apartment" value="910"/>
+            <column name="email" value="anna.pinchuk@onliner.by"/>
+            <column name="login" value="anna.pinchuk"/>
+            <column name="password" value="pinchuk.anna"/>
+            <column name="id_warehouse_company" value="5"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
