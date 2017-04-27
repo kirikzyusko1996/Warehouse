@@ -1,0 +1,57 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="zyusko" id="warehouse">
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="1"/>
+            <column name="name" value="Уникальный"/>
+            <column name="id_warehouse_company" value="1"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="2"/>
+            <column name="name" value="Домашний"/>
+            <column name="id_warehouse_company" value="1"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="3"/>
+            <column name="name" value="Элегантный"/>
+            <column name="id_warehouse_company" value="1"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="4"/>
+            <column name="name" value="Zaporozhje"/>
+            <column name="id_warehouse_company" value="2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="5"/>
+            <column name="name" value="Yurmala"/>
+            <column name="id_warehouse_company" value="3"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="6"/>
+            <column name="name" value="Склад Витька"/>
+            <column name="id_warehouse_company" value="3"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="7"/>
+            <column name="name" value="Престижный"/>
+            <column name="id_warehouse_company" value="3"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="8"/>
+            <column name="name" value="Европа"/>
+            <column name="id_warehouse_company" value="4"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="9"/>
+            <column name="name" value="Рига"/>
+            <column name="id_warehouse_company" value="4"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="10"/>
+            <column name="name" value="Подземка"/>
+            <column name="id_warehouse_company" value="5"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

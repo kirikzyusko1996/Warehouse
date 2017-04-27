@@ -1,0 +1,32 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="zyusko" id="warehouse-company">
+        <insert dbms="h2, mysql" tableName="warehouse_company">
+            <column name="id_warehouse_company" value="1"/>
+            <column name="name" value="DreamStock"/>
+            <column name="status" value="b'1'"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse_company">
+            <column name="id_warehouse_company" value="2"/>
+            <column name="name" value="ОАО 'Солнышко'"/>
+            <column name="status" value="b'1'"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse_company">
+            <column name="id_warehouse_company" value="3"/>
+            <column name="name" value="Меново"/>
+            <column name="status" value="b'1'"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse_company">
+            <column name="id_warehouse_company" value="4"/>
+            <column name="name" value="AXEFXII"/>
+            <column name="status" value="b'1'"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse_company">
+            <column name="id_warehouse_company" value="5"/>
+            <column name="name" value="Кемпер"/>
+            <column name="status" value="b'1'"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

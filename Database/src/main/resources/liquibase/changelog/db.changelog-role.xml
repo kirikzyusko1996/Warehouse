@@ -1,0 +1,31 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="zyusko" id="role">
+        <insert dbms="h2, mysql" tableName="role">
+            <column name="id_role" value="1"/>
+            <column name="name" value="Администратор системы"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="role">
+            <column name="id_role" value="2"/>
+            <column name="name" value="Администратор склада"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="role">
+            <column name="id_role" value="3"/>
+            <column name="name" value="Диспетчер склада"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="role">
+            <column name="id_role" value="4"/>
+            <column name="name" value="Менеджер по складу"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="role">
+            <column name="id_role" value="5"/>
+            <column name="name" value="Контролёр"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="role">
+            <column name="id_role" value="6"/>
+            <column name="name" value="Владелец склада"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
