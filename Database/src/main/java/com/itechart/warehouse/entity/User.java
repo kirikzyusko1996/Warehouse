@@ -35,7 +35,6 @@ public class User {
     private String house;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String apartment;
-    private Long idCompany;
     @Email(message = "Illegal email")
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String email;
@@ -147,15 +146,6 @@ public class User {
         this.apartment = apartment;
     }
 
-    @Column(name = "id_company")
-    public Long getIdCompany() {
-        return idCompany;
-    }
-
-    public void setIdCompany(Long idCompany) {
-        this.idCompany = idCompany;
-    }
-
     @Column(name = "email", unique = true, length = 50)
     public String getEmail() {
         return email;
@@ -209,7 +199,6 @@ public class User {
         if (street != null ? !street.equals(user.street) : user.street != null) return false;
         if (house != null ? !house.equals(user.house) : user.house != null) return false;
         if (apartment != null ? !apartment.equals(user.apartment) : user.apartment != null) return false;
-        if (idCompany != null ? !idCompany.equals(user.idCompany) : user.idCompany != null) return false;
         if (email != null ? !email.equals(user.email) : user.email != null) return false;
         if (login != null ? !login.equals(user.login) : user.login != null) return false;
         if (password != null ? !password.equals(user.password) : user.password != null) return false;
@@ -227,7 +216,6 @@ public class User {
         result = 31 * result + (street != null ? street.hashCode() : 0);
         result = 31 * result + (house != null ? house.hashCode() : 0);
         result = 31 * result + (apartment != null ? apartment.hashCode() : 0);
-        result = 31 * result + (idCompany != null ? idCompany.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (login != null ? login.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
@@ -247,7 +235,6 @@ public class User {
                 .append("street", street)
                 .append("house", house)
                 .append("apartment", apartment)
-                .append("idCompany", idCompany)
                 .append("email", email)
                 .append("login", login)
                 .append("password", password)

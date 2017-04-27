@@ -2,19 +2,18 @@ package com.itechart.warehouse.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.Goods;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 
 /**
- * Data transfer object for goodsList entity.
+ * Data transfer object containing criteria for searching goodsList.
  */
 @Setter
 @Getter
 @lombok.ToString
-public class GoodsDTO {
+public class GoodsSearchDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String name;
     private BigDecimal quantity;
@@ -28,14 +27,5 @@ public class GoodsDTO {
     private String weightUnitName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String priceUnitName;
-
-    public Goods buildGoodsEntity() {
-        Goods goods = new Goods();
-        goods.setName(name);
-        goods.setWeight(weight);
-        goods.setPrice(price);
-        goods.setQuantity(quantity);
-        return goods;
-    }
-
+    //todo status, registration date, manager etc..
 }

@@ -45,6 +45,7 @@
     </beans:bean>
 
     <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web">
+        <intercept-url pattern='/web/login/**' access="permitAll"/>
         <intercept-url pattern='/web/company/**' access="hasRole('ROLE_ADMIN')"/>
         <intercept-url pattern='/web/warehouse/**' access="hasRole('ROLE_SUPERVISOR')"/>
         <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER')"/>

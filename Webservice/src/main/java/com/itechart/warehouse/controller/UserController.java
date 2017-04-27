@@ -47,7 +47,7 @@ public class UserController {
         try {
             WarehouseCompany company = userDetails.getCompany();
             if (company != null) {
-                users = userService.findUsersForCompany(company.getIdWarehouseCompany(), page*count, count);
+                users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
             } else return new ResponseEntity<>(users, HttpStatus.CONFLICT);
         } catch (DataAccessException e) {
             logger.error("Error during users retrieval: {}", e.getMessage());
@@ -62,9 +62,9 @@ public class UserController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<Void> saveUser(@Valid @RequestBody UserDTO userDTO) {
         logger.info("Handling request for saving new user using DTO: {}", userDTO);
-        //todo set company id
+        Long companyId = UserDetailsProvider.getUserDetails().getCompany().getIdWarehouseCompany();
         try {
-            userService.createUser(userDTO);
+            userService.createUser(companyId, userDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DataAccessException e) {
             logger.error("Error during user saving: {}", e.getMessage());

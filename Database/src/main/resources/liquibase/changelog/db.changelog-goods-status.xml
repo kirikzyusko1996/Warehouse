@@ -1,0 +1,79 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="gilimovich" id="goods-status">
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="1"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="2"/>
+            <column name="id_user" value="2"/>
+            <column name="id_goods" value="2"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="3"/>
+            <column name="id_goods" value="3"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="4"/>
+            <column name="id_user" value="4"/>
+            <column name="id_goods" value="4"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="5"/>
+            <column name="id_user" value="5"/>
+            <column name="id_goods" value="5"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="6"/>
+            <column name="id_user" value="6"/>
+            <column name="id_goods" value="6"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="7"/>
+            <column name="id_user" value="7"/>
+            <column name="id_goods" value="7"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="8"/>
+            <column name="id_user" value="8"/>
+            <column name="id_goods" value="8"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="9"/>
+            <column name="id_user" value="9"/>
+            <column name="id_goods" value="9"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="10"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="10"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="11"/>
+            <column name="id_user" value="11"/>
+            <column name="id_goods" value="11"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status_name" value="12"/>
+            <column name="id_user" value="12"/>
+            <column name="id_goods" value="12"/>
+            <column name="note" value=""/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

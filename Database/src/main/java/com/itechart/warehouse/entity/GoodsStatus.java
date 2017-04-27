@@ -107,7 +107,7 @@ public class GoodsStatus {
                 .append("note", note)
                 .append("goodsStatusName", goodsStatusName)
                 .append("user", user)
-                .append("goods", goods)
+                .append("goodsList", goods)
                 .toString();
     }
 }

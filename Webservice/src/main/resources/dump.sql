@@ -104,10 +104,10 @@ LOCK TABLES `driver` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `goods`
+-- Table structure for table `goodsList`
 --
 
-DROP TABLE IF EXISTS `goods`;
+DROP TABLE IF EXISTS `goodsList`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `goods` (
@@ -140,12 +140,12 @@ CREATE TABLE `goods` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `goods`
+-- Dumping data for table `goodsList`
 --
 
-LOCK TABLES `goods` WRITE;
-/*!40000 ALTER TABLE `goods` DISABLE KEYS */;
-/*!40000 ALTER TABLE `goods` ENABLE KEYS */;
+LOCK TABLES `goodsList` WRITE;
+/*!40000 ALTER TABLE `goodsList` DISABLE KEYS */;
+/*!40000 ALTER TABLE `goodsList` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -531,7 +531,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,NULL,'Гилимович',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,'1','1',1),(2,NULL,'Зюсько',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,'2','2',1),(3,NULL,'Малейко',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,'3','3',2),(4,NULL,'Юондарь',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,'4','4',NULL);
+INSERT INTO `user` VALUES (1,NULL,'Гилимович',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,'1','1',1),(2,NULL,'Зюсько',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,'2','2',1),(3,NULL,'Малейко',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,'3','3',2),(4,NULL,'Бондарь',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,'4','4',NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 

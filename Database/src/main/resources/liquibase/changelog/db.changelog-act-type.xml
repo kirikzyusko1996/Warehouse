@@ -1,0 +1,20 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="gilimovich" id="act-type">
+        <insert dbms="h2, mysql" tableName="act_type">
+            <column name="name" value="WRITE_OFF_ACT"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_type">
+            <column name="name" value="ACT_OF_THEFT"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_type">
+            <column name="name" value="MISMATCH_ACT"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_type">
+            <column name="name" value="ACT_OF_LOSS"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

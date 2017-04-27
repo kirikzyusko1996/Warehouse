@@ -289,9 +289,6 @@
             <column name="street" type="VARCHAR(50)"/>
             <column name="house" type="VARCHAR(10)"/>
             <column name="apartment" type="VARCHAR(10)"/>
-            <column name="id_company" type="BIGINT UNSIGNED">
-                <constraints nullable="false"/>
-            </column>
             <column name="email" type="VARCHAR(30)"/>
             <column name="login" type="VARCHAR(20)">
                 <constraints nullable="false"/>
@@ -338,7 +335,7 @@
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="name" type="BIT(1)">
+            <column name="status" type="BIT(1)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

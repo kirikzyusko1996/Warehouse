@@ -1,0 +1,45 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="gilimovich" id="goods-status-name">
+
+        <insert dbms="h2, mysql" tableName="goods-status-name">
+            <column name="name" value="REGISTERED"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="CHECKED"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="STORED"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="LOST_BY_TRANSPORT_COMPANY"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="LOST_BY_WAREHOUSE_COMPANY"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="STOLEN"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="TRANSPORT_COMPANY_MISMATCH"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="SEIZED"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="RECYCLED"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="WITHDRAWN"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="RELEASE_ALLOWED"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status_name">
+            <column name="name" value="MOVED_OUT"/>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

@@ -5,7 +5,7 @@ import com.itechart.warehouse.entity.GoodsStatusName;
 import org.springframework.stereotype.Repository;
 
 /**
- * Implementation of goods status name DAO.
+ * Implementation of goodsList status name DAO.
  */
 @Repository
 public class GoodsStatusNameDAO extends DAO<GoodsStatusName> {

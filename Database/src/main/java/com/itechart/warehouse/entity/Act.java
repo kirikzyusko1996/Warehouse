@@ -90,8 +90,8 @@ public class Act {
                 .append("idAct", id)
                 .append("date", date)
                 .append("user", user)
-                .append("goods", goods)
-                .append("actType", actType)
+                .append("goodsList", goods)
+                .append("type", actType)
                 .toString();
     }
 }
