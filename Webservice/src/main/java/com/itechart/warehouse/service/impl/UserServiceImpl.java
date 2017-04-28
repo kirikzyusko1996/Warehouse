@@ -118,7 +118,8 @@ public class UserServiceImpl implements UserService {
         if (userDTO == null) throw new IllegalParametersException("User DTO is null");
         try {
             User user = userDTO.buildUserEntity();
-            user.setIdCompany(companyId);
+            //todo set warehouseCompany
+//            user.setWarehouseCompany(companyId);
             List<String> roleNames = userDTO.getRoles();
             for (String roleName : roleNames) {
                 user.addRole(findRoleByName(roleName));
