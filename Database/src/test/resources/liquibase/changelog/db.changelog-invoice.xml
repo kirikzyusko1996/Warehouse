@@ -1,0 +1,180 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="now" value="now()" dbms="2016-12-12"/>
+
+    <changeSet author="ulad_bondar" id="invoice">
+        <insert tableName="invoice">
+            <column name="id_invoice" value="1"/>
+            <column name="number" value="100"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="8"/>
+            <column name="id_warehouse_company" value="3"/>
+            <column name="id_supplier_company" value="1"/>
+            <column name="id_receiver_company" value="1"/>
+            <column name="transport_number" value="100"/>
+            <column name="transport_name" value="Mercedes"/>
+            <column name="id_driver" value="1"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="2"/>
+            <column name="batch_description" value="some description"/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="2"/>
+            <column name="number" value="101"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="3"/>
+            <column name="id_warehouse_company" value="2"/>
+            <column name="id_supplier_company" value="10"/>
+            <column name="id_receiver_company" value="1"/>
+            <column name="transport_number" value="200"/>
+            <column name="transport_name" value="Volvo"/>
+            <column name="id_driver" value="2"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="2"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
+            <column name="batch_description" value=""/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="3"/>
+            <column name="number" value="102"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="2"/>
+            <column name="id_warehouse_company" value="3"/>
+            <column name="id_supplier_company" value="1"/>
+            <column name="id_receiver_company" value="7"/>
+            <column name="transport_number" value="300"/>
+            <column name="transport_name" value="Skoda"/>
+            <column name="id_driver" value="4"/>
+            <column name="goods_quantity" value="20"/>
+            <column name="id_goods_quantity_unit" value="8"/>
+            <column name="goods_entry_count" value="400"/>
+            <column name="id_goods_entry_count_unit" value="5"/>
+            <column name="batch_description" value="description"/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="4"/>
+            <column name="number" value="103"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="5"/>
+            <column name="id_warehouse_company" value="2"/>
+            <column name="id_supplier_company" value="10"/>
+            <column name="id_receiver_company" value="9"/>
+            <column name="transport_number" value="400"/>
+            <column name="transport_name" value="Mercedes"/>
+            <column name="id_driver" value="1"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="2"/>
+            <column name="batch_description" value=""/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="5"/>
+            <column name="number" value="104"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="7"/>
+            <column name="id_warehouse_company" value="1"/>
+            <column name="id_supplier_company" value="5"/>
+            <column name="id_receiver_company" value="6"/>
+            <column name="transport_number" value="100"/>
+            <column name="transport_name" value="Mercedes"/>
+            <column name="id_driver" value="1"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="batch_description" value="some description"/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="6"/>
+            <column name="number" value="105"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="5"/>
+            <column name="id_warehouse_company" value="2"/>
+            <column name="id_supplier_company" value="2"/>
+            <column name="id_receiver_company" value="8"/>
+            <column name="transport_number" value="600"/>
+            <column name="transport_name" value="Chevrolet"/>
+            <column name="id_driver" value="2"/>
+            <column name="goods_quantity" value="100"/>
+            <column name="id_goods_quantity_unit" value="3"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="5"/>
+            <column name="batch_description" value=""/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="7"/>
+            <column name="number" value="106"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="8"/>
+            <column name="id_warehouse_company" value="2"/>
+            <column name="id_supplier_company" value="10"/>
+            <column name="id_receiver_company" value="4"/>
+            <column name="transport_number" value="700"/>
+            <column name="transport_name" value="Volvo"/>
+            <column name="id_driver" value="6"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="5"/>
+            <column name="goods_entry_count" value="200"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
+            <column name="batch_description" value=""/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="8"/>
+            <column name="number" value="107"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="1"/>
+            <column name="id_warehouse_company" value="4"/>
+            <column name="id_supplier_company" value="10"/>
+            <column name="id_receiver_company" value="4"/>
+            <column name="transport_number" value="800"/>
+            <column name="transport_name" value="Jaguar"/>
+            <column name="id_driver" value="1"/>
+            <column name="goods_quantity" value="15"/>
+            <column name="id_goods_quantity_unit" value="2"/>
+            <column name="goods_entry_count" value="200"/>
+            <column name="id_goods_entry_count_unit" value="9"/>
+            <column name="batch_description" value=""/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="9"/>
+            <column name="number" value="108"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="2"/>
+            <column name="id_warehouse_company" value="5"/>
+            <column name="id_supplier_company" value="1"/>
+            <column name="id_receiver_company" value="2"/>
+            <column name="transport_number" value="100"/>
+            <column name="transport_name" value="Mercedes"/>
+            <column name="id_driver" value="1"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="batch_description" value="some description"/>
+        </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="10"/>
+            <column name="number" value="109"/>
+            <column name="issue_date" value="${now}"/>
+            <column name="id_transport_company" value="9"/>
+            <column name="id_warehouse_company" value="1"/>
+            <column name="id_supplier_company" value="6"/>
+            <column name="id_receiver_company" value="3"/>
+            <column name="transport_number" value="200"/>
+            <column name="transport_name" value="Volve"/>
+            <column name="id_driver" value="5"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="batch_description" value="some description"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

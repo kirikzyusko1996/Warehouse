@@ -1,0 +1,48 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="ulad_bondar" id="wcc1">
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="1"/>
+            <column name="name" value="Dreamland"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="2"/>
+            <column name="name" value="Левоправо"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="3"/>
+            <column name="name" value="Smith's Bakery"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="4"/>
+            <column name="name" value="Аптека"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="5"/>
+            <column name="name" value="Крипто"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="6"/>
+            <column name="name" value="Школа"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="7"/>
+            <column name="name" value="Кореньстоп"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="8"/>
+            <column name="name" value="SpaceX"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="9"/>
+            <column name="name" value="StoneRose"/>
+        </insert>
+        <insert tableName="warehouse_customer_company">
+            <column name="id_warehouse_customer_company" value="10"/>
+            <column name="name" value="November"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
