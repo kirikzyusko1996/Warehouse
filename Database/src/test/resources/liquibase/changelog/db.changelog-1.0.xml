@@ -121,7 +121,7 @@
             <column autoIncrement="true" name="id_goods_status_name" type="SMALLINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="VARCHAR(20)">
+            <column name="name" type="VARCHAR(30)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -205,7 +205,7 @@
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="11">
-        <createTable tableName="name">
+        <createTable tableName="role">
             <column autoIncrement="true" name="id_role" type="SMALLINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>
@@ -246,7 +246,7 @@
             <column autoIncrement="true" name="id_storage_space_type" type="SMALLINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="VARCHAR(20)">
+            <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

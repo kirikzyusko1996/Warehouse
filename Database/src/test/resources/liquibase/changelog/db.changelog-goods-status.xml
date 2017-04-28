@@ -77,14 +77,14 @@
             <column name="id_goods_status" value="11"/>
             <column name="id_goods_status_name" value="11"/>
             <column name="id_user" value="4"/>
-            <column name="id_goods" value="11"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="12"/>
             <column name="id_goods_status_name" value="12"/>
             <column name="id_user" value="3"/>
-            <column name="id_goods" value="12"/>
+            <column name="id_goods" value="2"/>
             <column name="note" value=""/>
         </insert>
     </changeSet>

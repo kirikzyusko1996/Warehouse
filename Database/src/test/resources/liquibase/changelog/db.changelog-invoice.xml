@@ -9,7 +9,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="1"/>
             <column name="number" value="100"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2017-04-05"/>
             <column name="id_transport_company" value="8"/>
             <column name="id_warehouse_company" value="3"/>
             <column name="id_supplier_company" value="1"/>
@@ -26,7 +26,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="2"/>
             <column name="number" value="101"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2016-01-23"/>
             <column name="id_transport_company" value="3"/>
             <column name="id_warehouse_company" value="2"/>
             <column name="id_supplier_company" value="10"/>
@@ -43,7 +43,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="3"/>
             <column name="number" value="102"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2016-09-12"/>
             <column name="id_transport_company" value="2"/>
             <column name="id_warehouse_company" value="3"/>
             <column name="id_supplier_company" value="1"/>
@@ -60,7 +60,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="4"/>
             <column name="number" value="103"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2017-03-03"/>
             <column name="id_transport_company" value="5"/>
             <column name="id_warehouse_company" value="2"/>
             <column name="id_supplier_company" value="10"/>
@@ -77,7 +77,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="5"/>
             <column name="number" value="104"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2015-02-25"/>
             <column name="id_transport_company" value="7"/>
             <column name="id_warehouse_company" value="1"/>
             <column name="id_supplier_company" value="5"/>
@@ -94,7 +94,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="6"/>
             <column name="number" value="105"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2017-04-05"/>
             <column name="id_transport_company" value="5"/>
             <column name="id_warehouse_company" value="2"/>
             <column name="id_supplier_company" value="2"/>
@@ -111,7 +111,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="7"/>
             <column name="number" value="106"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2017-11-29"/>
             <column name="id_transport_company" value="8"/>
             <column name="id_warehouse_company" value="2"/>
             <column name="id_supplier_company" value="10"/>
@@ -128,7 +128,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="8"/>
             <column name="number" value="107"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2017-02-15"/>
             <column name="id_transport_company" value="1"/>
             <column name="id_warehouse_company" value="4"/>
             <column name="id_supplier_company" value="10"/>
@@ -145,7 +145,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="9"/>
             <column name="number" value="108"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2016-07-30"/>
             <column name="id_transport_company" value="2"/>
             <column name="id_warehouse_company" value="5"/>
             <column name="id_supplier_company" value="1"/>
@@ -162,7 +162,7 @@
         <insert tableName="invoice">
             <column name="id_invoice" value="10"/>
             <column name="number" value="109"/>
-            <column name="issue_date" value="${now}"/>
+            <column name="issue_date" value="2017-11-03"/>
             <column name="id_transport_company" value="9"/>
             <column name="id_warehouse_company" value="1"/>
             <column name="id_supplier_company" value="6"/>

@@ -6,12 +6,12 @@
         <insert dbms="h2, mysql" tableName="price_list">
             <column name="id_storage_space_type" value="1"/>
             <column name="setting_time" value="2017-01-02"/>
-            <column name="daily_price" value="20,25"/>
+            <column name="daily_price" value="20.25"/>
         </insert>
         <insert dbms="h2, mysql" tableName="price_list">
             <column name="id_storage_space_type" value="2"/>
             <column name="setting_time" value="2017-01-02"/>
-            <column name="daily_price" value="30,3"/>
+            <column name="daily_price" value="30.3"/>
         </insert>
         <insert dbms="h2, mysql" tableName="price_list">
             <column name="id_storage_space_type" value="3"/>
