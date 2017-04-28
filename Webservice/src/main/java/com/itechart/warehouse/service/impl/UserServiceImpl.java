@@ -102,7 +102,8 @@ public class UserServiceImpl implements UserService {
         logger.info("Find {} users starting from index {} by company id: {}", maxResults, firstResult, companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-        criteria.add(Restrictions.eq("idCompany", companyId));
+        // TODO: 28.04.2017 find warehouse company
+//        criteria.add(Restrictions.eq("warehouseCompany", companyId));
         try {
             return userDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
