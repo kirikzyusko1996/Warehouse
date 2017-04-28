@@ -60,7 +60,7 @@
             <column name="apartment" value="608a"/>
             <column name="email" value="vlad.bondar@tut.by"/>
             <column name="login" value="vlad.bondar"/>
-            <column name="password" value="bondar.vald"/>
+            <column name="password" value="bondar.vlad"/>
             <column name="id_warehouse_company" value="4"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
@@ -77,6 +77,81 @@
             <column name="login" value="anna.pinchuk"/>
             <column name="password" value="pinchuk.anna"/>
             <column name="id_warehouse_company" value="5"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="6"/>
+            <column name="first_name" value="Соловьёв"/>
+            <column name="last_name" value="Алексей"/>
+            <column name="patronymic" value="Александрович"/>
+            <column name="date_of_birth" value="1990-10-21"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Независимости"/>
+            <column name="house" value="10"/>
+            <column name="apartment" value="50"/>
+            <column name="email" value=""/>
+            <column name="login" value=""/>
+            <column name="password" value=""/>
+            <column name="id_warehouse_company" value="5"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="7"/>
+            <column name="first_name" value="Урбанович"/>
+            <column name="last_name" value="Валентин"/>
+            <column name="patronymic" value="Геннадьевич"/>
+            <column name="date_of_birth" value="1980-03-21"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="В.Хоружей"/>
+            <column name="house" value="13"/>
+            <column name="apartment" value="33"/>
+            <column name="email" value=""/>
+            <column name="login" value=""/>
+            <column name="password" value=""/>
+            <column name="id_warehouse_company" value="1"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="8"/>
+            <column name="first_name" value="Никитин"/>
+            <column name="last_name" value="Антон"/>
+            <column name="patronymic" value="Петрович"/>
+            <column name="date_of_birth" value="1965-05-15"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Плеханова"/>
+            <column name="house" value="3"/>
+            <column name="apartment" value="333"/>
+            <column name="email" value=""/>
+            <column name="login" value=""/>
+            <column name="password" value=""/>
+            <column name="id_warehouse_company" value="7"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="9"/>
+            <column name="first_name" value="Яцевич"/>
+            <column name="last_name" value="Ангелина"/>
+            <column name="patronymic" value="Ивановна"/>
+            <column name="date_of_birth" value="1980-09-12"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Руссиянова"/>
+            <column name="house" value="30"/>
+            <column name="apartment" value="7"/>
+            <column name="email" value=""/>
+            <column name="login" value=""/>
+            <column name="password" value=""/>
+            <column name="id_warehouse_company" value="9"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user">
+            <column name="id_user" value="10"/>
+            <column name="first_name" value="Рощина"/>
+            <column name="last_name" value="Светлана"/>
+            <column name="patronymic" value="Петровна"/>
+            <column name="date_of_birth" value="1970-04-22"/>
+            <column name="city" value="Минск"/>
+            <column name="street" value="Жилуновича"/>
+            <column name="house" value="10"/>
+            <column name="apartment" value="17"/>
+            <column name="email" value=""/>
+            <column name="login" value=""/>
+            <column name="password" value=""/>
+            <column name="id_warehouse_company" value="10"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

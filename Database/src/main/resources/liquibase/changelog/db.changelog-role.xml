@@ -5,27 +5,27 @@
     <changeSet author="zyusko" id="role">
         <insert dbms="h2, mysql" tableName="role">
             <column name="id_role" value="1"/>
-            <column name="name" value="Администратор системы"/>
+            <column name="name" value="ROLE_ADMIN"/>
         </insert>
         <insert dbms="h2, mysql" tableName="role">
             <column name="id_role" value="2"/>
-            <column name="name" value="Администратор склада"/>
+            <column name="name" value="ROLE_SUPERVISOR"/>
         </insert>
         <insert dbms="h2, mysql" tableName="role">
             <column name="id_role" value="3"/>
-            <column name="name" value="Диспетчер склада"/>
+            <column name="name" value="ROLE_DISPATCHER"/>
         </insert>
         <insert dbms="h2, mysql" tableName="role">
             <column name="id_role" value="4"/>
-            <column name="name" value="Менеджер по складу"/>
+            <column name="name" value="ROLE_MANAGER"/>
         </insert>
         <insert dbms="h2, mysql" tableName="role">
             <column name="id_role" value="5"/>
-            <column name="name" value="Контролёр"/>
+            <column name="name" value="ROLE_CONTROLLER"/>
         </insert>
         <insert dbms="h2, mysql" tableName="role">
             <column name="id_role" value="6"/>
-            <column name="name" value="Владелец склада"/>
+            <column name="name" value="ROLE_OWNER"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

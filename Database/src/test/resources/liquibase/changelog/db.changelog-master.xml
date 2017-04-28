@@ -7,4 +7,28 @@
     <include file="liquibase/changelog/db.changelog-1.0.xml"/>
     <include file="liquibase/changelog/db.changelog-1.1.xml"/>
     <include file="liquibase/changelog/db.changelog-1.2.xml"/>
+
+
+    <include file="liquibase/changelog/db.changelog-warehouse-company.xml"/>
+    <include file="liquibase/changelog/db.changelog-warehouse-customer-company.xml"/>
+    <include file="liquibase/changelog/db.changelog-transport-company.xml"/>
+    <include file="liquibase/changelog/db.changelog-user.xml"/>
+    <include file="liquibase/changelog/db.changelog-role.xml"/>
+    <include file="liquibase/changelog/db.changelog-user-role.xml"/>
+    <include file="liquibase/changelog/db.changelog-driver.xml"/>
+    <include file="liquibase/changelog/db.changelog-warehouse.xml"/>
+    <include file="liquibase/changelog/db.changelog-storage-space-type.xml"/>
+    <include file="liquibase/changelog/db.changelog-price-list.xml"/>
+    <include file="liquibase/changelog/db.changelog-storage-space.xml"/>
+    <include file="liquibase/changelog/db.changelog-unit.xml"/>
+    <include file="liquibase/changelog/db.changelog-invoice.xml"/>
+    <include file="liquibase/changelog/db.changelog-invoice-status-name.xml"/>
+    <include file="liquibase/changelog/db.changelog-invoice-status.xml"/>
+    <include file="liquibase/changelog/db.changelog-goods.xml"/>
+    <include file="liquibase/changelog/db.changelog-act-type.xml"/>
+    <include file="liquibase/changelog/db.changelog-act.xml"/>
+    <include file="liquibase/changelog/db.changelog-storage-cell.xml"/>
+    <include file="liquibase/changelog/db.changelog-goods-status-name.xml"/>
+    <include file="liquibase/changelog/db.changelog-goods-status.xml"/>
+
 </databaseChangeLog>
