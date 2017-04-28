@@ -1,0 +1,58 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="ulad_bondar" id="tc1">
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="1"/>
+            <column name="name" value="Перевозчик"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="2"/>
+            <column name="name" value="Механик"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="3"/>
+            <column name="name" value="Большой куш"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="4"/>
+            <column name="name" value="Рок н рольщик"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="5"/>
+            <column name="name" value="Шпион"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="6"/>
+            <column name="name" value="Карты"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="7"/>
+            <column name="name" value="Деньги"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="8"/>
+            <column name="name" value="Два ствола"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="9"/>
+            <column name="name" value="Паркер"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="10"/>
+            <column name="name" value="Профессионал"/>
+            <column name="is_trusted" value="b'1'"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
