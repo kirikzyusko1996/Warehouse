@@ -117,11 +117,13 @@ CREATE TABLE `storage_space_type`(
 CREATE TABLE `price_list`(
   `id_price_list` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_storage_space_type` SMALLINT UNSIGNED NOT NULL,
-  `setting_time` TIMESTAMP NOT NULL,
+  `end_time` TIMESTAMP NULL DEFAULT NULL,
   `daily_price` DECIMAL(12,2) NOT NULL,
+  `id_warehouse_company` BIGINT UNSIGNED NOT NULL,
 
   PRIMARY KEY(`id_price_list`),
-  FOREIGN KEY (`id_storage_space_type`) REFERENCES `storage_space_type`(`id_storage_space_type`)
+  FOREIGN KEY (`id_storage_space_type`) REFERENCES `storage_space_type`(`id_storage_space_type`),
+  FOREIGN KEY (`id_warehouse_company`) REFERENCES `warehouse_company`(`id_warehouse_company`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
 
 

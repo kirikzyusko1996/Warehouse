@@ -8,9 +8,10 @@ import java.sql.Timestamp;
 @Table(name = "price_list")
 public class PriceList {
     private Long idPriceList;
-    private Timestamp settingTime;
+    private Timestamp endTime;
     private BigDecimal dailyPrice;
     private StorageSpaceType storageSpaceType;
+    private WarehouseCompany warehouseCompany;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,12 +26,12 @@ public class PriceList {
 
     @Column(name = "setting_time", nullable = false)
 //    @Temporal(TemporalType.TIMESTAMP)
-    public Timestamp getSettingTime() {
-        return settingTime;
+    public Timestamp getEndTime() {
+        return endTime;
     }
 
-    public void setSettingTime(Timestamp settingTime) {
-        this.settingTime = settingTime;
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
     }
 
     @Column(name = "daily_price", nullable = false)
@@ -52,8 +53,14 @@ public class PriceList {
         this.storageSpaceType = storageSpaceType;
     }
 
+    @Column(name = "id_warehouse_company")
+    public WarehouseCompany getWarehouseCompany() {
+        return warehouseCompany;
+    }
 
-
+    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
+        this.warehouseCompany = warehouseCompany;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -64,18 +71,31 @@ public class PriceList {
 
         if (idPriceList != null ? !idPriceList.equals(priceList.idPriceList) : priceList.idPriceList != null)
             return false;
-        if (settingTime != null ? !settingTime.equals(priceList.settingTime) : priceList.settingTime != null)
-            return false;
+        if (endTime != null ? !endTime.equals(priceList.endTime) : priceList.endTime != null) return false;
         if (dailyPrice != null ? !dailyPrice.equals(priceList.dailyPrice) : priceList.dailyPrice != null) return false;
-
-        return true;
+        if (storageSpaceType != null ? !storageSpaceType.equals(priceList.storageSpaceType) : priceList.storageSpaceType != null)
+            return false;
+        return warehouseCompany != null ? warehouseCompany.equals(priceList.warehouseCompany) : priceList.warehouseCompany == null;
     }
 
     @Override
     public int hashCode() {
         int result = idPriceList != null ? idPriceList.hashCode() : 0;
-        result = 31 * result + (settingTime != null ? settingTime.hashCode() : 0);
+        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
         result = 31 * result + (dailyPrice != null ? dailyPrice.hashCode() : 0);
+        result = 31 * result + (storageSpaceType != null ? storageSpaceType.hashCode() : 0);
+        result = 31 * result + (warehouseCompany != null ? warehouseCompany.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "PriceList{" +
+                "idPriceList=" + idPriceList +
+                ", endTime=" + endTime +
+                ", dailyPrice=" + dailyPrice +
+                ", storageSpaceType=" + storageSpaceType +
+                ", warehouseCompany=" + warehouseCompany +
+                '}';
     }
 }
