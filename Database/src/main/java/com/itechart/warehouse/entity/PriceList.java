@@ -12,6 +12,7 @@ public class PriceList {
     private BigDecimal dailyPrice;
     private StorageSpaceType storageSpaceType;
     private WarehouseCompany warehouseCompany;
+    private String comment;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -62,6 +63,13 @@ public class PriceList {
         this.warehouseCompany = warehouseCompany;
     }
 
+    @Column(name = "comment")
+    public String getComment(){
+        return comment;
+    }
+    public void setComment(String comment){
+        this.comment = comment;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

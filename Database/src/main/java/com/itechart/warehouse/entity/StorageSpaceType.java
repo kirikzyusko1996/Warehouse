@@ -1,6 +1,7 @@
 package com.itechart.warehouse.entity;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -9,7 +10,7 @@ public class StorageSpaceType {
     private Short idStorageSpaceType;
     private String name;
     private Set<StorageSpace> storageSpaces;
-    private Set<PriceList> priceList;
+    private List<PriceList> priceList;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -50,10 +51,10 @@ public class StorageSpaceType {
         priceList.add(price);
     }
     @OneToMany(mappedBy = "storageSpaceType", fetch = FetchType.LAZY)
-    public Set<PriceList> getPriceList() {
+    public List<PriceList> getPriceList() {
         return priceList;
     }
-    public void setPriceList(Set<PriceList> priceList) {
+    public void setPriceList(List<PriceList> priceList) {
         this.priceList = priceList;
     }
 

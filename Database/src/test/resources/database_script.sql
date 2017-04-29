@@ -119,6 +119,7 @@ CREATE TABLE `price_list`(
   `id_storage_space_type` SMALLINT UNSIGNED NOT NULL,
   `setting_time` TIMESTAMP NOT NULL,
   `daily_price` DECIMAL(12,2) NOT NULL,
+  `comment` VARCHAR(250),
 
   PRIMARY KEY(`id_price_list`),
   FOREIGN KEY (`id_storage_space_type`) REFERENCES `storage_space_type`(`id_storage_space_type`)
