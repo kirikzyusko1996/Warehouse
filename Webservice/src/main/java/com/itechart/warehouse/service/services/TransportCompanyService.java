@@ -3,6 +3,8 @@ package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -17,9 +19,11 @@ public interface TransportCompanyService {
 
     TransportCompany saveTransportCompany(TransportCompany company) throws DataAccessException;
 
-    TransportCompany updateTransportCompany(TransportCompany company) throws DataAccessException;
+    TransportCompany updateTransportCompany(String id, TransportCompany company)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    void deleteTransportCompany(TransportCompany company) throws DataAccessException;
+    void deleteTransportCompany(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean TransportCompanyExists(TransportCompany company) throws DataAccessException;
 }

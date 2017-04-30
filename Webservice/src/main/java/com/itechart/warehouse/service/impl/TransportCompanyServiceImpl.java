@@ -4,9 +4,12 @@ import com.itechart.warehouse.dao.TransportCompanyDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.TransportCompanyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -124,12 +127,24 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional
-    public TransportCompany updateTransportCompany(TransportCompany company) throws DataAccessException {
+    public TransportCompany updateTransportCompany(String id, TransportCompany company)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
         logger.info("Update transport company: {}", company);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
 
         TransportCompany updatedCompany;
         try {
-            updatedCompany = transportDAO.update(company);
+            Long companyId = Long.valueOf(id);
+            if (transportDAO.isExistsEntity(companyId)) {
+                company.setId(companyId);
+                updatedCompany = transportDAO.update(company);
+            } else {
+                logger.error("Transport company with id {} not found", companyId);
+                throw new ResourceNotFoundException("transport company not found");
+            }
         } catch (GenericDAOException e) {
             logger.error("Error while updating transport company: ", e);
             throw new DataAccessException(e);
@@ -140,11 +155,24 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional
-    public void deleteTransportCompany(TransportCompany company) throws DataAccessException {
-        logger.info("Delete transport company by id #{}", company.getId());
+    public void deleteTransportCompany(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
+        logger.info("Delete transport company by id #{}", id);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
 
         try {
-            transportDAO.delete(company);
+            Long companyId = Long.valueOf(id);
+            Optional<TransportCompany> optional = transportDAO.findById(companyId);
+            if (optional.isPresent()) {
+                TransportCompany company = optional.get();
+                transportDAO.delete(company);
+            } else {
+                logger.error("Transport company with id {} not found", companyId);
+                throw new ResourceNotFoundException("Transport company not found");
+            }
         } catch (GenericDAOException e) {
             logger.error("Error while deleting transport company: ", e);
             throw new DataAccessException(e);
