@@ -5,9 +5,12 @@ import com.itechart.warehouse.dao.WarehouseCustomerCompanyDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.WarehouseCustomerCompanyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -109,12 +112,24 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional
-    public WarehouseCustomerCompany updateWarehouseCustomerCompany(WarehouseCustomerCompany company) throws DataAccessException {
+    public WarehouseCustomerCompany updateWarehouseCustomerCompany(String id, WarehouseCustomerCompany company)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Update customer company: {}", company);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
 
         WarehouseCustomerCompany updatedCompany;
         try {
-            updatedCompany = customerDAO.update(company);
+            Long customerId = Long.valueOf(id);
+            if (customerDAO.isExistsEntity(customerId)) {
+                company.setId(customerId);
+                updatedCompany = customerDAO.update(company);
+            } else {
+                logger.error("Customer with id {} not found", customerId);
+                throw new ResourceNotFoundException("Customer not found");
+            }
         } catch (GenericDAOException e) {
             logger.error("Error while updating customer company: ", e);
             throw new DataAccessException(e);
@@ -125,11 +140,24 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional
-    public void deleteWarehouseCustomerCompany(WarehouseCustomerCompany company) throws DataAccessException {
-        logger.info("Delete customer company by id #{}", company.getId());
+    public void deleteWarehouseCustomerCompany(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Delete customer company by id #{}", id);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
 
         try {
-            customerDAO.delete(company);
+            Long customerId = Long.valueOf(id);
+            Optional<WarehouseCustomerCompany> optional = customerDAO.findById(customerId);
+            if (optional.isPresent()) {
+                WarehouseCustomerCompany customer = optional.get();
+                customerDAO.delete(customer);
+            } else {
+                logger.error("Customer with id {} not found", customerId);
+                throw new ResourceNotFoundException("Customer not found");
+            }
         } catch (GenericDAOException e) {
             logger.error("Error while deleting customer company: ", e);
             throw new DataAccessException(e);
