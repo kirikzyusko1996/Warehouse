@@ -6,9 +6,6 @@ import org.joda.time.LocalDate;
 
 import java.io.File;
 
-/**
- * Created by Alexey on 26.04.2017.
- */
 public interface ReportService {
     File getReceiptReport(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws DataAccessException;
     File getWarehousesLossReport(LocalDate startDate, LocalDate endDate) throws GenericDAOException;

@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
@@ -30,9 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Created by Alexey on 26.04.2017.
- */
 @Service
 public class ReportServiceXLSXImpl implements ReportService {
     private GoodsStatusDAO goodsStatusDAO;

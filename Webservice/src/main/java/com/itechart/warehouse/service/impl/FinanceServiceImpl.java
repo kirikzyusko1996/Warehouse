@@ -19,15 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by Alexey on 29.04.2017.
- */
 @Service
 public class FinanceServiceImpl implements FinanceService{
 
@@ -126,7 +122,8 @@ public class FinanceServiceImpl implements FinanceService{
                         .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
                 Criterion restriction1 = Restrictions.ge("endTime", dayStart);
                 Criterion restriction2= Restrictions.le("endTime", dayFinish);
-                criteria.add(Restrictions.and(restriction1, restriction2));
+                criteria.add(Restrictions.and(restriction1, restriction2))
+                        .add(Restrictions.eq("warehouseCompany", userDetails.getCompany()));
             }
             return priceListDAO.findAll(criteria, skip, limit);
         } catch (GenericDAOException e) {

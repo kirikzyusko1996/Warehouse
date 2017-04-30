@@ -9,9 +9,7 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Created by Alexey on 29.04.2017.
- */
+
 public interface FinanceService {
     //create new price or update existent
     void newPrice(PriceListDTO priceDTO) throws GenericDAOException;
