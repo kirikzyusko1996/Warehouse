@@ -1,5 +1,10 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -8,10 +13,15 @@ import java.sql.Timestamp;
 @Table(name = "price_list")
 public class PriceList {
     private Long idPriceList;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp endTime;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private BigDecimal dailyPrice;
+    @JsonIgnore
     private StorageSpaceType storageSpaceType;
+    @JsonIgnore
     private WarehouseCompany warehouseCompany;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String comment;
 
     @Id
@@ -54,7 +64,8 @@ public class PriceList {
         this.storageSpaceType = storageSpaceType;
     }
 
-    @Column(name = "id_warehouse_company")
+    @ManyToOne
+    @JoinColumn(name = "id_warehouse_company", nullable = false)
     public WarehouseCompany getWarehouseCompany() {
         return warehouseCompany;
     }
