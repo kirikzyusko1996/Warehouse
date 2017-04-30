@@ -177,12 +177,25 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Updating goods with id {} from DTO: {}", id, goodsDTO);
         if (id == null || goodsDTO == null) throw new IllegalParametersException("Id or goods DTO is null");
         try {
-            Goods goods = goodsDTO.buildGoodsEntity();
-            goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
-            goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-            goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-            goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-            return goodsDAO.update(goods);
+            Goods goodsToUpdate = findGoodsById(id);
+
+            if (goodsDTO.getName() != null)
+                goodsToUpdate.setName(goodsDTO.getName());
+            if (goodsDTO.getQuantity() != null)
+                goodsToUpdate.setQuantity(goodsDTO.getQuantity());
+            if (goodsDTO.getWeight() != null)
+                goodsToUpdate.setWeight(goodsDTO.getWeight());
+            if (goodsDTO.getPrice() != null)
+                goodsToUpdate.setPrice(goodsDTO.getPrice());
+            if (goodsDTO.getStorageTypeName() != null)
+                goodsToUpdate.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
+            if (goodsDTO.getQuantityUnitName() != null)
+                goodsToUpdate.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
+            if (goodsDTO.getWeightUnitName() != null)
+                goodsToUpdate.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
+            if (goodsDTO.getPriceUnitName() != null)
+                goodsToUpdate.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
+            return goodsDAO.update(goodsToUpdate);
         } catch (GenericDAOException e) {
             logger.error("Error during saving goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -264,8 +277,10 @@ public class GoodsServiceImpl implements GoodsService {
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<Goods> result = goodsDAO.findById(id);
-            if (result != null)
+            if (result != null) {
+                removeGoodsFromStorage(id);
                 goodsDAO.delete(result.get());
+            }
         } catch (GenericDAOException e) {
             logger.error("Error during deleting goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

@@ -15,7 +15,7 @@ public class TrimmingJsonDeserializer extends JsonDeserializer<String> {
 
     @Override
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-        return StringUtils.trim(p.getCurrentToken().asString());
+        return StringUtils.trim(p.getValueAsString());
     }
 
 }

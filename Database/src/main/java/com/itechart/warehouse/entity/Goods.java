@@ -1,5 +1,6 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -16,14 +17,23 @@ public class Goods implements Serializable {
     private BigDecimal quantity;
     private BigDecimal weight;
     private BigDecimal price;
+    @JsonIgnore
     private StorageSpaceType storageType;
+    @JsonIgnore
     private Unit quantityUnit;
+    @JsonIgnore
     private Unit weightUnit;
+    @JsonIgnore
     private Unit priceUnit;
+    @JsonIgnore
     private Invoice incomingInvoice;
+    @JsonIgnore
     private Invoice outgoingInvoice;
+    @JsonIgnore
     private List<Act> acts;
+    @JsonIgnore
     private List<GoodsStatus> statuses;
+    @JsonIgnore
     private List<StorageCell> cells;
 
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)

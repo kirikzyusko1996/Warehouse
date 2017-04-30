@@ -18,8 +18,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,32 +44,44 @@ public class GoodsControllerTest {
     }
 
     @Test
-    @WithUserDetails(value = "testUser", userDetailsServiceBeanName = "userDetailsService")
-    public void testGoodsUpdate() {
-
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testGoodsUpdate() throws Exception {
+            GoodsDTO goodsDTO = new GoodsDTO();
+            goodsDTO.setName("Test");
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
+        mockMvc.perform(put("/goods/save/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonGoodsDTO)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 
+
+
     @Test
-    @WithUserDetails(value = "testUser", userDetailsServiceBeanName = "userDetailsService")
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsFind() throws Exception {
         mockMvc.perform(get("/goods/1?count=10")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$").isNotEmpty());
-//                    .andExpect(content().string("1"));
-//        .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value("1"))
     }
 
     @Test
-    @WithUserDetails(value = "testUser", userDetailsServiceBeanName = "userDetailsService")
-    public void testGoodsDelete() {
-
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testGoodsDelete() throws Exception {
+        mockMvc.perform(delete("/goods/delete/1")
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 
 
     @Test
-    @WithUserDetails(value = "testUser", userDetailsServiceBeanName = "userDetailsService")
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsSave() throws Exception {
         GoodsDTO goodsDTO = new GoodsDTO();
         goodsDTO.setName("Test");
@@ -79,7 +92,6 @@ public class GoodsControllerTest {
         goodsDTO.setQuantityUnitName("шт");
         goodsDTO.setWeight(new BigDecimal("10"));
         goodsDTO.setWeightUnitName("кг");
-
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
 
@@ -87,6 +99,7 @@ public class GoodsControllerTest {
                 .content(jsonGoodsDTO)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(print())
                 .andExpect(status().isCreated());
     }
 

@@ -6,6 +6,7 @@ import com.itechart.warehouse.entity.Goods;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -14,20 +15,22 @@ import java.math.BigDecimal;
 @Setter
 @Getter
 @lombok.ToString
+
 public class GoodsDTO {
-//    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String name;
     private BigDecimal quantity;
     private BigDecimal weight;
     private BigDecimal price;
-//    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String storageTypeName;
-//    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String quantityUnitName;
-//    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String weightUnitName;
-//    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String priceUnitName;
+
 
     public Goods buildGoodsEntity() {
         Goods goods = new Goods();
@@ -37,5 +40,6 @@ public class GoodsDTO {
         goods.setQuantity(quantity);
         return goods;
     }
+
 
 }

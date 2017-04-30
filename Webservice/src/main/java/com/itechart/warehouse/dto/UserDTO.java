@@ -3,7 +3,6 @@ package com.itechart.warehouse.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +10,6 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

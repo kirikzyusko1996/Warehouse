@@ -56,12 +56,13 @@ public class GoodsController {
             logger.error("Invalid parameters: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(goods, HttpStatus.OK);
+        ResponseEntity<List<Goods>> responseEntity = new ResponseEntity<List<Goods>>(goods, HttpStatus.OK);
+        return responseEntity;
     }
 
     @RequestMapping(value = "/{invoiceId}/save", method = RequestMethod.POST)
     public ResponseEntity<Void> saveGoods(@PathVariable Long invoiceId, @Valid @RequestBody GoodsDTO goodsDTO) {
-        logger.info("Handling request for saving new goods using DTO: {}", goodsDTO);
+        logger.info("Handling request for saving new goods using DTO: {} for invoice with id {}", goodsDTO, invoiceId);
         try {
             //todo set invoice etc.
             goodsService.createGoods(invoiceId, goodsDTO);
