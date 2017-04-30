@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,6 +36,8 @@ public class Goods implements Serializable {
     }
 
     public void addStatus(GoodsStatus status) {
+        if (statuses == null)
+            statuses = new ArrayList<>();
         statuses.add(status);
     }
 

@@ -1,0 +1,52 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="gilimovich" id="unit">
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="1"/>
+            <column name="name" value="кг"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="2"/>
+            <column name="name" value="л"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="3"/>
+            <column name="name" value="м"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="4"/>
+            <column name="name" value="м2"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="5"/>
+            <column name="name" value="м3"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="6"/>
+            <column name="name" value="бочка"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="7"/>
+            <column name="name" value="уп"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="8"/>
+            <column name="name" value="шт"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="9"/>
+            <column name="name" value="руб"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="10"/>
+            <column name="name" value="долл"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="unit">
+            <column name="id_unit" value="11"/>
+            <column name="name" value="т"/>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

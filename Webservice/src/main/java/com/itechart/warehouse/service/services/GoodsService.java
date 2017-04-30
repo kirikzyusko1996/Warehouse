@@ -27,7 +27,7 @@ public interface GoodsService {
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
 
-    Goods createGoods(GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
+    Goods createGoods(Long invoiceId, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
 
     void deleteGoods(Long id) throws DataAccessException, IllegalParametersException;
 

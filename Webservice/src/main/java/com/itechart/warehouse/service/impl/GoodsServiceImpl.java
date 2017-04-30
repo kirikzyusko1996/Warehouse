@@ -1,6 +1,5 @@
 package com.itechart.warehouse.service.impl;
 
-import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
@@ -33,6 +32,7 @@ public class GoodsServiceImpl implements GoodsService {
     private UnitDAO unitDAO;
     private StorageSpaceTypeDAO storageSpaceTypeDAO;
     private StorageCellDAO storageCellDAO;
+    private UserDAO userDAO;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
@@ -70,6 +70,11 @@ public class GoodsServiceImpl implements GoodsService {
         this.invoiceDAO = invoiceDAO;
     }
 
+    @Autowired
+    public void setUserDAO(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<Goods> findAllGoods(int firstResult, int maxResults) throws DataAccessException {
@@ -103,7 +108,8 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find {} goods starting from index {} by company id: {}", maxResults, firstResult, companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
-        criteria.add(Restrictions.eq("company_id", companyId));
+        // TODO: 30.04.2017 find for company
+//        criteria.add(Restrictions.eq("company_id", companyId));
         try {
             return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
@@ -135,7 +141,8 @@ public class GoodsServiceImpl implements GoodsService {
     @Transactional(readOnly = true)
     public List<Goods> findGoodsForCompanyByCriteria(Long companyId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goods for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, goodsSearchDTO);
-        if (goodsSearchDTO == null || companyId == null) throw new IllegalParametersException("Goods search DTO or company id is null");
+        if (goodsSearchDTO == null || companyId == null)
+            throw new IllegalParametersException("Goods search DTO or company id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.add(Restrictions.eq("company_id", companyId));
         if (goodsSearchDTO.getName() != null)
@@ -188,7 +195,7 @@ public class GoodsServiceImpl implements GoodsService {
         DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
         criteria.add(Restrictions.eq("name", unitName));
         List<Unit> fetchedUnits = unitDAO.findAll(criteria, -1, 1);
-        return fetchedUnits.get(1);
+        return fetchedUnits.get(0);
     }
 
     private StorageSpaceType findStorageTypeByName(String spaceTypeName) throws GenericDAOException, IllegalParametersException {
@@ -197,29 +204,48 @@ public class GoodsServiceImpl implements GoodsService {
         DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
         criteria.add(Restrictions.eq("name", spaceTypeName));
         List<StorageSpaceType> fetchedSpaceType = storageSpaceTypeDAO.findAll(criteria, -1, 1);
-        return fetchedSpaceType.get(1);
+        return fetchedSpaceType.get(0);
     }
 
     @Override
     @Transactional
-    public Goods createGoods(GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException {
-        logger.info("Creating goods from DTO: {}", goodsDTO);
-        if (goodsDTO == null) throw new IllegalParametersException("Goods DTO is null");
+    public Goods createGoods(Long invoiceId, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException {
+        logger.info("Creating goods for invoice wuth id {} from DTO: {}", invoiceId, goodsDTO);
+        if (invoiceId == null || goodsDTO == null)
+            throw new IllegalParametersException("Invoice id or goods DTO is null");
         try {
-            //todo set invoice??
             Goods goods = goodsDTO.buildGoodsEntity();
-            goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
-            goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-            goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-            goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-            GoodsStatus goodsStatus = new GoodsStatus();
-            goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
-            goods.addStatus(goodsStatus);
-            return goodsDAO.insert(goods);
+            if (goodsDTO.getPriceUnitName() != null)
+                goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
+            if (goodsDTO.getQuantityUnitName() != null)
+                goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
+            if (goodsDTO.getWeightUnitName() != null)
+                goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
+            if (goodsDTO.getStorageTypeName() != null)
+                goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
+            goods.setIncomingInvoice(findInvoiceById(invoiceId));
+
+            Goods savedGoods = goodsDAO.insert(goods);
+
+            return savedGoods;
         } catch (GenericDAOException e) {
             logger.error("Error during saving goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    private Invoice findInvoiceById(Long invoiceId) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for invoice with id: {}", invoiceId);
+        if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
+        Optional<Invoice> result = invoiceDAO.findById(invoiceId);
+        return result.get();
+    }
+
+    private User findUserById(Long userId) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for user with id: {}", userId);
+        if (userId == null) throw new IllegalParametersException("User id is null");
+        Optional<User> result = userDAO.findById(userId);
+        return result.get();
     }
 
     private GoodsStatusName findGoodsStatusNameByName(String goodsStatusNameName) throws GenericDAOException, IllegalParametersException {
@@ -228,7 +254,7 @@ public class GoodsServiceImpl implements GoodsService {
         DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
         criteria.add(Restrictions.eq("name", goodsStatusNameName));
         List<GoodsStatusName> fetchedStatusName = goodsStatusNameDAO.findAll(criteria, -1, 1);
-        return fetchedStatusName.get(1);
+        return fetchedStatusName.get(0);
     }
 
     @Override

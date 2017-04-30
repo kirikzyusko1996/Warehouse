@@ -40,7 +40,7 @@ public class GoodsController {
     }
 
     @RequestMapping(value = "/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Goods>> getUsers(@PathVariable int page, @RequestParam int count) {
+    public ResponseEntity<List<Goods>> getGoods(@PathVariable int page, @RequestParam int count) {
         logger.info("Handling request for list of goods, page: {}, count: {}", page, count);
         List<Goods> goods = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
@@ -59,15 +59,16 @@ public class GoodsController {
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Void> saveUser(@Valid @RequestBody GoodsDTO goodsDTO) {
+    @RequestMapping(value = "/{invoiceId}/save", method = RequestMethod.POST)
+    public ResponseEntity<Void> saveGoods(@PathVariable Long invoiceId, @Valid @RequestBody GoodsDTO goodsDTO) {
         logger.info("Handling request for saving new goods using DTO: {}", goodsDTO);
         try {
             //todo set invoice etc.
-            goodsService.createGoods(goodsDTO);
+            goodsService.createGoods(invoiceId, goodsDTO);
+            //todo save status
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DataAccessException e) {
-            logger.error("Error during user saving: {}", e.getMessage());
+            logger.error("Error during goods saving: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (IllegalParametersException e) {
             logger.error("Invalid parameters: {}", e.getMessage());
@@ -76,7 +77,7 @@ public class GoodsController {
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody GoodsDTO goodsDTO) {
+    public ResponseEntity<Void> updateGoods(@PathVariable(value = "id") Long id, @Valid @RequestBody GoodsDTO goodsDTO) {
         logger.info("Handling request for updating goods with id: {} by DTO: {}", id, goodsDTO);
         //todo security check
         try {
@@ -92,7 +93,7 @@ public class GoodsController {
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<Void> deleteGoods(@PathVariable(value = "id") Long id) {
         logger.info("Handling request for deleting user with id: {}", id);
         //todo security check
         try {
