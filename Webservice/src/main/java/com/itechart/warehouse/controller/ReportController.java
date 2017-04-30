@@ -25,9 +25,11 @@ public class ReportController {
     private Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     @Autowired
-    public void setUserService(ReportService reportService) {
+    public void setReportService(ReportService reportService) {
         this.reportService = reportService;
     }
+
+
 
 
     @RequestMapping(value = "/receipt", method = RequestMethod.GET,

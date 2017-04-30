@@ -26,7 +26,7 @@ public class FinanceController {
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    public void setUserService(FinanceService financeService) {
+    public void setFinanceService(FinanceService financeService) {
         this.financeService = financeService;
     }
 

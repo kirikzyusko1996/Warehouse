@@ -2,6 +2,7 @@ package com.itechart.warehouse.service.impl;
 
 import com.itechart.warehouse.dao.PriceListDAO;
 import com.itechart.warehouse.dao.StorageSpaceTypeDAO;
+import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.PriceListDTO;
 import com.itechart.warehouse.entity.Act;
@@ -17,6 +18,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -29,11 +31,14 @@ public class FinanceServiceImpl implements FinanceService{
 
     private PriceListDAO priceListDAO;
     private StorageSpaceTypeDAO storageSpaceTypeDAO;
-    private WarehouseCompanyUserDetails userDetails;
-    public FinanceServiceImpl(){
-        userDetails = UserDetailsProvider.getUserDetails();
-        priceListDAO = new PriceListDAO();
-        storageSpaceTypeDAO = new StorageSpaceTypeDAO();
+
+    @Autowired
+    public void setPriceListDAO(PriceListDAO priceListDAO) {
+        this.priceListDAO = priceListDAO;
+    }
+    @Autowired
+    public void setStorageSpaceTypeDAO(StorageSpaceTypeDAO storageSpaceTypeDAO) {
+        this.storageSpaceTypeDAO = storageSpaceTypeDAO;
     }
 
     private Logger logger = LoggerFactory.getLogger(FinanceServiceImpl.class);
@@ -42,7 +47,7 @@ public class FinanceServiceImpl implements FinanceService{
     public void newPrice(PriceListDTO priceDTO) throws GenericDAOException {
         logger.info("new price: {} for idStorageSpaceType: {}", priceDTO.getDailyPrice(), priceDTO.getIdStorageSpaceType());
         DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
-        criteria.add(Restrictions.eq("warehouseCompany", userDetails.getCompany()))
+        criteria.add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()))
                 .add(Restrictions.isNull("endTime"))
                 .add(Restrictions.eq("StorageSpaceType", priceDTO.getIdStorageSpaceType()));
         List<PriceList> priceList = priceListDAO.findAll(criteria, 0, 0);
@@ -65,7 +70,7 @@ public class FinanceServiceImpl implements FinanceService{
             price.setDailyPrice(priceDTO.getDailyPrice());
             price.setStorageSpaceType(result.get());
             price.setEndTime(null);
-            price.setWarehouseCompany(userDetails.getCompany());
+            price.setWarehouseCompany( UserDetailsProvider.getUserDetails().getCompany());
             price.setComment(price.getComment());
             priceListDAO.insert(price);
         }
@@ -75,7 +80,7 @@ public class FinanceServiceImpl implements FinanceService{
     public List<PriceList> findAllPrices(int skip, int limit) throws DataAccessException {
         logger.info("FindAll, skip {}, limit {}", skip, limit);
         DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
-        criteria.add(Restrictions.eq("warehouseCompany", userDetails.getCompany()));
+        criteria.add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
         try {
             return priceListDAO.findAll(criteria, skip, skip+limit);
         } catch (GenericDAOException e) {
@@ -123,7 +128,7 @@ public class FinanceServiceImpl implements FinanceService{
                 Criterion restriction1 = Restrictions.ge("endTime", dayStart);
                 Criterion restriction2= Restrictions.le("endTime", dayFinish);
                 criteria.add(Restrictions.and(restriction1, restriction2))
-                        .add(Restrictions.eq("warehouseCompany", userDetails.getCompany()));
+                        .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
             }
             return priceListDAO.findAll(criteria, skip, limit);
         } catch (GenericDAOException e) {
