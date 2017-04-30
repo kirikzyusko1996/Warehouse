@@ -18,6 +18,7 @@ import org.hibernate.criterion.Restrictions;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -36,33 +37,34 @@ public class ReportServiceXLSXImpl implements ReportService {
     private ActTypeDAO actTypeDAO;
     private ActDAO actDAO;
     private WarehouseDAO warehouseDAO;
-    private String tempFileDir;
-    private XSSFWorkbook workbook;
-    private String propFileName = "report.properties";
+
+    @Autowired
+    public void setGoodsStatusDAO(GoodsStatusDAO goodsStatusDAO) {
+        this.goodsStatusDAO = goodsStatusDAO;
+    }
+
+    @Autowired
+    public void setGoodsStatusNameDAO(GoodsStatusNameDAO goodsStatusNameDAO) {
+        this.goodsStatusNameDAO = goodsStatusNameDAO;
+    }
+
+    @Autowired
+    public void setActTypeDAO(ActTypeDAO actTypeDAO) {
+        this.actTypeDAO = actTypeDAO;
+    }
+
+    @Autowired
+    public void setActDAO(ActDAO actDAO) {
+        this.actDAO = actDAO;
+    }
+
+    @Autowired
+    public void setWarehouseDAO(WarehouseDAO warehouseDAO) {
+        this.warehouseDAO = warehouseDAO;
+    }
 
     public ReportServiceXLSXImpl(){
-        Properties properties = new Properties();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
-        try {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            logger.error("initialization failed: {}", e.getMessage());
-        }
-        tempFileDir = properties.getProperty("tempFileDir");
-            goodsStatusDAO = new GoodsStatusDAO();
-            goodsStatusNameDAO = new GoodsStatusNameDAO();
-            actDAO = new ActDAO();
-            actTypeDAO = new ActTypeDAO();
-            warehouseDAO = new WarehouseDAO();
-            workbook = new XSSFWorkbook();
-            File tmpdir = new File(tempFileDir);
-            if (!(tmpdir.exists())) {
-                boolean dirsCreated = tmpdir.mkdirs();
-                if (!dirsCreated) {
-                    logger.error("Directory creation failed");
-                    throw new RuntimeException("temporary directory creation failed");
-                }
-            }
+
     }
 
     private Logger logger = LoggerFactory.getLogger(ReportServiceXLSXImpl.class);
@@ -70,6 +72,22 @@ public class ReportServiceXLSXImpl implements ReportService {
     @Override
     public File getReceiptReport(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws DataAccessException {
         logger.info("getReceiptReport of warehouse by id {}, from {} to {}", idWarehouse, startDate, endDate);
+        Properties properties = new Properties();
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("report.properties");
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            logger.error("initialization failed: {}", e.getMessage());
+        }
+        String tempFileDir = properties.getProperty("tempFileDir");
+        File tmpdir = new File(tempFileDir);
+        if (!(tmpdir.exists())) {
+            boolean dirsCreated = tmpdir.mkdirs();
+            if (!dirsCreated) {
+                logger.error("Directory creation failed");
+                throw new RuntimeException("temporary directory creation failed");
+            }
+        }
         List<GoodsStatus> goodsStatusList;
         List<ReceiptReportItem> reportItemList = new ArrayList<>();
         String fileName;
@@ -80,9 +98,6 @@ public class ReportServiceXLSXImpl implements ReportService {
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
         DetachedCriteria statusNameCriteria = DetachedCriteria.forClass(GoodsStatusName.class);
         statusNameCriteria.add(Restrictions.eq("name", GoodsStatusEnum.STORED));
-
-
-
         try {
             int idStatusName = goodsStatusNameDAO
                     .findAll(statusNameCriteria, 0, 1).get(0).getId();
@@ -117,6 +132,7 @@ public class ReportServiceXLSXImpl implements ReportService {
             }
 
             //generate rows with headers
+            XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFSheet sheet = workbook.createSheet("1");
             sheet.setHorizontallyCenter(true);
             XSSFRow header = sheet.createRow(0);
@@ -157,6 +173,23 @@ public class ReportServiceXLSXImpl implements ReportService {
 
     @Override
     public File getWarehousesLossReport(LocalDate startDate, LocalDate endDate) throws GenericDAOException {
+        Properties properties = new Properties();
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("report.properties");
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            logger.error("initialization failed: {}", e.getMessage());
+        }
+        String tempFileDir = properties.getProperty("tempFileDir");
+        File tmpdir = new File(tempFileDir);
+        if (!(tmpdir.exists())) {
+            boolean dirsCreated = tmpdir.mkdirs();
+            if (!dirsCreated) {
+                logger.error("Directory creation failed");
+                throw new RuntimeException("temporary directory creation failed");
+            }
+        }
+
         logger.info("getWarehousesLossReport from {} to {}", startDate, endDate);
         List<ActType> actTypeList;
         List<Act> actList;
@@ -200,6 +233,7 @@ public class ReportServiceXLSXImpl implements ReportService {
         }
 
         //generate rows with headers
+        XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("1");
         sheet.setHorizontallyCenter(true);
         XSSFRow header = sheet.createRow(0);
@@ -241,6 +275,22 @@ public class ReportServiceXLSXImpl implements ReportService {
     @Override
     public File getWarehouseLossReportWithLiableEmployees(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws GenericDAOException {
         logger.info("getWarehouse {} Loss Report With Liable Employees from {} to {}", idWarehouse, startDate, endDate);
+        Properties properties = new Properties();
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("report.properties");
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            logger.error("initialization failed: {}", e.getMessage());
+        }
+        String tempFileDir = properties.getProperty("tempFileDir");
+        File tmpdir = new File(tempFileDir);
+        if (!(tmpdir.exists())) {
+            boolean dirsCreated = tmpdir.mkdirs();
+            if (!dirsCreated) {
+                logger.error("Directory creation failed");
+                throw new RuntimeException("temporary directory creation failed");
+            }
+        }
         List<ActType> actTypeList;
         List<Act> actList;
         List<LossReportItem> lossReportItemList = new ArrayList<>();
@@ -283,6 +333,7 @@ public class ReportServiceXLSXImpl implements ReportService {
         }
 
         //generate rows with headers
+        XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("1");
         sheet.setHorizontallyCenter(true);
         XSSFRow header = sheet.createRow(0);
