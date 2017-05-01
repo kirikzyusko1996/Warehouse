@@ -9,6 +9,7 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.DriverDTO;
 import com.itechart.warehouse.dto.GoodsInvoiceDTO;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
+import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Driver;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.Invoice;
@@ -85,7 +86,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 goodsCriteria.add(Restrictions.eq("id_incoming_invoice", invoice.getId()));
                 List<Goods> goodsForInvoice = goodsDAO.findAll(goodsCriteria, -1, -1);
 
-                IncomingInvoiceDTO dto = convertToDTO(invoice, goodsForInvoice);
+                IncomingInvoiceDTO dto = convertToIncomingDTO(invoice, goodsForInvoice);
                 invoiceDTOs.add(dto);
             }
 
@@ -98,8 +99,32 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public List<Invoice> findAllOutgoingInvoices() throws DataAccessException {
-        return null;
+    @Transactional(readOnly = true)
+    public List<OutgoingInvoiceDTO> findAllOutgoingInvoices() throws DataAccessException {
+        logger.info("Find all outgoing invoices");
+
+        List<OutgoingInvoiceDTO> invoiceDTOs = new ArrayList<>();
+        try {
+            DetachedCriteria criteria = DetachedCriteria.forClass(InvoiceStatus.class);
+            List<InvoiceStatus> invoices = invoiceStatusDAO.findAll(criteria, -1, -1);
+
+            List<InvoiceStatus> incomingInvoices = parseOutgoingInvoices(invoices);
+
+            for (InvoiceStatus invoice : incomingInvoices) {
+                DetachedCriteria goodsCriteria = DetachedCriteria.forClass(Goods.class);
+                goodsCriteria.add(Restrictions.eq("id_outgoing_invoice", invoice.getId()));
+                List<Goods> goodsForInvoice = goodsDAO.findAll(goodsCriteria, -1, -1);
+
+                OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoice, goodsForInvoice);
+                invoiceDTOs.add(dto);
+            }
+
+        } catch (GenericDAOException e) {
+            logger.error("Error while finding all outgoing invoices: ", e);
+            throw new DataAccessException(e);
+        }
+
+        return invoiceDTOs;
     }
 
     @Override
@@ -218,8 +243,23 @@ public class InvoiceServiceImpl implements InvoiceService {
         return incomingInvoices;
     }
 
-    private IncomingInvoiceDTO convertToDTO(InvoiceStatus invoiceStatus, List<Goods> goodsList){
+    private List<InvoiceStatus> parseOutgoingInvoices(List<InvoiceStatus> invoices) {
+        List<InvoiceStatus> outgoingInvoices = new ArrayList<>();
+        for (InvoiceStatus invoice : invoices) {
+            String statusName = invoice.getStatusName().getName();
+            if (statusName.equals(InvoiceStatusEnum.RELEASE_ALLOWED.getName())
+                    || statusName.equals(InvoiceStatusEnum.MOVED_OUT.getName())) {
+                outgoingInvoices.add(invoice);
+            }
+        }
+
+        return outgoingInvoices;
+    }
+
+    private IncomingInvoiceDTO convertToIncomingDTO(InvoiceStatus invoiceStatus, List<Goods> goodsList){
         IncomingInvoiceDTO dto = new IncomingInvoiceDTO();
+
+        // todo maybe use model mapper
 
         Invoice invoice = invoiceStatus.getInvoice();
         dto.setId(invoice.getId());
@@ -233,28 +273,70 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setGoodsQuantity(invoice.getGoodsQuantity());
         dto.setGoodsEntryCount(invoice.getGoodsEntryCount());
 
-        dto = fillInvoiceWithDriverInfo(dto, invoice.getDriver());
-
         dto.setDispatcher(invoiceStatus.getUser());
         dto.setRegistrationDate(invoiceStatus.getDate());
 
-        dto = fillInvoiceWithGoodsInfo(dto, goodsList);
+        dto = fillIncomingInvoiceWithDriverInfo(dto, invoice.getDriver());
+        dto = fillIncomingInvoiceWithGoodsInfo(dto, goodsList);
 
         return dto;
     }
 
-    private IncomingInvoiceDTO fillInvoiceWithDriverInfo(IncomingInvoiceDTO invoice, Driver driver){
+    private OutgoingInvoiceDTO convertToOutgoingDTO(InvoiceStatus invoiceStatus, List<Goods> goodsList) {
+        OutgoingInvoiceDTO dto = new OutgoingInvoiceDTO();
+
+        Invoice invoice = invoiceStatus.getInvoice();
+        dto.setId(invoice.getId());
+        dto.setNumber(invoice.getNumber());
+        dto.setIssueDate(invoice.getIssueDate());
+        dto.setReceiverCompany(invoice.getReceiverCompany());
+        dto.setTransportCompany(invoice.getTransportCompany());
+        dto.setTransportNumber(invoice.getTransportNumber());
+        dto.setTransportName(invoice.getTransportName());
+        dto.setDescription(invoice.getDescription());
+        dto.setGoodsQuantity(invoice.getGoodsQuantity());
+        dto.setGoodsEntryCount(invoice.getGoodsEntryCount());
+
+        dto.setManager(invoiceStatus.getUser());
+        dto.setRegistrationDate(invoiceStatus.getDate());
+
+        dto = fillOutgoingInvoiceWithDriverInfo(dto, invoice.getDriver());
+        dto = fillOutgoingInvoiceWithGoodsInfo(dto, goodsList);
+
+        return dto;
+    }
+
+    private IncomingInvoiceDTO fillIncomingInvoiceWithDriverInfo(IncomingInvoiceDTO invoice, Driver driver){
+        invoice.setDriver(mapDriver(driver));
+        return invoice;
+    }
+
+    private OutgoingInvoiceDTO fillOutgoingInvoiceWithDriverInfo(OutgoingInvoiceDTO invoice, Driver driver){
+        invoice.setDriver(mapDriver(driver));
+        return invoice;
+    }
+
+    private DriverDTO mapDriver(Driver driver){
         DriverDTO driverDTO = new DriverDTO();
         driverDTO.setFullName(driver.getFullName());
         driverDTO.setCountryCode(driver.getCountryCode());
         driverDTO.setIssueDate(driver.getIssueDate());
         driverDTO.setPassportNumber(driver.getPassportNumber());
 
-        invoice.setDriver(driverDTO);
+        return driverDTO;
+    }
+
+    private IncomingInvoiceDTO fillIncomingInvoiceWithGoodsInfo(IncomingInvoiceDTO invoice, List<Goods> goodsList){
+        invoice.setGoods(mapGoods(goodsList));
         return invoice;
     }
 
-    private IncomingInvoiceDTO fillInvoiceWithGoodsInfo(IncomingInvoiceDTO invoice, List<Goods> goodsList){
+    private OutgoingInvoiceDTO fillOutgoingInvoiceWithGoodsInfo(OutgoingInvoiceDTO invoice, List<Goods> goodsList){
+        invoice.setGoods(mapGoods(goodsList));
+        return invoice;
+    }
+
+    private List<GoodsInvoiceDTO> mapGoods(List<Goods> goodsList){
         List<GoodsInvoiceDTO> goodsInvoiceDTOs = new ArrayList<>();
         for (Goods goods : goodsList) {
             GoodsInvoiceDTO goodsDTO = new GoodsInvoiceDTO();
@@ -267,7 +349,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             goodsInvoiceDTOs.add(goodsDTO);
         }
 
-        invoice.setGoods(goodsInvoiceDTOs);
-        return invoice;
+        return goodsInvoiceDTOs;
     }
 }

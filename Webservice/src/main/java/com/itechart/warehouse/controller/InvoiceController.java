@@ -1,6 +1,7 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
+import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.services.InvoiceService;
@@ -37,6 +38,21 @@ public class InvoiceController {
             companies = invoiceService.findAllIncomingInvoices();
         } catch (DataAccessException e){
             logger.error("Error while retrieving all registered incoming invoices", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>(companies, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/outgoing", method = RequestMethod.GET)
+    public ResponseEntity<List<OutgoingInvoiceDTO>> readOutgoingInvoices(){
+        logger.info("GET on /invoice/outgoing: find all registered outgoing invoices");
+
+        List<OutgoingInvoiceDTO> companies;
+        try{
+            companies = invoiceService.findAllOutgoingInvoices();
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving all registered outgoing invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 

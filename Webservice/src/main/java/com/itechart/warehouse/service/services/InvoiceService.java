@@ -2,6 +2,7 @@ package com.itechart.warehouse.service.services;
 
 
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
+import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
 import com.itechart.warehouse.service.exception.DataAccessException;
 
@@ -12,7 +13,7 @@ public interface InvoiceService {
 
     List<IncomingInvoiceDTO> findAllIncomingInvoices() throws DataAccessException;
 
-    List<Invoice> findAllOutgoingInvoices() throws DataAccessException;
+    List<OutgoingInvoiceDTO> findAllOutgoingInvoices() throws DataAccessException;
 
     Invoice findInvoiceById(Long id) throws DataAccessException;
 
