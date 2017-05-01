@@ -40,7 +40,7 @@ public class ActController {
     }
 
     @RequestMapping(value = "/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Act>> getUsers(@PathVariable int page, @RequestParam int count) {
+    public ResponseEntity<List<Act>> getActs(@PathVariable int page, @RequestParam int count) {
         logger.info("Handling request for list of acts, page: {}, count: {}", page, count);
         List<Act> acts = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
@@ -60,12 +60,12 @@ public class ActController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Void> saveUser(@Valid @RequestBody ActDTO actDTO) {
+    public ResponseEntity<Long> saveAct(@Valid @RequestBody ActDTO actDTO) {
         logger.info("Handling request for saving new act using DTO: {}", actDTO);
         try {
             //todo set goods etc.
-            actService.createAct(actDTO);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            Act savedAct = actService.createAct(actDTO);
+            return new ResponseEntity<>(savedAct.getId(), HttpStatus.CREATED);
         } catch (DataAccessException e) {
             logger.error("Error during act saving: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -76,7 +76,7 @@ public class ActController {
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody ActDTO actDTO) {
+    public ResponseEntity<Void> updateAct(@PathVariable(value = "id") Long id, @Valid @RequestBody ActDTO actDTO) {
         logger.info("Handling request for updating act with id: {} by DTO: {}", id, actDTO);
         //todo security check
         try {
@@ -92,7 +92,7 @@ public class ActController {
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<Void> deleteAct(@PathVariable(value = "id") Long id) {
         logger.info("Handling request for deleting act with id: {}", id);
         //todo security check
         try {

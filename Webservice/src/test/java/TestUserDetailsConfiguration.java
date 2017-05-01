@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.ArrayList;
 
 /**
- * Created by Aleksandr on 29.04.2017.
+ * User details and user details service config bean for tests.
  */
 @Configuration
 public class TestUserDetailsConfiguration {

@@ -1,0 +1,18 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Adding foreign keys -->
+
+    <changeSet author="gilimovich" id="addColumn">
+        <addColumn tableName="price_list">
+            <column name="id_warehouse_company" type="BIGINT UNSIGNED"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="gilimovich" id="add constraint">
+        <addForeignKeyConstraint baseColumnNames="id_warehouse_company" baseTableName="price_list" constraintName="price_list_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_company" referencedTableName="warehouse_company"/>
+    </changeSet>
+
+</databaseChangeLog>

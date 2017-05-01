@@ -1,8 +1,10 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.constants.StorageTypeEnum;
+import com.itechart.warehouse.constants.UnitEnum;
 import com.itechart.warehouse.dto.GoodsDTO;
+import com.itechart.warehouse.dto.GoodsSearchDTO;
+import com.itechart.warehouse.dto.GoodsStatusDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,9 +22,7 @@ import java.math.BigDecimal;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Test of goods controller.
@@ -46,10 +46,10 @@ public class GoodsControllerTest {
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsUpdate() throws Exception {
-            GoodsDTO goodsDTO = new GoodsDTO();
-            goodsDTO.setName("Test");
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
+        GoodsDTO goodsDTO = new GoodsDTO();
+        goodsDTO.setName("Test");
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
         mockMvc.perform(put("/goods/save/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonGoodsDTO)
@@ -58,12 +58,10 @@ public class GoodsControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-
-
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void testGoodsFind() throws Exception {
-        mockMvc.perform(get("/goods/1?count=10")
+    public void testGoodsGet() throws Exception {
+        mockMvc.perform(get("/goods/1/1?count=10")
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -87,11 +85,11 @@ public class GoodsControllerTest {
         goodsDTO.setName("Test");
         goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
         goodsDTO.setPrice(new BigDecimal(10));
-        goodsDTO.setPriceUnitName("руб");
+        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
         goodsDTO.setQuantity(new BigDecimal(10));
-        goodsDTO.setQuantityUnitName("шт");
-        goodsDTO.setWeight(new BigDecimal("10"));
-        goodsDTO.setWeightUnitName("кг");
+        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+        goodsDTO.setWeight(new BigDecimal(10));
+        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
 
@@ -100,8 +98,50 @@ public class GoodsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$").value("11"));
+    }
+
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testGoodsStatusSave() throws Exception {
+        GoodsStatusDTO statusDTO = new GoodsStatusDTO();
+        statusDTO.setStatusName(GoodsStatusEnum.REGISTERED.toString());
+        statusDTO.setStatusNote("Some note");
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonGoodsStatusDTO = mapper.writeValueAsString(statusDTO);
+
+        mockMvc.perform(post("/goods/status/2")
+                .content(jsonGoodsStatusDTO)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(print())
                 .andExpect(status().isCreated());
     }
 
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testGoodsSearch() throws Exception {
+        GoodsSearchDTO searchDTO = new GoodsSearchDTO();
+        searchDTO.setName("Test");
+        searchDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
+        searchDTO.setPrice(new BigDecimal(10));
+        searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
+        searchDTO.setQuantity(new BigDecimal(10));
+        searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+        searchDTO.setWeight(new BigDecimal(10));
+        searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
+
+        mockMvc.perform(get("/goods/search/1?count=10")
+                .content(jsonGoodsSearchDTO)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("$").isNotEmpty());
+    }
 
 }

@@ -1,6 +1,8 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.dto.GoodsDTO;
+import com.itechart.warehouse.dto.GoodsSearchDTO;
+import com.itechart.warehouse.dto.GoodsStatusDTO;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.security.UserDetailsProvider;
@@ -39,16 +41,13 @@ public class GoodsController {
         this.goodsService = goodsService;
     }
 
-    @RequestMapping(value = "/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Goods>> getGoods(@PathVariable int page, @RequestParam int count) {
-        logger.info("Handling request for list of goods, page: {}, count: {}", page, count);
+    @RequestMapping(value = "/{warehouseId}/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Goods>> getGoods(@PathVariable int page, @RequestParam int count, @PathVariable Long warehouseId) {
+        logger.info("Handling request for list of goods in warehouse with id {}, page: {}, count: {}", warehouseId, page, count);
         List<Goods> goods = null;
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         try {
-            WarehouseCompany company = userDetails.getCompany();
-            if (company != null) {
-                goods = goodsService.findGoodsForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
-            } else return new ResponseEntity<>(goods, HttpStatus.CONFLICT);
+            //todo security check
+            goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
         } catch (DataAccessException e) {
             logger.error("Error during goods retrieval: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -56,18 +55,15 @@ public class GoodsController {
             logger.error("Invalid parameters: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        ResponseEntity<List<Goods>> responseEntity = new ResponseEntity<List<Goods>>(goods, HttpStatus.OK);
-        return responseEntity;
+        return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{invoiceId}/save", method = RequestMethod.POST)
-    public ResponseEntity<Void> saveGoods(@PathVariable Long invoiceId, @Valid @RequestBody GoodsDTO goodsDTO) {
+    public ResponseEntity<Long> saveGoods(@PathVariable Long invoiceId, @Valid @RequestBody GoodsDTO goodsDTO) {
         logger.info("Handling request for saving new goods using DTO: {} for invoice with id {}", goodsDTO, invoiceId);
         try {
-            //todo set invoice etc.
-            goodsService.createGoods(invoiceId, goodsDTO);
-            //todo save status
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            Goods savedGoods = goodsService.createGoods(invoiceId, goodsDTO);
+            return new ResponseEntity<>(savedGoods.getId(), HttpStatus.CREATED);
         } catch (DataAccessException e) {
             logger.error("Error during goods saving: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -108,6 +104,49 @@ public class GoodsController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
+
+    @RequestMapping(value = "/search/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Goods>> findGoods(@PathVariable int page, @RequestParam int count, @RequestBody GoodsSearchDTO searchDTO) {
+        logger.info("Handling request for searching list of goods by: {}, page: {}, count: {}", searchDTO, page, count);
+        List<Goods> goods = null;
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        try {
+            WarehouseCompany company = userDetails.getCompany();
+            if (company != null) {
+                goods = goodsService.findGoodsForWarehouseByCriteria(company.getIdWarehouseCompany(), searchDTO, (page - 1) * count, count);
+            } else return new ResponseEntity<>(goods, HttpStatus.CONFLICT);
+        } catch (DataAccessException e) {
+            logger.error("Error during goods retrieval: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid parameters: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(goods, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/status/{id}", method = RequestMethod.POST)
+    public ResponseEntity<Void> setGoodsStatus(@PathVariable(value = "id") Long id, @RequestBody GoodsStatusDTO statusDTO) {
+        logger.info("Handling request for setting status {} to goods with id: {}", statusDTO, id);
+        //todo security check
+        try {
+            goodsService.setGoodsStatus(id, statusDTO);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (DataAccessException e) {
+            logger.error("Error during setting goods status: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid parameters: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+    
+    //todo put in storage
+
+    // TODO: 01.05.2017 remove from storage
+
+    //todo save all
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)

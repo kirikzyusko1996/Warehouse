@@ -7,6 +7,7 @@ import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -19,15 +20,19 @@ public interface GoodsService {
 
     Goods findGoodsById(Long id) throws DataAccessException, IllegalParametersException;
 
-    List<Goods> findGoodsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<Goods> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Goods> findGoodsForCompanyByCriteria(Long companyId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    List<Goods> findGoodsForCompanyByStauts(Long companyId, String statusName, Date fromDate, Date toDate, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
 
     Goods createGoods(Long invoiceId, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
+
+    List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException;
 
     void deleteGoods(Long id) throws DataAccessException, IllegalParametersException;
 
@@ -38,6 +43,8 @@ public interface GoodsService {
     void putGoodsInCells(Long goodsId, List<Long> storageCellIds) throws DataAccessException, IllegalParametersException;
 
     void removeGoodsFromStorage(Long goodsId) throws DataAccessException, IllegalParametersException;
+
+    void setOutgoingInvoice(List<Long> goodsIds, Long invoiceId) throws DataAccessException, IllegalParametersException;
 
 
 }

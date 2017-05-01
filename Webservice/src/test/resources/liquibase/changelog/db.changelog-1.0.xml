@@ -112,7 +112,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="note" type="VARCHAR(100)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </createTable>
     </changeSet>

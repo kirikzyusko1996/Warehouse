@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public abstract class DAO<T> {
-    private final Class<T> entityClass;
+    protected final Class<T> entityClass;
     protected HibernateTemplate hibernateTemplate;
     protected final Logger logger;
 

@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 
 /**
- * Json deserializer which trims leading and trailing spaces from attributes.
+ * Json deserializer which trims leading and trailing spaces from fields.
  */
 public class TrimmingJsonDeserializer extends JsonDeserializer<String> {
 
