@@ -11,5 +11,4 @@
         <property name="password" value="${spring.datasource.password}"/>
     </bean>
 
-
 </beans>

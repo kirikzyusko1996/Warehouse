@@ -47,7 +47,7 @@ public class User {
     @JsonIgnore
     private List<Role> roles;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     public List<Role> getRoles() {
         return roles;
     }

@@ -26,7 +26,7 @@ public interface GoodsService {
 
     List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Goods> findGoodsForCompanyByStauts(Long companyId, String statusName, Date fromDate, Date toDate, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<Goods> findGoodsForCompanyByStatus(Long companyId, String statusName, Date fromDate, Date toDate, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException;
 

@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", login));
         try {
-            return userDAO.findAll(criteria, -1, 1).get(0);
+            return userDAO.findAll(criteria, -1, -1).get(0);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

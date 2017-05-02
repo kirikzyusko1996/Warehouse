@@ -149,8 +149,8 @@
             <column name="house" value="10"/>
             <column name="apartment" value="17"/>
             <column name="email" value=""/>
-            <column name="login" value="1"/>
-            <column name="password" value="1"/>
+            <column name="login" value="root"/>
+            <column name="password" value="root"/>
             <column name="id_warehouse_company" value="10"/>
         </insert>
     </changeSet>

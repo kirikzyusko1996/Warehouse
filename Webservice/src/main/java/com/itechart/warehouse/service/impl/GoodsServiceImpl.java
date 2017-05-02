@@ -173,6 +173,11 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
+    @Override
+    public List<Goods> findGoodsForCompanyByStatus(Long companyId, String statusName, java.sql.Date fromDate, java.sql.Date toDate, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        return null;
+    }
+
     //todo find by status between dates
 
     @Override
@@ -253,6 +258,11 @@ public class GoodsServiceImpl implements GoodsService {
             logger.error("Error during saving goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    @Override
+    public List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException {
+        return null;
     }
 
     private Invoice findInvoiceById(Long invoiceId) throws GenericDAOException, IllegalParametersException {
