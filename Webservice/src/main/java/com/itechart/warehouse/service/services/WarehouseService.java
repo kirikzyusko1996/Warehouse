@@ -2,6 +2,8 @@ package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
 public interface WarehouseService {
     List<Warehouse> findAllWarehouse() throws DataAccessException;
 
-    List<Warehouse> findWarehousesByCompany(Long id) throws DataAccessException;
+    List<Warehouse> findWarehousesByCompanyId(Long id) throws DataAccessException;
 
     Warehouse findWarehouseById(Long id) throws DataAccessException;
 
@@ -19,9 +21,13 @@ public interface WarehouseService {
 
     ////List<Warehouse> findWarehouseForCompany(Long companyId) throws DataAccessException;
 
-    //Warehouse saveWarehouse(Warehouse warehouse) throws DataAccessException;
+    Warehouse saveWarehouse(Warehouse warehouse) throws DataAccessException;
 
-    //void deleteWarehouse(Warehouse warehouse) throws DataAccessException;
+    Warehouse updateWarehouse(String id, Warehouse warehouse)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    //boolean isExists(Warehouse warehouse) throws DataAccessException;
+    void deleteWarehouse(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    boolean isExists(Warehouse warehouse) throws DataAccessException;
 }

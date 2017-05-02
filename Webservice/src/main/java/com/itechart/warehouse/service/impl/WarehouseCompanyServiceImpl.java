@@ -3,9 +3,13 @@ package com.itechart.warehouse.service.impl;
 import com.itechart.warehouse.dao.WarehouseCompanyDAO;
 import com.itechart.warehouse.dao.WarehouseDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.WarehouseCompanyService;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,14 +66,14 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional
-    public WarehouseCompany saveWarehouse(WarehouseCompany warehouseCompany) throws DataAccessException {
+    public WarehouseCompany saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException {
         logger.info("Saving WarehouseCompany: {}", warehouseCompany);
         WarehouseCompany updatedWarehouseCompany = null;
         try {
             if (isExists(warehouseCompany)) {
                 updatedWarehouseCompany = warehouseCompanyDAO.update(warehouseCompany);
             } else {
-                updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
+                throw new DataAccessException("Company doesn't exists");//TODO remake
             }
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
@@ -80,12 +84,45 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional
-    public void deleteWarehouse(WarehouseCompany warehouseCompany) throws DataAccessException {
-        logger.info("Deleting Warehouse Company: {}", warehouseCompany);
+    public WarehouseCompany updateWarehouseCompany(String id, WarehouseCompany company)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Update company: {}", company);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
+
+        WarehouseCompany updatedCompany;
         try {
-            warehouseCompanyDAO.delete(warehouseCompany);
+            Long companyId = Long.valueOf(id);
+            if (warehouseCompanyDAO.isExistsEntity(companyId)) {
+                company.setIdWarehouseCompany(companyId);
+                updatedCompany = warehouseCompanyDAO.update(company);
+            } else {
+                logger.error("Company with id {} not found", companyId);
+                throw new ResourceNotFoundException("Company not found");
+            }
         } catch (GenericDAOException e) {
-            logger.error("Error during deleting Warehouse Company: {}", e.getMessage());
+            logger.error("Error while updating company: ", e);
+            throw new DataAccessException(e);
+        }
+
+        return updatedCompany;
+    }
+
+    @Override
+    @Transactional
+    public void deleteWarehouseCompany(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Deleting act with id: {}", id);
+        if (id == null || !NumberUtils.isNumber(id)) throw new IllegalParametersException("Id is null");
+        try {
+            Long companyId = Long.valueOf(id);
+            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
+            if (result != null)
+                warehouseCompanyDAO.delete(result.get());
+        } catch (GenericDAOException e) {
+            logger.error("Error during deleting act: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
