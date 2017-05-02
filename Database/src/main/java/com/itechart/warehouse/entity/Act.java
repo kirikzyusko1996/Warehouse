@@ -1,5 +1,7 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -9,8 +11,11 @@ import java.sql.Timestamp;
 @Table(name = "act")
 public class Act {
     private Long id;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp date;
+    @JsonIgnore
     private User user;
+    @JsonIgnore
     private Goods goods;
     private ActType actType;
 

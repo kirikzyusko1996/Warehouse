@@ -100,7 +100,8 @@ public class ActServiceImpl implements ActService {
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         try {
             DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-            criteria.add(Restrictions.eq("companyId", companyId));
+//            criteria.add(Restrictions.eq("companyId", companyId));
+            //todo find for company
             List<User> users = userDAO.findAll(criteria, -1, -1);
             criteria = DetachedCriteria.forClass(Act.class);
             criteria.add(Restrictions.in("user", users));
