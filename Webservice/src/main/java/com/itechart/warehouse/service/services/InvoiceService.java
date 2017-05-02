@@ -21,6 +21,10 @@ public interface InvoiceService {
 
     Invoice saveInvoice(Invoice invoice) throws DataAccessException;
 
+    Invoice saveIncomingInvoice(IncomingInvoiceDTO invoice) throws DataAccessException;
+
+    Invoice saveOutgoingInvoice(OutgoingInvoiceDTO invoice) throws DataAccessException;
+
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
 
     void deleteInvoice(Invoice invoice) throws DataAccessException;

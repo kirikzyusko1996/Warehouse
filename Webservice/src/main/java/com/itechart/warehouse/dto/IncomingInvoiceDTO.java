@@ -38,6 +38,8 @@ public class IncomingInvoiceDTO {
     private Timestamp registrationDate;
     private List<GoodsInvoiceDTO> goods;
 
+    private String status;
+
     public void setSupplierCompany(WarehouseCustomerCompany supplierCompany) {
         this.supplierCompany = supplierCompany.getName();
     }

@@ -39,6 +39,8 @@ public class OutgoingInvoiceDTO {
     private Timestamp registrationDate;
     private List<GoodsInvoiceDTO> goods;
 
+    private String status;
+
     public void setReceiverCompany(WarehouseCustomerCompany receiverCompany) {
         this.receiverCompany = receiverCompany.getName();
     }
