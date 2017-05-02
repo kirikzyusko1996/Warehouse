@@ -33,7 +33,8 @@ public interface InvoiceService {
     InvoiceStatus updateInvoiceStatus(String id, String status)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    void deleteInvoice(Invoice invoice) throws DataAccessException;
+    void deleteInvoice(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean invoiceExists(Invoice invoice) throws DataAccessException;
 }

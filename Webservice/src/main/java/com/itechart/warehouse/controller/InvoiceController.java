@@ -2,10 +2,12 @@ package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
+import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.Invoice;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
+import com.itechart.warehouse.service.services.GoodsService;
 import com.itechart.warehouse.service.services.InvoiceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +26,15 @@ import java.util.List;
 public class InvoiceController {
     private final static Logger logger = LoggerFactory.getLogger(InvoiceController.class);
     private InvoiceService invoiceService;
+    private GoodsService goodsService;
 
     @Autowired
     public void setInvoiceService(InvoiceService service){
         this.invoiceService = service;
     }
+
+    @Autowired
+    public void setGoodsService(GoodsService service){this.goodsService = service; }
 
     @RequestMapping(value = "/incoming", method = RequestMethod.GET)
     public ResponseEntity<List<IncomingInvoiceDTO>> readIncomingInvoices(){
@@ -97,7 +103,7 @@ public class InvoiceController {
     // todo status sends via param or with json(now)
     @RequestMapping(value = "/{id}/status", method = RequestMethod.PUT)
     public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @Valid @RequestBody String status){
-        logger.info("PUT on /{}/status: update invoice status", id);
+        logger.info("PUT on /invoice/{}/status: update invoice status", id);
 
         // todo security check
 
@@ -115,5 +121,48 @@ public class InvoiceController {
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteInvoice(@PathVariable String id){
+        logger.info("DELETE on /invoice/{}: invoice", id);
+
+        // todo security check
+
+        try{
+            invoiceService.deleteInvoice(id);
+        } catch (DataAccessException e){
+            logger.error("Error while deleting transport company", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while deleting transport company", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Transport company with specified id not found while deleting transport company", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{invoiceId}/goods", method = RequestMethod.GET)
+    public ResponseEntity<List<Goods>> readGoodsOfInvoice(@PathVariable String invoiceId){
+        logger.info("GET on /invoice/{}/goods: find all goods for specified invoice", invoiceId);
+
+        List<Goods> goodsList;
+        try{
+            // todo edit maxResult and limit params
+            // todo edit check invoiceId
+            Long id = Long.valueOf(invoiceId);
+            goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving all goods for specified invoice", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid params specified while getting goods for invoice", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>(goodsList, HttpStatus.OK);
     }
 }

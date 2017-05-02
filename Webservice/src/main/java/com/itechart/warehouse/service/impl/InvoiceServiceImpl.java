@@ -310,11 +310,33 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public void deleteInvoice(Invoice invoice) throws DataAccessException {
-        logger.info("Delete invoice by id #{}", invoice.getId());
+    public void deleteInvoice(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
+        logger.info("Delete invoice by id #{}", id);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
 
         try {
-            invoiceDAO.delete(invoice);
+            Long invoiceId = Long.valueOf(id);
+            Optional<Invoice> optionalInvoice = invoiceDAO.findById(invoiceId);
+            if (optionalInvoice.isPresent()) {
+                Invoice invoice = optionalInvoice.get();
+                invoiceDAO.delete(invoice);
+            } else {
+                logger.error("Invoice with id {} not found", invoiceId);
+                throw new ResourceNotFoundException("Invoice not found");
+            }
+
+            Optional<InvoiceStatus> optionalInvoiceStatus = invoiceStatusDAO.findById(invoiceId);
+            if (optionalInvoiceStatus.isPresent()) {
+                InvoiceStatus status = optionalInvoiceStatus.get();
+                invoiceStatusDAO.delete(status);
+            } else {
+                logger.error("Invoice status with id {} not found", invoiceId);
+                throw new ResourceNotFoundException("Invoice status not found");
+            }
         } catch (GenericDAOException e) {
             logger.error("Error while deleting invoice: ", e);
             throw new DataAccessException(e);
