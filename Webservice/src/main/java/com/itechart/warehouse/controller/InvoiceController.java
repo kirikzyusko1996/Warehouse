@@ -76,4 +76,20 @@ public class InvoiceController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/outgoing", method = RequestMethod.POST)
+    public ResponseEntity<?> saveOutgoingInvoice(@Valid @RequestBody OutgoingInvoiceDTO invoice){
+        logger.info("POST on /invoice/outgoing: save new outgoing invoice");
+
+        // todo security check
+
+        try{
+            invoiceService.saveOutgoingInvoice(invoice);
+        } catch (DataAccessException e){
+            logger.error("Error while saving new outgoing invoice", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 }
