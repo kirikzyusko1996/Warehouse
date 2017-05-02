@@ -10,9 +10,12 @@ import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.InvoiceService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -270,6 +273,43 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    public InvoiceStatus updateInvoiceStatus(String id, String status)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Update invoice's with id {} status", id);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
+
+        if (StringUtils.isEmpty(status)){
+            throw new IllegalParametersException("Invalid status value");
+        }
+
+        InvoiceStatus updatedInvoice;
+        try {
+            Long invoiceId = Long.valueOf(id);
+            Optional<InvoiceStatus> optional = invoiceStatusDAO.findById(invoiceId);
+            if (optional.isPresent()){
+                InvoiceStatus invoiceStatus = optional.get();
+
+                InvoiceStatusName statusName = retrieveStatusByName(status);
+                invoiceStatus.setStatusName(statusName);
+
+                updatedInvoice = invoiceStatusDAO.update(invoiceStatus);
+            } else {
+                logger.error("Invoice with id {} not found", invoiceId);
+                throw new ResourceNotFoundException("Invoice not found");
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error while updating invoice' status: ", e);
+            throw new DataAccessException(e);
+        }
+
+        return updatedInvoice;
+    }
+
+    @Override
+    @Transactional
     public void deleteInvoice(Invoice invoice) throws DataAccessException {
         logger.info("Delete invoice by id #{}", invoice.getId());
 
@@ -440,6 +480,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceStatus createStatusForInvoice(Invoice invoice, Timestamp registrationDate, String statusName)
             throws GenericDAOException {
         InvoiceStatus status = new InvoiceStatus();
+        status.setId(invoice.getId());
         status.setInvoice(invoice);
         status.setDate(registrationDate);
 

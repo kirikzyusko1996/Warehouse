@@ -4,7 +4,10 @@ package com.itechart.warehouse.service.services;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
+import com.itechart.warehouse.entity.InvoiceStatus;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -26,6 +29,9 @@ public interface InvoiceService {
     Invoice saveOutgoingInvoice(OutgoingInvoiceDTO invoice) throws DataAccessException;
 
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
+
+    InvoiceStatus updateInvoiceStatus(String id, String status)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteInvoice(Invoice invoice) throws DataAccessException;
 
