@@ -4,6 +4,9 @@ import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.Invoice;
+import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.security.UserDetailsProvider;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -46,6 +49,12 @@ public class InvoiceController {
         } catch (DataAccessException e){
             logger.error("Error while retrieving all registered incoming invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while retrieving all registered incoming invoices", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Invoice with specified id not found while retrieving all registered incoming invoices", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(companies, HttpStatus.OK);
@@ -61,6 +70,12 @@ public class InvoiceController {
         } catch (DataAccessException e){
             logger.error("Error while retrieving all registered outgoing invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while retrieving all registered outgoing invoices", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Invoice with specified id not found while retrieving all registered outgoing invoices", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(companies, HttpStatus.OK);
@@ -73,10 +88,17 @@ public class InvoiceController {
         // todo security check
 
         try{
-            invoiceService.saveIncomingInvoice(invoice);
+            WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+            invoiceService.saveIncomingInvoice(principal, invoice);
         } catch (DataAccessException e){
             logger.error("Error while saving new incoming invoice", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while saving new incoming invoice", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Invoice with specified id not found while saving new incoming invoice", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -89,10 +111,17 @@ public class InvoiceController {
         // todo security check
 
         try{
-            invoiceService.saveOutgoingInvoice(invoice);
+            WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+            invoiceService.saveOutgoingInvoice(principal, invoice);
         } catch (DataAccessException e){
             logger.error("Error while saving new outgoing invoice", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while saving new outgoing invoice", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Invoice with specified id not found while saving new outgoing invoice", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);

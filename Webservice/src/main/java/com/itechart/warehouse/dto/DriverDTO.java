@@ -9,6 +9,7 @@ import java.sql.Date;
 @Getter
 @Setter
 public class DriverDTO {
+    private String id;
     private String fullName;
     private String passportNumber;
     private String countryCode;
