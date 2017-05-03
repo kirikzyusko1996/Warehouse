@@ -1,14 +1,16 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
-import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.WarehouseCompany;
-import com.itechart.warehouse.error.*;
+import com.itechart.warehouse.error.RequestHandlingError;
+import com.itechart.warehouse.error.ValidationError;
+import com.itechart.warehouse.error.ValidationErrorBuilder;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -16,7 +18,6 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
-import com.mysql.cj.api.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,6 @@ public class GoodsController {
         logger.info("Handling request for updating goods with id: {} by DTO: {}", id, goodsDTO);
         goodsService.updateGoods(id, goodsDTO);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
-
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
@@ -84,7 +84,7 @@ public class GoodsController {
     public ResponseEntity<StatusResponse> deleteGoods(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for deleting user with id: {}", id);
         goodsService.deleteGoods(id);
-        return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED),HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.GET,
@@ -110,11 +110,25 @@ public class GoodsController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.CREATED);
     }
 
-    //todo put in storage
+    @RequestMapping(value = "/{id}/put", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatusResponse> putGoodsIntoCell(@PathVariable(value = "id") Long id, @RequestBody GoodsDTO goods) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Handling request for putting goods {} with id {} into storage cells", goods, id);
+        goodsService.putGoodsInCells(id, goods.getCells());
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
+    }
 
-    // TODO: 01.05.2017 remove from storage
+    @RequestMapping(value = "/remove/{id}", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatusResponse> removeGoodsFromStorage(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Handling request for removing goods with id {} from storage", id);
+        goodsService.removeGoodsFromStorage(id);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
+    }
 
-    //todo save all
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)

@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -56,7 +58,7 @@ public class GoodsControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.error").value("Updated"));
+                .andExpect(jsonPath("$.status").value("UPDATED"));
     }
 
     @Test
@@ -76,9 +78,8 @@ public class GoodsControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.error").value("Deleted"));
+                .andExpect(jsonPath("$.status").value("DELETED"));
     }
-
 
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
@@ -106,7 +107,7 @@ public class GoodsControllerTest {
 
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void testGoodsStatusSave() throws Exception {
+    public void testGoodsStatusSetting() throws Exception {
         GoodsStatusDTO statusDTO = new GoodsStatusDTO();
         statusDTO.setStatusName(GoodsStatusEnum.REGISTERED.toString());
         statusDTO.setStatusNote("Some note");
@@ -145,5 +146,35 @@ public class GoodsControllerTest {
                 .andExpect(status().isOk());
 //                .andExpect(jsonPath("$").isNotEmpty());
     }
+
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testPuttingGoodsIntoCell() throws Exception {
+        Long[] cellsArray = new Long[]{Long.valueOf(1), Long.valueOf(2)};
+        List<Long> cells = Arrays.asList(cellsArray);
+        GoodsDTO goodsDTO = new GoodsDTO();
+        goodsDTO.setCells(cells);
+        String jsonGoodsDTO = new ObjectMapper().writeValueAsString(goodsDTO);
+        mockMvc.perform(put("/goods/2/put")
+                .content(jsonGoodsDTO)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UPDATED"));
+    }
+
+
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testRemovingGoodsFromStorage() throws Exception {
+        mockMvc.perform(put("/goods/remove/3")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UPDATED"));
+    }
+
 
 }

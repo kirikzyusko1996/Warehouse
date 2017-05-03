@@ -146,7 +146,7 @@ public class InvoiceController {
     }
 
     @RequestMapping(value = "/{invoiceId}/goods", method = RequestMethod.GET)
-    public ResponseEntity<List<Goods>> readGoodsOfInvoice(@PathVariable String invoiceId){
+    public ResponseEntity<List<Goods>> readGoodsOfInvoice(@PathVariable String invoiceId) throws ResourceNotFoundException {
         logger.info("GET on /invoice/{}/goods: find all goods for specified invoice", invoiceId);
 
         List<Goods> goodsList;

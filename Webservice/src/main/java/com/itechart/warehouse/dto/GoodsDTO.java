@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Data transfer object for goods entity.
@@ -35,6 +36,16 @@ public class GoodsDTO {
     private String weightUnitName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String priceUnitName;
+
+    private List<Long> cells;
+
+    public void addCell(Long cell) {
+        cells.add(cell);
+    }
+
+    public void removeCell(Long cell) {
+        cells.remove(cell);
+    }
 
 
     public Goods buildGoodsEntity() {
