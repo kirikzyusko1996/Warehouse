@@ -12,7 +12,7 @@ import java.sql.Date;
 import java.util.List;
 
 /**
- * Service for managing goodsList.
+ * Service for managing goods.
  * Provides basic operations with goodsList such as searching, creation, updating, deleting,
  * and setting status.
  */

@@ -169,7 +169,9 @@ public class UserServiceImpl implements UserService {
         DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
         criteria.add(Restrictions.eq("role", roleName));
         List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, 1);
-        return fetchedRoles.get(1);
+        if (!fetchedRoles.isEmpty())
+            return fetchedRoles.get(1);
+        else throw new IllegalParametersException("Invalid role name: " + roleName);
     }
 
     @Override

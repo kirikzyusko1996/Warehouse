@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementation of goodsList service.
+ * Implementation of goods service.
  */
 @Service
 public class GoodsServiceImpl implements GoodsService {
@@ -128,12 +128,12 @@ public class GoodsServiceImpl implements GoodsService {
     public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find {} goods starting from index {} by invoice id: {}", maxResults, firstResult, invoiceId);
         if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
-        List<Goods> goods = null;
         try {
             Optional<Invoice> result = invoiceDAO.findById(invoiceId);
             if (result.isPresent()) {
                 Invoice invoice = result.get();
-                if ((goods = invoice.getIncomingGoods()).isEmpty()) {
+                List<Goods> goods = invoice.getIncomingGoods();
+                if (goods.isEmpty()) {
                     goods = invoice.getOutgoingGoods();
                 }
                 return goods;
@@ -153,7 +153,6 @@ public class GoodsServiceImpl implements GoodsService {
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         // TODO: 30.04.2017 find for warehouse
 //        criteria.add(Restrictions.eq("company_id", companyId));
-
 
 
         if (goodsSearchDTO.getName() != null)
@@ -221,15 +220,16 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
+
     private Unit findUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for unit with name: {}", unitName);
         if (unitName == null) throw new IllegalParametersException("Unit name is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
         criteria.add(Restrictions.eq("name", unitName));
-        List<Unit> fetchedUnits = unitDAO.findAll(criteria, -1, -1);
+        List<Unit> fetchedUnits = unitDAO.findAll(criteria, -1, 1);
         if (!fetchedUnits.isEmpty())
             return fetchedUnits.get(0);
-        else return null;
+        else throw new IllegalParametersException("Invalid unit name: " + unitName);
     }
 
     private StorageSpaceType findStorageTypeByName(String spaceTypeName) throws GenericDAOException, IllegalParametersException {
@@ -237,10 +237,10 @@ public class GoodsServiceImpl implements GoodsService {
         if (spaceTypeName == null) throw new IllegalParametersException("Storage space type name is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
         criteria.add(Restrictions.eq("name", spaceTypeName));
-        List<StorageSpaceType> fetchedSpaceType = storageSpaceTypeDAO.findAll(criteria, -1, -1);
+        List<StorageSpaceType> fetchedSpaceType = storageSpaceTypeDAO.findAll(criteria, -1, 1);
         if (!fetchedSpaceType.isEmpty())
             return fetchedSpaceType.get(0);
-        else return null;
+        else throw new IllegalParametersException("Invalid storage space type name: " + spaceTypeName);
     }
 
     @Override
@@ -263,18 +263,18 @@ public class GoodsServiceImpl implements GoodsService {
             if (goodsDTO.getWeight() != null)
                 goods.setWeight(goodsDTO.getWeight());
             else throw new IllegalParametersException("Weight is null");
-            if (goodsDTO.getPriceUnitName() != null)
+            if (goodsDTO.getPriceUnitName() != null) {
                 goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
-            else throw new IllegalParametersException("Price unit name is null");
-            if (goodsDTO.getQuantityUnitName() != null)
+            } else throw new IllegalParametersException("Price unit name is null");
+            if (goodsDTO.getQuantityUnitName() != null) {
                 goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-            else throw new IllegalParametersException("Quantity unit name is null");
-            if (goodsDTO.getWeightUnitName() != null)
+            } else throw new IllegalParametersException("Quantity unit name is null");
+            if (goodsDTO.getWeightUnitName() != null) {
                 goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-            else throw new IllegalParametersException("Weight unit name is null");
-            if (goodsDTO.getStorageTypeName() != null)
+            } else throw new IllegalParametersException("Weight unit name is null");
+            if (goodsDTO.getStorageTypeName() != null) {
                 goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-            else throw new IllegalParametersException("Storage type name is null");
+            } else throw new IllegalParametersException("Storage type name is null");
             Invoice invoice = findInvoiceById(invoiceId);
             if (invoice != null)
                 goods.setIncomingInvoice(invoice);

@@ -1,6 +1,7 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.controller.response.SuccessResponse;
+import com.itechart.warehouse.controller.response.StatusEnum;
+import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.entity.Act;
@@ -71,18 +72,18 @@ public class ActController {
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse> updateAct(@PathVariable(value = "id") Long id, @Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<StatusResponse> updateAct(@PathVariable(value = "id") Long id, @Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for updating act with id: {} by DTO: {}", id, actDTO);
         actService.updateAct(id, actDTO);
-        return new ResponseEntity<>(new SuccessResponse("Updated"),HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED),HttpStatus.OK);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse> deleteAct(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<StatusResponse> deleteAct(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for deleting act with id: {}", id);
         actService.deleteAct(id);
-        return new ResponseEntity<>(new SuccessResponse("Deleted"), HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

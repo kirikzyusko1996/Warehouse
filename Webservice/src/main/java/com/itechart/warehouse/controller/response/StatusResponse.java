@@ -10,13 +10,13 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class SuccessResponse {
-    private String message;
+public class StatusResponse {
+    private StatusEnum status;
 
-    public SuccessResponse() {
+    public StatusResponse() {
     }
 
-    public SuccessResponse(String message) {
-        this.message = message;
+    public StatusResponse(StatusEnum status) {
+        this.status = status;
     }
 }

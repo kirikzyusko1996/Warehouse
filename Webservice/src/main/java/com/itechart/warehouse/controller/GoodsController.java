@@ -1,6 +1,7 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.controller.response.SuccessResponse;
+import com.itechart.warehouse.controller.response.StatusEnum;
+import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
@@ -70,19 +71,19 @@ public class GoodsController {
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse> updateGoods(@PathVariable(value = "id") Long id, @Valid @RequestBody GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<StatusResponse> updateGoods(@PathVariable(value = "id") Long id, @Valid @RequestBody GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for updating goods with id: {} by DTO: {}", id, goodsDTO);
         goodsService.updateGoods(id, goodsDTO);
-        return new ResponseEntity<>(new SuccessResponse("Updated"), HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse> deleteGoods(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<StatusResponse> deleteGoods(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for deleting user with id: {}", id);
         goodsService.deleteGoods(id);
-        return new ResponseEntity<>(new SuccessResponse("Deleted"),HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED),HttpStatus.OK);
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.GET,
@@ -102,10 +103,10 @@ public class GoodsController {
     @RequestMapping(value = "/status/{id}", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse> setGoodsStatus(@PathVariable(value = "id") Long id, @RequestBody GoodsStatusDTO statusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<StatusResponse> setGoodsStatus(@PathVariable(value = "id") Long id, @RequestBody GoodsStatusDTO statusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for setting status {} to goods with id: {}", statusDTO, id);
         goodsService.setGoodsStatus(id, statusDTO);
-        return new ResponseEntity<>(new SuccessResponse(statusDTO.getStatusName()), HttpStatus.CREATED);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.CREATED);
     }
 
     //todo put in storage

@@ -57,6 +57,7 @@ public abstract class DAO<T> {
             return entity;
         } catch (Exception e) {
             logger.error(e.getMessage());
+            hibernateTemplate.clear();
             throw new GenericDAOException(e);
         }
     }

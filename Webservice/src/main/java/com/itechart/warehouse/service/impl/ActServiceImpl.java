@@ -141,7 +141,9 @@ public class ActServiceImpl implements ActService {
         DetachedCriteria criteria = DetachedCriteria.forClass(ActTypeDAO.class);
         criteria.add(Restrictions.eq("name", actTypeName));
         List<ActType> fetchedStatusName = actTypeDAO.findAll(criteria, -1, 1);
-        return fetchedStatusName.get(1);
+        if (!fetchedStatusName.isEmpty())
+            return fetchedStatusName.get(1);
+        else throw new IllegalParametersException("Invalid act type name: " + actTypeName);
     }
 
     @Override
