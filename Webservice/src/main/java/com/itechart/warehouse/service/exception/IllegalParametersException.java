@@ -1,7 +1,7 @@
 package com.itechart.warehouse.service.exception;
 
 /**
- * Created by Aleksandr on 25.04.2017.
+ * Exception thrown on service layer when provided to service methods parameters have illegal value.
  */
 public class IllegalParametersException extends Exception {
     public IllegalParametersException() {

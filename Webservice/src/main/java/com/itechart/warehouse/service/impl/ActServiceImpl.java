@@ -14,6 +14,7 @@ import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -69,12 +70,14 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
-    public Act findActById(Long id) throws DataAccessException, IllegalParametersException {
+    public Act findActById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find act by id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<Act> result = actDAO.findById(id);
-            return result.get();
+            if (result.isPresent())
+                return result.get();
+            else throw new ResourceNotFoundException("Act with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during search for act: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -82,12 +85,14 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
-    public List<Act> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+    public List<Act> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find {} acts starting from index {} by goodsList id: {}", maxResults, firstResult, goodsId);
-        if (goodsId == null) throw new IllegalParametersException("Company id is null");
+        if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         try {
             Optional<Goods> result = goodsDAO.findById(goodsId);
-            return result.get().getActs();
+            if (result.isPresent())
+                return result.get().getActs();
+            else throw new ResourceNotFoundException("Goods with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during search for acts: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -140,39 +145,59 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
-    public Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException {
+    public Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
         try {
             Act act = new Act();
             act.setActType(findActTypeByName(actDTO.getType()));
-            act.setUser(userDAO.findById(UserDetailsProvider.getUserDetails().getUserId()).get());
-            act = actDAO.insert(act);
-            for (Long goodsId : actDTO.getGoodsList()) {
-                Optional<Goods> result = goodsDAO.findById(goodsId);
-                result.get().addAct(act);
+            Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
+            if (userResult.isPresent()) {
+                act.setUser(userResult.get());
+            } else {
+                throw new ResourceNotFoundException("Authenticated user was not found");
             }
-            return act;
+            if (actDTO.getGoodsList() != null) {
+                setActToGoods(actDTO.getGoodsList(), act);
+                return act;
+            } else throw new IllegalParametersException("List of good's id's is null");
         } catch (GenericDAOException e) {
             logger.error("Error during saving goodsList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+
+    }
+
+    private void setActToGoods(List<Long> goodsList, Act act) throws GenericDAOException {
+        for (Long goodsId : goodsList) {
+            Optional<Goods> result = goodsDAO.findById(goodsId);
+            if (result.isPresent())
+                result.get().addAct(act);
+        }
     }
 
     @Override
-    public Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException {
+    public Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating act with id {} from DTO: {}", id, actDTO);
         if (id == null || actDTO == null) throw new IllegalParametersException("Id or act DTO is null");
         try {
-            Act act = new Act();
-            act.setActType(findActTypeByName(actDTO.getType()));
-            act.setUser(userDAO.findById(UserDetailsProvider.getUserDetails().getUserId()).get());
-            act = actDAO.update(act);
-            for (Long goodsId : actDTO.getGoodsList()) {
-                Optional<Goods> result = goodsDAO.findById(goodsId);
-                result.get().addAct(act);
+            Optional<Act> actResult = actDAO.findById(id);
+            if (actResult.isPresent()) {
+                Act act = actResult.get();
+                act.setActType(findActTypeByName(actDTO.getType()));
+                Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
+                if (userResult.isPresent()) {
+                    act.setUser(userResult.get());
+                } else {
+                    throw new ResourceNotFoundException("Authenticated user was not found");
+                }
+                if (actDTO.getGoodsList() != null) {
+                    setActToGoods(actDTO.getGoodsList(), act);
+                    return act;
+                } else throw new IllegalParametersException("List of good's id's is null");
+            } else {
+                throw new ResourceNotFoundException("Act with such id was not found");
             }
-            return act;
         } catch (GenericDAOException e) {
             logger.error("Error during saving goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -180,13 +205,14 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
-    public void deleteAct(Long id) throws DataAccessException, IllegalParametersException {
+    public void deleteAct(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting act with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<Act> result = actDAO.findById(id);
-            if (result != null)
+            if (result.isPresent())
                 actDAO.delete(result.get());
+            else throw new ResourceNotFoundException("Act with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during deleting act: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

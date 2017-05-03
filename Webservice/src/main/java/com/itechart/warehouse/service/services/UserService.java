@@ -4,6 +4,7 @@ import com.itechart.warehouse.dto.UserDTO;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public interface UserService {
     List<User> findAllUsers(int firstResult, int maxResults) throws DataAccessException;
 
-    User findUserById(Long id) throws DataAccessException, IllegalParametersException;
+    User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     User findUserByLogin(String login) throws DataAccessException, IllegalParametersException;
 
@@ -22,11 +23,11 @@ public interface UserService {
 
     User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException;
 
-    User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException;
+    User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException;
 
-    void deleteUser(Long id) throws DataAccessException, IllegalParametersException;
+    void deleteUser(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean isUserExists(Long id) throws DataAccessException, IllegalParametersException;
 }

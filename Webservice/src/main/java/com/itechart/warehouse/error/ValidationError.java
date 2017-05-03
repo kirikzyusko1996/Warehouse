@@ -1,11 +1,11 @@
-package com.itechart.warehouse.validation;
+package com.itechart.warehouse.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.ArrayList;
 import java.util.List;
 /**
- * Class containing errors encountered during validation process.
+ * Class containing errors encountered during error process.
  */
 public class ValidationError {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

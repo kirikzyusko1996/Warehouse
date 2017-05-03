@@ -11,6 +11,7 @@ import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.UserService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -68,13 +69,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User findUserById(Long id) throws DataAccessException, IllegalParametersException {
+    public User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user by id: {}", id);
         if (id == null)
             throw new IllegalParametersException("Id is null");
         try {
             Optional<User> result = userDAO.findById(id);
-            return result.get();
+            if (result.isPresent())
+                return result.get();
+            else throw new ResourceNotFoundException("User with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -134,29 +137,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException {
+    public User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Create supervisor for company with id: {}", companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         try {
             Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
-            WarehouseCompany company = result.get();
-            User user = new User();
-            user.setWarehouseCompany(company);
-            user.setLogin(RandomStringUtils.randomAlphanumeric(5));
-            user.setPassword(RandomStringUtils.randomAlphanumeric(5));
-            Role role = findRoleByName(UserRoleEnum.ROLE_ADMIN.toString());
-            List<Role> roles = new ArrayList<>();
-            if (role != null)
-                roles.add(role);
-            user.setRoles(roles);
-            return userDAO.insert(user);
+            WarehouseCompany company = null;
+            if (result.isPresent()) {
+                company = result.get();
+                User user = new User();
+                user.setWarehouseCompany(company);
+                user.setLogin(RandomStringUtils.randomAlphanumeric(5));
+                user.setPassword(RandomStringUtils.randomAlphanumeric(5));
+                Role role = findRoleByName(UserRoleEnum.ROLE_ADMIN.toString());
+                List<Role> roles = new ArrayList<>();
+                if (role != null)
+                    roles.add(role);
+                user.setRoles(roles);
+                return userDAO.insert(user);
+            } else throw new ResourceNotFoundException("Company with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during saving user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
 
-    @Transactional(readOnly = true)
+    //    @Transactional(readOnly = true)
     private Role findRoleByName(String roleName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for role with name: {}", roleName);
         if (roleName == null) throw new IllegalParametersException("Role name is null");
@@ -185,13 +191,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Long id) throws DataAccessException, IllegalParametersException {
+    public void deleteUser(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting user with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<User> result = userDAO.findById(id);
             if (result != null)
                 userDAO.delete(result.get());
+            else throw new ResourceNotFoundException("User with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during deleting user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

@@ -23,7 +23,7 @@
         <beans:property name="authenticationEntryPoint" ref="digestEntryPoint"/>
     </beans:bean>
     <http pattern="/api/**" use-expressions="false" create-session="stateless" authentication-manager-ref="api">
-        <intercept-url pattern="/api/**" access="ROLE_TRUSTED_COMPANY"/>
+        <!--<intercept-url pattern="/api/**" access="hasRole(ROLE_TRUSTED_COMPANY)"/>-->
         <http-basic/>
         <custom-filter ref="digestFilter" after="BASIC_AUTH_FILTER"/>
     </http>
@@ -59,6 +59,7 @@
         <intercept-url pattern='/web/settings/**' access="hasRole('ROLE_ADMIN')"/>
         <http-basic/>
         <custom-filter ref="userDigestFilter" after="BASIC_AUTH_FILTER"/>
+        <csrf disabled="true"></csrf>
     </http>
 
 

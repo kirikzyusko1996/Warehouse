@@ -1,7 +1,7 @@
 package com.itechart.warehouse.service.exception;
 
 /**
- * Created by Aleksandr on 23.04.2017.
+ * Exception thrown on service layer when GenericDAOException get caught.
  */
 public class DataAccessException extends Exception{
     public DataAccessException() {

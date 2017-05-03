@@ -1,4 +1,4 @@
-package com.itechart.warehouse.validation;
+package com.itechart.warehouse.error;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;

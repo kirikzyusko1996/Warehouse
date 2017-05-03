@@ -142,7 +142,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Transactional
     public void deleteWarehouseCustomerCompany(String id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Delete customer company by id #{}", id);
+        logger.info("Delete customer company by: id {}", id);
 
         if (!NumberUtils.isNumber(id)) {
             throw new IllegalParametersException("Invalid id param");
@@ -167,7 +167,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Override
     @Transactional(readOnly = true)
     public boolean warehouseCustomerCompanyExists(WarehouseCustomerCompany company) throws DataAccessException {
-        logger.error("Determine if customer company #{} exists", company.getId());
+        logger.error("Determine if customer company {} exists", company.getId());
 
         try {
             return customerDAO.isExistsEntity(company.getId());

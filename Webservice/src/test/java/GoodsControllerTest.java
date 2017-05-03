@@ -55,13 +55,14 @@ public class GoodsControllerTest {
                 .content(jsonGoodsDTO)
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.error").value("Updated"));
     }
 
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsGet() throws Exception {
-        mockMvc.perform(get("/goods/1/1?count=10")
+        mockMvc.perform(get("/goods/1?page=1&count=10")
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -74,7 +75,8 @@ public class GoodsControllerTest {
         mockMvc.perform(delete("/goods/delete/1")
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.error").value("Deleted"));
     }
 
 
@@ -99,7 +101,7 @@ public class GoodsControllerTest {
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$").value("11"));
+                .andExpect(jsonPath("$.id").isNotEmpty());
     }
 
     @Test
@@ -134,7 +136,7 @@ public class GoodsControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
 
-        mockMvc.perform(get("/goods/search/1?count=10")
+        mockMvc.perform(get("/goods/search?page=1&count=10")
                 .content(jsonGoodsSearchDTO)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))

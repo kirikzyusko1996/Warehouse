@@ -1,21 +1,27 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.controller.response.IdResponse;
+import com.itechart.warehouse.controller.response.SuccessResponse;
 import com.itechart.warehouse.dto.UserDTO;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.error.RequestHandlingError;
+import com.itechart.warehouse.error.ValidationError;
+import com.itechart.warehouse.error.ValidationErrorBuilder;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.RequestHandlingException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.UserService;
-import com.itechart.warehouse.validation.ValidationError;
-import com.itechart.warehouse.validation.ValidationErrorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -39,72 +45,53 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/{page}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> getUsers(@PathVariable int page, @RequestParam int count) {
+    @RequestMapping(value = "/", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<User>> getUsers(@RequestParam int page, @RequestParam int count) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<User> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        try {
-            WarehouseCompany company = userDetails.getCompany();
-            if (company != null) {
-                users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
-            } else return new ResponseEntity<>(users, HttpStatus.CONFLICT);
-        } catch (DataAccessException e) {
-            logger.error("Error during users retrieval: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IllegalParametersException e) {
-            logger.error("Invalid parameters: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        WarehouseCompany company = userDetails.getCompany();
+        if (company != null) {
+            users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Void> saveUser(@Valid @RequestBody UserDTO userDTO) {
+    @RequestMapping(value = "/save", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<IdResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for saving new user using DTO: {}", userDTO);
-        Long companyId = UserDetailsProvider.getUserDetails().getCompany().getIdWarehouseCompany();
-        try {
-            userService.createUser(companyId, userDTO);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (DataAccessException e) {
-            logger.error("Error during user saving: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e) {
-            logger.error("Invalid parameters: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        WarehouseCompany company = UserDetailsProvider.getUserDetails().getCompany();
+        if (company != null) {
+            Long companyId = company.getIdWarehouseCompany();
+            User user = userService.createUser(companyId, userDTO);
+            if (user != null) {
+                IdResponse idResponse = new IdResponse();
+                idResponse.setId(user.getId());
+                return new ResponseEntity<>(idResponse, HttpStatus.CREATED);
+            } else throw new RequestHandlingException("User was not stored");
+        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
     }
 
-    @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody UserDTO userDTO) {
+    @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException {
         logger.info("Handling request for updating user with id: {} by DTO: {}", id, userDTO);
-        //todo security check
-        try {
-            userService.updateUser(id, userDTO);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (DataAccessException e) {
-            logger.error("Error during user saving: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e) {
-            logger.error("Invalid parameters: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        userService.updateUser(id, userDTO);
+        return new ResponseEntity<>(new SuccessResponse("Updated"), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") Long id) {
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse> deleteUser(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for deleting user with id: {}", id);
-        //todo security check
-        try {
-            userService.deleteUser(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (DataAccessException e) {
-            logger.error("Error during user deleting: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e) {
-            logger.error("Invalid parameters: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        userService.deleteUser(id);
+        return new ResponseEntity<>(new SuccessResponse("Deleted"), HttpStatus.OK);
+
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -115,8 +102,58 @@ public class UserController {
         return createValidationError(e);
     }
 
-
     private ValidationError createValidationError(MethodArgumentNotValidException e) {
         return ValidationErrorBuilder.fromBindingErrors(e.getBindingResult());
     }
+
+    @ExceptionHandler(DataAccessException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(DataAccessException e) {
+        RequestHandlingError dataAccessError = new RequestHandlingError();
+        dataAccessError.setError(e.getMessage());
+        return dataAccessError;
+    }
+
+    @ExceptionHandler(IllegalParametersException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(IllegalParametersException e) {
+        RequestHandlingError illegalParametersError = new RequestHandlingError();
+        illegalParametersError.setError(e.getMessage());
+        return illegalParametersError;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(HttpMessageNotReadableException e) {
+        RequestHandlingError illegalParametersError = new RequestHandlingError();
+        illegalParametersError.setError("Message is syntactically incorrect");
+        return illegalParametersError;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(ResourceNotFoundException e) {
+        RequestHandlingError resourceNotFoundError = new RequestHandlingError();
+        resourceNotFoundError.setError(e.getMessage());
+        return resourceNotFoundError;
+    }
+
+    @ExceptionHandler(RequestHandlingException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(RequestHandlingException e) {
+        RequestHandlingError requestHandlingError = new RequestHandlingError();
+        requestHandlingError.setError(e.getMessage());
+        return requestHandlingError;
+    }
+
 }
