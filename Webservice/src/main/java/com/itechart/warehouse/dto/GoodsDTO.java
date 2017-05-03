@@ -21,6 +21,7 @@ import java.util.List;
 @lombok.ToString
 
 public class GoodsDTO {
+    private Long id;
     @NotBlank
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String name;

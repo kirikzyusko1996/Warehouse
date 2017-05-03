@@ -281,7 +281,9 @@ public class InvoiceServiceImpl implements InvoiceService {
             InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(invoice, dto, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
-            // todo add logic for outgoing goods
+            List<Long> goodsListIds = parseIdFromGoods(dto.getGoods());
+            goodsService.setOutgoingInvoice(goodsListIds, savedInvoice.getId());
+
         } catch (GenericDAOException e) {
             logger.error("Error while saving invoice: ", e);
             throw new DataAccessException(e);
@@ -688,5 +690,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         return goodsInvoiceDTOs;
+    }
+
+    private List<Long> parseIdFromGoods(List<GoodsDTO> goodsDTOs){
+        List<Long> ids = new ArrayList<>();
+        for (GoodsDTO dto : goodsDTOs) {
+            ids.add(dto.getId());
+        }
+
+        return ids;
     }
 }
