@@ -1,7 +1,8 @@
 package com.itechart.warehouse.dto;
 
-
-import com.itechart.warehouse.entity.*;
+import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,13 +15,13 @@ import java.util.List;
 
 @Getter
 @Setter
-public class IncomingInvoiceDTO {
+public class OutgoingInvoiceDTO {
     private Long id;
     private String number;
     private Date issueDate;
 
     @Setter(AccessLevel.NONE)
-    private String supplierCompany;
+    private String receiverCompany;
 
     @Setter(AccessLevel.NONE)
     private String transportCompany;
@@ -33,30 +34,30 @@ public class IncomingInvoiceDTO {
     private Integer goodsEntryCount;
 
     @Setter(AccessLevel.NONE)
-    private String dispatcher;
+    private String manager;
 
     private Timestamp registrationDate;
     private List<GoodsInvoiceDTO> goods;
 
     private String status;
 
-    public void setSupplierCompany(WarehouseCustomerCompany supplierCompany) {
-        this.supplierCompany = supplierCompany.getName();
+    public void setReceiverCompany(WarehouseCustomerCompany receiverCompany) {
+        this.receiverCompany = receiverCompany.getName();
     }
 
     public void setTransportCompany(TransportCompany transportCompany) {
         this.transportCompany = transportCompany.getName();
     }
 
-    public void setDispatcher(User dispatcher) {
+    public void setManager(User manager) {
         StringBuilder dispatcherName = new StringBuilder();
-        if (StringUtils.isNotEmpty(dispatcher.getLastName())){
-            dispatcherName.append(dispatcher.getLastName());
+        if (StringUtils.isNotEmpty(manager.getLastName())){
+            dispatcherName.append(manager.getLastName());
         }
-        if (StringUtils.isNotEmpty(dispatcher.getFirstName())){
-            dispatcherName.append(dispatcher.getFirstName());
+        if (StringUtils.isNotEmpty(manager.getFirstName())){
+            dispatcherName.append(manager.getFirstName());
         }
 
-        this.dispatcher = dispatcherName.toString();
+        this.manager = dispatcherName.toString();
     }
 }
