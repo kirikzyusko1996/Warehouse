@@ -1,11 +1,14 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 
 @Entity
 @Table(name = "invoice_status_name")
 public class InvoiceStatusName {
+    @JsonIgnore
     private Short id;
     private String name;
 

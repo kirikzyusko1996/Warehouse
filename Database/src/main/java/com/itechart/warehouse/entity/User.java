@@ -3,11 +3,7 @@ package com.itechart.warehouse.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -18,36 +14,61 @@ import java.util.List;
 @Table(name = "user")
 public class User {
     private Long id;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String firstName;
-    @NotEmpty(message = "Can not be empty")
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String lastName;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String patronymic;
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String city;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String street;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String house;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String apartment;
-    @Email(message = "Illegal email")
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String email;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    @JsonIgnore
     private String login;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    @JsonIgnore
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
-    @JsonIgnore
     private List<Role> roles;
+    @JsonIgnore
+    private List<Act> acts;
+    @JsonIgnore
+    private List<GoodsStatus> goodsStatusList;
+    @JsonIgnore
+    private List<InvoiceStatus> invoiceStatusList;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<InvoiceStatus> getInvoiceStatusList() {
+        return invoiceStatusList;
+    }
+
+    public void setInvoiceStatusList(List<InvoiceStatus> invoiceStatusList) {
+        this.invoiceStatusList = invoiceStatusList;
+    }
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<GoodsStatus> getGoodsStatusList() {
+        return goodsStatusList;
+    }
+
+    public void setGoodsStatusList(List<GoodsStatus> goodsStatusList) {
+        this.goodsStatusList = goodsStatusList;
+    }
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<Act> getActs() {
+        return acts;
+    }
+
+    public void setActs(List<Act> acts) {
+        this.acts = acts;
+    }
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role",
+            joinColumns = {@JoinColumn(name = "id_user")},
+            inverseJoinColumns = {@JoinColumn(name = "id_role")})
     public List<Role> getRoles() {
         return roles;
     }
@@ -56,10 +77,11 @@ public class User {
         this.roles = roles;
     }
 
-    public void addRole(Role role){
+    public void addRole(Role role) {
         roles.add(role);
     }
-    public void removeRole(Role role){
+
+    public void removeRole(Role role) {
         roles.remove(role);
     }
 
@@ -173,7 +195,7 @@ public class User {
         this.password = password;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_warehouse_company")
     public WarehouseCompany getWarehouseCompany() {
         return warehouseCompany;

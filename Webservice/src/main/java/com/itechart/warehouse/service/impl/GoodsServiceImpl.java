@@ -197,7 +197,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goodsToUpdate = findGoodsById(id);
             if (goodsToUpdate != null) {
-                if (goodsDTO.getName() != null)
+                if (StringUtils.isNotBlank(goodsDTO.getName()))
                     goodsToUpdate.setName(goodsDTO.getName());
                 if (goodsDTO.getQuantity() != null)
                     goodsToUpdate.setQuantity(goodsDTO.getQuantity());

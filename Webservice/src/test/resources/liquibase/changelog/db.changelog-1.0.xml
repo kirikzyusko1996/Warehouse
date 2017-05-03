@@ -19,9 +19,6 @@
             <column name="id_user" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
-            <column name="id_goods" type="BIGINT UNSIGNED">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="2">

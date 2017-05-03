@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.service.exception.IllegalParametersException;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Email;
@@ -13,7 +14,7 @@ import java.sql.Date;
 import java.util.List;
 
 /**
- * Data transfer object for user entity.
+ * Data transfer object for user entity with all fields: including login and password.
  */
 @Setter
 @Getter
@@ -21,7 +22,7 @@ import java.util.List;
 public class UserDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String firstName;
-    @NotEmpty(message = "Can not be empty")
+    @NotEmpty(message = "Last name can not be empty")
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String lastName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)

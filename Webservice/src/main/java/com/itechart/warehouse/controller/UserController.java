@@ -46,8 +46,8 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<User>> getUsers(@RequestParam int page, @RequestParam int count) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<User> users = null;
@@ -56,13 +56,12 @@ public class UserController {
         if (company != null) {
             users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
-
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<IdResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, ResourceNotFoundException {
         logger.info("Handling request for saving new user using DTO: {}", userDTO);
         WarehouseCompany company = UserDetailsProvider.getUserDetails().getCompany();
@@ -79,15 +78,15 @@ public class UserController {
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StatusResponse> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException {
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatusResponse> updateUser(@PathVariable(value = "id") Long id, @Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for updating user with id: {} by DTO: {}", id, userDTO);
         userService.updateUser(id, userDTO);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> deleteUser(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for deleting user with id: {}", id);
         userService.deleteUser(id);

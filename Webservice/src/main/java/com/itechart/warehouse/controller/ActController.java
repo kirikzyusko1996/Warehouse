@@ -4,6 +4,7 @@ import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.controller.response.IdResponse;
+import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.entity.Act;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.error.*;
@@ -44,7 +45,7 @@ public class ActController {
         this.actService = actService;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET,
+    @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Act>> getActs(@RequestParam int page, @RequestParam int count) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for list of acts, page: {}, count: {}", page, count);
@@ -84,6 +85,22 @@ public class ActController {
         actService.deleteAct(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
+
+    //todo find by..
+    @RequestMapping(value = "/find", method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Act>> findActs(@RequestParam int page, @RequestParam int count, @RequestBody ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+        logger.info("Handling request for searching list of acts by field: {}, page: {}, count: {}", actSearchDTO, page, count);
+        List<Act> acts = null;
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        WarehouseCompany company = userDetails.getCompany();
+        if (company != null) {
+//            acts = actService.findActsForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+        return new ResponseEntity<>(acts, HttpStatus.OK);
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)

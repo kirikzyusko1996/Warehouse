@@ -22,7 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +61,7 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Act> findAllActs(int firstResult, int maxResults) throws DataAccessException {
         logger.info("Find {} acts starting from index {}", maxResults, firstResult);
         DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
@@ -70,6 +74,7 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Act findActById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find act by id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
@@ -85,6 +90,7 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Act> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find {} acts starting from index {} by goodsList id: {}", maxResults, firstResult, goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
@@ -100,17 +106,12 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Act> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} acts starting from index {} by company id: {}", maxResults, firstResult, companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         try {
-            DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-//            criteria.add(Restrictions.eq("companyId", companyId));
-            //todo find for company
-            List<User> users = userDAO.findAll(criteria, -1, -1);
-            criteria = DetachedCriteria.forClass(Act.class);
-            criteria.add(Restrictions.in("user", users));
-            return actDAO.findAll(criteria, firstResult, maxResults);
+            return actDAO.findActsByWarehouseCompanyId(companyId, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for acts: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -118,6 +119,7 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Act> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goodsList for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, actSearchDTO);
         if (actSearchDTO == null || companyId == null)
@@ -137,21 +139,23 @@ public class ActServiceImpl implements ActService {
 
     private ActType findActTypeByName(String actTypeName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for act type with name: {}", actTypeName);
-        if (actTypeName == null) throw new IllegalParametersException("Act type name name is null");
-        DetachedCriteria criteria = DetachedCriteria.forClass(ActTypeDAO.class);
+        if (actTypeName == null) throw new IllegalParametersException("Act type name is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(ActType.class);
         criteria.add(Restrictions.eq("name", actTypeName));
         List<ActType> fetchedStatusName = actTypeDAO.findAll(criteria, -1, 1);
         if (!fetchedStatusName.isEmpty())
-            return fetchedStatusName.get(1);
+            return fetchedStatusName.get(0);
         else throw new IllegalParametersException("Invalid act type name: " + actTypeName);
     }
 
     @Override
+    @Transactional
     public Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
         try {
             Act act = new Act();
+            act.setDate(new Timestamp(new Date().getTime()));
             act.setActType(findActTypeByName(actDTO.getType()));
             Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
             if (userResult.isPresent()) {
@@ -161,6 +165,7 @@ public class ActServiceImpl implements ActService {
             }
             if (actDTO.getGoodsList() != null) {
                 setActToGoods(actDTO.getGoodsList(), act);
+                actDAO.insert(act);
                 return act;
             } else throw new IllegalParametersException("List of good's id's is null");
         } catch (GenericDAOException e) {
@@ -179,6 +184,7 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional
     public Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating act with id {} from DTO: {}", id, actDTO);
         if (id == null || actDTO == null) throw new IllegalParametersException("Id or act DTO is null");
@@ -207,14 +213,15 @@ public class ActServiceImpl implements ActService {
     }
 
     @Override
+    @Transactional
     public void deleteAct(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting act with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<Act> result = actDAO.findById(id);
-            if (result.isPresent())
+            if (result.isPresent()) {
                 actDAO.delete(result.get());
-            else throw new ResourceNotFoundException("Act with such id was not found");
+            } else throw new ResourceNotFoundException("Act with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during deleting act: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

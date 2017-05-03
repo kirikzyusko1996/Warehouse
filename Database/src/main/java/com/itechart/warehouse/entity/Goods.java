@@ -17,13 +17,9 @@ public class Goods implements Serializable {
     private BigDecimal quantity;
     private BigDecimal weight;
     private BigDecimal price;
-    @JsonIgnore
     private StorageSpaceType storageType;
-    @JsonIgnore
     private Unit quantityUnit;
-    @JsonIgnore
     private Unit weightUnit;
-    @JsonIgnore
     private Unit priceUnit;
     @JsonIgnore
     private Invoice incomingInvoice;
@@ -35,6 +31,7 @@ public class Goods implements Serializable {
     private List<GoodsStatus> statuses;
     @JsonIgnore
     private List<StorageCell> cells;
+
 
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     public List<StorageCell> getCells() {
@@ -72,7 +69,10 @@ public class Goods implements Serializable {
         acts.remove(act);
     }
 
-    @OneToMany(mappedBy = "goods", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "act_goods",
+            joinColumns = {@JoinColumn(name = "id_goods")},
+            inverseJoinColumns = {@JoinColumn(name = "id_act")})
     public List<Act> getActs() {
         return acts;
     }

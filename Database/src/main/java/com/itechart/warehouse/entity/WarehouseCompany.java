@@ -11,6 +11,16 @@ public class WarehouseCompany {
     private Boolean status;
     private List<Warehouse> warehouses;
     private List<PriceList> priceList;
+    private List<User> users;
+
+    @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
     @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public List<Warehouse> getWarehouses() {
@@ -25,6 +35,7 @@ public class WarehouseCompany {
     public List<PriceList> getPriceList() {
         return priceList;
     }
+
     public void setPriceList(List<PriceList> priceList) {
         this.priceList = priceList;
     }

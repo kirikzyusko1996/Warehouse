@@ -25,7 +25,7 @@ public interface UserService {
 
     User createSupervisor(Long companyId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException;
+    User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteUser(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

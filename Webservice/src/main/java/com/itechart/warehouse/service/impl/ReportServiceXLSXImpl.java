@@ -219,13 +219,13 @@ public class ReportServiceXLSXImpl implements ReportService {
         Long idWarehouse;
         while(iterator.hasNext()){
             act = iterator.next();
-            idWarehouse = act.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse();
-            if(mapWarehouseLoss.containsKey(idWarehouse)){
-                mapWarehouseLoss.put(idWarehouse, mapWarehouseLoss.get(idWarehouse).add(act.getGoods().getPrice()));
-            }
-            else{
-                mapWarehouseLoss.put(idWarehouse, new BigDecimal("0"));
-            }
+//            idWarehouse = act.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse();
+//            if(mapWarehouseLoss.containsKey(idWarehouse)){
+//                mapWarehouseLoss.put(idWarehouse, mapWarehouseLoss.get(idWarehouse).add(act.getGoods().getPrice()));
+//            }
+//            else{
+//                mapWarehouseLoss.put(idWarehouse, new BigDecimal("0"));
+//            }
         }
 
         if(warehouseList.isEmpty()){
@@ -317,15 +317,15 @@ public class ReportServiceXLSXImpl implements ReportService {
         BigDecimal totalLoss = new BigDecimal("0");
         while(iterator.hasNext()){
             act = iterator.next();
-            if(act.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(idWarehouse)){
-                lossReportItem.setResponsiblePersonName(act.getUser().getFirstName() + " " + act.getUser().getLastName());
-                lossReportItem.setGoodsName(act.getGoods().getName());
-                lossReportItem.setActType(act.getActType().getName());
-                lossReportItem.setActCreationDate(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(act.getDate()));
-                lossReportItem.setGoodsCost(act.getGoods().getPrice().toPlainString());
-                lossReportItemList.add(lossReportItem);
-                totalLoss = totalLoss.add(act.getGoods().getPrice());
-            }
+//            if(act.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(idWarehouse)){
+//                lossReportItem.setResponsiblePersonName(act.getUser().getFirstName() + " " + act.getUser().getLastName());
+//                lossReportItem.setGoodsName(act.getGoods().getName());
+//                lossReportItem.setActType(act.getActType().getName());
+//                lossReportItem.setActCreationDate(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(act.getDate()));
+//                lossReportItem.setGoodsCost(act.getGoods().getPrice().toPlainString());
+//                lossReportItemList.add(lossReportItem);
+//                totalLoss = totalLoss.add(act.getGoods().getPrice());
+//            }
         }
 
         if(lossReportItemList.isEmpty()){

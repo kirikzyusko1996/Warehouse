@@ -6,52 +6,52 @@
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="1"/>
             <column name="name" value="DreamStock"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="2"/>
             <column name="name" value="ОАО 'Солнышко'"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="3"/>
             <column name="name" value="Меново"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="4"/>
             <column name="name" value="AXEFXII"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="5"/>
             <column name="name" value="Кемпер"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="6"/>
             <column name="name" value="Рога и копыта"/>
-            <column name="status" valueBoolean="0"/>
+            <column name="status" value="0"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="7"/>
             <column name="name" value="Ваш выбор"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="8"/>
             <column name="name" value="На складе"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="9"/>
             <column name="name" value="Простор"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="10"/>
             <column name="name" value="Соседи"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" value="1"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

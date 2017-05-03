@@ -9,6 +9,9 @@
         <addColumn tableName="price_list">
             <column name="id_warehouse_company" type="BIGINT UNSIGNED"/>
         </addColumn>
+        <addColumn tableName="price_list">
+            <column name="comment" type="VARCHAR(250)"/>
+        </addColumn>
     </changeSet>
 
     <changeSet author="gilimovich" id="add constraint">

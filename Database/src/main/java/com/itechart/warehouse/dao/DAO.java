@@ -81,7 +81,7 @@ public abstract class DAO<T> {
         if (entity == null) return;
         try {
             hibernateTemplate.delete(entity);
-            hibernateTemplate.flush();
+//            hibernateTemplate.flush();
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new GenericDAOException(e);

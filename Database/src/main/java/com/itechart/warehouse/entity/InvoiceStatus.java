@@ -43,7 +43,7 @@ public class InvoiceStatus {
         this.statusName = statusName;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     public User getUser() {
         return user;

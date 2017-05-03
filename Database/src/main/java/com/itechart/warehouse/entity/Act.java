@@ -2,24 +2,38 @@ package com.itechart.warehouse.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
+@ToString(exclude = {"user, goods"})
 @Entity
 @Table(name = "act")
 public class Act {
     private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp date;
-    @JsonIgnore
     private User user;
     @JsonIgnore
-    private Goods goods;
+    private List<Goods> goods;
     private ActType actType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "act_goods",
+            joinColumns = {@JoinColumn(name = "id_act")},
+            inverseJoinColumns = {@JoinColumn(name = "id_goods")})
+    public List<Goods> getGoods() {
+        return goods;
+    }
+
+    public void setGoods(List<Goods> goods) {
+        this.goods = goods;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     public User getUser() {
         return user;
@@ -27,16 +41,6 @@ public class Act {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_goods")
-    public Goods getGoods() {
-        return goods;
-    }
-
-    public void setGoods(Goods goods) {
-        this.goods = goods;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -89,14 +93,5 @@ public class Act {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("idAct", id)
-                .append("date", date)
-                .append("user", user)
-                .append("goodsList", goods)
-                .append("type", actType)
-                .toString();
-    }
+
 }
