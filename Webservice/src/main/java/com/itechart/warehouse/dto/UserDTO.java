@@ -8,6 +8,7 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.sql.Date;
@@ -22,7 +23,7 @@ import java.util.List;
 public class UserDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String firstName;
-    @NotEmpty(message = "Last name can not be empty")
+    @NotBlank(message = "Last name can not be blank")
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String lastName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
@@ -41,9 +42,12 @@ public class UserDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String email;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @NotBlank
     private String login;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @NotBlank
     private String password;
+    @NotEmpty
     private List<String> roles;
 
     public User buildUserEntity() {

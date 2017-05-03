@@ -5,6 +5,7 @@ import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import com.itechart.warehouse.entity.Goods;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.DecimalMin;
@@ -20,21 +21,29 @@ import java.util.List;
 @lombok.ToString
 
 public class GoodsDTO {
+    @NotBlank
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String name;
     @DecimalMin(value = "0.0", message = "Quantity can not be less than 0.0")
+    @NotNull
     private BigDecimal quantity;
     @DecimalMin(value = "0.0", message = "Weight can not be less than 0.0")
+    @NotNull
     private BigDecimal weight;
     @DecimalMin(value = "0.0", message = "Price can not be less than 0.0")
+    @NotNull
     private BigDecimal price;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @NotBlank
     private String storageTypeName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @NotBlank
     private String quantityUnitName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @NotBlank
     private String weightUnitName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    @NotBlank
     private String priceUnitName;
 
     private List<Long> cells;

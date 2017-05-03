@@ -121,13 +121,13 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userDTO.buildUserEntity();
             if (StringUtils.isBlank(user.getPassword())) {
-                throw new IllegalParametersException("Password can not be empty");
+                throw new IllegalParametersException("Field password can not be empty");
             }
             if (StringUtils.isBlank(user.getLogin())) {
-                throw new IllegalParametersException("Login can not be empty");
+                throw new IllegalParametersException("Field login can not be empty");
             }
             if (StringUtils.isBlank(user.getLastName())) {
-                throw new IllegalParametersException("Last name can not be empty");
+                throw new IllegalParametersException("Field last name can not be empty");
             }
             WarehouseCompany warehouseCompany = findWarehouseCompanyById(companyId);
             user.setWarehouseCompany(warehouseCompany);
@@ -135,12 +135,14 @@ public class UserServiceImpl implements UserService {
             if (roleNames != null) {
                 for (String roleName : roleNames) {
                     try {
-                        user.addRole(findRoleByName(roleName));
+                        List roles = new ArrayList();
+                        roles.add(findRoleByName(roleName));
+                        user.setRoles(roles);
                     } catch (IllegalParametersException e) {
                         logger.error("Role was not found: {}", e.getMessage());
                     }
                 }
-            }
+            } else throw new IllegalParametersException("At least one role has to be selected");
             return userDAO.insert(user);
         } catch (GenericDAOException e) {
             logger.error("Error during saving user: {}", e.getMessage());
@@ -206,33 +208,31 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userDAO.findUserById(id);
             if (user != null) {
-                if (StringUtils.isNotBlank(userDTO.getFirstName()))
-                    user.setFirstName(userDTO.getFirstName());
+                user.setFirstName(userDTO.getFirstName());
                 if (StringUtils.isNotBlank(userDTO.getLastName()))
                     user.setLastName(userDTO.getLastName());
-                if (StringUtils.isNotBlank(userDTO.getPatronymic()))
-                    user.setPatronymic(userDTO.getPatronymic());
-                if (userDTO.getDateOfBirth() != null)
-                    user.setDateOfBirth(userDTO.getDateOfBirth());
-                if (StringUtils.isNotBlank(userDTO.getCity()))
-                    user.setCity((userDTO.getCity()));
-                if (StringUtils.isNotBlank(userDTO.getStreet()))
-                    user.setStreet(userDTO.getStreet());
-                if (StringUtils.isNotBlank(userDTO.getHouse()))
-                    user.setHouse(userDTO.getHouse());
-                if (StringUtils.isNotBlank(userDTO.getApartment()))
-                    user.setApartment(userDTO.getApartment());
-                if (StringUtils.isNotBlank(userDTO.getEmail()))
-                    user.setEmail(userDTO.getEmail());
+                else throw new IllegalParametersException("Field last name can not be empty");
+                user.setPatronymic(userDTO.getPatronymic());
+                user.setDateOfBirth(userDTO.getDateOfBirth());
+                user.setCity((userDTO.getCity()));
+                user.setStreet(userDTO.getStreet());
+                user.setHouse(userDTO.getHouse());
+                user.setApartment(userDTO.getApartment());
+                user.setEmail(userDTO.getEmail());
                 if (StringUtils.isNotBlank(userDTO.getLogin()))
                     user.setLogin(userDTO.getLogin());
+                else throw new IllegalParametersException("Filed login can not be empty");
                 if (StringUtils.isNotBlank(userDTO.getPassword()))
                     user.setPassword(userDTO.getPassword());
+                else throw new IllegalParametersException("Field password can not be empty");
                 List<String> roleNames = userDTO.getRoles();
                 if (roleNames != null)
                     for (String roleName : roleNames) {
                         user.addRole(findRoleByName(roleName));
                     }
+                else {
+                    throw new IllegalParametersException("At least one role has to be selected");
+                }
                 return userDAO.update(user);
             } else throw new ResourceNotFoundException("User with such id was not found");
         } catch (GenericDAOException e) {

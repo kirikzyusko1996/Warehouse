@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itechart.warehouse.constants.UserRoleEnum;
 import com.itechart.warehouse.dto.UserDTO;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -50,6 +55,11 @@ public class UserControllerTest {
     public void testUserUpdate() throws Exception {
         UserDTO userDTO = new UserDTO();
         userDTO.setLastName("TEST");
+        userDTO.setLogin("root");
+        userDTO.setPassword("root");
+        String[] rolesArray = new String[]{UserRoleEnum.ROLE_OWNER.toString()};
+        List rolesList = Arrays.asList(rolesArray);
+        userDTO.setRoles(rolesList);
         ObjectMapper mapper = new ObjectMapper();
         String jsonUserDTO = mapper.writeValueAsString(userDTO);
         mockMvc.perform(put("/user/save/3")
@@ -79,6 +89,9 @@ public class UserControllerTest {
         userDTO.setLastName("TEST");
         userDTO.setLogin("root");
         userDTO.setPassword("root");
+        String[] rolesArray = new String[]{UserRoleEnum.ROLE_OWNER.toString()};
+        List rolesList = Arrays.asList(rolesArray);
+        userDTO.setRoles(rolesList);
         String jsonUserDTO = new ObjectMapper().writeValueAsString(userDTO);
         mockMvc.perform(post("/user/save")
                 .content(jsonUserDTO)

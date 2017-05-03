@@ -199,20 +199,28 @@ public class GoodsServiceImpl implements GoodsService {
             if (goodsToUpdate != null) {
                 if (StringUtils.isNotBlank(goodsDTO.getName()))
                     goodsToUpdate.setName(goodsDTO.getName());
+                else throw new IllegalParametersException("Field name can not be empty");
                 if (goodsDTO.getQuantity() != null)
                     goodsToUpdate.setQuantity(goodsDTO.getQuantity());
+                else throw new IllegalParametersException("Field quantity can not be empty");
                 if (goodsDTO.getWeight() != null)
                     goodsToUpdate.setWeight(goodsDTO.getWeight());
+                else throw new IllegalParametersException("Field weight can not be empty");
                 if (goodsDTO.getPrice() != null)
                     goodsToUpdate.setPrice(goodsDTO.getPrice());
-                if (goodsDTO.getStorageTypeName() != null)
+                else throw new IllegalParametersException("Field price can not be empty");
+                if (StringUtils.isNotBlank(goodsDTO.getStorageTypeName()))
                     goodsToUpdate.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-                if (goodsDTO.getQuantityUnitName() != null)
+                else throw new IllegalParametersException("Field storage type name can not be empty");
+                if (StringUtils.isNotBlank(goodsDTO.getQuantityUnitName()))
                     goodsToUpdate.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-                if (goodsDTO.getWeightUnitName() != null)
+                else throw new IllegalParametersException("Field quantity unit name can not be empty");
+                if (StringUtils.isNotBlank(goodsDTO.getWeightUnitName()))
                     goodsToUpdate.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-                if (goodsDTO.getPriceUnitName() != null)
+                else throw new IllegalParametersException("Field weight unit name can not be empty");
+                if (StringUtils.isNotBlank(goodsDTO.getPriceUnitName()))
                     goodsToUpdate.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
+                else throw new IllegalParametersException("Field price unit name can not be empty");
                 return goodsDAO.update(goodsToUpdate);
             } else throw new ResourceNotFoundException("Goods with such id was not found");
         } catch (GenericDAOException e) {
@@ -254,28 +262,29 @@ public class GoodsServiceImpl implements GoodsService {
             Goods goods = new Goods();
             if (StringUtils.isNotBlank(goodsDTO.getName()))
                 goods.setName(goodsDTO.getName());
-            else throw new IllegalParametersException("Name is null or empty");
+            else throw new IllegalParametersException("Field name can not be empty");
             if (goodsDTO.getPrice() != null)
                 goods.setPrice(goodsDTO.getPrice());
-            else throw new IllegalParametersException("Price is null");
+            else throw new IllegalParametersException("Field price can not be empty");
             if (goodsDTO.getQuantity() != null)
                 goods.setQuantity(goodsDTO.getQuantity());
-            else throw new IllegalParametersException("Quantity is null");
+            else throw new IllegalParametersException("Field quantity can not be empty");
             if (goodsDTO.getWeight() != null)
                 goods.setWeight(goodsDTO.getWeight());
-            else throw new IllegalParametersException("Weight is null");
-            if (goodsDTO.getPriceUnitName() != null) {
+            else throw new IllegalParametersException("Field weight can not be empty");
+
+            if (StringUtils.isNotBlank(goodsDTO.getPriceUnitName())) {
                 goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
-            } else throw new IllegalParametersException("Price unit name is null");
-            if (goodsDTO.getQuantityUnitName() != null) {
+            } else throw new IllegalParametersException("Field price unit name can not be empty");
+            if (StringUtils.isNotBlank(goodsDTO.getQuantityUnitName())) {
                 goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-            } else throw new IllegalParametersException("Quantity unit name is null");
-            if (goodsDTO.getWeightUnitName() != null) {
+            } else throw new IllegalParametersException("Field quantity unit name can not be empty");
+            if (StringUtils.isNotBlank(goodsDTO.getWeightUnitName())) {
                 goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-            } else throw new IllegalParametersException("Weight unit name is null");
-            if (goodsDTO.getStorageTypeName() != null) {
+            } else throw new IllegalParametersException("Field weight unit name can not be empty");
+            if (StringUtils.isNotBlank(goodsDTO.getStorageTypeName())) {
                 goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-            } else throw new IllegalParametersException("Storage type name is null");
+            } else throw new IllegalParametersException("Field storage type name can not be empty");
             Invoice invoice = findInvoiceById(invoiceId);
             if (invoice != null)
                 goods.setIncomingInvoice(invoice);

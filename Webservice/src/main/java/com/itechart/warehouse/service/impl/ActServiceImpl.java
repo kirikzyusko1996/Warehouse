@@ -125,6 +125,7 @@ public class ActServiceImpl implements ActService {
         if (actSearchDTO == null || companyId == null)
             throw new IllegalParametersException("Act search DTO or company id is null");
         try {
+            //todo
             DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
             if (actSearchDTO.getType() != null)
                 criteria.add(Restrictions.eq("actType", findActTypeByName(actSearchDTO.getType())));
@@ -193,12 +194,12 @@ public class ActServiceImpl implements ActService {
             if (actResult.isPresent()) {
                 Act act = actResult.get();
                 act.setActType(findActTypeByName(actDTO.getType()));
-                Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
-                if (userResult.isPresent()) {
-                    act.setUser(userResult.get());
-                } else {
-                    throw new ResourceNotFoundException("Authenticated user was not found");
-                }
+//                Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
+//                if (userResult.isPresent()) {
+//                    act.setUser(userResult.get());
+//                } else {
+//                    throw new ResourceNotFoundException("Authenticated user was not found");
+//                }
                 if (actDTO.getGoodsList() != null) {
                     setActToGoods(actDTO.getGoodsList(), act);
                     return act;
