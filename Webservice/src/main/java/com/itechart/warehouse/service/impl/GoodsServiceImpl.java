@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -295,8 +296,16 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException {
-        return null;
+    @Transactional
+    public List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Creating batch of goods {} for invoice with id: {}", goodsDtoList, invoiceId);
+        if (invoiceId == null || goodsDtoList == null)
+            throw new IllegalParametersException("Invoice id or goods list is null");
+        List<Goods> goodsList = new ArrayList<>();
+        for (GoodsDTO dto : goodsDtoList) {
+            goodsList.add(createGoods(invoiceId, dto));
+        }
+        return goodsList;
     }
 
     private Invoice findInvoiceById(Long invoiceId) throws GenericDAOException, IllegalParametersException {

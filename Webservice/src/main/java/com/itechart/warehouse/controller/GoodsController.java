@@ -16,6 +16,7 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
+import com.mysql.cj.api.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,6 +143,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(IllegalParametersException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError(e.getMessage());
         return illegalParametersError;
@@ -152,6 +154,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(HttpMessageNotReadableException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError("Message is syntactically incorrect");
         return illegalParametersError;
@@ -162,6 +165,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(ResourceNotFoundException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError resourceNotFoundError = new RequestHandlingError();
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
@@ -172,6 +176,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;

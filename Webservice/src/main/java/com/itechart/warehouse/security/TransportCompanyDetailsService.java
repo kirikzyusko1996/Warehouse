@@ -1,7 +1,11 @@
 package com.itechart.warehouse.security;
 
+import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.services.TransportCompanyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,12 +17,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransportCompanyDetailsService implements UserDetailsService {
     private Logger logger = LoggerFactory.getLogger(TransportCompanyDetailsService.class);
-//    private TransportCompanyService transportCompanyService;
-//
-//    @Autowired
-//    public void setUserService(TransportCompanyService transportCompanyService) {
-//        this.transportCompanyService = transportCompanyService;
-//    }
+    private TransportCompanyService transportCompanyService;
+
+    @Autowired
+    public void setUserService(TransportCompanyService transportCompanyService) {
+        this.transportCompanyService = transportCompanyService;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

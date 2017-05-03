@@ -62,7 +62,6 @@ public class ActController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IdResponse> saveAct(@Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, ResourceNotFoundException {
         logger.info("Handling request for saving new act using DTO: {}", actDTO);
-        //todo set goods etc.
         Act savedAct = actService.createAct(actDTO);
         if (savedAct != null)
             return new ResponseEntity<>(new IdResponse(savedAct.getId()), HttpStatus.CREATED);
@@ -113,6 +112,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(IllegalParametersException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError(e.getMessage());
         return illegalParametersError;
@@ -123,6 +123,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(HttpMessageNotReadableException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError("Message is syntactically incorrect");
         return illegalParametersError;
@@ -133,6 +134,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(ResourceNotFoundException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError resourceNotFoundError = new RequestHandlingError();
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
@@ -143,6 +145,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;

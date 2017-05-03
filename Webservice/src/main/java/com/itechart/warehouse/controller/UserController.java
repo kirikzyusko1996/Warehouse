@@ -63,7 +63,7 @@ public class UserController {
     @RequestMapping(value = "/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<IdResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+    public ResponseEntity<IdResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, ResourceNotFoundException {
         logger.info("Handling request for saving new user using DTO: {}", userDTO);
         WarehouseCompany company = UserDetailsProvider.getUserDetails().getCompany();
         if (company != null) {
@@ -107,21 +107,12 @@ public class UserController {
         return ValidationErrorBuilder.fromBindingErrors(e.getBindingResult());
     }
 
-    @ExceptionHandler(DataAccessException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(DataAccessException e) {
-        RequestHandlingError dataAccessError = new RequestHandlingError();
-        dataAccessError.setError(e.getMessage());
-        return dataAccessError;
-    }
-
     @ExceptionHandler(IllegalParametersException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public
     @ResponseBody
     RequestHandlingError handleException(IllegalParametersException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError(e.getMessage());
         return illegalParametersError;
@@ -132,6 +123,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(HttpMessageNotReadableException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError("Message is syntactically incorrect");
         return illegalParametersError;
@@ -142,6 +134,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(ResourceNotFoundException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError resourceNotFoundError = new RequestHandlingError();
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
@@ -152,6 +145,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;

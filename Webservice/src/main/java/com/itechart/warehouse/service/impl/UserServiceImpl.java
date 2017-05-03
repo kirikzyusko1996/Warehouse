@@ -117,22 +117,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException {
+    public User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
         logger.info("Saving user using DTO: {}", userDTO);
         if (userDTO == null) throw new IllegalParametersException("User DTO is null");
         try {
             User user = userDTO.buildUserEntity();
-            //todo set warehouseCompany
-//            user.setWarehouseCompany(companyId);
+            WarehouseCompany warehouseCompany = findWarehouseCompanyById(companyId);
+            user.setWarehouseCompany(warehouseCompany);
             List<String> roleNames = userDTO.getRoles();
             for (String roleName : roleNames) {
-                user.addRole(findRoleByName(roleName));
+                try {
+                    user.addRole(findRoleByName(roleName));
+                } catch (IllegalParametersException e) {
+                    logger.error("Role was not found: {}", e.getMessage());
+                }
             }
             return userDAO.insert(user);
         } catch (GenericDAOException e) {
             logger.error("Error during saving user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    private WarehouseCompany findWarehouseCompanyById(Long companyId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException {
+        logger.info("Searching for company with id: {}", companyId);
+        if (companyId == null) throw new IllegalParametersException("Company id is null");
+        Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
+        if (result.isPresent()) {
+            return result.get();
+        } else throw new ResourceNotFoundException("Warehouse company with such id was not found");
+
     }
 
     @Override
