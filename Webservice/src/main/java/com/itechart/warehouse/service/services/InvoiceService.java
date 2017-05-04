@@ -5,6 +5,7 @@ import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
 import com.itechart.warehouse.entity.InvoiceStatus;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -14,9 +15,11 @@ import java.util.List;
 public interface InvoiceService {
     List<Invoice> findAllInvoices() throws DataAccessException;
 
-    List<IncomingInvoiceDTO> findAllIncomingInvoices() throws DataAccessException;
+    List<IncomingInvoiceDTO> findAllIncomingInvoices()
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<OutgoingInvoiceDTO> findAllOutgoingInvoices() throws DataAccessException;
+    List<OutgoingInvoiceDTO> findAllOutgoingInvoices()
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     Invoice findInvoiceById(Long id) throws DataAccessException;
 
@@ -24,9 +27,11 @@ public interface InvoiceService {
 
     Invoice saveInvoice(Invoice invoice) throws DataAccessException;
 
-    Invoice saveIncomingInvoice(IncomingInvoiceDTO invoice) throws DataAccessException;
+    Invoice saveIncomingInvoice(WarehouseCompanyUserDetails principal, IncomingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    Invoice saveOutgoingInvoice(OutgoingInvoiceDTO invoice) throws DataAccessException;
+    Invoice saveOutgoingInvoice(WarehouseCompanyUserDetails principal, OutgoingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
 

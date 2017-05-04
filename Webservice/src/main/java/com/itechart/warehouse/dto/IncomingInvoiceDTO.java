@@ -31,12 +31,14 @@ public class IncomingInvoiceDTO {
     private String description;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
+    private String goodsQuantityUnit;
+    private String goodsEntryCountUnit;
 
     @Setter(AccessLevel.NONE)
     private String dispatcher;
 
     private Timestamp registrationDate;
-    private List<GoodsInvoiceDTO> goods;
+    private List<GoodsDTO> goods;
 
     private String status;
 
