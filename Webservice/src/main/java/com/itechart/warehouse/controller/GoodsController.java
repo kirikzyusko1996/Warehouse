@@ -3,6 +3,7 @@ package com.itechart.warehouse.controller;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
@@ -90,7 +91,7 @@ public class GoodsController {
     @RequestMapping(value = "/search", method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Goods>> findGoods(@RequestParam int page, @RequestParam int count, @RequestBody GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+    public ResponseEntity<List<Goods>> findGoods(@RequestParam int page, @RequestParam int count, @RequestBody GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, GenericDAOException {
         logger.info("Handling request for searching list of goods by: {}, page: {}, count: {}", searchDTO, page, count);
         List<Goods> goods = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();

@@ -147,7 +147,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+    public List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, GenericDAOException {
         logger.info("Find {} goods for warehouse with id {} starting from index {} by criteria: {}", maxResults, warehouseId, firstResult, goodsSearchDTO);
         if (goodsSearchDTO == null || warehouseId == null)
             throw new IllegalParametersException("Goods search DTO or warehouse id is null");
@@ -155,23 +155,32 @@ public class GoodsServiceImpl implements GoodsService {
         // TODO: 30.04.2017 find for warehouse
 //        criteria.add(Restrictions.eq("company_id", companyId));
 
-
         if (goodsSearchDTO.getName() != null)
             criteria.add(Restrictions.like("name", goodsSearchDTO.getName()));
-        if (goodsSearchDTO.getQuantity() != null)
-            criteria.add(Restrictions.eq("quantity", goodsSearchDTO.getQuantity()));
-        if (goodsSearchDTO.getWeight() != null)
-            criteria.add(Restrictions.eq("weight", goodsSearchDTO.getWeight()));
-        if (goodsSearchDTO.getPrice() != null)
-            criteria.add(Restrictions.eq("price", goodsSearchDTO.getPrice()));
+
+        if (goodsSearchDTO.getFromQuantity() != null)
+            criteria.add(Restrictions.ge("quantity", goodsSearchDTO.getFromQuantity()));
+        if (goodsSearchDTO.getToQuantity() != null)
+            criteria.add(Restrictions.le("quantity", goodsSearchDTO.getToQuantity()));
+
+        if (goodsSearchDTO.getFromWeight() != null)
+            criteria.add(Restrictions.ge("weight", goodsSearchDTO.getFromWeight()));
+        if (goodsSearchDTO.getToWeight() != null)
+            criteria.add(Restrictions.le("weight", goodsSearchDTO.getToWeight()));
+
+        if (goodsSearchDTO.getFromPrice() != null)
+            criteria.add(Restrictions.ge("price", goodsSearchDTO.getFromPrice()));
+        if (goodsSearchDTO.getToPrice() != null)
+            criteria.add(Restrictions.le("price", goodsSearchDTO.getToPrice()));
         if (goodsSearchDTO.getStorageTypeName() != null)
-            criteria.add(Restrictions.eq("storageType", goodsSearchDTO.getStorageTypeName()));
+
+            criteria.add(Restrictions.eq("storageType", findStorageTypeByName(goodsSearchDTO.getStorageTypeName())));
         if (goodsSearchDTO.getQuantityUnitName() != null)
-            criteria.add(Restrictions.eq("quantityUnit", goodsSearchDTO.getQuantityUnitName()));
+            criteria.add(Restrictions.eq("quantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnitName())));
         if (goodsSearchDTO.getWeightUnitName() != null)
-            criteria.add(Restrictions.eq("weightUnit", goodsSearchDTO.getWeightUnitName()));
+            criteria.add(Restrictions.eq("weightUnit", findUnitByName(goodsSearchDTO.getWeightUnitName())));
         if (goodsSearchDTO.getPriceUnitName() != null)
-            criteria.add(Restrictions.eq("priceUnit", goodsSearchDTO.getPriceUnitName()));
+            criteria.add(Restrictions.eq("priceUnit", findUnitByName(goodsSearchDTO.getPriceUnitName())));
 
         //todo add criterias: status, date...
         try {
@@ -183,11 +192,37 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public List<Goods> findGoodsForCompanyByStatus(Long companyId, String statusName, java.sql.Date fromDate, java.sql.Date toDate, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        return null;
+    @Transactional(readOnly = true)
+    public List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, GenericDAOException {
+        logger.info("Find {} goods for warehouse with id {} starting from index {}", maxResults, warehouseId, firstResult);
+        if (warehouseId == null || statusName == null)
+            throw new IllegalParametersException("Status name or warehouse id is null");
+        GoodsStatusName status = findGoodsStatusNameByName(statusName);
+        if (status == null)
+            throw new IllegalParametersException("Status with name" + statusName + "was not found");
+        return goodsDAO.findByWarehouseIdAndCurrentStatus(warehouseId, status, firstResult, maxResults);
     }
 
-    //todo find by status between dates
+    @Override
+    @Transactional(readOnly = true)
+    public List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException {
+        logger.info("Find all statuses of goods with id: {}", goodsId);
+        if (goodsId == null) throw new IllegalParametersException("Goods id is null");
+        Optional<Goods> result = goodsDAO.findById(goodsId);
+        if (result.isPresent())
+            return result.get().getStatuses();
+        else throw new ResourceNotFoundException("Goods with such id was not found");
+
+    }
+
+    @Override
+    public GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException {
+        logger.info("Find current status of goods with id: {}", goodsId);
+        if (goodsId == null) throw new IllegalParametersException("Goods id is null");
+        return goodsStatusDAO.findCurrentByGoodsId(goodsId);
+
+    }
+
 
     @Override
     @Transactional
@@ -317,22 +352,22 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsList;
     }
 
-    private Invoice findInvoiceById(Long invoiceId) throws GenericDAOException, IllegalParametersException {
+    private Invoice findInvoiceById(Long invoiceId) throws GenericDAOException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Searching for invoice with id: {}", invoiceId);
         if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
         Optional<Invoice> result = invoiceDAO.findById(invoiceId);
         if (result.isPresent())
             return result.get();
-        else return null;
+        else throw new ResourceNotFoundException("Invoice was not found");
     }
 
-    private User findUserById(Long userId) throws GenericDAOException, IllegalParametersException {
+    private User findUserById(Long userId) throws GenericDAOException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Searching for user with id: {}", userId);
         if (userId == null) throw new IllegalParametersException("User id is null");
         Optional<User> result = userDAO.findById(userId);
         if (result.isPresent())
             return result.get();
-        else return null;
+        else throw new ResourceNotFoundException("User was not found");
     }
 
     private GoodsStatusName findGoodsStatusNameByName(String goodsStatusNameName) throws GenericDAOException, IllegalParametersException {
@@ -343,7 +378,7 @@ public class GoodsServiceImpl implements GoodsService {
         List<GoodsStatusName> fetchedStatusName = goodsStatusNameDAO.findAll(criteria, -1, 1);
         if (!fetchedStatusName.isEmpty())
             return fetchedStatusName.get(0);
-        else return null;
+        else throw new IllegalParametersException("Invalid status name: " + goodsStatusNameName);
     }
 
     @Override

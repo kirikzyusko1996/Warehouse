@@ -13,6 +13,12 @@
 
     <jdbc:embedded-database id="dataSource" type="H2"/>
 
+    <bean id="liquibase" class="liquibase.integration.spring.SpringLiquibase">
+        <property name="changeLog" value="classpath:liquibase/changelog/db.changelog-master.xml"/>
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+
     <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="packagesToScan" value="com.itechart.warehouse.entity"/>
@@ -36,19 +42,14 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <bean id="liquibase" class="liquibase.integration.spring.SpringLiquibase">
-        <property name="changeLog" value="classpath:liquibase/changelog/db.changelog-master.xml"/>
-        <property name="dataSource" ref="dataSource" />
-    </bean>
 
-    <bean id="user" class="com.itechart.warehouse.entity.User">
-        <property name="login" value="1"/>
-        <property name="password" value="1"/>
-
-    </bean>
-    <bean id="userDetails" class="com.itechart.warehouse.security.WarehouseCompanyUserDetails">
-        <constructor-arg ref="user"/>
-    </bean>
+    <!--<bean id="user" class="com.itechart.warehouse.entity.User">-->
+        <!--<property name="login" value="1"/>-->
+        <!--<property name="password" value="1"/>-->
+    <!--</bean>-->
+    <!--<bean id="userDetails" class="com.itechart.warehouse.security.WarehouseCompanyUserDetails">-->
+        <!--<constructor-arg ref="user"/>-->
+    <!--</bean>-->
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 

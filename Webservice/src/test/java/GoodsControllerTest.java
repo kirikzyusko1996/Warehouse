@@ -133,13 +133,13 @@ public class GoodsControllerTest {
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsSearch() throws Exception {
         GoodsSearchDTO searchDTO = new GoodsSearchDTO();
-        searchDTO.setName("Test");
+        searchDTO.setName("Хлеб");
         searchDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
-        searchDTO.setPrice(new BigDecimal(10));
+        searchDTO.setFromPrice(new BigDecimal(10));
         searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
-        searchDTO.setQuantity(new BigDecimal(10));
+        searchDTO.setFromQuantity(new BigDecimal(10));
         searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
-        searchDTO.setWeight(new BigDecimal(10));
+        searchDTO.setFromWeight(new BigDecimal(10));
         searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
