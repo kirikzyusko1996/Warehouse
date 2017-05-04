@@ -12,11 +12,11 @@
     <include file="liquibase/changelog/db.changelog-warehouse-company.xml"/>
     <include file="liquibase/changelog/db.changelog-warehouse-customer-company.xml"/>
     <include file="liquibase/changelog/db.changelog-transport-company.xml"/>
+    <include file="liquibase/changelog/db.changelog-warehouse.xml"/>
     <include file="liquibase/changelog/db.changelog-user.xml"/>
     <include file="liquibase/changelog/db.changelog-role.xml"/>
     <include file="liquibase/changelog/db.changelog-user-role.xml"/>
     <include file="liquibase/changelog/db.changelog-driver.xml"/>
-    <include file="liquibase/changelog/db.changelog-warehouse.xml"/>
     <include file="liquibase/changelog/db.changelog-storage-space-type.xml"/>
     <include file="liquibase/changelog/db.changelog-price-list.xml"/>
     <include file="liquibase/changelog/db.changelog-storage-space.xml"/>

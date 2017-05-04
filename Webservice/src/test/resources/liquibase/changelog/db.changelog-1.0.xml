@@ -296,6 +296,9 @@
             <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
+            <column name="id_warehouse" type="BIGINT UNSIGNED">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="18">

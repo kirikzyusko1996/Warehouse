@@ -30,6 +30,8 @@ public class User {
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
+    @JsonIgnore
+    private Warehouse warehouse;
     private List<Role> roles;
     @JsonIgnore
     private List<Act> acts;
@@ -203,6 +205,16 @@ public class User {
 
     public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
         this.warehouseCompany = warehouseCompany;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_warehouse")
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
     }
 
     @Override
