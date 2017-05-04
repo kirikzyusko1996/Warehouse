@@ -540,7 +540,10 @@ public class InvoiceServiceImpl implements InvoiceService {
                 transportService.findTransportCompanyByName(dto.getTransportName());
         invoice.setTransportCompany(transportCompany);
 
-        invoice.setWarehouseCompany(company);
+        //todo set warehouse
+//        invoice.setWarehouseCompany(company);
+
+
         invoice = fillInvoiceWithUnitsInfo(invoice, dto.getGoodsQuantityUnit(), dto.getGoodsEntryCountUnit());
         invoice = fillInvoiceWithDriverInfo(invoice, dto.getDriver());
 
@@ -567,7 +570,9 @@ public class InvoiceServiceImpl implements InvoiceService {
                 transportService.findTransportCompanyByName(dto.getTransportName());
         invoice.setTransportCompany(transportCompany);
 
-        invoice.setWarehouseCompany(company);
+        //todo set warehouse
+//        invoice.setWarehouseCompany(company);
+
         invoice = fillInvoiceWithUnitsInfo(invoice, dto.getGoodsQuantityUnit(), dto.getGoodsEntryCountUnit());
         invoice = fillInvoiceWithDriverInfo(invoice, dto.getDriver());
 

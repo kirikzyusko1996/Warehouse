@@ -38,6 +38,14 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     public List<WarehouseCustomerCompany> findAllWarehouseCustomerCompanies(int page, int count) throws DataAccessException {
         logger.info("Find all customer companies");
 
+        if (page < 0){
+            page = 0;
+        }
+
+        if (count < 0){
+            count = -1;
+        }
+
         DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCustomerCompany.class);
         List<WarehouseCustomerCompany> companies;
         try {

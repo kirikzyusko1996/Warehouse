@@ -9,11 +9,10 @@ import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import java.util.List;
 
 public interface TransportCompanyService {
-    List<TransportCompany> findAllTransportCompanies() throws DataAccessException;
+    List<TransportCompany> findAllTransportCompanies(int page, int count) throws DataAccessException;
 
-    List<TransportCompany> findTransportCompaniesWithOffset(int offset, int limit) throws DataAccessException;
-
-    TransportCompany findTransportCompanyById(Long id) throws DataAccessException;
+    TransportCompany findTransportCompanyById(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     TransportCompany findTransportCompanyByName(String name) throws DataAccessException;
 

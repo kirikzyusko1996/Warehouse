@@ -34,13 +34,13 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<TransportCompany> findAllTransportCompanies() throws DataAccessException {
+    public List<TransportCompany> findAllTransportCompanies(int page, int count) throws DataAccessException {
         logger.info("Find all transport companies");
 
         DetachedCriteria criteria = DetachedCriteria.forClass(TransportCompany.class);
         List<TransportCompany> companies;
         try {
-            companies = transportDAO.findAll(criteria, -1, -1);
+            companies = transportDAO.findAll(criteria, page, count);
         } catch (GenericDAOException e) {
             logger.error("Error while finding all transport companies: ", e);
             throw new DataAccessException(e);
@@ -50,31 +50,26 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
     }
 
     @Override
-    public List<TransportCompany> findTransportCompaniesWithOffset(int offset, int limit) throws DataAccessException {
-        logger.info("Find transport companies with offset {} and limit {}", offset, limit);
-
-        DetachedCriteria criteria = DetachedCriteria.forClass(TransportCompany.class);
-        List<TransportCompany> companies;
-        try {
-            companies = transportDAO.findAll(criteria, offset, limit);
-        } catch (GenericDAOException e) {
-            logger.error("Error while finding transport companies: ", e);
-            throw new DataAccessException(e);
-        }
-
-        return companies;
-    }
-
-    @Override
     @Transactional(readOnly = true)
-    public TransportCompany findTransportCompanyById(Long id) throws DataAccessException {
+    public TransportCompany findTransportCompanyById(String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
         logger.info("Find transport company by id #{}", id);
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
 
         TransportCompany company = null;
         try {
-            Optional<TransportCompany> optional = transportDAO.findById(id);
-            if (optional.isPresent()) {
-                company = optional.get();
+            Long companyId = Long.valueOf(id);
+            if (transportDAO.isExistsEntity(companyId)) {
+                Optional<TransportCompany> optional = transportDAO.findById(companyId);
+                if (optional.isPresent()){
+                    company = optional.get();
+                }
+            } else {
+                logger.error("Transport company with id {} not found", companyId);
+                throw new ResourceNotFoundException("transport company not found");
             }
         } catch (GenericDAOException e) {
             logger.error("Error while finding transport company by id: ", e);

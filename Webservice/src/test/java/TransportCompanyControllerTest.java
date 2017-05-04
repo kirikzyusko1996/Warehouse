@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,20 +12,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/testContext.xml"})
 @WebAppConfiguration
-public class WarehouseCustomerCompanyControllerTest {
+public class TransportCompanyControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
@@ -36,29 +37,29 @@ public class WarehouseCustomerCompanyControllerTest {
     }
 
     @Test
-    public void readCustomers() throws Exception {
-        mockMvc.perform(get("/customer/")
+    public void readCompanies() throws Exception {
+        mockMvc.perform(get("/tr-company/")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$[0].name", is("Dreamland")));
+                .andExpect(jsonPath("$[0].name", is("Перевозчик")));
     }
 
     @Test
-    public void readLastThreeCustomers() throws Exception {
-        mockMvc.perform(get("/customer/?page=7")
+    public void readCompanyById() throws Exception {
+        mockMvc.perform(get("/tr-company/4")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$[0].name", is("SpaceX")));
+                .andExpect(jsonPath("$.name", is("Рок н рольщик")));
     }
 
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void saveCustomer() throws Exception {
-        String customerJson = buildCustomerInJson("Basic");
+    public void saveCompany() throws Exception {
+        String customerJson = buildCompanyInJson("TranSea", true);
 
-        mockMvc.perform(post("/customer/")
+        mockMvc.perform(post("/tr-company/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(customerJson))
                 .andDo(print())
@@ -67,40 +68,32 @@ public class WarehouseCustomerCompanyControllerTest {
 
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void updateCustomer() throws Exception {
-        String customerJson = buildCustomerInJson("Updated");
+    public void updateCompany() throws Exception {
+        String customerJson = buildCompanyInJson("Updated", false);
 
-        mockMvc.perform(put("/customer/2")
+        mockMvc.perform(put("/tr-company/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(customerJson))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-    // todo only warehouse owner can remove customers
+    // todo only warehouse owner can remove companies
     // throws exception as has references on it
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void deleteCustomer() throws Exception {
-        mockMvc.perform(delete("/customer/1")
+    public void deleteCompany() throws Exception {
+        mockMvc.perform(delete("/tr-company/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void deleteNonExistedCustomer() throws Exception {
-        mockMvc.perform(delete("/customer/100")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
+    private String buildCompanyInJson(String name, boolean isTrusted) throws JsonProcessingException {
+        TransportCompany company = new TransportCompany();
+        company.setName(name);
+        company.setTrusted(isTrusted);
 
-    private String buildCustomerInJson(String name) throws JsonProcessingException{
-        WarehouseCustomerCompany customer = new WarehouseCustomerCompany();
-        customer.setName(name);
-
-        return new ObjectMapper().writeValueAsString(customer);
+        return new ObjectMapper().writeValueAsString(company);
     }
 }

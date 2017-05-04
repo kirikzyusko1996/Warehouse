@@ -29,18 +29,40 @@ public class TransportCompanyController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<List<TransportCompany>> readCompanies(){
+    public ResponseEntity<List<TransportCompany>> readCompanies(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "-1") int count){
         logger.info("GET on /tr-company: find all transport companies");
 
         List<TransportCompany> companies;
         try{
-            companies = transportService.findAllTransportCompanies();
+            companies = transportService.findAllTransportCompanies(page, count);
         } catch (DataAccessException e){
             logger.error("Error while retrieving all customers", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         return new ResponseEntity<>(companies, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<TransportCompany> readCompanyById(@PathVariable String id){
+        logger.info("GET on /tr-company/{}: find transport company by id");
+
+        TransportCompany company;
+        try{
+            company = transportService.findTransportCompanyById(id);
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving transport company by id", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while transport company by id", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("transport company with specified id not found while transport company by id", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(company, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)

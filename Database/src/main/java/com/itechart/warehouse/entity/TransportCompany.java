@@ -3,7 +3,7 @@ package com.itechart.warehouse.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "transport_company", schema = "warehouse", catalog = "")
+@Table(name = "transport_company")
 public class TransportCompany {
     private Long id;
     private String name;
