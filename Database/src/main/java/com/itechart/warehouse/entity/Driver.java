@@ -14,7 +14,7 @@ public class Driver {
     private TransportCompany transportCompany;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_driver", unique = true, nullable = false)
     public Long getId() {
         return id;

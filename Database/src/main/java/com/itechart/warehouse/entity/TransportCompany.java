@@ -10,7 +10,7 @@ public class TransportCompany {
     private Boolean isTrusted;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_transport_company", unique = true, nullable = false)
     public Long getId() {
         return id;

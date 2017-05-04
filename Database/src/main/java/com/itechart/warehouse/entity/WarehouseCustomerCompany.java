@@ -9,7 +9,7 @@ public class WarehouseCustomerCompany{
     private String name;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_warehouse_customer_company", unique = true, nullable = false)
     public Long getId() {
         return id;

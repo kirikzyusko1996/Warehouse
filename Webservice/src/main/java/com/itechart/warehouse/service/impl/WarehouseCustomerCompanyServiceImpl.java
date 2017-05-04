@@ -35,13 +35,13 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional(readOnly = true)
-    public List<WarehouseCustomerCompany> findAllWarehouseCustomerCompanies() throws DataAccessException {
+    public List<WarehouseCustomerCompany> findAllWarehouseCustomerCompanies(int page, int count) throws DataAccessException {
         logger.info("Find all customer companies");
 
         DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCustomerCompany.class);
         List<WarehouseCustomerCompany> companies;
         try {
-            companies = customerDAO.findAll(criteria, -1, -1);
+            companies = customerDAO.findAll(criteria, page, count);
         } catch (GenericDAOException e) {
             logger.error("Error while finding all customer companies: ", e);
             throw new DataAccessException(e);

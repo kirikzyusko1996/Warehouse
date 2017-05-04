@@ -29,12 +29,13 @@ public class WarehouseCustomerCompanyController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<List<WarehouseCustomerCompany>> readCustomers(){
+    public ResponseEntity<List<WarehouseCustomerCompany>> readCustomers(@RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "-1") int count){
         logger.info("GET on /customer: find all customers");
 
         List<WarehouseCustomerCompany> customers;
         try{
-            customers = customerService.findAllWarehouseCustomerCompanies();
+            customers = customerService.findAllWarehouseCustomerCompanies(page, count);
         } catch (DataAccessException e){
             logger.error("Error while retrieving all customers", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);

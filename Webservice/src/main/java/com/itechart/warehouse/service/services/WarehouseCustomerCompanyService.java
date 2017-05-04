@@ -9,7 +9,7 @@ import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import java.util.List;
 
 public interface WarehouseCustomerCompanyService {
-    List<WarehouseCustomerCompany> findAllWarehouseCustomerCompanies() throws DataAccessException;
+    List<WarehouseCustomerCompany> findAllWarehouseCustomerCompanies(int page, int count) throws DataAccessException;
 
     WarehouseCustomerCompany findWarehouseCustomerCompanyById(Long id) throws DataAccessException;
 
