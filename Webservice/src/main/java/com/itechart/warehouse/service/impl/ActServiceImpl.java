@@ -129,8 +129,10 @@ public class ActServiceImpl implements ActService {
             DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
             if (actSearchDTO.getType() != null)
                 criteria.add(Restrictions.eq("actType", findActTypeByName(actSearchDTO.getType())));
-            if (actSearchDTO.getDate() != null)
-                criteria.add(Restrictions.eq("date", actSearchDTO.getDate()));
+            if (actSearchDTO.getFromDate() != null)
+                criteria.add(Restrictions.ge("date", actSearchDTO.getFromDate()));
+            if (actSearchDTO.getFromDate() != null)
+                criteria.add(Restrictions.le("date", actSearchDTO.getToDate()));
             return actDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsList: {}", e.getMessage());

@@ -7,52 +7,52 @@
         <insert tableName="transport_company">
             <column name="id_transport_company" value="1"/>
             <column name="name" value="Перевозчик"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="2"/>
             <column name="name" value="Механик"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="3"/>
             <column name="name" value="Большой куш"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="4"/>
             <column name="name" value="Рок н рольщик"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="5"/>
             <column name="name" value="Шпион"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="6"/>
             <column name="name" value="Карты"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="7"/>
             <column name="name" value="Деньги"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="8"/>
             <column name="name" value="Два ствола"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="9"/>
             <column name="name" value="Паркер"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="10"/>
             <column name="name" value="Профессионал"/>
-            <column name="is_trusted" value="1"/>
+            <column name="is_trusted" valueBoolean="1"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

@@ -47,9 +47,9 @@
     <changeSet author="ulad_bondar" id="82">
         <addForeignKeyConstraint baseColumnNames="id_transport_company" baseTableName="invoice" constraintName="invoice_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_transport_company" referencedTableName="transport_company"/>
     </changeSet>
-    <changeSet author="ulad_bondar" id="83">
-        <addForeignKeyConstraint baseColumnNames="id_warehouse_company" baseTableName="invoice" constraintName="invoice_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_company" referencedTableName="warehouse_company"/>
-    </changeSet>
+    <!--<changeSet author="ulad_bondar" id="83">-->
+        <!--<addForeignKeyConstraint baseColumnNames="id_warehouse_company" baseTableName="invoice" constraintName="invoice_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_company" referencedTableName="warehouse_company"/>-->
+    <!--</changeSet>-->
     <changeSet author="ulad_bondar" id="84">
         <addForeignKeyConstraint baseColumnNames="id_supplier_company" baseTableName="invoice" constraintName="invoice_ibfk_4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_customer_company" referencedTableName="warehouse_customer_company"/>
     </changeSet>

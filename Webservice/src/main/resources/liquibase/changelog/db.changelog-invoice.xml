@@ -11,7 +11,7 @@
             <column name="number" value="100"/>
             <column name="issue_date" value="2017-04-05"/>
             <column name="id_transport_company" value="8"/>
-            <column name="id_warehouse_company" value="3"/>
+            <column name="id_warehouse" value="3"/>
             <column name="id_supplier_company" value="1"/>
             <column name="id_receiver_company" value="1"/>
             <column name="transport_number" value="100"/>
@@ -28,7 +28,7 @@
             <column name="number" value="101"/>
             <column name="issue_date" value="2016-01-23"/>
             <column name="id_transport_company" value="3"/>
-            <column name="id_warehouse_company" value="2"/>
+            <column name="id_warehouse" value="2"/>
             <column name="id_supplier_company" value="10"/>
             <column name="id_receiver_company" value="1"/>
             <column name="transport_number" value="200"/>
@@ -45,7 +45,7 @@
             <column name="number" value="102"/>
             <column name="issue_date" value="2016-09-12"/>
             <column name="id_transport_company" value="2"/>
-            <column name="id_warehouse_company" value="3"/>
+            <column name="id_warehouse" value="3"/>
             <column name="id_supplier_company" value="1"/>
             <column name="id_receiver_company" value="7"/>
             <column name="transport_number" value="300"/>
@@ -62,7 +62,7 @@
             <column name="number" value="103"/>
             <column name="issue_date" value="2017-03-03"/>
             <column name="id_transport_company" value="5"/>
-            <column name="id_warehouse_company" value="2"/>
+            <column name="id_warehouse" value="2"/>
             <column name="id_supplier_company" value="10"/>
             <column name="id_receiver_company" value="9"/>
             <column name="transport_number" value="400"/>
@@ -79,7 +79,7 @@
             <column name="number" value="104"/>
             <column name="issue_date" value="2015-02-25"/>
             <column name="id_transport_company" value="7"/>
-            <column name="id_warehouse_company" value="1"/>
+            <column name="id_warehouse" value="1"/>
             <column name="id_supplier_company" value="5"/>
             <column name="id_receiver_company" value="6"/>
             <column name="transport_number" value="100"/>
@@ -96,7 +96,7 @@
             <column name="number" value="105"/>
             <column name="issue_date" value="2017-04-05"/>
             <column name="id_transport_company" value="5"/>
-            <column name="id_warehouse_company" value="2"/>
+            <column name="id_warehouse" value="2"/>
             <column name="id_supplier_company" value="2"/>
             <column name="id_receiver_company" value="8"/>
             <column name="transport_number" value="600"/>
@@ -113,7 +113,7 @@
             <column name="number" value="106"/>
             <column name="issue_date" value="2017-11-29"/>
             <column name="id_transport_company" value="8"/>
-            <column name="id_warehouse_company" value="2"/>
+            <column name="id_warehouse" value="2"/>
             <column name="id_supplier_company" value="10"/>
             <column name="id_receiver_company" value="4"/>
             <column name="transport_number" value="700"/>
@@ -130,7 +130,7 @@
             <column name="number" value="107"/>
             <column name="issue_date" value="2017-02-15"/>
             <column name="id_transport_company" value="1"/>
-            <column name="id_warehouse_company" value="4"/>
+            <column name="id_warehouse" value="4"/>
             <column name="id_supplier_company" value="10"/>
             <column name="id_receiver_company" value="4"/>
             <column name="transport_number" value="800"/>
@@ -147,7 +147,7 @@
             <column name="number" value="108"/>
             <column name="issue_date" value="2016-07-30"/>
             <column name="id_transport_company" value="2"/>
-            <column name="id_warehouse_company" value="5"/>
+            <column name="id_warehouse" value="5"/>
             <column name="id_supplier_company" value="1"/>
             <column name="id_receiver_company" value="2"/>
             <column name="transport_number" value="100"/>
@@ -164,7 +164,7 @@
             <column name="number" value="109"/>
             <column name="issue_date" value="2017-11-03"/>
             <column name="id_transport_company" value="9"/>
-            <column name="id_warehouse_company" value="1"/>
+            <column name="id_warehouse" value="1"/>
             <column name="id_supplier_company" value="6"/>
             <column name="id_receiver_company" value="3"/>
             <column name="transport_number" value="200"/>

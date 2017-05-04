@@ -137,9 +137,9 @@
             <column name="id_transport_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
-            <column name="id_warehouse_company" type="BIGINT UNSIGNED">
-                <constraints nullable="false"/>
-            </column>
+            <!--<column name="id_warehouse_company" type="BIGINT UNSIGNED">-->
+                <!--<constraints nullable="false"/>-->
+            <!--</column>-->
             <column name="id_supplier_company" type="BIGINT UNSIGNED"/>
             <column name="id_receiver_company" type="BIGINT UNSIGNED"/>
             <column name="transport_number" type="VARCHAR(10)">

@@ -86,8 +86,7 @@ public class ActController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
-    //todo find by..
-    @RequestMapping(value = "/find", method = RequestMethod.GET,
+    @RequestMapping(value = "/search", method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Act>> findActs(@RequestParam int page, @RequestParam int count, @RequestBody ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
@@ -96,7 +95,7 @@ public class ActController {
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
-//            acts = actService.findActsForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+            acts = actService.findActsForCompanyByCriteria(company.getIdWarehouseCompany(), actSearchDTO, (page - 1) * count, count);
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }

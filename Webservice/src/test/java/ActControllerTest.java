@@ -1,6 +1,10 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.warehouse.constants.ActTypeEnum;
+import com.itechart.warehouse.constants.StorageTypeEnum;
 import com.itechart.warehouse.dto.ActDTO;
+import com.itechart.warehouse.dto.ActSearchDTO;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -94,7 +99,29 @@ public class ActControllerTest {
                 .andExpect(jsonPath("$.id").isNotEmpty());
     }
 
-    //todo search
+
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testActSearch() throws Exception {
+        ActSearchDTO searchDTO = new ActSearchDTO();
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy");
+        searchDTO.setFromDate(new Timestamp(formatter.parseDateTime("10-05-2007").toDate().getTime()));
+        searchDTO.setFromDate(new Timestamp(formatter.parseDateTime("10-10-2017").toDate().getTime()));
+//        searchDTO.setType(ActTypeEnum.MISMATCH_ACT.toString());
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
+
+        mockMvc.perform(get("/act/search?page=1&count=10")
+                .content(jsonGoodsSearchDTO)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("$").isNotEmpty());
+    }
 
 
 }

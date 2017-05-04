@@ -17,7 +17,7 @@ public class Invoice {
     private Integer goodsEntryCount;
     private String description;
     private TransportCompany transportCompany;
-    private WarehouseCompany warehouseCompany;
+    private Warehouse warehouse;
     private WarehouseCustomerCompany supplierCompany;
     private WarehouseCustomerCompany receiverCompany;
     private Driver driver;
@@ -25,6 +25,18 @@ public class Invoice {
     private Unit goodsEntryCountUnit;
     private List<Goods> incomingGoods;
     private List<Goods> outgoingGoods;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_warehouse")
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
 
     @OneToMany(mappedBy = "incomingInvoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public List<Goods> getIncomingGoods() {
@@ -128,16 +140,6 @@ public class Invoice {
     }
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_warehouse_company")
-    public WarehouseCompany getWarehouseCompany() {
-        return warehouseCompany;
-    }
-
-    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
-        this.warehouseCompany = warehouseCompany;
-    }
-
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_supplier_company")
     public WarehouseCustomerCompany getSupplierCompany() {
         return supplierCompany;
@@ -208,7 +210,7 @@ public class Invoice {
         if (description != null ? !description.equals(invoice.description) : invoice.description != null) return false;
         if (transportCompany != null ? !transportCompany.equals(invoice.transportCompany) : invoice.transportCompany != null)
             return false;
-        if (warehouseCompany != null ? !warehouseCompany.equals(invoice.warehouseCompany) : invoice.warehouseCompany != null)
+        if (warehouse != null ? !warehouse.equals(invoice.warehouse) : invoice.warehouse != null)
             return false;
         if (supplierCompany != null ? !supplierCompany.equals(invoice.supplierCompany) : invoice.supplierCompany != null)
             return false;
@@ -236,7 +238,7 @@ public class Invoice {
         result = 31 * result + (goodsEntryCount != null ? goodsEntryCount.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (transportCompany != null ? transportCompany.hashCode() : 0);
-        result = 31 * result + (warehouseCompany != null ? warehouseCompany.hashCode() : 0);
+        result = 31 * result + (warehouse != null ? warehouse.hashCode() : 0);
         result = 31 * result + (supplierCompany != null ? supplierCompany.hashCode() : 0);
         result = 31 * result + (receiverCompany != null ? receiverCompany.hashCode() : 0);
         result = 31 * result + (driver != null ? driver.hashCode() : 0);

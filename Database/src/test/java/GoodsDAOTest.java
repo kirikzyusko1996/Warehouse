@@ -1,6 +1,10 @@
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.*;
+import org.apache.maven.artifact.versioning.Restriction;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test of DAO classes.
@@ -67,72 +67,72 @@ public class GoodsDAOTest {
         this.goodsStatusNameDAO = goodsStatusNameDAO;
     }
 
-    public GoodsDAOTest() {
-        unit = new Unit();
-        unit.setName("кг");
-
-        goods = new Goods();
-        goods.setName("Молоко");
-        goods.setPrice(new BigDecimal(100));
-        goods.setQuantity(new BigDecimal(10));
-        goods.setWeight(new BigDecimal(10));
-
-
-        goodsStatus = new GoodsStatus();
-        goodsStatus.setDate(new Timestamp(new Date().getTime()));
-
-        goodsStatusName = new GoodsStatusName();
-        goodsStatusName.setName("Зарегистрирован");
-
-        act = new Act();
-        act.setDate(new Timestamp(new Date().getTime()));
-
-        actType = new ActType();
-        actType.setName("Акт списания");
-
-    }
-
-    @Test
-    @Transactional
-    public void testGoodsDao() throws GenericDAOException {
-        goodsDAO.insert(goods);
-        Optional<Goods> optional = goodsDAO.findById(goods.getId());
-        Goods fetchedGoods = optional.get();
-        assertEquals("Молоко", fetchedGoods.getName());
-        goods.setName("Хлеб");
-        optional = goodsDAO.findById(goods.getId());
-        assertEquals("Хлеб", optional.get().getName());
-        goodsDAO.delete(goods);
-        fetchedGoods = null;
-        optional = goodsDAO.findById(goods.getId());
-        try {
-            fetchedGoods = optional.get();
-        } catch (Exception e) {
-
-        }
-        assertNull(fetchedGoods);
-    }
-
-    @Test
-    @Transactional
-    public void testUnitDao() throws GenericDAOException {
-        unitDAO.insert(unit);
-        Optional<Unit> optional = unitDAO.findById(unit.getId());
-        Unit fetchedUnit = optional.get();
-        assertEquals("кг", fetchedUnit.getName());
-        unit.setName("литр");
-        optional = unitDAO.findById(unit.getId());
-        fetchedUnit = optional.get();
-        assertEquals("литр", fetchedUnit.getName());
-        unitDAO.delete(unit);
-        optional = unitDAO.findById(unit.getId());
-        try {
-            fetchedUnit = optional.get();
-        } catch (Exception e) {
-
-        }
-        assertNull(fetchedUnit);
-    }
+//    public GoodsDAOTest() {
+//        unit = new Unit();
+//        unit.setName("кг");
+//
+//        goods = new Goods();
+//        goods.setName("Молоко");
+//        goods.setPrice(new BigDecimal(100));
+//        goods.setQuantity(new BigDecimal(10));
+//        goods.setWeight(new BigDecimal(10));
+//
+//
+//        goodsStatus = new GoodsStatus();
+//        goodsStatus.setDate(new Timestamp(new Date().getTime()));
+//
+//        goodsStatusName = new GoodsStatusName();
+//        goodsStatusName.setName("Зарегистрирован");
+//
+//        act = new Act();
+//        act.setDate(new Timestamp(new Date().getTime()));
+//
+//        actType = new ActType();
+//        actType.setName("Акт списания");
+//
+//    }
+//
+//    @Test
+//    @Transactional
+//    public void testGoodsDao() throws GenericDAOException {
+//        goodsDAO.insert(goods);
+//        Optional<Goods> optional = goodsDAO.findById(goods.getId());
+//        Goods fetchedGoods = optional.get();
+//        assertEquals("Молоко", fetchedGoods.getName());
+//        goods.setName("Хлеб");
+//        optional = goodsDAO.findById(goods.getId());
+//        assertEquals("Хлеб", optional.get().getName());
+//        goodsDAO.delete(goods);
+//        fetchedGoods = null;
+//        optional = goodsDAO.findById(goods.getId());
+//        try {
+//            fetchedGoods = optional.get();
+//        } catch (Exception e) {
+//
+//        }
+//        assertNull(fetchedGoods);
+//    }
+//
+//    @Test
+//    @Transactional
+//    public void testUnitDao() throws GenericDAOException {
+//        unitDAO.insert(unit);
+//        Optional<Unit> optional = unitDAO.findById(unit.getId());
+//        Unit fetchedUnit = optional.get();
+//        assertEquals("кг", fetchedUnit.getName());
+//        unit.setName("литр");
+//        optional = unitDAO.findById(unit.getId());
+//        fetchedUnit = optional.get();
+//        assertEquals("литр", fetchedUnit.getName());
+//        unitDAO.delete(unit);
+//        optional = unitDAO.findById(unit.getId());
+//        try {
+//            fetchedUnit = optional.get();
+//        } catch (Exception e) {
+//
+//        }
+//        assertNull(fetchedUnit);
+//    }
 
     @Test
     @Transactional
@@ -189,4 +189,25 @@ public class GoodsDAOTest {
 //        fetchedGoodsStatusName = goodsStatusNameDao.findById(goodsStatusName.getId());
 //        assertNull(fetchedGoodsStatusName);
     }
+
+    @Test
+    @Transactional
+    public void testFindByWarehouseIdAndCurrentStatus() throws GenericDAOException {
+        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+        criteria.add(Restrictions.eq("name", GoodsStatusEnum.REGISTERED.toString()));
+        List<GoodsStatusName> fetchedStatusName = goodsStatusNameDAO.findAll(criteria, -1, 1);
+        List<Goods> goods = goodsDAO.findByWarehouseIdAndCurrentStatus(Long.valueOf(3), fetchedStatusName.get(0), 0, 100);
+        assertTrue(!goods.isEmpty());
+
+    }
+
+    @Test
+    @Transactional
+    public void testFindByWarehouseId() throws GenericDAOException {
+        List<Goods> goods = goodsDAO.findByWarehouseId(Long.valueOf(3), 0, 100);
+        assertTrue(!goods.isEmpty());
+
+    }
+
+
 }

@@ -9,6 +9,16 @@ public class Warehouse {
     private String name;
     private WarehouseCompany warehouseCompany;
     private List<StorageSpace> storageSpaceList;
+    private List<Invoice> invoices;
+
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(List<Invoice> invoices) {
+        this.invoices = invoices;
+    }
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public List<StorageSpace> getStorageSpaceList() {
