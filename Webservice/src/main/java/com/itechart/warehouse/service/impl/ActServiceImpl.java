@@ -142,7 +142,7 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyOfAct(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public WarehouseCompany findWarehouseCompanyOwner(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse company of act with id {}", actId);
         if (actId == null) throw new IllegalParametersException("Act id is null");
         Act act = findActById(actId);
@@ -164,7 +164,7 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseOfAct(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException {
+    public Warehouse findWarehouseOwner(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException {
         logger.info("Find warehouse company of act with id {}", actId);
         if (actId == null) throw new IllegalParametersException("Act id is null");
         Act act = findActById(actId);

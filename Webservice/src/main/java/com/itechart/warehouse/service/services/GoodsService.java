@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Service for managing goods.
- * Provides basic operations with goodsList such as searching, creation, updating, deleting,
+ * Provides basic operations with goods such as searching, creation, updating, deleting,
  * and setting status.
  */
 public interface GoodsService {
@@ -35,9 +35,9 @@ public interface GoodsService {
 
     GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    Warehouse findWarehouseOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    Warehouse findWarehouseOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    WarehouseCompany findWarehouseCompanyOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    WarehouseCompany findWarehouseCompanyOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

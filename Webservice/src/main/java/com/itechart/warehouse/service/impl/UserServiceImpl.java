@@ -22,6 +22,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#companyId, 'WarehouseCompany', 'GET')")
+    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#companyId, 'WarehouseCompany', 'GET')")
     public List<User> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} users starting from index {} by company id: {}", maxResults, firstResult, companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
@@ -124,7 +125,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseForUser(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public Warehouse findWarehouseOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find warehouse for user with id: {}", userId);
         if (userId == null) throw new IllegalParametersException("User id is null");
         User user = findUserById(userId);
@@ -133,7 +134,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyForUser(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public WarehouseCompany findWarehouseCompanyOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find warehouse company for user with id: {}", userId);
         if (userId == null) throw new IllegalParametersException("User id is null");
         User user = findUserById(userId);
@@ -155,7 +156,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#companyId, 'WarehouseCompany', 'CREATE')")
+    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#companyId, 'WarehouseCompany', 'CREATE')")
     public User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
         logger.info("Saving user using DTO: {}", userDTO);
         if (userDTO == null) throw new IllegalParametersException("User DTO is null");
@@ -254,7 +255,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#id, 'WarehouseCompany', 'UPDATE')")
+    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'WarehouseCompany', 'UPDATE')")
     public User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating user with id: {} from DTO: {}", id, userDTO);
         if (id == null || userDTO == null) throw new IllegalParametersException("User DTO or id is null");
@@ -298,7 +299,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#id, 'WarehouseCompany', 'DELETE')")
+    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'WarehouseCompany', 'DELETE')")
     public void deleteUser(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting user with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");

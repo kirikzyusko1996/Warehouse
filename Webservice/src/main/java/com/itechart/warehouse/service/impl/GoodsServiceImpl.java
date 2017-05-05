@@ -414,7 +414,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public Warehouse findWarehouseOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Goods goods = findGoodsById(goodsId);
@@ -423,7 +423,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public WarehouseCompany findWarehouseCompanyOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Goods goods = findGoodsById(goodsId);

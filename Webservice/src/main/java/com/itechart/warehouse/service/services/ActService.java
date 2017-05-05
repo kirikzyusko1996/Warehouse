@@ -26,9 +26,9 @@ public interface ActService {
 
     List<Act> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    WarehouseCompany findWarehouseCompanyOfAct(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    WarehouseCompany findWarehouseCompanyOwner(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    Warehouse findWarehouseOfAct(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException;
+    Warehouse findWarehouseOwner(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException;
 
     Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

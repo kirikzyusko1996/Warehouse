@@ -41,8 +41,6 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
                 return evaluateTransportCompanyPermission(authentication, targetId, permission);
             case "ClientCompany":
                 return evaluateClientCompanyPermission(authentication, targetId, permission);
-            case "GoodsStatus":
-                return evaluateGoodsStatusPermission(authentication, targetId, permission);
             // TODO: 05.05.2017 add more
         }
         return false;
@@ -59,7 +57,8 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
     }
 
     private boolean evaluateUserPermission(Authentication authentication, Serializable targetId, Object permission) {
-        return true;
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessUser(userDetails, (Long) targetId);
     }
     private boolean evaluateWarehousePermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
@@ -75,9 +74,6 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
         return true;
     }
     private boolean evaluateClientCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {
-        return true;
-    }
-    private boolean evaluateGoodsStatusPermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
     }
 
