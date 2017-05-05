@@ -49,6 +49,7 @@ public class UserDTO {
     private String password;
     @NotEmpty
     private List<String> roles;
+    private Long warehouseId;
 
     public User buildUserEntity() {
         User user = new User();

@@ -52,7 +52,7 @@
 
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
-    <context:component-scan base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl"/>
+    <context:component-scan base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl, com.itechart.warehouse.security"/>
 
 
 </beans>

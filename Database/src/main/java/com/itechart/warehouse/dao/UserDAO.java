@@ -28,6 +28,20 @@ public class UserDAO extends DAO<User> {
         query.setMaxResults(maxResults);
         return query.list();
     }
+    
+    public List<User> findUsersByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find {} users starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
+        String queryHql = "SELECT DISTINCT user" +
+                " FROM User user" +
+                " INNER JOIN Warehouse warehouse ON warehouse = user.warehouse" +
+                " WHERE warehouse.idWarehouse = :warehouseId";
+        Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+        return query.list();
+    }
+
 
     public User findUserById(Long id) throws GenericDAOException {
         logger.info("Find user by id: {}", id);

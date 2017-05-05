@@ -1,11 +1,12 @@
 package com.itechart.warehouse.service.services;
 
-import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.GoodsStatus;
+import com.itechart.warehouse.entity.Warehouse;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -26,13 +27,17 @@ public interface GoodsService {
 
     List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, GenericDAOException;
+    List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, GenericDAOException;
+    List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException;
+    List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException;
+    GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+
+    Warehouse findWarehouseOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+
+    WarehouseCompany findWarehouseCompanyOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

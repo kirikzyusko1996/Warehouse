@@ -1,13 +1,12 @@
 package com.itechart.warehouse.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * Data transfer object containing criteria for searching goodsList.
@@ -18,12 +17,12 @@ import java.sql.Timestamp;
 public class GoodsSearchDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String name;
-    private BigDecimal fromQuantity;
-    private BigDecimal toQuantity;
-    private BigDecimal fromWeight;
-    private BigDecimal toWeight;
-    private BigDecimal fromPrice;
-    private BigDecimal toPrice;
+    private BigDecimal minQuantity;
+    private BigDecimal maxQuantity;
+    private BigDecimal minWeight;
+    private BigDecimal maxWeight;
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String storageTypeName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
@@ -32,25 +31,22 @@ public class GoodsSearchDTO {
     private String weightUnitName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String priceUnitName;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Timestamp fromRegistrationDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Timestamp toRegistrationDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Timestamp fromMoveOutDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Timestamp toMoveOutDate;
-
-
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String managerName;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String controllerName;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String dispatcherName;
+    private List<GoodsStatusSearchDTO> statuses;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String currentStatus;
 
-    //todo status, registration date, manager etc..
+    public void addStatusSearchDTO(GoodsStatusSearchDTO statusSearchDTO) {
+        if (statuses != null)
+            statuses.add(statusSearchDTO);
+        else throw new AssertionError();
+    }
+
+    public void removeStatusSearchDTO(GoodsStatusSearchDTO statusSearchDTO) {
+        if (statuses != null)
+            statuses.remove(statusSearchDTO);
+        else throw new AssertionError();
+
+    }
+
+
 }

@@ -297,7 +297,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="id_warehouse" type="BIGINT UNSIGNED">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </createTable>
     </changeSet>

@@ -5,6 +5,9 @@ import com.itechart.warehouse.constants.UnitEnum;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
+import com.itechart.warehouse.dto.GoodsStatusSearchDTO;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +22,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -132,15 +137,28 @@ public class GoodsControllerTest {
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsSearch() throws Exception {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy");
+
         GoodsSearchDTO searchDTO = new GoodsSearchDTO();
-        searchDTO.setName("Хлеб");
-        searchDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
-        searchDTO.setFromPrice(new BigDecimal(10));
-        searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
-        searchDTO.setFromQuantity(new BigDecimal(10));
-        searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
-        searchDTO.setFromWeight(new BigDecimal(10));
-        searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
+//        searchDTO.setName("Хлеб");
+        searchDTO.setCurrentStatus(GoodsStatusEnum.REGISTERED.toString());
+
+//        GoodsStatusSearchDTO statusSearchDTO = new GoodsStatusSearchDTO();
+//        statusSearchDTO.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
+//        statusSearchDTO.setToDate(new Timestamp(formatter.parseDateTime("15-05-2017").toDate().getTime()));
+//        statusSearchDTO.setUserLastName("Зюсько");
+//        statusSearchDTO.setUserFirstName("Кирилл");
+//        List<GoodsStatusSearchDTO> statuses = new ArrayList<>();
+//        statuses.add(statusSearchDTO);
+//        searchDTO.setStatuses(statuses);
+
+//        searchDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
+//        searchDTO.setMinPrice(new BigDecimal(10));
+//        searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
+//        searchDTO.setMinQuantity(new BigDecimal(10));
+//        searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+//        searchDTO.setMinWeight(new BigDecimal(10));
+//        searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
 
