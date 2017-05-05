@@ -22,6 +22,10 @@ public class ActSearchDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Timestamp toDate;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String creatorName;
+    private String creatorLastName;
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    private String creatorFirstName;
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
+    private String creatorPatronymic;
 
 }

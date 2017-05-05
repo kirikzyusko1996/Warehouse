@@ -1,6 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.warehouse.constants.ActTypeEnum;
-import com.itechart.warehouse.constants.StorageTypeEnum;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.dto.ActSearchDTO;
 import org.joda.time.format.DateTimeFormat;
@@ -106,8 +105,11 @@ public class ActControllerTest {
         ActSearchDTO searchDTO = new ActSearchDTO();
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy");
         searchDTO.setFromDate(new Timestamp(formatter.parseDateTime("10-05-2007").toDate().getTime()));
-        searchDTO.setFromDate(new Timestamp(formatter.parseDateTime("10-10-2017").toDate().getTime()));
-//        searchDTO.setType(ActTypeEnum.MISMATCH_ACT.toString());
+        searchDTO.setToDate(new Timestamp(formatter.parseDateTime("10-10-2017").toDate().getTime()));
+        searchDTO.setType(ActTypeEnum.WRITE_OFF_ACT.toString());
+        searchDTO.setCreatorFirstName("Кири");
+        searchDTO.setCreatorLastName("Зюськ");
+        searchDTO.setCreatorPatronymic("Дмитри");
 
 
         ObjectMapper mapper = new ObjectMapper();

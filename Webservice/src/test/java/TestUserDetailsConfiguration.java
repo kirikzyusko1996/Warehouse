@@ -44,7 +44,7 @@ public class TestUserDetailsConfiguration {
         roles.add(roleOwner);
 
         WarehouseCompany company = new WarehouseCompany();
-        company.setIdWarehouseCompany(Long.valueOf(1));
+        company.setIdWarehouseCompany(Long.valueOf(10));
         user.setWarehouseCompany(company);
         user.setRoles(roles);
         return new WarehouseCompanyUserDetails(user);

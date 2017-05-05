@@ -16,6 +16,7 @@ public class Act {
     private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp date;
+    @JsonIgnore
     private User user;
     @JsonIgnore
     private List<Goods> goods;
@@ -33,7 +34,7 @@ public class Act {
         this.goods = goods;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     public User getUser() {
         return user;

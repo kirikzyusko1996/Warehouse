@@ -13,7 +13,9 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
+import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,14 +127,27 @@ public class ActServiceImpl implements ActService {
         if (actSearchDTO == null || companyId == null)
             throw new IllegalParametersException("Act search DTO or company id is null");
         try {
-            //todo
             DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
             if (actSearchDTO.getType() != null)
                 criteria.add(Restrictions.eq("actType", findActTypeByName(actSearchDTO.getType())));
             if (actSearchDTO.getFromDate() != null)
                 criteria.add(Restrictions.ge("date", actSearchDTO.getFromDate()));
-            if (actSearchDTO.getFromDate() != null)
+            if (actSearchDTO.getToDate() != null)
                 criteria.add(Restrictions.le("date", actSearchDTO.getToDate()));
+            criteria.createAlias("user","user");
+            if (actSearchDTO.getCreatorLastName() != null)
+                criteria.add(Restrictions.like("user.lastName", "%"+actSearchDTO.getCreatorLastName()+"%"));
+            if (actSearchDTO.getCreatorFirstName() != null)
+                criteria.add(Restrictions.like("user.firstName", "%"+actSearchDTO.getCreatorFirstName()+"%"));
+            if (actSearchDTO.getCreatorPatronymic() != null)
+                criteria.add(Restrictions.like("user.patronymic", "%"+actSearchDTO.getCreatorPatronymic()+"%"));
+            criteria
+                    .createCriteria("goods")
+                    .createCriteria("incomingInvoice")
+                    .createCriteria("warehouse")
+                    .createCriteria("warehouseCompany").add(Restrictions.eq("idWarehouseCompany", companyId));
+            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
             return actDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsList: {}", e.getMessage());
