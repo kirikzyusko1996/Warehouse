@@ -6,7 +6,9 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
+import com.itechart.warehouse.dto.GoodsStatusSearchDTO;
 import com.itechart.warehouse.entity.*;
+import com.itechart.warehouse.query.QueryBuilder;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
@@ -14,9 +16,7 @@ import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Implementation of goods service.
@@ -156,208 +153,142 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find {} goods for warehouse with id {} starting from index {} by criteria: {}", maxResults, warehouseId, firstResult, goodsSearchDTO);
         if (goodsSearchDTO == null || warehouseId == null)
             throw new IllegalParametersException("Goods search DTO or warehouse id is null");
-        DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class, "goods");
+
+        StringBuilder root = new StringBuilder("SELECT goods FROM Goods goods");
+        QueryBuilder builder = new QueryBuilder(root);
+        builder.addRestriction("warehouse.idWarehouse = :warehouseId");
+        builder.addJoin("INNER JOIN GoodsStatus status ON status.goods = goods");
+        builder.addJoin("INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice");
+        builder.addJoin("INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse");
+
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put("warehouseId", warehouseId);
 
 
-        if (goodsSearchDTO.getName() != null)
-            criteria.add(Restrictions.like("goods.name", "%" + goodsSearchDTO.getName() + "%"));
+        if (goodsSearchDTO.getName() != null) {
+            builder.addRestriction("goods.name LIKE :goodsName");
+            queryParameters.put("goodsName", "%" + goodsSearchDTO.getName() + "%");
+        }
 
-        if (goodsSearchDTO.getMinQuantity() != null)
-            criteria.add(Restrictions.ge("goods.quantity", goodsSearchDTO.getMinQuantity()));
-        if (goodsSearchDTO.getMaxQuantity() != null)
-            criteria.add(Restrictions.le("goods.quantity", goodsSearchDTO.getMaxQuantity()));
+        if (goodsSearchDTO.getMinQuantity() != null) {
+            builder.addRestriction("goods.quantity >= :minGoodsQuantity");
+            queryParameters.put("minGoodsQuantity", goodsSearchDTO.getMinQuantity());
+        }
+        if (goodsSearchDTO.getMaxQuantity() != null) {
+            builder.addRestriction("goods.quantity <= :maxGoodsQuantity");
+            queryParameters.put("maxGoodsQuantity", goodsSearchDTO.getMaxQuantity());
+        }
+        if (goodsSearchDTO.getMinWeight() != null) {
+            builder.addRestriction("goods.weight >= :minGoodsWeight");
+            queryParameters.put("minGoodsWeight", goodsSearchDTO.getMinWeight());
+        }
+        if (goodsSearchDTO.getMaxWeight() != null) {
+            builder.addRestriction("goods.weight <= :maxGoodsWeight");
+            queryParameters.put("maxGoodsWeight", goodsSearchDTO.getMaxWeight());
+        }
 
-        if (goodsSearchDTO.getMinWeight() != null)
-            criteria.add(Restrictions.ge("goods.weight", goodsSearchDTO.getMinWeight()));
-        if (goodsSearchDTO.getMaxWeight() != null)
-            criteria.add(Restrictions.le("goods.weight", goodsSearchDTO.getMaxWeight()));
-
-        if (goodsSearchDTO.getMinPrice() != null)
-            criteria.add(Restrictions.ge("goods.price", goodsSearchDTO.getMinPrice()));
-        if (goodsSearchDTO.getMaxPrice() != null)
-            criteria.add(Restrictions.le("goods.price", goodsSearchDTO.getMaxPrice()));
+        if (goodsSearchDTO.getMinPrice() != null) {
+            builder.addRestriction("goods.price >= :minGoodsPrice");
+            queryParameters.put("minGoodsPrice", goodsSearchDTO.getMinPrice());
+        }
+        if (goodsSearchDTO.getMaxPrice() != null) {
+            builder.addRestriction("goods.price <= :maxGoodsPrice");
+            queryParameters.put("maxGoodsPrice", goodsSearchDTO.getMaxPrice());
+        }
         try {
-            if (goodsSearchDTO.getStorageTypeName() != null)
-                criteria.add(Restrictions.eq("goods.storageType", findStorageTypeByName(goodsSearchDTO.getStorageTypeName())));
-            if (goodsSearchDTO.getQuantityUnitName() != null)
-                criteria.add(Restrictions.eq("goods.quantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnitName())));
-            if (goodsSearchDTO.getWeightUnitName() != null)
-                criteria.add(Restrictions.eq("goods.weightUnit", findUnitByName(goodsSearchDTO.getWeightUnitName())));
-            if (goodsSearchDTO.getPriceUnitName() != null)
-                criteria.add(Restrictions.eq("goods.priceUnit", findUnitByName(goodsSearchDTO.getPriceUnitName())));
+            if (goodsSearchDTO.getCurrentStatus() != null) {
+                builder.addRestriction("status_2.goods IS NULL AND status.goodsStatusName = :statusName");
+                builder.addJoin("LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date");
+                queryParameters.put("statusName", findGoodsStatusNameByName(goodsSearchDTO.getCurrentStatus()));
+            }
         } catch (GenericDAOException e) {
-
+            logger.error("Error during search for goods status: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
         }
-        String queryHql2 = "SELECT goods FROM Goods goods" +
-                " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
-                " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
-                " INNER JOIN GoodsStatus status ON status.goods = goods" +
-                " LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date" +
-                " WHERE status_2.goods IS NULL AND warehouse.idWarehouse = :warehouseId AND status.goodsStatusName = :statusName" +
-                " GROUP BY goods.id";
-
-        criteria.createAlias("statuses", "status");
-        criteria.createAlias("status.goodsStatusName", "status_name");
-        criteria.createAlias("status.user", "user");
-        if (goodsSearchDTO.getCurrentStatus() != null) {
-
-            DetachedCriteria subCriteria = DetachedCriteria.forClass(Goods.class);
-            subCriteria
-                    .createAlias("statuses", "status")
-//                    .createCriteria("statuses", "status_2",
-//                            JoinType.LEFT_OUTER_JOIN,
-//                            Restrictions.and(Restrictions.eq("status.goods", "status_2.goods"),
-//                                    Restrictions.lt("status.date", "status_2.date")))
-//                    .add(Restrictions.isNull("status_2.goods"))
-//                    .add(Restrictions.eq("status_name.name", goodsSearchDTO.getCurrentStatus()));
-
-                    .setProjection(Projections.projectionList()
-                                    .add(Projections.max("status.date"))
-                                    .add(Projections.groupProperty("id"), "id")
-//                            .add(Projections.property("name"), "name")
-//                            .add(Projections.property("quantity"), "quantity")
-//                            .add(Projections.property("weight"), "weight")
-//                            .add(Projections.property("price"), "price")
-//                            .add(Projections.property("storageType"), "storageType")
-//                            .add(Projections.property("quantityUnit"), "quantityUnit")
-//                            .add(Projections.property("weightUnit"), "weightUnit")
-//                            .add(Projections.property("priceUnit"), "priceUnit")
-                    );
-//                    .setResultTransformer(Transformers.aliasToBean(Goods.class));
-            criteria.add(Restrictions.and(Subqueries.propertyIn("id", subCriteria),
-                    Restrictions.eq("status_name.name", goodsSearchDTO.getCurrentStatus())));
+        try {
+            if (goodsSearchDTO.getStorageTypeName() != null) {
+                builder.addRestriction("goods.storageType = :goodsStorageType");
+                queryParameters.put("goodsStorageType", findStorageTypeByName(goodsSearchDTO.getStorageTypeName()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for storage type: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
         }
-//
+        try {
+            if (goodsSearchDTO.getQuantityUnitName() != null) {
+                builder.addRestriction("goods.quantityUnit = :goodsQuantityUnit");
+                queryParameters.put("goodsQuantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnitName()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for unit: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        try {
+            if (goodsSearchDTO.getWeightUnitName() != null) {
+                builder.addRestriction("goods.weightUnit = :goodsWeightUnit");
+                queryParameters.put("goodsWeightUnit", findUnitByName(goodsSearchDTO.getWeightUnitName()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for unit: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        try {
+            if (goodsSearchDTO.getPriceUnitName() != null) {
+                builder.addRestriction("goods.priceUnit = :goodsPriceUnit");
+                queryParameters.put("goodsPriceUnit", findUnitByName(goodsSearchDTO.getPriceUnitName()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for unit: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
 
-
-//        if (goodsSearchDTO.getStatuses() != null)
-//            for (GoodsStatusSearchDTO statusDTO : goodsSearchDTO.getStatuses()) {
-//                List<SimpleExpression> restrictions = new ArrayList<>();
-//                if (statusDTO.getStatusName() != null)
-//                    restrictions.add(Restrictions.ge("status_name.name", statusDTO.getStatusName()));
-//                if (statusDTO.getFromDate() != null)
-//                    restrictions.add(Restrictions.ge("status.date", statusDTO.getFromDate()));
-//                if (statusDTO.getToDate() != null)
-//                    restrictions.add(Restrictions.le("status.date", statusDTO.getToDate()));
-//                if (statusDTO.getUserFirstName() != null)
-//                    restrictions.add(Restrictions.like("user.firstName", "%" + statusDTO.getUserFirstName() + "%"));
-//                if (statusDTO.getUserLastName() != null)
-//                    restrictions.add(Restrictions.like("user.firstName", "%" + statusDTO.getUserLastName() + "%"));
-//                if (statusDTO.getUserLastName() != null)
-//                    restrictions.add(Restrictions.like("user.firstName", "%" + statusDTO.getUserPatronymic() + "%"));
-//                Conjunction and = Restrictions.and(restrictions.toArray(new LogicalExpression[restrictions.size()]));
-//                criteria.add(and);
-//            }
-
-
-//        Disjunction or = Restrictions.disjunction();
-//
-//        Conjunction and1 = Restrictions.conjunction();
-//
-//        LogicalExpression restriction1 = null;
-//        LogicalExpression restriction2 = null;
-//        LogicalExpression restriction3 = null;
-//        LogicalExpression restriction4 = null;
-//        LogicalExpression restriction5 = null;
-//        LogicalExpression restriction6 = null;
-
-
-//        if (goodsSearchDTO.getFromRegistrationDate() != null)
-//            restriction1 = Restrictions.and(Restrictions.ge("status.date", goodsSearchDTO.getFromRegistrationDate()),
-//                    Restrictions.eq("status_name.name", GoodsStatusEnum.REGISTERED.toString()));
-////
-////            and1
-////                    .add(Restrictions.and(Restrictions.ge("status.date", goodsSearchDTO.getFromRegistrationDate()),
-////                            Restrictions.eq("status_name.name", GoodsStatusEnum.REGISTERED.toString())));
-//
-//        if (goodsSearchDTO.getToRegistrationDate() != null)
-//            restriction2 = Restrictions.and(Restrictions.le("status.date", goodsSearchDTO.getToRegistrationDate()),
-//                    Restrictions.eq("status_name.name", GoodsStatusEnum.REGISTERED.toString()));
-////            and1
-////                    .add(Restrictions.and(Restrictions.le("status.date", goodsSearchDTO.getToRegistrationDate()),
-////                            Restrictions.eq("status_name.name", GoodsStatusEnum.REGISTERED.toString())));
-//
-//
-//        Conjunction and2 = Restrictions.conjunction();
-//        if (goodsSearchDTO.getFromMoveOutDate() != null)
-//            restriction3 = Restrictions.and(Restrictions.ge("status.date", goodsSearchDTO.getFromMoveOutDate()),
-//                    Restrictions.eq("status_name.name", GoodsStatusEnum.MOVED_OUT.toString()));
-////            and2
-////                    .add(Restrictions.and(Restrictions.ge("status.date", goodsSearchDTO.getFromMoveOutDate()),
-////                            Restrictions.eq("status_name.name", GoodsStatusEnum.MOVED_OUT.toString())));
-//
-//        if (goodsSearchDTO.getToMoveOutDate() != null)
-//            restriction4 = Restrictions.and(Restrictions.le("status.date", goodsSearchDTO.getToMoveOutDate()),
-//                    Restrictions.eq("status_name.name", GoodsStatusEnum.MOVED_OUT.toString()));
-////            and2
-////                    .add(Restrictions.and(Restrictions.le("status.date", goodsSearchDTO.getToMoveOutDate()),
-////                            Restrictions.eq("status_name.name", GoodsStatusEnum.MOVED_OUT.toString())));
-//
-//        Conjunction and3 = Restrictions.conjunction();
-//        if (goodsSearchDTO.getFromStorageDate() != null)
-//            restriction5 = Restrictions.and(Restrictions.ge("status.date", goodsSearchDTO.getFromStorageDate()),
-//                    Restrictions.eq("status_name.name", GoodsStatusEnum.STORED.toString()));
-//
-////            and3
-////                    .add(Restrictions.and(Restrictions.ge("status.date", goodsSearchDTO.getFromStorageDate()),
-////                            Restrictions.eq("status_name.name", GoodsStatusEnum.STORED.toString())));
-//
-//
-//        if (goodsSearchDTO.getToStorageDate() != null)
-//            restriction6 = Restrictions.and(Restrictions.le("status.date", goodsSearchDTO.getToStorageDate()),
-//                    Restrictions.eq("status_name.name", GoodsStatusEnum.STORED.toString()));
-//
-////            and3
-////                    .add(Restrictions.and(Restrictions.le("status.date", goodsSearchDTO.getToStorageDate()),
-////                            Restrictions.eq("status_name.name", GoodsStatusEnum.STORED.toString())));
-//
-//
-//        if (goodsSearchDTO.getManagerLastName() != null)
-//            or
-//                    .add(Restrictions.and(Restrictions.like("user.lastName", "%" + goodsSearchDTO.getManagerLastName() + "%"),
-//                            Restrictions.eq("status_name.name", GoodsStatusEnum.STORED.toString())));
-//
-//
-//        if (goodsSearchDTO.getControllerLastName() != null)
-//            or
-//                    .add(Restrictions.and(Restrictions.like("user.lastName", "%" + goodsSearchDTO.getControllerLastName() + "%"),
-//                            Restrictions.eq("status_name.name", GoodsStatusEnum.CHECKED.toString())));
-//
-//
-//        if (goodsSearchDTO.getDispatcherLastName() != null)
-//            or
-//                    .add(Restrictions.and(Restrictions.like("user.lastName", "%" + goodsSearchDTO.getDispatcherLastName() + "%"),
-//                            Restrictions.eq("status_name.name", GoodsStatusEnum.REGISTERED.toString())));
-//
-
-//        if (goodsSearchDTO.getCurrentStatus() != null)
-//            or
-//                    .add(Restrictions.like("status_name.name", "%" + goodsSearchDTO.getCurrentStatus() + "%"));
-//
-//        if (restriction1 != null) {
-//            if (restriction2 != null)
-//                or.add(Restrictions.and(restriction1, restriction2));
-//            else or.add(Restrictions.and(restriction1));
-//        } else
-//            if (restriction2!=null) or.add(Restrictions.and(restriction2));
-//
-//        if (restriction3 != null) {
-//            if (restriction4 != null)
-//                or.add(Restrictions.and(restriction3, restriction4));
-//            else or.add(Restrictions.and(restriction3));
-//        } else if (restriction4!=null) or.add(Restrictions.and(restriction4));
-//
-//        if (restriction5 != null) {
-//            if (restriction6 != null)
-//                or.add(Restrictions.and(restriction5, restriction6));
-//            else or.add(Restrictions.and(restriction5));
-//        } else if (restriction6!=null) or.add(Restrictions.and(restriction6));
-
-
-//        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        if (goodsSearchDTO.getStatuses() != null) {
+            int counter = 3;
+            for (GoodsStatusSearchDTO statusDTO : goodsSearchDTO.getStatuses()) {
+                try {
+                    if (statusDTO.getStatusName() != null) {
+                        builder.addRestriction("status_" + counter + ".goodsStatusName = :statusName");
+                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                        queryParameters.put("statusName", findGoodsStatusNameByName(statusDTO.getStatusName()));
+                    }
+                    if (statusDTO.getFromDate() != null) {
+                        builder.addRestriction("status_" + counter + ".date >= :statusFromDate_" + counter);
+                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                        queryParameters.put("statusFromDate_" + counter, statusDTO.getFromDate());
+                    }
+                    if (statusDTO.getToDate() != null) {
+                        builder.addRestriction("status_" + counter + ".date <= :statusToDate_" + counter);
+                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                        queryParameters.put("statusToDate_" + counter, statusDTO.getToDate());
+                    }
+                    if (statusDTO.getUserFirstName() != null) {
+                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                        builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
+                        builder.addRestriction("user_" + counter + ".firstName <= :statusUserFirstName_" + counter);
+                        queryParameters.put("statusUserFirstName_" + counter, statusDTO.getUserFirstName());
+                    }
+                    if (statusDTO.getUserLastName() != null) {
+                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                        builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
+                        builder.addRestriction("user_" + counter + ".lastName <= :statusUserLastName_" + counter);
+                        queryParameters.put("statusUserLastName_" + counter, statusDTO.getUserLastName());
+                    }
+                    if (statusDTO.getUserPatronymic() != null) {
+                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                        builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
+                        builder.addRestriction("user_" + counter + ".patronymic <= :statusUserPatronymic_" + counter);
+                        queryParameters.put("statusUserPatronymic_" + counter, statusDTO.getUserPatronymic());
+                    }
+                    counter++;
+                } catch (GenericDAOException e) {
+                    logger.error("Error during search for goods status: {}", e.getMessage());
+                    throw new DataAccessException(e.getCause());
+                }
+            }
+        }
 
         try {
-            return goodsDAO.findAll(criteria, firstResult, maxResults);
+            return goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -366,7 +297,8 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+    public List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult,
+                                                     int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goods for warehouse with id {} starting from index {}", maxResults, warehouseId, firstResult);
         try {
             if (warehouseId == null || statusName == null)
@@ -383,7 +315,8 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws
+            IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find all statuses of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Optional<Goods> result = null;
@@ -400,7 +333,8 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public GoodsStatus findGoodsCurrentStatus(Long goodsId) throws
+            IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find current status of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         try {
@@ -414,7 +348,8 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public Warehouse findWarehouseOwner(Long goodsId) throws
+            IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Goods goods = findGoodsById(goodsId);
@@ -423,7 +358,8 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+    public WarehouseCompany findWarehouseCompanyOwner(Long goodsId) throws
+            IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Goods goods = findGoodsById(goodsId);
@@ -434,7 +370,8 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#id, 'Goods', 'UPDATE')")
-    public Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public Goods updateGoods(Long id, GoodsDTO goodsDTO) throws
+            DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating goods with id {} from DTO: {}", id, goodsDTO);
         if (id == null || goodsDTO == null) throw new IllegalParametersException("Id or goods DTO is null");
         try {

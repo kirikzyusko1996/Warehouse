@@ -7,6 +7,7 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of goodsList DAO.
@@ -38,8 +39,7 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON status.goods = goods" +
                 " LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date" +
-                " WHERE status_2.goods IS NULL AND warehouse.idWarehouse = :warehouseId AND status.goodsStatusName = :statusName" +
-                " GROUP BY goods.id";
+                " WHERE status_2.goods IS NULL AND warehouse.idWarehouse = :warehouseId AND status.goodsStatusName = :statusName";
 
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql2);
         query.setParameter("statusName", statusName);
@@ -53,6 +53,16 @@ public class GoodsDAO extends DAO<Goods> {
     public List<Goods> findByExample(Goods goods, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find list of {} goods starting from {} by example: {}", maxResults, firstResult, goods);
         return hibernateTemplate.findByExample(goods, firstResult, maxResults);
+    }
+
+    public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find list of {} goods starting from {} by example: {}", maxResults, firstResult);
+        if (query == null || parameters == null) throw new AssertionError();
+        Query<Goods> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            queryHQL.setParameter(entry.getKey(), entry.getValue());
+        }
+        return queryHQL.list();
     }
 
 }

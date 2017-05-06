@@ -194,9 +194,10 @@ public class GoodsDAOTest {
     @Transactional
     public void testFindByWarehouseIdAndCurrentStatus() throws GenericDAOException {
         DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
-        criteria.add(Restrictions.eq("name", GoodsStatusEnum.REGISTERED.toString()));
+        criteria.add(Restrictions.eq("name", GoodsStatusEnum.MOVED_OUT.toString()));
         List<GoodsStatusName> fetchedStatusName = goodsStatusNameDAO.findAll(criteria, -1, 1);
         List<Goods> goods = goodsDAO.findByWarehouseIdAndCurrentStatus(Long.valueOf(3), fetchedStatusName.get(0), 0, 100);
+        System.out.print(goods);
         assertTrue(!goods.isEmpty());
 
     }

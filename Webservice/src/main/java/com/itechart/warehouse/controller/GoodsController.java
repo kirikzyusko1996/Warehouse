@@ -52,7 +52,9 @@ public class GoodsController {
 
     @RequestMapping(value = "/{warehouseId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Goods>> getGoods(@RequestParam int page, @RequestParam int count, @PathVariable Long warehouseId) throws DataAccessException, IllegalParametersException {
+    public ResponseEntity<List<Goods>> getGoods(@RequestParam(defaultValue = "-1") int page,
+                                                @RequestParam(defaultValue = "0") int count,
+                                                @PathVariable Long warehouseId) throws DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of goods in warehouse with id {}, page: {}, count: {}", warehouseId, page, count);
         List<Goods> goods = null;
         goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
@@ -92,7 +94,9 @@ public class GoodsController {
     @RequestMapping(value = "/search", method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Goods>> findGoods(@RequestParam int page, @RequestParam int count, @RequestBody GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, GenericDAOException {
+    public ResponseEntity<List<Goods>> findGoods(@RequestParam(defaultValue = "-1") int page,
+                                                 @RequestParam(defaultValue = "0") int count,
+                                                 @RequestBody GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, GenericDAOException {
         logger.info("Handling request for searching list of goods by: {}, page: {}, count: {}", searchDTO, page, count);
         List<Goods> goods = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
@@ -129,7 +133,6 @@ public class GoodsController {
         goodsService.removeGoodsFromStorage(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
-
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

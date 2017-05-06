@@ -48,7 +48,8 @@ public class ActController {
 
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Act>> getActs(@RequestParam int page, @RequestParam int count) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+    public ResponseEntity<List<Act>> getActs(@RequestParam(defaultValue = "-1") int page,
+                                             @RequestParam(defaultValue = "0") int count) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for list of acts, page: {}, count: {}", page, count);
         List<Act> acts = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
@@ -73,7 +74,8 @@ public class ActController {
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StatusResponse> updateAct(@PathVariable(value = "id") Long id, @Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<StatusResponse> updateAct(@PathVariable(value = "id") Long id,
+                                                    @Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for updating act with id: {} by DTO: {}", id, actDTO);
         actService.updateAct(id, actDTO);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED),HttpStatus.OK);
@@ -90,7 +92,9 @@ public class ActController {
     @RequestMapping(value = "/search", method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Act>> findActs(@RequestParam int page, @RequestParam int count, @RequestBody ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+    public ResponseEntity<List<Act>> findActs(@RequestParam(defaultValue = "-1") int page,
+                                              @RequestParam (defaultValue = "0")int count,
+                                              @RequestBody ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for searching list of acts by field: {}, page: {}, count: {}", actSearchDTO, page, count);
         List<Act> acts = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();

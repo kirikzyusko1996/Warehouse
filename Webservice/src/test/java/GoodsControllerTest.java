@@ -140,25 +140,40 @@ public class GoodsControllerTest {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy");
 
         GoodsSearchDTO searchDTO = new GoodsSearchDTO();
-//        searchDTO.setName("Хлеб");
-        searchDTO.setCurrentStatus(GoodsStatusEnum.REGISTERED.toString());
+        searchDTO.setName("Хле");
+        searchDTO.setStorageTypeName(StorageTypeEnum.UNHEATED_PLACE.getName());
+        searchDTO.setMinPrice(new BigDecimal(1.0));//1.30
+        searchDTO.setMaxPrice(new BigDecimal(10.2));
+        searchDTO.setMinQuantity(new BigDecimal(10.0));//1000
+        searchDTO.setMaxQuantity(new BigDecimal(10000.0));
+        searchDTO.setMinWeight(new BigDecimal(10));//500
+        searchDTO.setMaxWeight(new BigDecimal(1000));
+        searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
+        searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+        searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
 
-//        GoodsStatusSearchDTO statusSearchDTO = new GoodsStatusSearchDTO();
-//        statusSearchDTO.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
-//        statusSearchDTO.setToDate(new Timestamp(formatter.parseDateTime("15-05-2017").toDate().getTime()));
-//        statusSearchDTO.setUserLastName("Зюсько");
-//        statusSearchDTO.setUserFirstName("Кирилл");
-//        List<GoodsStatusSearchDTO> statuses = new ArrayList<>();
-//        statuses.add(statusSearchDTO);
-//        searchDTO.setStatuses(statuses);
+        searchDTO.setCurrentStatus(GoodsStatusEnum.REGISTERED.toString());//registered, checked,stored
 
-//        searchDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
-//        searchDTO.setMinPrice(new BigDecimal(10));
-//        searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
-//        searchDTO.setMinQuantity(new BigDecimal(10));
-//        searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
-//        searchDTO.setMinWeight(new BigDecimal(10));
-//        searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
+        GoodsStatusSearchDTO statusSearchDTO = new GoodsStatusSearchDTO();
+        statusSearchDTO.setStatusName(GoodsStatusEnum.CHECKED.toString());
+        statusSearchDTO.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
+        statusSearchDTO.setToDate(new Timestamp(formatter.parseDateTime("15-05-2018").toDate().getTime()));
+        statusSearchDTO.setUserLastName("Зюсько");
+        statusSearchDTO.setUserFirstName("Кирилл");
+
+        GoodsStatusSearchDTO statusSearchDTO2 = new GoodsStatusSearchDTO();
+        statusSearchDTO2.setStatusName(GoodsStatusEnum.STORED.toString());
+        statusSearchDTO2.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
+        statusSearchDTO2.setToDate(new Timestamp(formatter.parseDateTime("15-05-2018").toDate().getTime()));
+        statusSearchDTO2.setUserLastName("Зюсько");
+        statusSearchDTO2.setUserFirstName("Кирилл");
+
+        List<GoodsStatusSearchDTO> statuses = new ArrayList<>();
+        statuses.add(statusSearchDTO);
+        statuses.add(statusSearchDTO2);
+
+        searchDTO.setStatuses(statuses);
+
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
 
