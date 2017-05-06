@@ -38,7 +38,7 @@ public class UserDTO {
     private String house;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String apartment;
-    @Email(message = "Illegal email")
+    @Email(message = "Illegal mail")
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String email;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)

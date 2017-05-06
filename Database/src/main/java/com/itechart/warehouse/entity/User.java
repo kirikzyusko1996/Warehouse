@@ -270,7 +270,7 @@ public class User {
                 .append("street", street)
                 .append("house", house)
                 .append("apartment", apartment)
-                .append("email", email)
+                .append("mail", email)
                 .append("login", login)
                 .append("password", password)
                 .toString();

@@ -42,8 +42,9 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
             case "ClientCompany":
                 return evaluateClientCompanyPermission(authentication, targetId, permission);
             // TODO: 05.05.2017 add more
+
+            default:throw new IllegalArgumentException("No such target");
         }
-        return false;
     }
 
     private boolean evaluateGoodsPermission(Authentication authentication, Serializable targetId, Object permission) {

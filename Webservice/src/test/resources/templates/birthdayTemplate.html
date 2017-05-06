@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">Template for HTML email with inline image</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body th:style="'background-color: '+${backgroundColor}+';'">
+
+<div th:if="${name != null}">Уважаемый(ая), <span th:text="${name}">Александр Иванович</span>!</div>
+<div th:unless="${name != null}">Здравствуйте!</div>
+
+
+<div th:if="${age != null}">Поздраляем Вас с <span th:text="${age}">45</span> летием.</div>
+<div th:unless="${age != null}">Поздравляем Вас с днем рождения</div>
+<div>
+    Пусть здоровье, взаимопонимание и успех сопутствуют Вам,
+    а рядом всегда находятся добрые друзья.
+    Удачи и благополучия в семье и работе!
+</div>
+
+<img th:src="|cid:${image}|"/>
+
+<div th:if="${company != null}">
+    С уваженем, коллектив <span th:text="${company}"> ООО "Рога и копота"</span>
+</div>
+
+<div th:unless="${company != null}">
+    С уваженем.</span>
+</div>
+
+
+</body>
+</html>
