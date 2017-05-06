@@ -338,9 +338,6 @@
             <column name="status" type="BIT(1)">
                 <constraints nullable="false"/>
             </column>
-            <column name="id_warehouse_company_status" type="BIGINT UNSIGNED">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="21">
@@ -365,6 +362,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="due_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
         </createTable>

@@ -8,30 +8,35 @@
             <column name="status" valueBoolean="1"/>
             <column name="start_date" value="2016-09-12"/>
             <column name="due_date" value="2016-09-15"/>
+            <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="2"/>
             <column name="status" valueBoolean="1"/>
             <column name="start_date" value="2016-10-12"/>
             <column name="due_date" value="2016-11-15"/>
+            <column name="id_warehouse_company" value="8"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="3"/>
             <column name="status" valueBoolean="0"/>
             <column name="start_date" value="2017-09-12"/>
             <column name="due_date" value="2017-09-25"/>
+            <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="4"/>
             <column name="status" valueBoolean="1"/>
             <column name="start_date" value="2010-09-12"/>
             <column name="due_date" value="2016-09-20"/>
+            <column name="id_warehouse_company" value="1"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="5"/>
             <column name="status" valueBoolean="0"/>
             <column name="start_date" value="2013-09-12"/>
             <column name="due_date" value="2016-10-15"/>
+            <column name="id_warehouse_company" value="8"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
