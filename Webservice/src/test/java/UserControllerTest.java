@@ -57,6 +57,7 @@ public class UserControllerTest {
         userDTO.setLastName("TEST");
         userDTO.setLogin("root");
         userDTO.setPassword("root");
+        userDTO.setWarehouseId(Long.valueOf(5));
         String[] rolesArray = new String[]{UserRoleEnum.ROLE_OWNER.toString()};
         List rolesList = Arrays.asList(rolesArray);
         userDTO.setRoles(rolesList);
@@ -89,6 +90,7 @@ public class UserControllerTest {
         userDTO.setLastName("TEST");
         userDTO.setLogin("root");
         userDTO.setPassword("root");
+        userDTO.setWarehouseId(Long.valueOf(5));
         String[] rolesArray = new String[]{UserRoleEnum.ROLE_OWNER.toString()};
         List rolesList = Arrays.asList(rolesArray);
         userDTO.setRoles(rolesList);

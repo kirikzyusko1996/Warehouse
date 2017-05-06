@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * Data transfer object for goodsList status entity.
+ * Data transfer object for goods status entity.
  */
 @Setter
 @Getter

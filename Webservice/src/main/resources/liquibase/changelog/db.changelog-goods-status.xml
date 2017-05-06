@@ -14,76 +14,83 @@
             <column name="id_goods_status" value="2"/>
             <column name="id_goods_status_name" value="2"/>
             <column name="id_user" value="1"/>
-            <column name="id_goods" value="2"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="3"/>
             <column name="id_goods_status_name" value="3"/>
-            <column name="id_user" value="2"/>
-            <column name="id_goods" value="3"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="4"/>
             <column name="id_goods_status_name" value="4"/>
-            <column name="id_user" value="2"/>
-            <column name="id_goods" value="4"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="5"/>
             <column name="id_goods_status_name" value="5"/>
-            <column name="id_user" value="3"/>
-            <column name="id_goods" value="5"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="6"/>
             <column name="id_goods_status_name" value="6"/>
-            <column name="id_user" value="3"/>
-            <column name="id_goods" value="6"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="7"/>
             <column name="id_goods_status_name" value="7"/>
-            <column name="id_user" value="4"/>
-            <column name="id_goods" value="7"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="8"/>
             <column name="id_goods_status_name" value="8"/>
-            <column name="id_user" value="4"/>
-            <column name="id_goods" value="8"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="9"/>
             <column name="id_goods_status_name" value="9"/>
-            <column name="id_user" value="5"/>
-            <column name="id_goods" value="9"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="10"/>
             <column name="id_goods_status_name" value="10"/>
-            <column name="id_user" value="5"/>
-            <column name="id_goods" value="10"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="11"/>
             <column name="id_goods_status_name" value="11"/>
-            <column name="id_user" value="4"/>
+            <column name="id_user" value="1"/>
             <column name="id_goods" value="1"/>
             <column name="note" value=""/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="12"/>
             <column name="id_goods_status_name" value="12"/>
-            <column name="id_user" value="3"/>
+            <column name="id_user" value="1"/>
+            <column name="id_goods" value="1"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="13"/>
+            <column name="id_goods_status_name" value="1"/>
+            <column name="id_user" value="1"/>
             <column name="id_goods" value="2"/>
             <column name="note" value=""/>
         </insert>

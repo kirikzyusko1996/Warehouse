@@ -7,20 +7,20 @@ import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.dto.ActSearchDTO;
-import com.itechart.warehouse.entity.Act;
-import com.itechart.warehouse.entity.ActType;
-import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
+import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,6 +107,7 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")
     public List<Act> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} acts starting from index {} by company id: {}", maxResults, firstResult, companyId);
         if (companyId == null) throw new IllegalParametersException("Company id is null");
@@ -120,24 +121,79 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")
     public List<Act> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goodsList for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, actSearchDTO);
         if (actSearchDTO == null || companyId == null)
             throw new IllegalParametersException("Act search DTO or company id is null");
         try {
-            //todo
             DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
             if (actSearchDTO.getType() != null)
                 criteria.add(Restrictions.eq("actType", findActTypeByName(actSearchDTO.getType())));
             if (actSearchDTO.getFromDate() != null)
                 criteria.add(Restrictions.ge("date", actSearchDTO.getFromDate()));
-            if (actSearchDTO.getFromDate() != null)
+            if (actSearchDTO.getToDate() != null)
                 criteria.add(Restrictions.le("date", actSearchDTO.getToDate()));
+            criteria.createAlias("user","user");
+            if (actSearchDTO.getCreatorLastName() != null)
+                criteria.add(Restrictions.like("user.lastName", "%"+actSearchDTO.getCreatorLastName()+"%"));
+            if (actSearchDTO.getCreatorFirstName() != null)
+                criteria.add(Restrictions.like("user.firstName", "%"+actSearchDTO.getCreatorFirstName()+"%"));
+            if (actSearchDTO.getCreatorPatronymic() != null)
+                criteria.add(Restrictions.like("user.patronymic", "%"+actSearchDTO.getCreatorPatronymic()+"%"));
+            criteria
+                    .createCriteria("goods")
+                    .createCriteria("incomingInvoice")
+                    .createCriteria("warehouse")
+                    .createCriteria("warehouseCompany").add(Restrictions.eq("idWarehouseCompany", companyId));
+            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
             return actDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WarehouseCompany findWarehouseCompanyOwner(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+        logger.info("Find warehouse company of act with id {}", actId);
+        if (actId == null) throw new IllegalParametersException("Act id is null");
+        Act act = findActById(actId);
+        if (act == null)
+            throw new ResourceNotFoundException("Act with such id was not found");
+        List<Goods> goods = act.getGoods();
+        if (!goods.isEmpty())
+            if (goods.get(0) != null) {
+                Invoice invoice = goods.get(0).getIncomingInvoice();
+                if (invoice != null) {
+                    Warehouse warehouse = invoice.getWarehouse();
+                    if (warehouse != null)
+                        return warehouse.getWarehouseCompany();
+                }
+            }
+
+        throw new ResourceNotFoundException("Warehouse company was not found");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Warehouse findWarehouseOwner(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException {
+        logger.info("Find warehouse company of act with id {}", actId);
+        if (actId == null) throw new IllegalParametersException("Act id is null");
+        Act act = findActById(actId);
+        if (act == null)
+            throw new ResourceNotFoundException("Act with such id was not found");
+        List<Goods> goods = act.getGoods();
+        if (!goods.isEmpty())
+            if (goods.get(0) != null) {
+                Invoice invoice = goods.get(0).getIncomingInvoice();
+                if (invoice != null) {
+                    return invoice.getWarehouse();
+                }
+            }
+        throw new ResourceNotFoundException("Warehouse was not found");
     }
 
     private ActType findActTypeByName(String actTypeName) throws GenericDAOException, IllegalParametersException {
@@ -153,6 +209,7 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional
+    //todo     @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")
     public Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
@@ -188,6 +245,7 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'Act', 'UPDATE')")
     public Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating act with id {} from DTO: {}", id, actDTO);
         if (id == null || actDTO == null) throw new IllegalParametersException("Id or act DTO is null");
@@ -196,12 +254,6 @@ public class ActServiceImpl implements ActService {
             if (actResult.isPresent()) {
                 Act act = actResult.get();
                 act.setActType(findActTypeByName(actDTO.getType()));
-//                Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
-//                if (userResult.isPresent()) {
-//                    act.setUser(userResult.get());
-//                } else {
-//                    throw new ResourceNotFoundException("Authenticated user was not found");
-//                }
                 if (actDTO.getGoodsList() != null) {
                     setActToGoods(actDTO.getGoodsList(), act);
                     return act;
@@ -217,6 +269,7 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'Act', 'DELETE')")
     public void deleteAct(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting act with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");

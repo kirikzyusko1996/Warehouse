@@ -9,23 +9,23 @@ import lombok.Setter;
 import java.sql.Timestamp;
 
 /**
- * Data transfer object containing criteria for searching acts.
+ * Data transfer object for searching goods status entity.
  */
 @Setter
 @Getter
-@lombok.ToString(exclude = "goodsList")
-public class ActSearchDTO {
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String type;
+@lombok.ToString
+public class GoodsStatusSearchDTO {
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    private String statusName;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    private String userLastName;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    private String userFirstName;
+    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
+    private String userPatronymic;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Timestamp fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Timestamp toDate;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String creatorLastName;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String creatorFirstName;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String creatorPatronymic;
-
 }

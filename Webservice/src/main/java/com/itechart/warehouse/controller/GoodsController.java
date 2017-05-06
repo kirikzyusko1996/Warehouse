@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -191,6 +192,17 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError requestHandlingError = new RequestHandlingError();
+        requestHandlingError.setError(e.getMessage());
+        return requestHandlingError;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(AccessDeniedException e) {
         logger.error("Exception during request handling: {}", e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());

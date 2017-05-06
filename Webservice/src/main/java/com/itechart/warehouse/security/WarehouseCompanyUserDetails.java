@@ -2,6 +2,7 @@ package com.itechart.warehouse.security;
 
 import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,13 +40,6 @@ public class WarehouseCompanyUserDetails implements UserDetails {
         return user.getPassword();
     }
 
-    public WarehouseCompany getCompany() {
-        return user.getWarehouseCompany();
-    }
-    public Long getUserId() {
-        return user.getId();
-    }
-
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -74,5 +68,21 @@ public class WarehouseCompanyUserDetails implements UserDetails {
             authorities.add(new SimpleGrantedAuthority(role.getRole()));
         }
         return authorities;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public WarehouseCompany getCompany() {
+        return user.getWarehouseCompany();
+    }
+
+    public Warehouse getWarehouse() {
+        return user.getWarehouse();
+    }
+
+    public Long getUserId() {
+        return user.getId();
     }
 }

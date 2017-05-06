@@ -51,7 +51,7 @@
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="10"/>
             <column name="name" value="Подземка"/>
-            <column name="id_warehouse_company" value="5"/>
+            <column name="id_warehouse_company" value="10"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

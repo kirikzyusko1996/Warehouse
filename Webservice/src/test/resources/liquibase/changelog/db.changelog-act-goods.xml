@@ -5,52 +5,52 @@
 
     <changeSet author="gilimovich" id="act_goods">
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="1"/>
+            <column name="id_act_goods" value="1"/>
             <column name="id_act" value="1"/>
             <column name="id_goods" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="2"/>
-            <column name="id_act" value="2"/>
-            <column name="id_goods" value="1"/>
-        </insert>
-        <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="3"/>
-            <column name="id_act" value="3"/>
+            <column name="id_act_goods" value="2"/>
+            <column name="id_act" value="1"/>
             <column name="id_goods" value="2"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="4"/>
+            <column name="id_act_goods" value="3"/>
+            <column name="id_act" value="1"/>
+            <column name="id_goods" value="3"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act_goods" value="4"/>
             <column name="id_act" value="4"/>
             <column name="id_goods" value="2"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="5"/>
+            <column name="id_act_goods" value="5"/>
             <column name="id_act" value="5"/>
             <column name="id_goods" value="3"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="6"/>
+            <column name="id_act_goods" value="6"/>
             <column name="id_act" value="6"/>
             <column name="id_goods" value="2"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="7"/>
+            <column name="id_act_goods" value="7"/>
             <column name="id_act" value="7"/>
             <column name="id_goods" value="7"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="8"/>
+            <column name="id_act_goods" value="8"/>
             <column name="id_act" value="8"/>
             <column name="id_goods" value="8"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="9"/>
+            <column name="id_act_goods" value="9"/>
             <column name="id_act" value="9"/>
             <column name="id_goods" value="9"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
-            <column name="id_act" value="10"/>
+            <column name="id_act_goods" value="10"/>
             <column name="id_act" value="10"/>
             <column name="id_goods" value="10"/>
         </insert>

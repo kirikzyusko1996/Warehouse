@@ -40,6 +40,7 @@ public class User {
     @JsonIgnore
     private List<InvoiceStatus> invoiceStatusList;
 
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     public List<InvoiceStatus> getInvoiceStatusList() {
         return invoiceStatusList;
