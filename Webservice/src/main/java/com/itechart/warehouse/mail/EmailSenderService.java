@@ -10,6 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -95,8 +96,8 @@ public class EmailSenderService {
         };
         try {
             mailSender.send(preparator);
-        }catch (Exception e){
-            logger.error("error");
+        }catch (MailException e){
+            logger.error("Exception during email sending: {}", e.getMessage());
         }
     }
 
