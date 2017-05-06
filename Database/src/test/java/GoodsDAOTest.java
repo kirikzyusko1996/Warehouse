@@ -133,7 +133,6 @@ public class GoodsDAOTest {
 //        }
 //        assertNull(fetchedUnit);
 //    }
-
     @Test
     @Transactional
     public void testActDao() {

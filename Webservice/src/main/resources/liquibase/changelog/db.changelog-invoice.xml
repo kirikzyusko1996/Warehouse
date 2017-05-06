@@ -176,5 +176,22 @@
             <column name="id_goods_entry_count_unit" value="6"/>
             <column name="batch_description" value="some description"/>
         </insert>
+        <insert tableName="invoice">
+            <column name="id_invoice" value="11"/>
+            <column name="number" value="109"/>
+            <column name="issue_date" value="2017-11-03"/>
+            <column name="id_transport_company" value="9"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_supplier_company" value="6"/>
+            <column name="id_receiver_company" value="3"/>
+            <column name="transport_number" value="200"/>
+            <column name="transport_name" value="Volve"/>
+            <column name="id_driver" value="5"/>
+            <column name="goods_quantity" value="10"/>
+            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="goods_entry_count" value="20"/>
+            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="batch_description" value="some description"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

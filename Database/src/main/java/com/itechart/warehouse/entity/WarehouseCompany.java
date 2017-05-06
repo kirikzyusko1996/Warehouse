@@ -12,6 +12,7 @@ public class WarehouseCompany {
     private List<Warehouse> warehouses;
     private List<PriceList> priceList;
     private List<User> users;
+    private List<WarehouseCompanyStatus> statuses;
 
     @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public List<User> getUsers() {
@@ -40,6 +41,14 @@ public class WarehouseCompany {
         this.priceList = priceList;
     }
 
+    @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<WarehouseCompanyStatus> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<WarehouseCompanyStatus> statuses) {
+        this.statuses = statuses;
+    }
 
     @Id
     @Column(name = "id_warehouse_company")

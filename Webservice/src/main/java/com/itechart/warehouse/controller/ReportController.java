@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.glassfish.jersey.internal.*;//do not delete
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.ws.rs.core.Response;
-import java.io.File;
+import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/report")
@@ -29,56 +30,48 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-
-
-
-    @RequestMapping(value = "/receipt", method = RequestMethod.GET,
-            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    public Response getReceiptReportFile(@Valid @RequestBody WarehouseReportDTO reportDTO){
+    @RequestMapping(value = "/receipt", method = RequestMethod.POST,
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    , consumes = "application/json")
+    public void getReceiptReportFile(@Valid @RequestBody WarehouseReportDTO reportDTO, HttpServletResponse response) throws IOException {
         logger.info("creating Receipt report for input: {}", reportDTO);
         try {
-            File reportFile
-                    = reportService.getReceiptReport(
-                            reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
-            return Response.ok(reportFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    .header("Content-Disposition", "attachment; filename=\"" + reportFile.getName() + "\"" )
-                    .build();
-        } catch (DataAccessException e) {
-            logger.error("Error during during report generation: {}", e.getMessage());
-            return Response.serverError().build();
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=WarehouseLossReport.xlsx");
+            reportService.getReceiptReport(reportDTO,
+                    response.getOutputStream());
+        }  catch (DataAccessException e) {
+            logger.error("Receipt report generation failed: {}", e.getMessage());
         }
     }
 
-    @RequestMapping(value = "/total_loss", method = RequestMethod.GET,
+    @RequestMapping(value = "/total_loss", method = RequestMethod.POST,
             produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    public Response getWarehousesLossReportFile(@Valid @RequestBody WarehouseReportDTO reportDTO){
+    public void getWarehousesLossReportFile(@Valid @RequestBody WarehouseReportDTO reportDTO, HttpServletResponse response) throws IOException {
         logger.info("creating warehouses loss report for input: {}", reportDTO);
         try {
-            File reportFile
-                    = reportService.getWarehousesLossReport(reportDTO.getStartDate(), reportDTO.getEndDate());
-            return Response.ok(reportFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    .header("Content-Disposition", "attachment; filename=\"" + reportFile.getName() + "\"" )
-                    .build();
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=WarehouseLossReport.xlsx");
+            reportService.getWarehousesLossReport(reportDTO.getStartDate(), reportDTO.getEndDate(), response.getOutputStream());
         }  catch (GenericDAOException e) {
-            logger.error("Report file generation failed: {}", e.getMessage());
-            return Response.serverError().build();
+            logger.error("Warehouse Loss Report generation failed: {}", e.getMessage());
         }
     }
 
-    @RequestMapping(value = "/warehouse_loss_with_liable_employees", method = RequestMethod.GET,
+    @RequestMapping(value = "/warehouse_loss_with_liable_employees", method = RequestMethod.POST,
             produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    public Response getWarehouseLossReportWithLiableEmplFile(@Valid @RequestBody WarehouseReportDTO reportDTO){
+    public void getWarehouseLossReportWithLiableEmplFile(@Valid @RequestBody WarehouseReportDTO reportDTO, HttpServletResponse response) throws IOException {
         logger.info("creating warehouses loss report for input: {}", reportDTO);
         try {
-            File reportFile
-                    = reportService.getWarehouseLossReportWithLiableEmployees(
-                            reportDTO.getIdWarehouse(),reportDTO.getStartDate(), reportDTO.getEndDate());
-            return Response.ok(reportFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    .header("Content-Disposition", "attachment; filename=\"" + reportFile.getName() + "\"" )
-                    .build();
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=WarehouseLossReport.xlsx");
+            reportService.getWarehouseLossReportWithLiableEmployees(reportDTO,
+                    response.getOutputStream());
         }  catch (GenericDAOException e) {
-            logger.error("Report file generation failed: {}", e.getMessage());
-            return Response.serverError().build();
+            logger.error("Warehouse loss report with liable employees generation failed: {}", e.getMessage());
         }
     }
 }
