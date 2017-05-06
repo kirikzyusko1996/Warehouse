@@ -1,7 +1,6 @@
 package com.itechart.warehouse.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 
@@ -15,9 +14,10 @@ public class PriceList {
     private Long idPriceList;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp endTime;
-    @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private BigDecimal dailyPrice;
-    @JsonIgnore
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="idStorageSpaceType")
+    @JsonIdentityReference(alwaysAsId=true)
+    @JsonProperty("idStorageSpaceType")
     private StorageSpaceType storageSpaceType;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;

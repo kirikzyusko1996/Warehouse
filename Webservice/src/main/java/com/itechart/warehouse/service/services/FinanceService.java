@@ -17,7 +17,7 @@ public interface FinanceService {
 
     PriceList findPriceById(Long id) throws DataAccessException;
 
-    List<PriceList> findPricesForStorageSpaceType(Long idStorageSpaceType, int skip, int limit) throws DataAccessException;
+    List<PriceList> findPricesForStorageSpaceType(Short idStorageSpaceType, int skip, int limit) throws DataAccessException;
 
-    List<PriceList> findPricesByDate(PriceListDTO priceDTO, int skip, int limit) throws DataAccessException, IllegalParametersException;
+    /*List<PriceList> findPricesByDate(PriceListDTO priceDTO, int skip, int limit) throws DataAccessException, IllegalParametersException;*/
 }

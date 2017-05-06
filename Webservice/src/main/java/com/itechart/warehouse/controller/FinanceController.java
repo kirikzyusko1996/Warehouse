@@ -30,7 +30,7 @@ public class FinanceController {
         this.financeService = financeService;
     }
 
-    @RequestMapping(value = "/priceList", method = RequestMethod.GET)
+    @RequestMapping(value = "/price", method = RequestMethod.GET)
     public ResponseEntity<List<PriceList>> getAllPrices(){
         logger.info("getAllPrices");
         List<PriceList> priceList;
@@ -43,8 +43,8 @@ public class FinanceController {
         return new ResponseEntity<>(priceList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/price/{storageType}", method = RequestMethod.GET)
-    public ResponseEntity<List<PriceList>> getPricesForStorageSpaceType(@PathVariable(value = "storageType") Long id){
+    @RequestMapping(value = "/price/storageType/{storageType}", method = RequestMethod.GET)
+    public ResponseEntity<List<PriceList>> getPricesForStorageSpaceType(@PathVariable(value = "storageType") Short id){
         logger.info("getPricesForStorageSpaceType");
         List<PriceList> priceList;
         try{
@@ -56,7 +56,7 @@ public class FinanceController {
         return new ResponseEntity<>(priceList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/date_price", method = RequestMethod.GET)
+/*    @RequestMapping(value = "/date_price", method = RequestMethod.POST)
     public ResponseEntity<List<PriceList>> getPricesByDate(@Valid @RequestBody PriceListDTO priceDTO){
         logger.info("getPricesByDate: {}", priceDTO);
         List<PriceList> priceList;
@@ -70,14 +70,14 @@ public class FinanceController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(priceList, HttpStatus.OK);
-    }
+    }*/
 
     @RequestMapping(value = "/newPrice", method = RequestMethod.POST)
     public ResponseEntity<Void> updateUser(@Valid @RequestBody PriceListDTO priceDTO) {
         logger.info("Handling request for creating/updating price: {}", priceDTO);
         try {
             financeService.newPrice(priceDTO);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (GenericDAOException e) {
             logger.error("Error during creating/updating price {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);

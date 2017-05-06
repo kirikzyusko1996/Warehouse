@@ -9,12 +9,9 @@ import java.util.Set;
 @Entity
 @Table(name = "storage_space_type")
 public class StorageSpaceType {
-    @JsonIgnore
     private Short idStorageSpaceType;
     private String name;
-    @JsonIgnore
     private Set<StorageSpace> storageSpaces;
-    @JsonIgnore
     private List<PriceList> priceList;
 
     @Id

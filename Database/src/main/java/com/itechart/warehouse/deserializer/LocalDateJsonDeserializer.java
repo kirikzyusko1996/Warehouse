@@ -15,7 +15,7 @@ import java.util.Date;
 /**
  * Created by Alexey on 04.05.2017.
  */
-public class DateJsonDeserializer extends JsonDeserializer<LocalDate> {
+public class LocalDateJsonDeserializer extends JsonDeserializer<LocalDate> {
 
     @Override
     public LocalDate deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {

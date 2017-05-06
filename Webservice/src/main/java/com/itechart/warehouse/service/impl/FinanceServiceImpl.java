@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -44,12 +46,14 @@ public class FinanceServiceImpl implements FinanceService{
     private Logger logger = LoggerFactory.getLogger(FinanceServiceImpl.class);
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void newPrice(PriceListDTO priceDTO) throws GenericDAOException {
         logger.info("new price: {} for idStorageSpaceType: {}", priceDTO.getDailyPrice(), priceDTO.getIdStorageSpaceType());
         DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
         criteria.add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()))
                 .add(Restrictions.isNull("endTime"))
-                .add(Restrictions.eq("StorageSpaceType", priceDTO.getIdStorageSpaceType()));
+                .createAlias("storageSpaceType", "sst")
+                .add(Restrictions.eq("sst.idStorageSpaceType", priceDTO.getIdStorageSpaceType()));
         List<PriceList> priceList = priceListDAO.findAll(criteria, 0, 0);
         Timestamp endTime = new Timestamp((new Date()).getTime());
         PriceList price;
@@ -77,6 +81,7 @@ public class FinanceServiceImpl implements FinanceService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PriceList> findAllPrices(int skip, int limit) throws DataAccessException {
         logger.info("FindAll, skip {}, limit {}", skip, limit);
         DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
@@ -102,31 +107,35 @@ public class FinanceServiceImpl implements FinanceService{
     }
 
     @Override
-    public List<PriceList> findPricesForStorageSpaceType(Long idStorageSpaceType, int skip, int limit) throws DataAccessException {
+    @Transactional(readOnly = true)
+    public List<PriceList> findPricesForStorageSpaceType(Short idStorageSpaceType, int skip, int limit) throws DataAccessException {
         logger.info("Find prices for idStorageSpaceType: {}, skip: {}, limit: {}", idStorageSpaceType, skip, limit);
         try {
-            Optional<StorageSpaceType> result = storageSpaceTypeDAO.findById(idStorageSpaceType);
-            return result.get().getPriceList();
+            DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
+            criteria.createAlias("storageSpaceType", "sst")
+                    .add(Restrictions.eq("sst.idStorageSpaceType", idStorageSpaceType))
+                    .add(Restrictions.eq("warehouseCompany", UserDetailsProvider.getUserDetails().getCompany()));
+            return priceListDAO.findAll(criteria, 0, 0);
         } catch (GenericDAOException e) {
             logger.error("Error while searching for prices: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
 
-    @Override
+   /* @Override
     public List<PriceList> findPricesByDate(PriceListDTO priceDTO, int skip, int limit) throws DataAccessException, IllegalParametersException {
-        logger.info("Find prices by date: {}, skip: {}, limit: {}", priceDTO.getEndTime(), skip, limit);
+        logger.info("Find prices: {}, skip: {}, limit: {}", priceDTO, skip, limit);
         if (priceDTO == null) {
             throw new IllegalParametersException("priceDTO is null");
         }
         try {
             DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
-            if (priceDTO.getEndTime() != null) {
-                Timestamp dayStart = new Timestamp(priceDTO.getEndTime().withTimeAtStartOfDay().getMillis());
-                Timestamp dayFinish = new Timestamp(priceDTO.getEndTime()
+            if (priceDTO.getStartDate() != null && priceDTO.getEndDate() != null) {
+                Timestamp dayStart = new Timestamp(priceDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
+                Timestamp dayFinish = new Timestamp(priceDTO.getEndDate().toDateTimeAtStartOfDay()
                         .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
                 Criterion restriction1 = Restrictions.ge("endTime", dayStart);
-                Criterion restriction2= Restrictions.le("endTime", dayFinish);
+                Criterion restriction2= Restrictions.ge("endTime", dayFinish);
                 criteria.add(Restrictions.and(restriction1, restriction2))
                         .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
             }
@@ -135,5 +144,5 @@ public class FinanceServiceImpl implements FinanceService{
             logger.error("Error during search for goodsList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
-    }
+    }*/
 }

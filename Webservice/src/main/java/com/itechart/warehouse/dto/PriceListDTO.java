@@ -1,5 +1,7 @@
 package com.itechart.warehouse.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.DateTime;
@@ -12,8 +14,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class PriceListDTO {
-    private DateTime endTime;
     private BigDecimal dailyPrice;
-    private Long idStorageSpaceType;
+    private Short idStorageSpaceType;
+    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String comment;
 }

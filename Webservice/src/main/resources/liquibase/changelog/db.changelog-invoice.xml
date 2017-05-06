@@ -181,7 +181,7 @@
             <column name="number" value="109"/>
             <column name="issue_date" value="2017-11-03"/>
             <column name="id_transport_company" value="9"/>
-            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
             <column name="id_supplier_company" value="6"/>
             <column name="id_receiver_company" value="3"/>
             <column name="transport_number" value="200"/>
