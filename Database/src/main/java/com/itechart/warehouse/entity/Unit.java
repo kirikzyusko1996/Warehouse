@@ -1,12 +1,14 @@
 package com.itechart.warehouse.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "unit")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Unit {
     @JsonIgnore
     private Short id;

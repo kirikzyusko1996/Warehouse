@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -129,9 +130,9 @@ public class InvoiceController {
 
     // no need to update invoice, just update it's status
 
-    // todo status sends via param or with json(now)
-    @RequestMapping(value = "/{id}/status", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @Valid @RequestBody String status){
+    //status is sent via param
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status){
         logger.info("PUT on /invoice/{}/status: update invoice status", id);
 
         // todo security check
@@ -149,7 +150,7 @@ public class InvoiceController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -174,16 +175,17 @@ public class InvoiceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{invoiceId}/goods", method = RequestMethod.GET)
-    public ResponseEntity<List<Goods>> readGoodsOfInvoice(@PathVariable String invoiceId) throws ResourceNotFoundException {
+    @RequestMapping(value = "/{invoiceId}/goods", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Goods>> readGoodsOfInvoice(@PathVariable Long invoiceId,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "-1") int count)
+            throws ResourceNotFoundException {
         logger.info("GET on /invoice/{}/goods: find all goods for specified invoice", invoiceId);
 
         List<Goods> goodsList;
         try{
-            // todo edit maxResult and limit params
-            // todo edit check invoiceId
-            Long id = Long.valueOf(invoiceId);
-            goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+            goodsList = goodsService.findGoodsForInvoice(invoiceId, page, count);
         } catch (DataAccessException e){
             logger.error("Error while retrieving all goods for specified invoice", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
