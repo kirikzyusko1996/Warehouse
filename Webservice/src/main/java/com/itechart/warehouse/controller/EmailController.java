@@ -34,7 +34,7 @@ public class EmailController {
     @RequestMapping(value = "", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StatusResponse> getActs(@RequestBody Template template,
-                                                  @RequestParam("image") final MultipartFile image) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+                                                  @RequestParam(required = false) final MultipartFile image) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for sending email according to template: {}", template);
         emailSenderService.sendEmail(template, image);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.EXECUTED), HttpStatus.OK);
