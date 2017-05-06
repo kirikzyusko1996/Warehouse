@@ -2,6 +2,7 @@ package com.itechart.warehouse.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.itechart.warehouse.deserializer.DateJsonDeserializer;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,10 +16,9 @@ import org.joda.time.LocalDate;
 @Setter
 @ToString
 public class WarehouseReportDTO {
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private Long idWarehouse;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = DateJsonDeserializer.class)
     private LocalDate startDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = DateJsonDeserializer.class)
     private LocalDate endDate;
 }

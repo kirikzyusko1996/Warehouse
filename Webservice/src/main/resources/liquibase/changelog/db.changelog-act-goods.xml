@@ -55,5 +55,47 @@
             <column name="id_goods" value="10"/>
         </insert>
 
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="11"/>
+            <column name="id_act" value="11"/>
+            <column name="id_goods" value="11"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="12"/>
+            <column name="id_act" value="12"/>
+            <column name="id_goods" value="12"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="13"/>
+            <column name="id_act" value="13"/>
+            <column name="id_goods" value="13"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="14"/>
+            <column name="id_act" value="14"/>
+            <column name="id_goods" value="14"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="15"/>
+            <column name="id_act" value="15"/>
+            <column name="id_goods" value="15"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="16"/>
+            <column name="id_act" value="16"/>
+            <column name="id_goods" value="16"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="17"/>
+            <column name="id_act" value="17"/>
+            <column name="id_goods" value="17"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act_goods">
+            <column name="id_act" value="18"/>
+            <column name="id_act" value="18"/>
+            <column name="id_goods" value="18"/>
+        </insert>
+
+
     </changeSet>
 </databaseChangeLog>

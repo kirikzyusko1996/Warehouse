@@ -63,5 +63,54 @@
             <column name="date" valueDate="now()"/>
             <column name="id_user" value="5"/>
         </insert>
+
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="11"/>
+            <column name="id_act_type" value="1"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="12"/>
+            <column name="id_act_type" value="2"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="13"/>
+            <column name="id_act_type" value="3"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="14"/>
+            <column name="id_act_type" value="4"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="15"/>
+            <column name="id_act_type" value="1"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="16"/>
+            <column name="id_act_type" value="2"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="17"/>
+            <column name="id_act_type" value="3"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="18"/>
+            <column name="id_act_type" value="4"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="10"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -108,5 +108,62 @@
             <column name="id_goods" value="2"/>
             <column name="note" value=""/>
         </insert>
+
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="13"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="11"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="14"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="12"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="15"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="13"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="16"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="14"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="17"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="15"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="18"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="16"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="19"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="17"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="20"/>
+            <column name="id_goods_status_name" value="3"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="18"/>
+            <column name="note" value=""/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

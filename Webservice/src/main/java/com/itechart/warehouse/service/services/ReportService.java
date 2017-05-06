@@ -1,14 +1,16 @@
 package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.dto.WarehouseReportDTO;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import org.joda.time.LocalDate;
 
+import javax.servlet.ServletOutputStream;
 import java.io.File;
 
 public interface ReportService {
-    File getReceiptReport(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws DataAccessException;
-    File getWarehousesLossReport(LocalDate startDate, LocalDate endDate) throws GenericDAOException;
-    File getWarehouseLossReportWithLiableEmployees(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws GenericDAOException;
+    void getReceiptReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws DataAccessException;
+    void getWarehousesLossReport(LocalDate startDate, LocalDate endDate, ServletOutputStream out) throws GenericDAOException;
+    void getWarehouseLossReportWithLiableEmployees(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws GenericDAOException;
     File getWarehouseProfitReport(Long idWarehouse, LocalDate startDate, LocalDate endDate);
 }

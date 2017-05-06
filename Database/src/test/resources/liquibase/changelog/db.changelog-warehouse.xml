@@ -53,5 +53,15 @@
             <column name="name" value="Подземка"/>
             <column name="id_warehouse_company" value="5"/>
         </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="11"/>
+            <column name="name" value="Ангар"/>
+            <column name="id_warehouse_company" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="12"/>
+            <column name="name" value="Открытая площадка"/>
+            <column name="id_warehouse_company" value="10"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

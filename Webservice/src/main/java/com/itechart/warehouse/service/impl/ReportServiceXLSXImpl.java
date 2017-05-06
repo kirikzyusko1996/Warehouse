@@ -6,9 +6,14 @@ import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.LossReportItem;
 import com.itechart.warehouse.dto.ReceiptReportItem;
+import com.itechart.warehouse.dto.WarehouseReportDTO;
 import com.itechart.warehouse.entity.*;
+import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.services.ReportService;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,15 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletOutputStream;
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class ReportServiceXLSXImpl implements ReportService {
@@ -70,40 +73,27 @@ public class ReportServiceXLSXImpl implements ReportService {
     private Logger logger = LoggerFactory.getLogger(ReportServiceXLSXImpl.class);
 
     @Override
-    public File getReceiptReport(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws DataAccessException {
-        logger.info("getReceiptReport of warehouse by id {}, from {} to {}", idWarehouse, startDate, endDate);
-        Properties properties = new Properties();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("report.properties");
-        try {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            logger.error("initialization failed: {}", e.getMessage());
-        }
-        String tempFileDir = properties.getProperty("tempFileDir");
-        File tmpdir = new File(tempFileDir);
-        if (!(tmpdir.exists())) {
-            boolean dirsCreated = tmpdir.mkdirs();
-            if (!dirsCreated) {
-                logger.error("Directory creation failed");
-                throw new RuntimeException("temporary directory creation failed");
-            }
-        }
+    @Transactional(readOnly = true)
+    public void getReceiptReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws DataAccessException {
+        logger.info("getReceiptReport of warehouse by id {}, from {} to {}",
+                reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
         List<GoodsStatus> goodsStatusList;
         List<ReceiptReportItem> reportItemList = new ArrayList<>();
-        String fileName;
-        Path filePath=null;
-
-        Timestamp startTimestamp = new Timestamp(startDate.toDateTimeAtStartOfDay().getMillis());
-        Timestamp endTimestamp =  new Timestamp(startDate.toDateTimeAtStartOfDay()
+        Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
+        Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
         DetachedCriteria statusNameCriteria = DetachedCriteria.forClass(GoodsStatusName.class);
-        statusNameCriteria.add(Restrictions.eq("name", GoodsStatusEnum.STORED));
+        statusNameCriteria.add(Restrictions.eq("name", GoodsStatusEnum.STORED.toString()));
         try {
-            int idStatusName = goodsStatusNameDAO
-                    .findAll(statusNameCriteria, 0, 1).get(0).getId();
-
+            GoodsStatusName statusName = goodsStatusNameDAO
+                    .findAll(statusNameCriteria, 0, 1).get(0);
+            //find goodsStatuses for company with specified dates
             DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatus.class);
-            criteria.add(Restrictions.eq("goodsStatusName.id" ,idStatusName))
+            criteria.add(Restrictions.eq("goodsStatusName" ,statusName))
+                    .createAlias("user", "u")
+                    .createAlias("u.warehouseCompany", "w")
+                    .add(Restrictions.eq("w.idWarehouseCompany",
+                            UserDetailsProvider.getUserDetails().getCompany().getIdWarehouseCompany()))
                     .add(Restrictions.and(Restrictions.ge("date", startTimestamp),
                             Restrictions.le("date", endTimestamp)));
             goodsStatusList = goodsStatusDAO.findAll(criteria, 0, 0);
@@ -114,15 +104,16 @@ public class ReportServiceXLSXImpl implements ReportService {
             Goods goods;
             while(iterator.hasNext()){
                 goodsStatus = iterator.next();
-                if(goodsStatus.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(idWarehouse)){
+                if(goodsStatus.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse()
+                        .equals(reportDTO.getIdWarehouse())){
                     user = goodsStatus.getUser();
                     goods = goodsStatus.getGoods();
                     reportItem.setDate(goodsStatus.getDate());
                     reportItem.setGoodsName(goods.getName());
                     reportItem.setQuantity(goods.getQuantity().toString());
                     reportItem.setUserName(user.getFirstName() + " " + user.getLastName());
-                    reportItem.setShipperName(goods.getIncomingInvoice().getSupplierCompany().getName());
-                    reportItem.setSenderName(goods.getIncomingInvoice().getTransportCompany().getName());
+                //    reportItem.setShipperName(goods.getIncomingInvoice().getSupplierCompany().getName());
+              //      reportItem.setSenderName(goods.getIncomingInvoice().getTransportCompany().getName());
                     reportItemList.add(reportItem);
                 }
             }
@@ -133,99 +124,108 @@ public class ReportServiceXLSXImpl implements ReportService {
 
             //generate rows with headers
             XSSFWorkbook workbook = new XSSFWorkbook();
+            XSSFCellStyle style = workbook.createCellStyle();
+            style.setBorderBottom(BorderStyle.MEDIUM);
             XSSFSheet sheet = workbook.createSheet("1");
             sheet.setHorizontallyCenter(true);
-            XSSFRow header = sheet.createRow(0);
+            XSSFRow reportName = sheet.createRow(0);
+            Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
+            reportName.createCell(0).setCellValue("Отчет о поступлении товаров на склад " +
+            warehouse.getName() + "  в период с " + reportDTO.getStartDate().toString() + " по "
+                    + reportDTO.getEndDate().toString());
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
+            XSSFRow header = sheet.createRow(1);
             header.createCell(0).setCellValue("#");
+            header.getCell(0).setCellStyle(style);
             header.createCell(1).setCellValue("Дата/Время");
+            header.getCell(1).setCellStyle(style);
             header.createCell(2).setCellValue("Наименование");
+            header.getCell(2).setCellStyle(style);
             header.createCell(3).setCellValue("Количество");
+            header.getCell(3).setCellStyle(style);
             header.createCell(4).setCellValue("Ответственное лицо");
-            header.createCell(5).setCellValue("Отправитель");
-            header.createCell(6).setCellValue("Перевозчик");
+            header.getCell(4).setCellStyle(style);
+//            header.createCell(5).setCellValue("Отправитель");
+//            header.getCell(5).setCellStyle(style);
+//            header.createCell(6).setCellValue("Перевозчик");
+//            header.getCell(6).setCellStyle(style);
             //fill cells with data
             for(int i = 0; i < reportItemList.size(); i++){
-                XSSFRow row = sheet.createRow(i+1);
+                XSSFRow row = sheet.createRow(i+2);
                 reportItem = reportItemList.get(i);
                 row.createCell(0).setCellValue(i+1);
                 row.createCell(1).setCellValue(reportItem.getDate());
                 row.createCell(2).setCellValue(reportItem.getGoodsName());
                 row.createCell(3).setCellValue(reportItem.getQuantity());
                 row.createCell(4).setCellValue(reportItem.getUserName());
-                row.createCell(5).setCellValue(reportItem.getSenderName());
-                row.createCell(6).setCellValue(reportItem.getShipperName());
+             //   row.createCell(5).setCellValue(reportItem.getSenderName());
+             //   row.createCell(6).setCellValue(reportItem.getShipperName());
+                if(i == reportItemList.size() - 1){
+                    row.getCell(0).setCellStyle(style);
+                    row.getCell(1).setCellStyle(style);
+                    row.getCell(2).setCellStyle(style);
+                    row.getCell(3).setCellStyle(style);
+                    row.getCell(4).setCellStyle(style);
+                }
             }
-            //generate unique file name and save it to default location
-            fileName = Integer.toString(ThreadLocalRandom.current().nextInt());
-            filePath = Paths.get(tempFileDir, fileName);
-            FileOutputStream out = new FileOutputStream(filePath.toFile());
-            workbook.write(out);
+            sheet.autoSizeColumn(1);
+            sheet.autoSizeColumn(2);
+            sheet.autoSizeColumn(3);
+            sheet.autoSizeColumn(4);
+            workbook.write(outputStream);
         } catch (GenericDAOException e) {
             logger.error("Goods status search error: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
-        } catch (FileNotFoundException e) {
-            logger.error("FileOutputStream error: {}", e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error writing to file: {}", e.getMessage());
+        }  catch (IOException e) {
+            logger.error("Error writing workbook: {}", e.getMessage());
         }
-        return filePath.toFile();
     }
 
     @Override
-    public File getWarehousesLossReport(LocalDate startDate, LocalDate endDate) throws GenericDAOException {
-        Properties properties = new Properties();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("report.properties");
-        try {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            logger.error("initialization failed: {}", e.getMessage());
-        }
-        String tempFileDir = properties.getProperty("tempFileDir");
-        File tmpdir = new File(tempFileDir);
-        if (!(tmpdir.exists())) {
-            boolean dirsCreated = tmpdir.mkdirs();
-            if (!dirsCreated) {
-                logger.error("Directory creation failed");
-                throw new RuntimeException("temporary directory creation failed");
-            }
-        }
-
+    @Transactional(readOnly = true)
+    public void getWarehousesLossReport(LocalDate startDate, LocalDate endDate, ServletOutputStream out) throws GenericDAOException {
         logger.info("getWarehousesLossReport from {} to {}", startDate, endDate);
         List<ActType> actTypeList;
         List<Act> actList;
         Map<Long, BigDecimal> mapWarehouseLoss = new HashMap<>();
         List<Warehouse> warehouseList;
-        String fileName;
-        Path filePath=null;
 
         Timestamp startTimestamp = new Timestamp(startDate.toDateTimeAtStartOfDay().getMillis());
-        Timestamp endTimestamp =  new Timestamp(startDate.toDateTimeAtStartOfDay()
+        Timestamp endTimestamp =  new Timestamp(endDate.toDateTimeAtStartOfDay()
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
         DetachedCriteria criteria = DetachedCriteria.forClass(ActType.class);
-        Criterion restriction1 = Restrictions.eq("name", ActTypeEnum.ACT_OF_LOSS);
-        Criterion restriction2 = Restrictions.eq("name", ActTypeEnum.ACT_OF_THEFT);
-        criteria.add(Restrictions.or(restriction1, restriction2))
-                .add(Restrictions.and(
-                                Restrictions.ge("date", startTimestamp),
-                                Restrictions.le("date", endTimestamp)));
+        Criterion restriction1 = Restrictions.eq("name", ActTypeEnum.ACT_OF_LOSS.toString());
+        Criterion restriction2 = Restrictions.eq("name", ActTypeEnum.ACT_OF_THEFT.toString());
+        criteria.add(Restrictions.or(restriction1, restriction2));
         actTypeList = actTypeDAO.findAll(criteria, 0, 0);
+
         criteria = DetachedCriteria.forClass(Act.class);
-        criteria.add(Restrictions.in("actType", actTypeList));
+        criteria.add(Restrictions.in("actType", actTypeList))
+                .add(Restrictions.and(
+                Restrictions.ge("date", startTimestamp),
+                Restrictions.le("date", endTimestamp)));
         actList = actDAO.findAll(criteria, 0, 0);
         criteria = DetachedCriteria.forClass(Warehouse.class);
+
+        criteria.add(Restrictions.eq("warehouseCompany", UserDetailsProvider.getUserDetails().getCompany()));
+
         warehouseList = warehouseDAO.findAll(criteria, 0, 0);
         Iterator<Act> iterator = actList.iterator();
         Act act;
         Long idWarehouse;
+        List<Goods> goodsList;
+        for(Warehouse warehouse : warehouseList){
+            mapWarehouseLoss.put(warehouse.getIdWarehouse(), new BigDecimal("0"));
+        }
         while(iterator.hasNext()){
             act = iterator.next();
-//            idWarehouse = act.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse();
-//            if(mapWarehouseLoss.containsKey(idWarehouse)){
-//                mapWarehouseLoss.put(idWarehouse, mapWarehouseLoss.get(idWarehouse).add(act.getGoods().getPrice()));
-//            }
-//            else{
-//                mapWarehouseLoss.put(idWarehouse, new BigDecimal("0"));
-//            }
+            goodsList = act.getGoods();
+            for(Goods goods : goodsList){
+                idWarehouse = goods.getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse();
+                if(mapWarehouseLoss.containsKey(idWarehouse)){
+                    mapWarehouseLoss.put(idWarehouse, (mapWarehouseLoss.get(idWarehouse)).add(goods.getPrice()));
+                }
+            }
         }
 
         if(warehouseList.isEmpty()){
@@ -234,98 +234,102 @@ public class ReportServiceXLSXImpl implements ReportService {
 
         //generate rows with headers
         XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.MEDIUM);
         XSSFSheet sheet = workbook.createSheet("1");
+        XSSFRow reportName = sheet.createRow(0);
+        reportName.createCell(0).setCellValue("Отчет об убытках складов" +
+               " в период с " + startDate.toString() + " по "
+                + endDate.toString());
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
         sheet.setHorizontallyCenter(true);
-        XSSFRow header = sheet.createRow(0);
+        XSSFRow header = sheet.createRow(1);
         header.createCell(0).setCellValue("#");
+        header.getCell(0).setCellStyle(style);
         header.createCell(1).setCellValue("Название склада");
+        header.getCell(1).setCellStyle(style);
         header.createCell(2).setCellValue("Убытки");
+        header.getCell(2).setCellStyle(style);
         //fill cells with data
-        int lastRow = 0;
         BigDecimal totalLoss = new BigDecimal("0");
         for(int i = 0; i < warehouseList.size(); i++){
-            XSSFRow row = sheet.createRow(i+1);
+            XSSFRow row = sheet.createRow(i+2);
             row.createCell(0).setCellValue(i+1);
             row.createCell(1).setCellValue(warehouseList.get(i).getName());
             row.createCell(2).setCellValue(
                     mapWarehouseLoss.get(warehouseList.get(i).getIdWarehouse()).toPlainString());
-            lastRow = i+1;
             totalLoss = totalLoss.add(mapWarehouseLoss.get(warehouseList.get(i).getIdWarehouse()));
+            if(i == warehouseList.size() - 1){
+                row.getCell(0).setCellStyle(style);
+                row.getCell(1).setCellStyle(style);
+                row.getCell(2).setCellStyle(style);
+            }
         }
-        XSSFRow totalRow = sheet.createRow(lastRow+1);
+        XSSFRow totalRow = sheet.createRow(warehouseList.size() + 2);
         totalRow.createCell(1).setCellValue("ИТОГО УБЫТКОВ:");
         totalRow.createCell(2).setCellValue(totalLoss.toPlainString());
+        sheet.autoSizeColumn(1);
+        sheet.autoSizeColumn(2);
 
-        //generate unique file name and save it to default location
-        fileName = Integer.toString(ThreadLocalRandom.current().nextInt());
-        filePath = Paths.get(tempFileDir, fileName);
-        FileOutputStream out = null;
         try {
-            out = new FileOutputStream(filePath.toFile());
             workbook.write(out);
-        } catch (FileNotFoundException e) {
-            logger.error("FileOutputStream error: {}", e.getMessage());
         } catch (IOException e) {
-            logger.error("Error writing to file: {}", e.getMessage());
+            logger.error("Error generating Warehouses Loss Report: {}", e.getMessage());
+        }finally {
+            try {
+                out.flush();
+                out.close();
+            } catch (IOException e) {
+                logger.error("ServletOutputStream error: {}", e.getMessage());
+            }
         }
-        return filePath.toFile();
     }
 
 
     @Override
-    public File getWarehouseLossReportWithLiableEmployees(Long idWarehouse, LocalDate startDate, LocalDate endDate) throws GenericDAOException {
-        logger.info("getWarehouse {} Loss Report With Liable Employees from {} to {}", idWarehouse, startDate, endDate);
-        Properties properties = new Properties();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("report.properties");
-        try {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            logger.error("initialization failed: {}", e.getMessage());
-        }
-        String tempFileDir = properties.getProperty("tempFileDir");
-        File tmpdir = new File(tempFileDir);
-        if (!(tmpdir.exists())) {
-            boolean dirsCreated = tmpdir.mkdirs();
-            if (!dirsCreated) {
-                logger.error("Directory creation failed");
-                throw new RuntimeException("temporary directory creation failed");
-            }
-        }
+    @Transactional(readOnly = true)
+    public void getWarehouseLossReportWithLiableEmployees(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws GenericDAOException {
+        logger.info("getWarehouse {} Loss Report With Liable Employees from {} to {}",
+                reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
+
         List<ActType> actTypeList;
         List<Act> actList;
         List<LossReportItem> lossReportItemList = new ArrayList<>();
-        String fileName;
-        Path filePath=null;
-
-        Timestamp startTimestamp = new Timestamp(startDate.toDateTimeAtStartOfDay().getMillis());
-        Timestamp endTimestamp =  new Timestamp(startDate.toDateTimeAtStartOfDay()
+        Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
+        Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
         DetachedCriteria criteria = DetachedCriteria.forClass(ActType.class);
-        Criterion restriction1 = Restrictions.eq("name", ActTypeEnum.ACT_OF_LOSS);
-        Criterion restriction2 = Restrictions.eq("name", ActTypeEnum.ACT_OF_THEFT);
-        criteria.add(Restrictions.or(restriction1, restriction2))
-                .add(Restrictions.and(
-                        Restrictions.ge("date", startTimestamp),
-                        Restrictions.le("date", endTimestamp)));;
+        Criterion restriction1 = Restrictions.eq("name", ActTypeEnum.ACT_OF_LOSS.toString());
+        Criterion restriction2 = Restrictions.eq("name", ActTypeEnum.ACT_OF_THEFT.toString());
+        criteria.add(Restrictions.or(restriction1, restriction2));
         actTypeList = actTypeDAO.findAll(criteria, 0, 0);
         criteria = DetachedCriteria.forClass(Act.class);
-        criteria.add(Restrictions.in("actType", actTypeList));
+        criteria.add(Restrictions.in("actType", actTypeList))
+                .createAlias("user", "u")
+                .add(Restrictions.eq("u.warehouseCompany", UserDetailsProvider.getUserDetails().getCompany()))
+                .add(Restrictions.and(
+                        Restrictions.ge("date", startTimestamp),
+                        Restrictions.le("date", endTimestamp)));
         actList = actDAO.findAll(criteria, 0, 0);
         Iterator<Act> iterator = actList.iterator();
         Act act;
-        LossReportItem lossReportItem = new LossReportItem();
         BigDecimal totalLoss = new BigDecimal("0");
+        Map<User, BigDecimal> mapPersonLoss = new HashMap<>();
+        List<User> responsiblePersonList = new ArrayList<>();
         while(iterator.hasNext()){
             act = iterator.next();
-//            if(act.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(idWarehouse)){
-//                lossReportItem.setResponsiblePersonName(act.getUser().getFirstName() + " " + act.getUser().getLastName());
-//                lossReportItem.setGoodsName(act.getGoods().getName());
-//                lossReportItem.setActType(act.getActType().getName());
-//                lossReportItem.setActCreationDate(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(act.getDate()));
-//                lossReportItem.setGoodsCost(act.getGoods().getPrice().toPlainString());
-//                lossReportItemList.add(lossReportItem);
-//                totalLoss = totalLoss.add(act.getGoods().getPrice());
-//            }
+            for(Goods goods : act.getGoods()) {
+                if (goods.getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(reportDTO.getIdWarehouse())) {
+                    if(mapPersonLoss.containsKey(act.getUser())){
+                        mapPersonLoss.put(act.getUser(), mapPersonLoss.get(act.getUser()).add(goods.getPrice()));
+                    }
+                    else{
+                        mapPersonLoss.put(act.getUser(), goods.getPrice());
+                        responsiblePersonList.add(act.getUser());
+                    }
+                    totalLoss = totalLoss.add(goods.getPrice());
+                }
+            }
         }
 
         if(lossReportItemList.isEmpty()){
@@ -334,47 +338,48 @@ public class ReportServiceXLSXImpl implements ReportService {
 
         //generate rows with headers
         XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.MEDIUM);
         XSSFSheet sheet = workbook.createSheet("1");
         sheet.setHorizontallyCenter(true);
-        XSSFRow header = sheet.createRow(0);
+        XSSFRow reportName = sheet.createRow(0);
+        Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
+        reportName.createCell(0).setCellValue("Отчет об убытках склада " +
+                warehouse.getName() + " по ответственным лицам в период с "
+                + reportDTO.getStartDate().toString() + " по " + reportDTO.getEndDate().toString());
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
+        XSSFRow header = sheet.createRow(1);
         header.createCell(0).setCellValue("#");
-        header.createCell(1).setCellValue("Дата/Время составленя акта");
-        header.createCell(2).setCellValue("Наименование товара");
-        header.createCell(3).setCellValue("Количество");
-        header.createCell(4).setCellValue("Стоимость");
-        header.createCell(5).setCellValue("Ответственное лицо");
-        header.createCell(6).setCellValue("Тип акта");
+        header.getCell(0).setCellStyle(style);
+        header.createCell(1).setCellValue("Ответственное лицо");
+        header.getCell(1).setCellStyle(style);
+        header.createCell(2).setCellValue("Стоимость");
+        header.getCell(2).setCellStyle(style);
         //fill cells with data
-        int lastRow = 0;
-        for(int i = 0; i < lossReportItemList.size(); i++){
-            XSSFRow row = sheet.createRow(i+1);
-            lossReportItem = lossReportItemList.get(i);
+        String name;
+        for(int i = 0; i < responsiblePersonList.size(); i++){
+            name = responsiblePersonList.get(i).getFirstName() + " " + responsiblePersonList.get(i).getLastName();
+            XSSFRow row = sheet.createRow(i+2);
             row.createCell(0).setCellValue(i+1);
-            row.createCell(1).setCellValue(lossReportItem.getActCreationDate());
-            row.createCell(2).setCellValue(lossReportItem.getGoodsName());
-            row.createCell(3).setCellValue(lossReportItem.getQuantity());
-            row.createCell(4).setCellValue(lossReportItem.getGoodsCost());
-            row.createCell(5).setCellValue(lossReportItem.getResponsiblePersonName());
-            row.createCell(6).setCellValue(lossReportItem.getActType());
-            lastRow = i+1;
+            row.createCell(1).setCellValue(name);
+            row.createCell(2).setCellValue(mapPersonLoss.get(responsiblePersonList.get(i)).toPlainString());
+            if(i == responsiblePersonList.size() - 1){
+                row.getCell(0).setCellStyle(style);
+                row.getCell(1).setCellStyle(style);
+                row.getCell(2).setCellStyle(style);
+            }
         }
-        XSSFRow totalRow = sheet.createRow(lastRow+1);
+        XSSFRow totalRow = sheet.createRow(responsiblePersonList.size() + 2);
         totalRow.createCell(1).setCellValue("ИТОГО УБЫТКОВ:");
-        totalRow.createCell(4).setCellValue(totalLoss.toPlainString());
+        totalRow.createCell(2).setCellValue(totalLoss.toPlainString());
+        sheet.autoSizeColumn(1);
+        sheet.autoSizeColumn(2);
 
-        //generate unique file name and save it to default location
-        fileName = Integer.toString(ThreadLocalRandom.current().nextInt());
-        filePath = Paths.get(tempFileDir, fileName);
-        FileOutputStream out = null;
         try {
-            out = new FileOutputStream(filePath.toFile());
-            workbook.write(out);
-        } catch (FileNotFoundException e) {
-            logger.error("FileOutputStream error: {}", e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error writing to file: {}", e.getMessage());
+            workbook.write(outputStream);
+        }  catch (IOException e) {
+            logger.error("Error generating Warehouse Loss Report With Liable Employees: {}", e.getMessage());
         }
-        return filePath.toFile();
     }
 
     @Override
