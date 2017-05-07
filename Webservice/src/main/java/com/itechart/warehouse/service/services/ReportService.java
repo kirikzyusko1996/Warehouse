@@ -12,5 +12,5 @@ public interface ReportService {
     void getReceiptReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws DataAccessException;
     void getWarehousesLossReport(LocalDate startDate, LocalDate endDate, ServletOutputStream out) throws GenericDAOException;
     void getWarehouseLossReportWithLiableEmployees(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws GenericDAOException;
-    File getWarehouseProfitReport(Long idWarehouse, LocalDate startDate, LocalDate endDate);
+    void getWarehouseProfitReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream);
 }

@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 public class PriceList {
     private Long idPriceList;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp endTime;
     private BigDecimal dailyPrice;
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="idStorageSpaceType")
@@ -25,7 +27,7 @@ public class PriceList {
     private String comment;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_price_list", unique = true, nullable = false)
     public Long getIdPriceList() {
         return idPriceList;
@@ -35,7 +37,15 @@ public class PriceList {
         this.idPriceList = idPriceList;
     }
 
-    @Column(name = "setting_time", nullable = false)
+    @Column(name = "setting_time")
+    public Timestamp getStartTime() {
+        return startTime;
+    }
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime;
+    }
+
+    @Column(name = "end_time")
 //    @Temporal(TemporalType.TIMESTAMP)
     public Timestamp getEndTime() {
         return endTime;

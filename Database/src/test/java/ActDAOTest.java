@@ -4,6 +4,7 @@ import com.itechart.warehouse.entity.Act;
 import com.itechart.warehouse.entity.ActType;
 import com.itechart.warehouse.entity.User;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ public class ActDAOTest {
 
     @Test
     @Transactional
+    @Ignore
     public void testAct() throws GenericDAOException{
         Optional<Act> actOptional = dao.findById(1L);
         Act act = actOptional.get();

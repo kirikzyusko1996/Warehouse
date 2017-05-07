@@ -383,8 +383,11 @@ public class ReportServiceXLSXImpl implements ReportService {
     }
 
     @Override
-    public File getWarehouseProfitReport(Long idWarehouse, LocalDate startDate, LocalDate endDate) {
-        logger.info("getWarehousesProfitReport for id {} from {} to {}", idWarehouse, startDate, endDate);
-        return null;
+    public void getWarehouseProfitReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) {
+        logger.info("getWarehousesProfitReport for warehouse id {} from {} to {}",
+                reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
+        Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
+        Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
+                .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
     }
 }

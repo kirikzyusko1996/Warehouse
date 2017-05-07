@@ -5,6 +5,7 @@ import com.itechart.warehouse.dto.PriceListDTO;
 import com.itechart.warehouse.entity.PriceList;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import org.joda.time.LocalDate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,5 +20,5 @@ public interface FinanceService {
 
     List<PriceList> findPricesForStorageSpaceType(Short idStorageSpaceType, int skip, int limit) throws DataAccessException;
 
-    /*List<PriceList> findPricesByDate(PriceListDTO priceDTO, int skip, int limit) throws DataAccessException, IllegalParametersException;*/
+    List<PriceList> findPricesByDate(Short idStorageSpaceType, LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException, IllegalParametersException;
 }

@@ -16,6 +16,7 @@ import com.itechart.warehouse.service.services.FinanceService;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class FinanceServiceImpl implements FinanceService{
     private Logger logger = LoggerFactory.getLogger(FinanceServiceImpl.class);
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    @Transactional
     public void newPrice(PriceListDTO priceDTO) throws GenericDAOException {
         logger.info("new price: {} for idStorageSpaceType: {}", priceDTO.getDailyPrice(), priceDTO.getIdStorageSpaceType());
         DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
@@ -60,11 +61,18 @@ public class FinanceServiceImpl implements FinanceService{
         if(!priceList.isEmpty()){
             //copy old price into new record with endTime set to current time
             price = priceList.get(0);
-            price.setEndTime(endTime);
-            priceListDAO.insert(price);
+            PriceList insertPrice = new PriceList();
+            insertPrice.setComment(price.getComment());
+            insertPrice.setStartTime(price.getStartTime());
+            insertPrice.setDailyPrice(price.getDailyPrice());
+            insertPrice.setWarehouseCompany(price.getWarehouseCompany());
+            insertPrice.setStorageSpaceType(price.getStorageSpaceType());
+            insertPrice.setEndTime(endTime);
+            priceListDAO.insert(insertPrice);
             //update the old price to newPrice
-            price = priceList.get(0);
+            price.setEndTime(null);
             price.setDailyPrice(priceDTO.getDailyPrice());
+            price.setStartTime(new Timestamp((new Date()).getTime()));
             price.setComment(priceDTO.getComment());
             priceListDAO.update(price);
         }
@@ -73,6 +81,7 @@ public class FinanceServiceImpl implements FinanceService{
             Optional<StorageSpaceType> result = storageSpaceTypeDAO.findById(priceDTO.getIdStorageSpaceType());
             price.setDailyPrice(priceDTO.getDailyPrice());
             price.setStorageSpaceType(result.get());
+            price.setStartTime(new Timestamp((new Date()).getTime()));
             price.setEndTime(null);
             price.setWarehouseCompany( UserDetailsProvider.getUserDetails().getCompany());
             price.setComment(price.getComment());
@@ -122,27 +131,28 @@ public class FinanceServiceImpl implements FinanceService{
         }
     }
 
-   /* @Override
-    public List<PriceList> findPricesByDate(PriceListDTO priceDTO, int skip, int limit) throws DataAccessException, IllegalParametersException {
-        logger.info("Find prices: {}, skip: {}, limit: {}", priceDTO, skip, limit);
-        if (priceDTO == null) {
-            throw new IllegalParametersException("priceDTO is null");
-        }
+    @Override
+    public List<PriceList> findPricesByDate(
+            Short idStorageSpaceType, LocalDate startDate, LocalDate endDate, int skip, int limit
+    ) throws DataAccessException{
+        logger.info("Find prices for idStorageSpaceType: {}, skip: {}, limit: {}", idStorageSpaceType, skip, limit);
+
         try {
             DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
-            if (priceDTO.getStartDate() != null && priceDTO.getEndDate() != null) {
-                Timestamp dayStart = new Timestamp(priceDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
-                Timestamp dayFinish = new Timestamp(priceDTO.getEndDate().toDateTimeAtStartOfDay()
+                Timestamp startTimestamp = new Timestamp(startDate.toDateTimeAtStartOfDay().getMillis());
+                Timestamp endTimestamp = new Timestamp(endDate.toDateTimeAtStartOfDay()
                         .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
-                Criterion restriction1 = Restrictions.ge("endTime", dayStart);
-                Criterion restriction2= Restrictions.ge("endTime", dayFinish);
+                Criterion restriction1 = Restrictions.or(Restrictions.ge("endTime", startTimestamp)
+                , Restrictions.isNull("endTime"));
+                Criterion restriction2= Restrictions.le("startTime", endTimestamp);
                 criteria.add(Restrictions.and(restriction1, restriction2))
+                        .createAlias("storageSpaceType", "sst")
+                        .add(Restrictions.eq("sst.idStorageSpaceType", idStorageSpaceType))
                         .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
-            }
             return priceListDAO.findAll(criteria, skip, limit);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
-    }*/
+    }
 }
