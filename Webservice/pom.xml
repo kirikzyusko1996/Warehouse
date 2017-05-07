@@ -118,12 +118,12 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
-        <dependency>
+        <!--<dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>3.0.1</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.glassfish.web/el-impl -->
         <dependency>
             <groupId>org.glassfish.web</groupId>
@@ -166,11 +166,11 @@
             <artifactId>jersey-common</artifactId>
             <version>2.22.2</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>RELEASE</version>
-        </dependency>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
         <dependency>
             <groupId>javax.mail</groupId>

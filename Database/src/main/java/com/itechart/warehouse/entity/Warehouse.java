@@ -1,5 +1,7 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class Warehouse {
     private List<StorageSpace> storageSpaceList;
     private List<Invoice> invoices;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     public List<Invoice> getInvoices() {
         return invoices;
@@ -20,6 +23,7 @@ public class Warehouse {
         this.invoices = invoices;
     }
 
+    @JsonIgnore
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public List<StorageSpace> getStorageSpaceList() {
         return storageSpaceList;

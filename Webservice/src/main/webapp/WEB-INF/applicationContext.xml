@@ -19,6 +19,14 @@
             </list>
         </property>
     </bean>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="${spring.datasource.url}"/>
+        <property name="username" value="${spring.datasource.username}"/>
+        <property name="password" value="${spring.datasource.password}"/>
+    </bean>
+
     <import resource="dataSource-dev.xml"/>
     <import resource="dataSource-production.xml"/>
     <import resource="security-context.xml"/>
