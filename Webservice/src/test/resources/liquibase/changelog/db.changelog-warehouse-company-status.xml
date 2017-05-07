@@ -5,38 +5,52 @@
     <changeSet author="zyusko" id="warehouse-company">
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="1"/>
-            <column name="status" valueBoolean="1"/>
-            <column name="start_date" value="2016-09-12"/>
-            <column name="due_date" value="2016-09-15"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2017-01-01"/>
+            <column name="due_date" value="2017-02-01"/>
             <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="2"/>
-            <column name="status" valueBoolean="1"/>
-            <column name="start_date" value="2016-10-12"/>
-            <column name="due_date" value="2016-11-15"/>
-            <column name="id_warehouse_company" value="8"/>
+            <column name="status" valueBoolean="false"/>
+            <column name="start_date" value="2017-02-02"/>
+            <column name="due_date" value="2017-02-15"/>
+            <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="3"/>
-            <column name="status" valueBoolean="0"/>
-            <column name="start_date" value="2017-09-12"/>
-            <column name="due_date" value="2017-09-25"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2017-02-16"/>
+            <column name="due_date" value="2017-04-12"/>
             <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="4"/>
-            <column name="status" valueBoolean="1"/>
-            <column name="start_date" value="2010-09-12"/>
-            <column name="due_date" value="2016-09-20"/>
-            <column name="id_warehouse_company" value="1"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2016-12-12"/>
+            <column name="due_date" value="2017-01-20"/>
+            <column name="id_warehouse_company" value="8"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="5"/>
-            <column name="status" valueBoolean="0"/>
-            <column name="start_date" value="2013-09-12"/>
-            <column name="due_date" value="2016-10-15"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2017-03-03"/>
+            <column name="due_date" value="2017-10-15"/>
             <column name="id_warehouse_company" value="8"/>
+        </insert>
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="6"/>
+            <column name="status" valueBoolean="false"/>
+            <column name="start_date" value="2017-01-21"/>
+            <column name="due_date" value="2017-03-02"/>
+            <column name="id_warehouse_company" value="3"/>
+        </insert>
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="7"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2017-01-20"/>
+            <column name="due_date" value="2017-03-01"/>
+            <column name="id_warehouse_company" value="1"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

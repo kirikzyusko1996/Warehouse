@@ -3,6 +3,7 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.ActType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class ActTypeDAOTest {
 
     @Test
     @Transactional
+    @Ignore
     public void testActTypes() throws SQLException, GenericDAOException{
         actType = dao.insert(actType);
         Optional<ActType> optional = dao.findById(actType.getId());
