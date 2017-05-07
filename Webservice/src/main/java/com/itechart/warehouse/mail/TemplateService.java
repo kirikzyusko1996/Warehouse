@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
@@ -26,15 +27,27 @@ public class TemplateService {
         this.templateEngine = templateEngine;
     }
 
-    public String getMessageFromTemplate(Template template, User sender, User receiver, String imageName) {
-        if (template == null || sender == null || receiver == null) throw new IllegalArgumentException();
-        return getBirthdayEmailText(template, sender, receiver, imageName);
+    public String getMessageFromTemplate(Template template, User receiver, String imageName) {
+        Assert.notNull(template, "Template is null");
+        Assert.notNull(template.getType(), "Template type is null");
+        switch (template.getType()) {
+            case BIRTHDAY:
+                return getBirthdayEmailText(template, receiver, imageName);
+            case EMAIL_SENDING_FAILED:
+                return getEmailFailedNotificationText((EmailFailedNotificationTemplate) template);
+            default:
+                return null;
+        }
+
+
     }
 
 
-    private String getBirthdayEmailText(Template template, User sender, User receiver, String imageName) {
-        if (sender == null || receiver == null) throw new IllegalArgumentException("Sender or receiver is null");
-        logger.info("Forming birthday email html from sender: {} to receiver: {}, using template: {}", sender, receiver, template);
+    private String getBirthdayEmailText(Template template, User receiver, String imageName) {
+        logger.info("Forming birthday email html to send to {}, from template: {}", receiver, template);
+        Assert.notNull(template, "Template is null");
+        Assert.notNull(receiver, "Receiver is null");
+        Assert.notNull(template.getType(), "Template type is null");
         final Context ctx = new Context();
 
         StringBuilder reference = new StringBuilder();
@@ -46,9 +59,9 @@ public class TemplateService {
         }
         Date dateOfBirth = receiver.getDateOfBirth();
         if (dateOfBirth != null) {
-            LocalDate birthdate = new LocalDate(receiver.getDateOfBirth());
+            LocalDate birthLocalDate = new LocalDate(receiver.getDateOfBirth());
             LocalDate now = new LocalDate();
-            Years age = Years.yearsBetween(birthdate, now);
+            Years age = Years.yearsBetween(birthLocalDate, now);
             ctx.setVariable("age", age.getYears());
         }
 
@@ -57,14 +70,22 @@ public class TemplateService {
             ctx.setVariable("image", imageName);
 
         String companyName = null;
-        WarehouseCompany company = sender.getWarehouseCompany();
+        WarehouseCompany company = receiver.getWarehouseCompany();
         if (company != null) {
             companyName = company.getName();
         }
         ctx.setVariable("company", companyName);
-        return templateEngine.process("templates/birthdayTemplate", ctx);
+        return templateEngine.process(template.getType().getPath(), ctx);
+    }
 
+    private String getEmailFailedNotificationText(EmailFailedNotificationTemplate template) {
+        logger.info("Forming notification email html using template: {}",  template);
+        Assert.notNull(template, "Template is null");
+        Assert.notNull(template.getType(), "Template type is null");
+        final Context ctx = new Context();
 
+        ctx.setVariable("message", template.getResult().getMessage());
+        return templateEngine.process(template.getType().getPath(), ctx);
     }
 
 }

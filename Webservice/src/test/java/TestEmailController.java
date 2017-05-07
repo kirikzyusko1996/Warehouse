@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.warehouse.entity.InvoiceStatus;
 import com.itechart.warehouse.mail.Template;
+import com.itechart.warehouse.mail.TemplateEnum;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,6 +55,7 @@ public class TestEmailController {
         byte[] data = Files.readAllBytes(fileLocation);
         MockMultipartFile multipartFile = new MockMultipartFile("image.jpg", "images.jpg","image/jpeg", data);
         Template template = new Template();
+        template.setType(TemplateEnum.BIRTHDAY);
         ArrayList<Long> userIdList = new ArrayList<>();
         userIdList.add(Long.valueOf(9));
         userIdList.add(Long.valueOf(10));

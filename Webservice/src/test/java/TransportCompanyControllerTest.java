@@ -79,7 +79,7 @@ public class TransportCompanyControllerTest {
     }
 
     // todo only warehouse owner can remove companies
-    // throws exception as has references on it
+    // throws result as has references on it
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void deleteCompany() throws Exception {

@@ -2,7 +2,7 @@ package com.itechart.warehouse.dao.exception;
 
 public class GenericDAOException extends Exception {
     public GenericDAOException(Exception e) {
-        super("The exception occurred in DAO", e, false, false);
+        super("The result occurred in DAO", e, false, false);
     }
 
     public GenericDAOException(String message, Exception e) {

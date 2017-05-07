@@ -3,6 +3,7 @@ package com.itechart.warehouse.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 import java.io.Serializable;
 
@@ -24,6 +25,7 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
 
     @Override
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+        Assert.notNull(targetType, "Type of resource is null");
         switch (targetType) {
             case "Goods":
                 return evaluateGoodsPermission(authentication, targetId, permission);
@@ -43,7 +45,8 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
                 return evaluateClientCompanyPermission(authentication, targetId, permission);
             // TODO: 05.05.2017 add more
 
-            default:throw new IllegalArgumentException("No such target");
+            default:
+                throw new IllegalArgumentException("No such target");
         }
     }
 
@@ -61,12 +64,15 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
         WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
         return resolver.resolvePermissionToAccessUser(userDetails, (Long) targetId);
     }
+
     private boolean evaluateWarehousePermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
     }
+
     private boolean evaluateWarehouseCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
     }
+
     private boolean evaluateInvoicePermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
     }
@@ -74,6 +80,7 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
     private boolean evaluateTransportCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
     }
+
     private boolean evaluateClientCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {
         return true;
     }

@@ -1,4 +1,4 @@
-package com.itechart.warehouse.error;
+package com.itechart.warehouse.controller.error;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,7 +6,7 @@ import lombok.ToString;
 
 /**
  * Class representing object returned by controller
- * when exception occur during request handling.
+ * when result occur during request handling.
  */
 @Setter
 @Getter

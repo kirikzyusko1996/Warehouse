@@ -19,10 +19,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -150,6 +150,19 @@ public class UserServiceImpl implements UserService {
             return userDAO.findUsersByWarehouseId(warehouseId, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for users: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> findUserByBirthday(DateTime date) throws IllegalParametersException, DataAccessException {
+        logger.info("Find users with birthday: {}", date);
+        if (date == null) throw new IllegalParametersException("Date is null");
+        try {
+            return userDAO.findUsersByBirthDay(date);
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }

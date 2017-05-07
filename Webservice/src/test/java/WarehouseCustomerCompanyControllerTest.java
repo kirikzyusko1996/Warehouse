@@ -77,7 +77,7 @@ public class WarehouseCustomerCompanyControllerTest {
     }
 
     // todo only warehouse owner can remove customers
-    // throws exception as has references on it
+    // throws result as has references on it
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void deleteCustomer() throws Exception {

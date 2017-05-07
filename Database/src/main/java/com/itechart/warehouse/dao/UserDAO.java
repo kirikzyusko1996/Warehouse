@@ -3,6 +3,7 @@ package com.itechart.warehouse.dao;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.User;
 import org.hibernate.query.Query;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class UserDAO extends DAO<User> {
         query.setMaxResults(maxResults);
         return query.list();
     }
-    
+
     public List<User> findUsersByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find {} users starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
         String queryHql = "SELECT DISTINCT user" +
@@ -39,6 +40,18 @@ public class UserDAO extends DAO<User> {
         query.setParameter("warehouseId", warehouseId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
+        return query.list();
+    }
+
+
+    public List<User> findUsersByBirthDay(DateTime date) throws GenericDAOException {
+        logger.info("Find users by birthday: {}", date);
+        String queryHql = "SELECT user" +
+                " FROM User user" +
+                " WHERE MONTH(user.dateOfBirth) = :month AND DAY(user.dateOfBirth) = :day";
+        Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("month", date.getMonthOfYear());
+        query.setParameter("day", date.getDayOfMonth());
         return query.list();
     }
 

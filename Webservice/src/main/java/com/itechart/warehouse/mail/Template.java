@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @ToString
 public class Template {
+    private TemplateEnum type;
     private List<Long> receiverIds;
     private String subject;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

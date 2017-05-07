@@ -47,7 +47,6 @@ public class PermissionResolverService {
     public boolean resolvePermissionToAccessGoods(WarehouseCompanyUserDetails userDetails, Long goodsId) {
         logger.info("Evaluating access permission to goods with id {} for user {}", goodsId, userDetails);
         if (userDetails == null || goodsId == null) return false;
-
         try {
             if (userDetails.getUser().getWarehouseCompany() != null) {
                 WarehouseCompany company = goodsService.findWarehouseCompanyOwner(goodsId);

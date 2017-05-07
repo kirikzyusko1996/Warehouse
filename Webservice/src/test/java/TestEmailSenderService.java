@@ -1,6 +1,7 @@
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.mail.EmailSenderService;
 import com.itechart.warehouse.mail.Template;
+import com.itechart.warehouse.mail.TemplateEnum;
 import com.itechart.warehouse.service.services.UserService;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -47,12 +48,13 @@ public class TestEmailSenderService {
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testEmailSend() throws Exception {
 
-        Path fileLocation = Paths.get("C:\\TMP\\images.jpg");
+        Path fileLocation = Paths.get("C:\\TMP\\look.com.ua-62005.jpg");
         byte[] data = Files.readAllBytes(fileLocation);
 
-        MockMultipartFile multipartFile = new MockMultipartFile("image.jpg", "images.jpg","image/jpeg", data);
+        MockMultipartFile multipartFile = new MockMultipartFile("image.jpg", "look.com.ua-62005.jpg","IMAGE/GIF", data);
 
         Template template = new Template();
+        template.setType(TemplateEnum.BIRTHDAY);
         ArrayList<Long> userIdList = new ArrayList<>();
         userIdList.add(Long.valueOf(9));
         userIdList.add(Long.valueOf(10));

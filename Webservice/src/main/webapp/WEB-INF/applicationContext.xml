@@ -2,13 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
     <bean id="propertyPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
@@ -55,7 +58,8 @@
     </bean>
     <!--Validation-->
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"></bean>
-    <bean id="methodValidationPostProcessor" class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor">
+    <bean id="methodValidationPostProcessor"
+          class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor">
         <property name="validator" ref="validator"/>
     </bean>
     <!--emails-->
@@ -80,15 +84,24 @@
         <property name="templateMode" value="HTML"/>
         <property name="suffix" value=".html"/>
     </bean>
-
     <bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
         <property name="templateResolver" ref="htmlTemplateResolver"/>
     </bean>
+    <!--scheduling-->
+    <bean name="retryJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.itechart.warehouse.scheduler.RetrySendingJob"/>
+        <property name="durability" value="true"/>
+    </bean>
+    <bean name="retryScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobDetails" ref="retryJob"/>
+        <property name="waitForJobsToCompleteOnShutdown" value="true"/>
+    </bean>
 
 
+    <task:annotation-driven/>
     <tx:annotation-driven transaction-manager="transactionManager"/>
-    <context:component-scan   base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl, com.itechart.warehouse.mail"/>
-
+    <context:component-scan
+            base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl, com.itechart.warehouse.mail, com.itechart.warehouse.scheduler"/>
 
 
 </beans>

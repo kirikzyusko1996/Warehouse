@@ -63,7 +63,7 @@ public class InvoiceControllerTest {
     }
 
     // todo only warehouse owner can remove invoices
-    // throws exception as has references on it
+    // throws result as has references on it
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void deleteInvoice() throws Exception {

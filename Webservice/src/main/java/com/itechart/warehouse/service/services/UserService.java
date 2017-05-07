@@ -1,6 +1,7 @@
 package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.constants.UserRoleEnum;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.UserDTO;
 import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
@@ -9,6 +10,7 @@ import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -30,6 +32,8 @@ public interface UserService {
     WarehouseCompany findWarehouseCompanyOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<User> findUsersForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    List<User> findUserByBirthday(DateTime date) throws IllegalParametersException, DataAccessException;
 
     User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

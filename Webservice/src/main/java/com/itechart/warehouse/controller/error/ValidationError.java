@@ -1,4 +1,4 @@
-package com.itechart.warehouse.error;
+package com.itechart.warehouse.controller.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

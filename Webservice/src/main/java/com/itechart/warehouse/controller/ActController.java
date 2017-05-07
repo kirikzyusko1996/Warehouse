@@ -7,7 +7,7 @@ import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.entity.Act;
 import com.itechart.warehouse.entity.WarehouseCompany;
-import com.itechart.warehouse.error.*;
+import com.itechart.warehouse.controller.error.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
