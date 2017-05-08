@@ -48,8 +48,6 @@ public class WarehouseCustomerCompanyController {
     public ResponseEntity<?> saveCustomer(@Valid @RequestBody WarehouseCustomerCompany customer){
         logger.info("POST on /customer: save new customer");
 
-        // todo security check
-
         try{
             customerService.saveWarehouseCustomerCompany(customer);
         } catch (DataAccessException e){

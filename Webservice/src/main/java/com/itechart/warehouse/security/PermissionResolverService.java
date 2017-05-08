@@ -138,6 +138,28 @@ public class PermissionResolverService {
         }
     }
 
+    public boolean resolvePermissionToAccessWarehouseCustomerCompany(WarehouseCompanyUserDetails userDetails, Long customerId){
+        logger.info("Evaluating access permission to customer with id {} for user {}", customerId, userDetails);
+        if (userDetails == null || customerId == null) {
+            return false;
+        }
 
+        // todo evaluate
+//        try {
+//
+//            return false;
+//        } catch (DataAccessException e) {
+//            logger.error("Exception during evaluation: {}", e.getMessage());
+//            return false;
+//        } catch (IllegalParametersException e) {
+//            logger.error("Exception during evaluation: {}", e.getMessage());
+//            return false;
+//        } catch (ResourceNotFoundException e) {
+//            logger.error("Exception during evaluation: {}", e.getMessage());
+//            return false;
+//        }
+
+        return true;
+    }
 
 }

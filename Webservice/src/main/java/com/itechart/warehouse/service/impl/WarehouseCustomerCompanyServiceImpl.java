@@ -16,6 +16,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,14 +38,6 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Transactional(readOnly = true)
     public List<WarehouseCustomerCompany> findAllWarehouseCustomerCompanies(int page, int count) throws DataAccessException {
         logger.info("Find all customer companies");
-
-        if (page < 0){
-            page = 0;
-        }
-
-        if (count < 0){
-            count = -1;
-        }
 
         DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCustomerCompany.class);
         List<WarehouseCustomerCompany> companies;
@@ -104,6 +97,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional
+    //todo @PreAuthorize("hasPermission('WarehouseCustomerCompany', 'WRITE')")
     public WarehouseCustomerCompany saveWarehouseCustomerCompany(WarehouseCustomerCompany company) throws DataAccessException {
         logger.info("Save customer company: {}", company);
 
@@ -120,6 +114,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'UPDATE')")
     public WarehouseCustomerCompany updateWarehouseCustomerCompany(String id, WarehouseCustomerCompany company)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Update customer company: {}", company);
@@ -148,6 +143,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'DELETE')")
     public void deleteWarehouseCustomerCompany(String id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Delete customer company by: id {}", id);
