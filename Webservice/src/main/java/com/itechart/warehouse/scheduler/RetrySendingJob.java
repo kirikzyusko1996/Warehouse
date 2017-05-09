@@ -70,7 +70,7 @@ public class RetrySendingJob extends QuartzJobBean {
                 String emailAddress = "ai@tut.by";
                 if (emailAddress != null) {
                     try {
-                        // TODO: 07.05.2017
+                        // TODO: 07.05.2017 admin email
                         emailSenderService.sendEmail(emailAddress, template);
                     } catch (MailException e) {
                         logger.error("Exception during sending email: {}", e.getMessage());
