@@ -27,6 +27,8 @@ public interface UserService {
 
     List<User> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
+    long getUsersCount(Long companyId) throws DataAccessException, IllegalParametersException;
+
     Warehouse findWarehouseOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     WarehouseCompany findWarehouseCompanyOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

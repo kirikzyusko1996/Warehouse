@@ -30,6 +30,18 @@ public class UserDAO extends DAO<User> {
         return query.list();
     }
 
+
+    public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException {
+        logger.info("Get users count for warehouse company with id: {}", warehouseCompanyId);
+        String queryHql = "SELECT count(user)" +
+                " FROM User user" +
+                " INNER JOIN WarehouseCompany company ON company = user.warehouseCompany" +
+                " WHERE company.idWarehouseCompany = :warehouseCompanyId";
+        Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseCompanyId", warehouseCompanyId);
+        return query.getSingleResult();
+    }
+
     public List<User> findUsersByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find {} users starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
         String queryHql = "SELECT DISTINCT user" +

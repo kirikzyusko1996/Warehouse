@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'Goods', 'GET')")
     public User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user by id: {}", id);
         if (id == null)
@@ -117,6 +118,19 @@ public class UserServiceImpl implements UserService {
         if (companyId == null) throw new IllegalParametersException("Company id is null");
         try {
             return userDAO.findUsersByWarehouseCompanyId(companyId, firstResult, maxResults);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for users: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUsersCount(Long companyId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get users count for company with id: {}", companyId);
+        if (companyId == null) throw new IllegalParametersException("Company id is null");
+        try {
+            return userDAO.getUsersCount(companyId);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

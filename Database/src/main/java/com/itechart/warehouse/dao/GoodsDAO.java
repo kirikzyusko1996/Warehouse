@@ -62,6 +62,8 @@ public class GoodsDAO extends DAO<Goods> {
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             queryHQL.setParameter(entry.getKey(), entry.getValue());
         }
+        queryHQL.setFirstResult(firstResult);
+        queryHQL.setMaxResults(maxResults);
         return queryHQL.list();
     }
 

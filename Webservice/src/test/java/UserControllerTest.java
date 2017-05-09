@@ -74,8 +74,18 @@ public class UserControllerTest {
 
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
-    public void testUserGet() throws Exception {
+    public void testUsersGet() throws Exception {
         mockMvc.perform(get("/user?page=1&count=10")
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$").isNotEmpty());
+    }
+
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void testUserGet() throws Exception {
+        mockMvc.perform(get("/user/2")
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))

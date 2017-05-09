@@ -19,6 +19,7 @@ import com.itechart.warehouse.service.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -52,16 +55,34 @@ public class UserController {
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<User>> getUsers(@RequestParam(defaultValue = "-1") int page,
-                                               @RequestParam(defaultValue = "0") int count) throws RequestHandlingException, DataAccessException, IllegalParametersException {
+                                               @RequestParam(defaultValue = "0") int count,
+                                               HttpServletRequest request,
+                                               HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<User> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
             users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+            long userCount = userService.getUsersCount(company.getIdWarehouseCompany());
+            response.addHeader("X-total-count", String.valueOf(userCount));
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<User> getUser(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
+        logger.info("Handling request for user with id: {}", id);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        WarehouseCompany company = userDetails.getCompany();
+        User user = null;
+        if (company != null) {
+            user = userService.findUserById(id);
+        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
