@@ -17,40 +17,35 @@ public class OutgoingInvoiceDTO {
     private Long id;
     private String number;
     private Date issueDate;
-
-    @Setter(AccessLevel.NONE)
     private String receiverCompany;
-
-    @Setter(AccessLevel.NONE)
     private String transportCompany;
-
     private String transportNumber;
     private String transportName;
     private Driver driver;
     private String description;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
-
-    @Setter(AccessLevel.NONE)
     private String goodsQuantityUnit;
-
-    @Setter(AccessLevel.NONE)
     private String goodsEntryCountUnit;
-
-    @Setter(AccessLevel.NONE)
     private String manager;
-
     private Timestamp registrationDate;
     private List<GoodsDTO> goods;
-
-    private String status;
 
     public void setReceiverCompany(WarehouseCustomerCompany receiverCompany) {
         this.receiverCompany = receiverCompany.getName();
     }
 
+    public void setReceiverCompany(String receiverCompany) {
+        this.receiverCompany = receiverCompany;
+    }
+
+
     public void setTransportCompany(TransportCompany transportCompany) {
         this.transportCompany = transportCompany.getName();
+    }
+
+    public void setTransportCompany(String transportCompany) {
+        this.transportCompany = transportCompany;
     }
 
     public void setManager(User manager) {
@@ -65,12 +60,24 @@ public class OutgoingInvoiceDTO {
         this.manager = dispatcherName.toString();
     }
 
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
     public void setGoodsQuantityUnit(Unit goodsQuantityUnit){
         this.goodsQuantityUnit = goodsQuantityUnit.getName();
     }
 
+    public void setGoodsQuantityUnit(String goodsQuantityUnit){
+        this.goodsQuantityUnit = goodsQuantityUnit;
+    }
+
     public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit){
         this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
+    }
+
+    public void setGoodsEntryCountUnit(String goodsEntryCountUnit){
+        this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 }
 

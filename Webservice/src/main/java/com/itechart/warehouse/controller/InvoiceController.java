@@ -133,7 +133,7 @@ public class InvoiceController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    // no need to update invoice, just update it's status
+    // todo update invoice's status, user and registration date
 
     //status is sent via param
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)

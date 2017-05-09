@@ -597,6 +597,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceStatus.setInvoice(invoice);
         invoiceStatus.setDate(registrationDate);
 
+
+        // todo specify status for created outgoing invoice
         InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 

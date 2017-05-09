@@ -159,7 +159,7 @@ public class Invoice {
         this.receiverCompany = receiverCompany;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_driver")
     public Driver getDriver() {
         return driver;

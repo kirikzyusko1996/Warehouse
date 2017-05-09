@@ -5,6 +5,7 @@ import com.itechart.warehouse.dao.InvoiceDAO;
 import com.itechart.warehouse.dao.InvoiceStatusDAO;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
+import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -71,8 +72,6 @@ public class InvoiceControllerTest {
 
     @Test
     public void readIncomingInvoices() throws Exception {
-        // todo throws jsonwriteble exception
-
         mockMvc.perform(get("/invoice/incoming")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -82,8 +81,6 @@ public class InvoiceControllerTest {
 
     @Test
     public void readOutgoingInvoices() throws Exception {
-        // todo throws jsonwriteble exception
-
         mockMvc.perform(get("/invoice/outgoing")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -98,6 +95,19 @@ public class InvoiceControllerTest {
         String invoiceJson = new ObjectMapper().writeValueAsString(invoice);
 
         mockMvc.perform(post("/invoice/incoming")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invoiceJson))
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
+    public void saveOutgoingInvoice() throws Exception {
+        OutgoingInvoiceDTO invoice = createOutgoingInvoice();
+        String invoiceJson = new ObjectMapper().writeValueAsString(invoice);
+
+        mockMvc.perform(post("/invoice/outgoing")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invoiceJson))
                 .andDo(print())
@@ -154,6 +164,28 @@ public class InvoiceControllerTest {
         invoice.setGoodsEntryCountUnit(createUnit("л"));
         invoice.setRegistrationDate(new Timestamp(today().getTime()));
         invoice.setDispatcher(userService.findUserByLogin("kirikzyusko1996"));
+        invoice.setGoods(createGoods());
+
+        return invoice;
+    }
+
+    private OutgoingInvoiceDTO createOutgoingInvoice()
+            throws DataAccessException, IllegalParametersException {
+        OutgoingInvoiceDTO invoice = new OutgoingInvoiceDTO();
+        invoice.setNumber("99");
+        invoice.setIssueDate(today());
+        invoice.setReceiverCompany(customerService.findWarehouseCustomerCompanyByName("Левоправо"));
+        invoice.setTransportCompany(transportService.findTransportCompanyByName("Карты"));
+        invoice.setTransportNumber("1000");
+        invoice.setTransportName("Volvo");
+        invoice.setDriver(createDriver());
+        invoice.setDescription("dnsivvdv");
+        invoice.setGoodsQuantity(new BigDecimal("12.5"));
+        invoice.setGoodsEntryCount(4000);
+        invoice.setGoodsQuantityUnit(createUnit("м"));
+        invoice.setGoodsEntryCountUnit(createUnit("л"));
+        invoice.setRegistrationDate(new Timestamp(today().getTime()));
+        invoice.setManager(userService.findUserByLogin("kirikzyusko1996"));
         invoice.setGoods(createGoods());
 
         return invoice;
