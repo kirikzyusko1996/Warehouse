@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.itechart.warehouse.util.Host.origins;
+
 /**
  * Created by Lenovo on 01.05.2017.
  */
+@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/company")
 @Validated

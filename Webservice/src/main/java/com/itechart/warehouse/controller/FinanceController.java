@@ -23,6 +23,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import static com.itechart.warehouse.util.Host.origins;
+
+@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/finance")
 @Validated

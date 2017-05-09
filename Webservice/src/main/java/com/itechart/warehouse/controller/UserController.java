@@ -31,10 +31,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.itechart.warehouse.util.Host.origins;
+
 /**
  * REST controller for handling requests to user service.
  */
-
+@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/user")
 @Validated

@@ -11,12 +11,18 @@
        http://www.springframework.org/schema/context/spring-context.xsd">
     <mvc:annotation-driven/>
     <context:component-scan base-package="com.itechart.warehouse.controller"/>
-    <mvc:cors>
+    <!--<mvc:cors>
         <mvc:mapping path="/web/**"
                      allowed-origins="http://domain1.com, http://domain2.com"
                      allowed-methods="GET, PUT"
                      allowed-headers="header1, header2, header3"
                      exposed-headers="header1, header2" allow-credentials="false"
                      max-age="123"/>
+    </mvc:cors>-->
+    <mvc:cors>
+        <mvc:mapping path="/web/**"
+                     allowed-origins="http://localhost:4200"
+                     allowed-methods="GET, PUT, POST, DELETE"
+        />
     </mvc:cors>
 </beans>

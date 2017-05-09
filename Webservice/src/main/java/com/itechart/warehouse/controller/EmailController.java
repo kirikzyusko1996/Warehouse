@@ -19,10 +19,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import static com.itechart.warehouse.util.Host.origins;
+
 /**
  * REST controller for handling requests to send email.
  */
-
+@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/email")
 public class EmailController {
