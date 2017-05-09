@@ -71,6 +71,8 @@ public class InvoiceControllerTest {
 
     @Test
     public void readIncomingInvoices() throws Exception {
+        // todo throws jsonwriteble exception
+
         mockMvc.perform(get("/invoice/incoming")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -80,6 +82,8 @@ public class InvoiceControllerTest {
 
     @Test
     public void readOutgoingInvoices() throws Exception {
+        // todo throws jsonwriteble exception
+
         mockMvc.perform(get("/invoice/outgoing")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -92,8 +96,6 @@ public class InvoiceControllerTest {
     public void saveIncomingInvoice() throws Exception {
         IncomingInvoiceDTO invoice = createIncomingInvoice();
         String invoiceJson = new ObjectMapper().writeValueAsString(invoice);
-        System.out.println(invoiceJson);
-
 
         mockMvc.perform(post("/invoice/incoming")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,6 +103,7 @@ public class InvoiceControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
+
 
     @Test
     @Transactional
@@ -110,10 +113,6 @@ public class InvoiceControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-
-        InvoiceStatus status = invoiceStatusDAO.findById(1L).get();
-
-        Assert.assertEquals(status.getStatusName().getName(), "CHECKED");
     }
 
     // todo only warehouse owner can remove invoices
@@ -156,12 +155,11 @@ public class InvoiceControllerTest {
         invoice.setRegistrationDate(new Timestamp(today().getTime()));
         invoice.setDispatcher(userService.findUserByLogin("kirikzyusko1996"));
         invoice.setGoods(createGoods());
-        invoice.setStatus("REGISTERED");
 
         return invoice;
     }
 
-    private Driver createDriver() {
+    private Driver createDriver() throws DataAccessException {
         Driver driver = new Driver();
         driver.setId(2L);
 

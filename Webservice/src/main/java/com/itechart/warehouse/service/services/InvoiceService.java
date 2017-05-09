@@ -5,6 +5,7 @@ import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
 import com.itechart.warehouse.entity.InvoiceStatus;
+import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
@@ -42,4 +43,6 @@ public interface InvoiceService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean invoiceExists(Invoice invoice) throws DataAccessException;
+
+    Warehouse findWarehouseByInvoiceId(Long invoiceId) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
 }

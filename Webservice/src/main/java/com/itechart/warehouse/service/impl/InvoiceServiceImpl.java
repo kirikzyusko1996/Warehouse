@@ -252,7 +252,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToIncomingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(invoice, dto, currentUser);
+            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(invoice, dto.getRegistrationDate(), currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
             List<GoodsDTO> goodsList = dto.getGoods();
@@ -279,7 +279,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToOutgoingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(invoice, dto, currentUser);
+            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(invoice, dto.getRegistrationDate(), currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
             List<Long> goodsListIds = parseIdFromGoods(dto.getGoods());
@@ -392,6 +392,24 @@ public class InvoiceServiceImpl implements InvoiceService {
             logger.error("Error while determine if invoice exists", e);
             throw new DataAccessException(e);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Warehouse findWarehouseByInvoiceId(Long invoiceId)
+            throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
+        logger.info("Find warehouse company of invoice with id {}", invoiceId);
+
+        if (invoiceId == null) {
+            throw new IllegalParametersException("Invoice id is null");
+        }
+
+        Invoice invoice = findInvoiceById(invoiceId);
+        if (invoice == null){
+            throw new ResourceNotFoundException("Invoice with such id was not found");
+        }
+
+        return invoice.getWarehouse();
     }
 
     private List<Invoice> retrieveAllInvoices() throws GenericDAOException {
@@ -548,7 +566,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         WarehouseCustomerCompany receiverCompany = customerService.findWarehouseCustomerCompanyByName(dto.getReceiverCompany());
         invoice.setSupplierCompany(receiverCompany);
-        TransportCompany transportCompany = transportService.findTransportCompanyByName(dto.getTransportName());
+        TransportCompany transportCompany = transportService.findTransportCompanyByName(dto.getTransportCompany());
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
@@ -562,25 +580,24 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private InvoiceStatus createStatusForIncomingInvoice(Invoice invoice, IncomingInvoiceDTO dto, User user)
+    private InvoiceStatus createStatusForIncomingInvoice(Invoice invoice, Timestamp registrationDate, User user)
             throws GenericDAOException {
-        return fillStatusWithInfo(invoice, dto.getRegistrationDate(), dto.getStatus(), user);
+        return fillStatusWithInfo(invoice, registrationDate, user);
     }
 
-    private InvoiceStatus createStatusForOutgoingInvoice(Invoice invoice, OutgoingInvoiceDTO dto, User user)
+    private InvoiceStatus createStatusForOutgoingInvoice(Invoice invoice, Timestamp registrationDate, User user)
             throws GenericDAOException {
-        return fillStatusWithInfo(invoice, dto.getRegistrationDate(), dto.getStatus(), user);
+        return fillStatusWithInfo(invoice, registrationDate, user);
     }
 
-    private InvoiceStatus fillStatusWithInfo(Invoice invoice, Timestamp registrationDate, String status, User user)
+    private InvoiceStatus fillStatusWithInfo(Invoice invoice, Timestamp registrationDate, User user)
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = new InvoiceStatus();
         invoiceStatus.setId(invoice.getId());
         invoiceStatus.setInvoice(invoice);
         invoiceStatus.setDate(registrationDate);
 
-        // todo status is set automatically
-        InvoiceStatusName invoiceStatusName = retrieveStatusByName(status);
+        InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 
         invoiceStatus.setUser(user);
@@ -599,8 +616,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     private Invoice fillInvoiceWithDriverInfo(Invoice invoice, Driver driver) throws GenericDAOException {
-        // todo set transport company for driver
-
         Driver driverForInvoice;
         String driverId = String.valueOf(driver.getId());
         if (NumberUtils.isNumber(driverId)) {
@@ -609,9 +624,11 @@ public class InvoiceServiceImpl implements InvoiceService {
             if (optional.isPresent()) {
                 driverForInvoice = optional.get();
             } else {
+                driver.setTransportCompany(invoice.getTransportCompany());
                 driverForInvoice = driverDAO.insert(driver);
             }
         } else {
+            driver.setTransportCompany(invoice.getTransportCompany());
             driverForInvoice = driverDAO.insert(driver);
         }
 

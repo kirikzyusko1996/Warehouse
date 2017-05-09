@@ -76,11 +76,13 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
     }
 
     private boolean evaluateInvoicePermission(Authentication authentication, Serializable targetId, Object permission) {
-        return true;
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessInvoice(userDetails, (Long) targetId);
     }
 
     private boolean evaluateTransportCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {
-        return true;
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessTransportCompany(userDetails, (Long) targetId);
     }
 
     private boolean evaluateClientCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {

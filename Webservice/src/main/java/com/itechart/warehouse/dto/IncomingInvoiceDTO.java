@@ -18,33 +18,19 @@ public class IncomingInvoiceDTO {
     private Long id;
     private String number;
     private Date issueDate;
-
-//    @Setter(AccessLevel.NONE)
     private String supplierCompany;
-
-    @Setter(AccessLevel.NONE)
     private String transportCompany;
-
     private String transportNumber;
     private String transportName;
     private Driver driver;
     private String description;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
-
-    @Setter(AccessLevel.NONE)
     private String goodsQuantityUnit;
-
-    @Setter(AccessLevel.NONE)
     private String goodsEntryCountUnit;
-
-    @Setter(AccessLevel.NONE)
     private String dispatcher;
-
     private Timestamp registrationDate;
     private List<GoodsDTO> goods;
-
-    private String status;
 
     public void setSupplierCompany(WarehouseCustomerCompany supplierCompany) {
         this.supplierCompany = supplierCompany.getName();
