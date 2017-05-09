@@ -11,6 +11,7 @@ import java.util.Set;
 public class StorageSpaceType {
     private Short idStorageSpaceType;
     private String name;
+    @JsonIgnore
     private Set<StorageSpace> storageSpaces;
     private List<PriceList> priceList;
 

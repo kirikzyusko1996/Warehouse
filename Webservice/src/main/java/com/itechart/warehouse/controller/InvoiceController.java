@@ -44,12 +44,13 @@ public class InvoiceController {
     public void setGoodsService(GoodsService service){this.goodsService = service; }
 
     @RequestMapping(value = "/incoming", method = RequestMethod.GET)
-    public ResponseEntity<List<IncomingInvoiceDTO>> readIncomingInvoices(){
+    public ResponseEntity<List<IncomingInvoiceDTO>> readIncomingInvoices(@RequestParam(defaultValue = "0") int page,
+                                                                         @RequestParam(defaultValue = "-1") int count){
         logger.info("GET on /invoice/incoming: find all registered incoming invoices");
 
         List<IncomingInvoiceDTO> companies;
         try{
-            companies = invoiceService.findAllIncomingInvoices();
+            companies = invoiceService.findAllIncomingInvoices(page, count);
         } catch (DataAccessException e){
             logger.error("Error while retrieving all registered incoming invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -65,12 +66,13 @@ public class InvoiceController {
     }
 
     @RequestMapping(value = "/outgoing", method = RequestMethod.GET)
-    public ResponseEntity<List<OutgoingInvoiceDTO>> readOutgoingInvoices(){
+    public ResponseEntity<List<OutgoingInvoiceDTO>> readOutgoingInvoices(@RequestParam(defaultValue = "0") int page,
+                                                                         @RequestParam(defaultValue = "-1") int count){
         logger.info("GET on /invoice/outgoing: find all registered outgoing invoices");
 
         List<OutgoingInvoiceDTO> companies;
         try{
-            companies = invoiceService.findAllOutgoingInvoices();
+            companies = invoiceService.findAllOutgoingInvoices(page, count);
         } catch (DataAccessException e){
             logger.error("Error while retrieving all registered outgoing invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -136,7 +138,7 @@ public class InvoiceController {
     //status is sent via param
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status){
-        logger.info("PUT on /invoice/{}/status: update invoice status", id);
+        logger.info("PUT on /invoice/{}?status={}: update invoice status", id);
 
         // todo security check
 

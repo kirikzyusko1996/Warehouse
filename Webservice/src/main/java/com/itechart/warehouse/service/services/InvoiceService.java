@@ -15,10 +15,10 @@ import java.util.List;
 public interface InvoiceService {
     List<Invoice> findAllInvoices() throws DataAccessException;
 
-    List<IncomingInvoiceDTO> findAllIncomingInvoices()
+    List<IncomingInvoiceDTO> findAllIncomingInvoices(int page, int count)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<OutgoingInvoiceDTO> findAllOutgoingInvoices()
+    List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     Invoice findInvoiceById(Long id) throws DataAccessException;

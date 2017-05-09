@@ -19,7 +19,7 @@ public class IncomingInvoiceDTO {
     private String number;
     private Date issueDate;
 
-    @Setter(AccessLevel.NONE)
+//    @Setter(AccessLevel.NONE)
     private String supplierCompany;
 
     @Setter(AccessLevel.NONE)
@@ -27,11 +27,15 @@ public class IncomingInvoiceDTO {
 
     private String transportNumber;
     private String transportName;
-    private DriverDTO driver;
+    private Driver driver;
     private String description;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
+
+    @Setter(AccessLevel.NONE)
     private String goodsQuantityUnit;
+
+    @Setter(AccessLevel.NONE)
     private String goodsEntryCountUnit;
 
     @Setter(AccessLevel.NONE)
@@ -46,8 +50,16 @@ public class IncomingInvoiceDTO {
         this.supplierCompany = supplierCompany.getName();
     }
 
+    public void setSupplierCompany(String supplierCompany) {
+        this.supplierCompany = supplierCompany;
+    }
+
     public void setTransportCompany(TransportCompany transportCompany) {
         this.transportCompany = transportCompany.getName();
+    }
+
+    public void setTransportCompany(String  transportCompany) {
+        this.transportCompany = transportCompany;
     }
 
     public void setDispatcher(User dispatcher) {
@@ -60,5 +72,25 @@ public class IncomingInvoiceDTO {
         }
 
         this.dispatcher = dispatcherName.toString();
+    }
+
+    public void setDispatcher(String dispatcher) {
+        this.dispatcher = dispatcher;
+    }
+
+    public void setGoodsQuantityUnit(Unit goodsQuantityUnit){
+        this.goodsQuantityUnit = goodsQuantityUnit.getName();
+    }
+
+    public void setGoodsQuantityUnit(String goodsQuantityUnit){
+        this.goodsQuantityUnit = goodsQuantityUnit;
+    }
+
+    public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit){
+        this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
+    }
+
+    public void setGoodsEntryCountUnit(String goodsEntryCountUnit){
+        this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 }

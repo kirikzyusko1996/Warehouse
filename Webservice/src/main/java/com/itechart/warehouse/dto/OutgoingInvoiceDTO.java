@@ -1,8 +1,6 @@
 package com.itechart.warehouse.dto;
 
-import com.itechart.warehouse.entity.TransportCompany;
-import com.itechart.warehouse.entity.User;
-import com.itechart.warehouse.entity.WarehouseCustomerCompany;
+import com.itechart.warehouse.entity.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,11 +26,15 @@ public class OutgoingInvoiceDTO {
 
     private String transportNumber;
     private String transportName;
-    private DriverDTO driver;
+    private Driver driver;
     private String description;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
+
+    @Setter(AccessLevel.NONE)
     private String goodsQuantityUnit;
+
+    @Setter(AccessLevel.NONE)
     private String goodsEntryCountUnit;
 
     @Setter(AccessLevel.NONE)
@@ -62,4 +64,14 @@ public class OutgoingInvoiceDTO {
 
         this.manager = dispatcherName.toString();
     }
+
+    public void setGoodsQuantityUnit(Unit goodsQuantityUnit){
+        this.goodsQuantityUnit = goodsQuantityUnit.getName();
+    }
+
+    public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit){
+        this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
+    }
 }
+
+

@@ -1,5 +1,7 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.sql.Date;
 
@@ -11,6 +13,7 @@ public class Driver {
     private String countryCode;
     private String issuedBy;
     private Date issueDate;
+    @JsonIgnore
     private TransportCompany transportCompany;
 
     @Id
