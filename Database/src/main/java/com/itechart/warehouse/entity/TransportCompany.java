@@ -1,5 +1,7 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,6 +10,12 @@ public class TransportCompany {
     private Long id;
     private String name;
     private Boolean isTrusted;
+    @JsonIgnore
+    private String login;
+    @JsonIgnore
+    private String password;
+    @JsonIgnore
+    private WarehouseCompany warehouseCompany;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +44,34 @@ public class TransportCompany {
 
     public void setTrusted(Boolean trusted) {
         isTrusted = trusted;
+    }
+
+    @Column(name = "login", unique = true, length = 50)
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    @Column(name = "password", length = 50)
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_warehouse_company")
+    public WarehouseCompany getWarehouseCompany() {
+        return warehouseCompany;
+    }
+
+    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
+        this.warehouseCompany = warehouseCompany;
     }
 
     @Override

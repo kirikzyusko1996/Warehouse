@@ -1,6 +1,11 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.dto.WarehouseCustomerCompanyDTO;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
+import com.itechart.warehouse.security.UserDetailsProvider;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetailsService;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -27,19 +32,19 @@ public class WarehouseCustomerCompanyController {
     private WarehouseCustomerCompanyService customerService;
 
     @Autowired
-    public void setCustomerService(WarehouseCustomerCompanyService service){
+    public void setCustomerService(WarehouseCustomerCompanyService service) {
         this.customerService = service;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCustomerCompany>> readCustomers(@RequestParam(defaultValue = "0") int page,
-                                                                        @RequestParam(defaultValue = "-1") int count){
+                                                                        @RequestParam(defaultValue = "-1") int count) {
         logger.info("GET on /customer: find all customers");
 
         List<WarehouseCustomerCompany> customers;
-        try{
+        try {
             customers = customerService.findAllWarehouseCustomerCompanies(page, count);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while retrieving all customers", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
@@ -48,12 +53,20 @@ public class WarehouseCustomerCompanyController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<?> saveCustomer(@Valid @RequestBody WarehouseCustomerCompany customer){
+    public ResponseEntity<?> saveCustomer(@Valid @RequestBody WarehouseCustomerCompanyDTO customer) {
         logger.info("POST on /customer: save new customer");
 
-        try{
-            customerService.saveWarehouseCustomerCompany(customer);
-        } catch (DataAccessException e){
+        try {
+            WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+            if (userDetails != null) {
+                WarehouseCompany company = userDetails.getCompany();
+                customerService.saveWarehouseCustomerCompany(customer, company);
+            } else {
+                logger.error("Failed to retrieve authenticated user while saving new customer");
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+        } catch (DataAccessException e) {
             logger.error("Error while saving new customer", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
@@ -62,20 +75,20 @@ public class WarehouseCustomerCompanyController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateCustomer(@PathVariable String id, @Valid @RequestBody WarehouseCustomerCompany customer){
+    public ResponseEntity<?> updateCustomer(@PathVariable String id, @Valid @RequestBody WarehouseCustomerCompanyDTO customer) {
         logger.info("PUT on /customer/{}: update customer", id);
 
         // todo security check
 
-        try{
+        try {
             customerService.updateWarehouseCustomerCompany(id, customer);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while updating customer", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
+        } catch (IllegalParametersException e) {
             logger.error("Invalid params specified while updating customer", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             logger.error("Customer with specified id not found while updating customer", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -84,20 +97,20 @@ public class WarehouseCustomerCompanyController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteCustomer(@PathVariable String id){
+    public ResponseEntity<?> deleteCustomer(@PathVariable String id) {
         logger.info("DELETE on /customer/{}: delete customer", id);
 
         // todo security check
 
-        try{
+        try {
             customerService.deleteWarehouseCustomerCompany(id);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while deleting customer", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
+        } catch (IllegalParametersException e) {
             logger.error("Invalid params specified while deleting customer", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             logger.error("Customer with specified id not found while deleting customer", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

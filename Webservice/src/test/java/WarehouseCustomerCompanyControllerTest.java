@@ -1,6 +1,10 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itechart.warehouse.dto.WarehouseCustomerCompanyDTO;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
+import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.services.WarehouseCompanyService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +32,9 @@ public class WarehouseCustomerCompanyControllerTest {
 
     @Autowired
     private WebApplicationContext context;
+
+    @Autowired
+    private WarehouseCompanyService warehouseCompanyService;
 
     @Before
     public void setup() {
@@ -76,7 +83,6 @@ public class WarehouseCustomerCompanyControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // todo only warehouse owner can remove customers
     // throws result as has references on it
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
@@ -96,9 +102,10 @@ public class WarehouseCustomerCompanyControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    private String buildCustomerInJson(String name) throws JsonProcessingException{
-        WarehouseCustomerCompany customer = new WarehouseCustomerCompany();
+    private String buildCustomerInJson(String name) throws DataAccessException, JsonProcessingException{
+        WarehouseCustomerCompanyDTO customer = new WarehouseCustomerCompanyDTO();
         customer.setName(name);
+        customer.setWarehouseCompanyId(5L);
 
         return new ObjectMapper().writeValueAsString(customer);
     }

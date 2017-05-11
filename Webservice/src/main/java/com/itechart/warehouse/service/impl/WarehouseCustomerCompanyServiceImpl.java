@@ -3,10 +3,13 @@ package com.itechart.warehouse.service.impl;
 
 import com.itechart.warehouse.dao.WarehouseCustomerCompanyDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.dto.WarehouseCustomerCompanyDTO;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
+import com.itechart.warehouse.service.services.WarehouseCompanyService;
 import com.itechart.warehouse.service.services.WarehouseCustomerCompanyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,11 +30,15 @@ import java.util.Optional;
 public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCompanyService {
     private final static Logger logger = LoggerFactory.getLogger(WarehouseCustomerCompanyServiceImpl.class);
     private WarehouseCustomerCompanyDAO customerDAO;
+    private WarehouseCompanyService companyService;
 
     @Autowired
-    public void setDao(WarehouseCustomerCompanyDAO dao) {
+    public void setCustomerDAO(WarehouseCustomerCompanyDAO dao) {
         this.customerDAO = dao;
     }
+
+    @Autowired
+    public void setCompanyService(WarehouseCompanyService service){this.companyService = service;}
 
 
     @Override
@@ -98,14 +105,17 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Override
     @Transactional
     //todo @PreAuthorize("hasPermission('WarehouseCustomerCompany', 'WRITE')")
-    public WarehouseCustomerCompany saveWarehouseCustomerCompany(WarehouseCustomerCompany company) throws DataAccessException {
-        logger.info("Save customer company: {}", company);
+    public WarehouseCustomerCompany saveWarehouseCustomerCompany(WarehouseCustomerCompanyDTO dto, WarehouseCompany company) throws DataAccessException {
+        logger.info("Save customer dto: {}", dto);
 
         WarehouseCustomerCompany savedCompany;
         try {
-            savedCompany = customerDAO.insert(company);
+            WarehouseCustomerCompany customer = mapToEntity(dto);
+            customer.setWarehouseCompany(company);
+
+            savedCompany = customerDAO.insert(customer);
         } catch (GenericDAOException e) {
-            logger.error("Error while saving customer company: ", e);
+            logger.error("Error while saving customer dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -115,9 +125,9 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'UPDATE')")
-    public WarehouseCustomerCompany updateWarehouseCustomerCompany(String id, WarehouseCustomerCompany company)
+    public WarehouseCustomerCompany updateWarehouseCustomerCompany(String id, WarehouseCustomerCompanyDTO dto)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Update customer company: {}", company);
+        logger.info("Update customer dto: {}", dto);
 
         if (!NumberUtils.isNumber(id)) {
             throw new IllegalParametersException("Invalid id param");
@@ -127,14 +137,19 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         try {
             Long customerId = Long.valueOf(id);
             if (customerDAO.isExistsEntity(customerId)) {
-                company.setId(customerId);
+                dto.setId(customerId);
+
+                WarehouseCustomerCompany company = mapToEntity(dto);
+                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(dto.getWarehouseCompanyId());
+                company.setWarehouseCompany(companyOfCustomer);
+
                 updatedCompany = customerDAO.update(company);
             } else {
                 logger.error("Customer with id {} not found", customerId);
                 throw new ResourceNotFoundException("Customer not found");
             }
         } catch (GenericDAOException e) {
-            logger.error("Error while updating customer company: ", e);
+            logger.error("Error while updating customer dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -146,7 +161,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'DELETE')")
     public void deleteWarehouseCustomerCompany(String id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Delete customer company by: id {}", id);
+        logger.info("Delete customer dto by: id {}", id);
 
         if (!NumberUtils.isNumber(id)) {
             throw new IllegalParametersException("Invalid id param");
@@ -163,7 +178,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
                 throw new ResourceNotFoundException("Customer not found");
             }
         } catch (GenericDAOException e) {
-            logger.error("Error while deleting customer company: ", e);
+            logger.error("Error while deleting customer dto: ", e);
             throw new DataAccessException(e);
         }
     }
@@ -171,13 +186,29 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Override
     @Transactional(readOnly = true)
     public boolean warehouseCustomerCompanyExists(WarehouseCustomerCompany company) throws DataAccessException {
-        logger.error("Determine if customer company {} exists", company.getId());
+        logger.error("Determine if customer dto {} exists", company.getId());
 
         try {
             return customerDAO.isExistsEntity(company.getId());
         } catch (GenericDAOException e) {
-            logger.error("Error while determine if customer company exists", e);
+            logger.error("Error while determine if customer dto exists", e);
             throw new DataAccessException(e);
         }
+    }
+
+    private WarehouseCustomerCompanyDTO mapToDto(WarehouseCustomerCompany company) {
+        WarehouseCustomerCompanyDTO dto = new WarehouseCustomerCompanyDTO();
+        dto.setId(company.getId());
+        dto.setName(company.getName());
+        dto.setWarehouseCompanyId(company.getWarehouseCompany().getIdWarehouseCompany());
+        return dto;
+    }
+
+    private WarehouseCustomerCompany mapToEntity(WarehouseCustomerCompanyDTO dto) {
+        WarehouseCustomerCompany company = new WarehouseCustomerCompany();
+        company.setId(dto.getId());
+        company.setName(dto.getName());
+
+        return company;
     }
 }

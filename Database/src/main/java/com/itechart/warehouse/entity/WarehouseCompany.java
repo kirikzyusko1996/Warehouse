@@ -15,6 +15,8 @@ public class WarehouseCompany {
     private List<PriceList> priceList;
     private List<User> users;
     private List<WarehouseCompanyStatus> statuses;
+    private List<TransportCompany> transportCompanies;
+    private List<WarehouseCustomerCompany> customerCompanies;
 
     @JsonIgnore
     @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -54,6 +56,25 @@ public class WarehouseCompany {
 
     public void setStatuses(List<WarehouseCompanyStatus> statuses) {
         this.statuses = statuses;
+    }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<TransportCompany> getTransportCompanies() {
+        return transportCompanies;
+    }
+
+    public void setTransportCompanies(List<TransportCompany> transportCompanies) {
+        this.transportCompanies = transportCompanies;
+    }
+    @JsonIgnore
+    @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<WarehouseCustomerCompany> getCustomerCompanies() {
+        return customerCompanies;
+    }
+
+    public void setCustomerCompanies(List<WarehouseCustomerCompany> customerCompanies) {
+        this.customerCompanies = customerCompanies;
     }
 
     @Id

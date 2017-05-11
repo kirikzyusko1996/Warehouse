@@ -1,5 +1,7 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,6 +9,8 @@ import javax.persistence.*;
 public class WarehouseCustomerCompany{
     private Long id;
     private String name;
+    @JsonIgnore
+    private WarehouseCompany warehouseCompany;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +30,16 @@ public class WarehouseCustomerCompany{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_warehouse_company")
+    public WarehouseCompany getWarehouseCompany() {
+        return warehouseCompany;
+    }
+
+    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
+        this.warehouseCompany = warehouseCompany;
     }
 
     @Override

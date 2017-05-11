@@ -262,6 +262,11 @@
             <column name="is_trusted" type="BIT(1)">
                 <constraints nullable="false"/>
             </column>
+            <column name="login" type="VARCHAR(20)"/>
+            <column name="password" type="VARCHAR(20)"/>
+            <column name="id_warehouse_company" type="BIGINT UNSIGNED">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="16">
@@ -349,6 +354,9 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
         </createTable>
