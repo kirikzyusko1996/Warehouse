@@ -1,7 +1,9 @@
 package com.itechart.warehouse.service.services;
 
 
+import com.itechart.warehouse.dto.TransportCompanyDTO;
 import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -16,9 +18,9 @@ public interface TransportCompanyService {
 
     TransportCompany findTransportCompanyByName(String name) throws DataAccessException;
 
-    TransportCompany saveTransportCompany(TransportCompany company) throws DataAccessException;
+    TransportCompany saveTransportCompany(TransportCompanyDTO dto, WarehouseCompany company) throws DataAccessException;
 
-    TransportCompany updateTransportCompany(String id, TransportCompany company)
+    TransportCompany updateTransportCompany(String id, TransportCompanyDTO dto)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteTransportCompany(String id)

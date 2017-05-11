@@ -196,14 +196,6 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         }
     }
 
-    private WarehouseCustomerCompanyDTO mapToDto(WarehouseCustomerCompany company) {
-        WarehouseCustomerCompanyDTO dto = new WarehouseCustomerCompanyDTO();
-        dto.setId(company.getId());
-        dto.setName(company.getName());
-        dto.setWarehouseCompanyId(company.getWarehouseCompany().getIdWarehouseCompany());
-        return dto;
-    }
-
     private WarehouseCustomerCompany mapToEntity(WarehouseCustomerCompanyDTO dto) {
         WarehouseCustomerCompany company = new WarehouseCustomerCompany();
         company.setId(dto.getId());

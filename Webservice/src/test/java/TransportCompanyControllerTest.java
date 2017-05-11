@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itechart.warehouse.dto.TransportCompanyDTO;
 import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import org.junit.Before;
@@ -78,7 +79,6 @@ public class TransportCompanyControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // todo only warehouse owner can remove companies
     // throws result as has references on it
     @Test
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
@@ -90,9 +90,12 @@ public class TransportCompanyControllerTest {
     }
 
     private String buildCompanyInJson(String name, boolean isTrusted) throws JsonProcessingException {
-        TransportCompany company = new TransportCompany();
+        TransportCompanyDTO company = new TransportCompanyDTO();
         company.setName(name);
-        company.setTrusted(isTrusted);
+        company.setIsTrusted(isTrusted);
+        company.setLogin("login");
+        company.setPassword("p@@ssword");
+        company.setWarehouseCompanyId(2L);
 
         return new ObjectMapper().writeValueAsString(company);
     }

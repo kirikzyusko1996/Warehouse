@@ -78,8 +78,6 @@ public class WarehouseCustomerCompanyController {
     public ResponseEntity<?> updateCustomer(@PathVariable String id, @Valid @RequestBody WarehouseCustomerCompanyDTO customer) {
         logger.info("PUT on /customer/{}: update customer", id);
 
-        // todo security check
-
         try {
             customerService.updateWarehouseCustomerCompany(id, customer);
         } catch (DataAccessException e) {
@@ -99,8 +97,6 @@ public class WarehouseCustomerCompanyController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteCustomer(@PathVariable String id) {
         logger.info("DELETE on /customer/{}: delete customer", id);
-
-        // todo security check
 
         try {
             customerService.deleteWarehouseCustomerCompany(id);

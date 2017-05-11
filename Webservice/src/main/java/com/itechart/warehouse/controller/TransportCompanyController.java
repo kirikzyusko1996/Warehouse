@@ -1,6 +1,10 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.dto.TransportCompanyDTO;
 import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.security.UserDetailsProvider;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -69,13 +73,15 @@ public class TransportCompanyController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<?> saveCompany(@Valid @RequestBody TransportCompany transportCompany){
+    public ResponseEntity<?> saveCompany(@Valid @RequestBody TransportCompanyDTO transportCompany){
         logger.info("POST on /tr-company: save new transport company");
 
-        // todo security check
-
         try{
-            transportService.saveTransportCompany(transportCompany);
+            WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+            if (userDetails != null) {
+                WarehouseCompany company = userDetails.getCompany();
+                transportService.saveTransportCompany(transportCompany, company);
+            }
         } catch (DataAccessException e){
             logger.error("Error while saving new transport company", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -85,10 +91,8 @@ public class TransportCompanyController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateCompany(@PathVariable String id, @Valid @RequestBody TransportCompany company){
+    public ResponseEntity<?> updateCompany(@PathVariable String id, @Valid @RequestBody TransportCompanyDTO company){
         logger.info("PUT on /tr-company/{}: update transport company", id);
-
-        // todo security check
 
         try{
             transportService.updateTransportCompany(id, company);
@@ -109,8 +113,6 @@ public class TransportCompanyController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteCompany(@PathVariable String id){
         logger.info("DELETE on /tr-company/{}: delete transport company", id);
-
-        // todo security check
 
         try{
             transportService.deleteTransportCompany(id);
