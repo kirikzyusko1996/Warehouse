@@ -9,12 +9,13 @@
        http://www.springframework.org/schema/mvc/spring-mvc.xsd
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd">
-    <mvc:annotation-driven/>
     <context:component-scan base-package="com.itechart.warehouse.controller"/>
+    <mvc:annotation-driven/>
+
     <mvc:cors>
-        <mvc:mapping path="/web/**"
+        <mvc:mapping path="/**"
                      allowed-origins="http://localhost:4200"
-                     allowed-methods="GET, PUT, POST, DELETE"
+                     allowed-methods="GET, PUT, POST, DELETE, OPTIONS"
                      max-age="3600"/>
     </mvc:cors>
 </beans>

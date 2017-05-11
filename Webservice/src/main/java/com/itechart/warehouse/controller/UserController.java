@@ -39,7 +39,7 @@ import static com.itechart.warehouse.util.Host.origins;
 /**
  * REST controller for handling requests to user service.
  */
-@CrossOrigin(origins = origins, maxAge = 3600)
+//@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/user")
 @Validated
@@ -51,6 +51,9 @@ public class UserController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
+
+
 
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

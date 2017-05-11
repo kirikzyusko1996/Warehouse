@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +42,15 @@ public class UserServiceImpl implements UserService {
     private RoleDAO roleDAO;
     private WarehouseCompanyDAO warehouseCompanyDAO;
     private WarehouseDAO warehouseDAO;
+    //todo uncomment
+//    private BCryptPasswordEncoder encoder;
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+//    @Autowired
+//    public void setEncoder(BCryptPasswordEncoder encoder) {
+//        this.encoder = encoder;
+//    }
 
     @Autowired
     public void setWarehouseDAO(WarehouseDAO warehouseDAO) {
@@ -200,6 +208,10 @@ public class UserServiceImpl implements UserService {
             }
             if (userDTO.getWarehouseId() != null)
                 user.setWarehouse(findWarehouseById(userDTO.getWarehouseId()));
+            //todo uncomment
+//            if (StringUtils.isNotBlank(user.getPassword())) {
+//                user.setPassword(encoder.encode(user.getPassword()));
+//            }
             WarehouseCompany warehouseCompany = findWarehouseCompanyById(companyId);
             user.setWarehouseCompany(warehouseCompany);
             List<String> roleNames = userDTO.getRoles();
@@ -256,6 +268,11 @@ public class UserServiceImpl implements UserService {
                 user.setLastName(warehouse.getWarehouseCompany().getName());
                 user.setLogin(RandomStringUtils.randomAlphanumeric(5));
                 user.setPassword(RandomStringUtils.randomAlphanumeric(5));
+                //todo uncomment
+//                if (StringUtils.isNotBlank(user.getPassword())) {
+//                    user.setPassword(encoder.encode(RandomStringUtils.randomAlphanumeric(5)));
+//                }
+
                 Role role = findRoleByName(UserRoleEnum.ROLE_ADMIN.toString());
                 List<Role> roles = new ArrayList<>();
                 if (role != null)
@@ -307,6 +324,11 @@ public class UserServiceImpl implements UserService {
                 else throw new IllegalParametersException("Filed login can not be empty");
                 if (StringUtils.isNotBlank(userDTO.getPassword()))
                     user.setPassword(userDTO.getPassword());
+                    //todo uncomment
+//                if (StringUtils.isNotBlank(userDTO.getPassword())) {
+//                    user.setPassword(encoder.encode(userDTO.getPassword()));
+//                }
+
                 else throw new IllegalParametersException("Field password can not be empty");
                 List<String> roleNames = userDTO.getRoles();
                 if (roleNames != null)
