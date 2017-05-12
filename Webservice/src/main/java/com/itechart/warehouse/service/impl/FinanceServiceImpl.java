@@ -132,7 +132,7 @@ public class FinanceServiceImpl implements FinanceService{
     }
 
     @Override
-    public List<PriceList> findPricesByDate(
+    public List<PriceList> findPricesByDateForStorageSpaceType(
             Short idStorageSpaceType, LocalDate startDate, LocalDate endDate, int skip, int limit
     ) throws DataAccessException{
         logger.info("Find prices for idStorageSpaceType: {}, skip: {}, limit: {}", idStorageSpaceType, skip, limit);
@@ -149,6 +149,26 @@ public class FinanceServiceImpl implements FinanceService{
                         .createAlias("storageSpaceType", "sst")
                         .add(Restrictions.eq("sst.idStorageSpaceType", idStorageSpaceType))
                         .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
+            return priceListDAO.findAll(criteria, skip, limit);
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for goodsList: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    public List<PriceList> findPricesByDate(LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException{
+        logger.info("Find prices from {} to {}, skip: {}, limit: {}", startDate, endDate,  skip, limit);
+        try {
+            DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
+            Timestamp startTimestamp = new Timestamp(startDate.toDateTimeAtStartOfDay().getMillis());
+            Timestamp endTimestamp = new Timestamp(endDate.toDateTimeAtStartOfDay()
+                    .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
+            Criterion restriction1 = Restrictions.or(Restrictions.ge("endTime", startTimestamp)
+                    , Restrictions.isNull("endTime"));
+            Criterion restriction2= Restrictions.le("startTime", endTimestamp);
+            criteria.add(Restrictions.and(restriction1, restriction2))
+                    .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
             return priceListDAO.findAll(criteria, skip, limit);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsList: {}", e.getMessage());

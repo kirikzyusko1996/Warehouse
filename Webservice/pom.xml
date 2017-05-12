@@ -190,15 +190,15 @@
             <artifactId>thymeleaf-spring4</artifactId>
             <version>3.0.5.RELEASE</version>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>2.2.1</version>
         </dependency>
+   </dependencies>
 
-
-    </dependencies>
 
     <build>
         <plugins>

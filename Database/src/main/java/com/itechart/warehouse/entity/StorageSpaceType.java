@@ -13,6 +13,7 @@ public class StorageSpaceType {
     private String name;
     @JsonIgnore
     private Set<StorageSpace> storageSpaces;
+    @JsonIgnore
     private List<PriceList> priceList;
 
     @Id

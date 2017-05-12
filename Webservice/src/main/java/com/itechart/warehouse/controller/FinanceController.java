@@ -64,25 +64,43 @@ public class FinanceController {
         return new ResponseEntity<>(priceList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/date_price", method = RequestMethod.GET)
-    public ResponseEntity<List<PriceList>> getPricesByDate(
+    @RequestMapping(value = "/type_date_price", method = RequestMethod.GET)
+    public ResponseEntity<List<PriceList>> getPricesByDateForStorageSpaceType(
             @NotEmpty @RequestParam("dateStart") String startDate, @NotEmpty @RequestParam("dateEnd") String endDate,
             @NotEmpty @RequestParam("storageSpaceTypeId") Short idStorageSpaceType){
         logger.info("getPricesByDate for storageSpaceTypeId: {} from {} to {}", idStorageSpaceType, startDate, endDate);
         List<PriceList> priceList;
         try{
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            priceList = financeService.findPricesByDate(idStorageSpaceType,
+            priceList = financeService.findPricesByDateForStorageSpaceType(idStorageSpaceType,
                      new LocalDate(format.parse(startDate).getTime()),
                     new LocalDate(format.parse(endDate).getTime()), 0, 0);
         } catch (DataAccessException e){
             logger.error("Error while retrieving prices: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e) {
-            logger.error("Illegal parameters: {}", e.getMessage());
+        } catch (ParseException e) {
+            logger.error("Can't parse String to LocalDate: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(priceList, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/date_price", method = RequestMethod.GET)
+    public ResponseEntity<List<PriceList>> getPricesByDateForStorageSpaceType(
+            @NotEmpty @RequestParam("dateStart") String startDate, @NotEmpty @RequestParam("dateEnd") String endDate){
+        logger.info("getPricesByDate from {} to {}", startDate, endDate);
+        List<PriceList> priceList;
+        try{
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            priceList = financeService.findPricesByDate(
+                    new LocalDate(format.parse(startDate).getTime()),
+                    new LocalDate(format.parse(endDate).getTime()), 0, 0);
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving prices: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            logger.error("Can't parse String to LocalDate: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(priceList, HttpStatus.OK);
     }

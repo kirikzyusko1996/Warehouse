@@ -2,11 +2,16 @@ package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.WarehouseReportDTO;
+import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.services.ReportService;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.glassfish.jersey.internal.*;//do not delete
@@ -14,6 +19,9 @@ import org.glassfish.jersey.internal.*;//do not delete
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 import static com.itechart.warehouse.util.Host.origins;
 
@@ -72,6 +80,28 @@ public class ReportController {
                     response.getOutputStream());
         }  catch (GenericDAOException e) {
             logger.error("Warehouse loss report with liable employees generation failed: {}", e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/profit", method = RequestMethod.GET,
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public void getWarehouseProfitReport(@NotEmpty @RequestParam("dateStart") String startDate,
+                                         @NotEmpty @RequestParam("dateEnd") String endDate,
+                                         @NotEmpty @RequestParam("idWarehouse") Long idWarehouse,
+                                         HttpServletResponse response) throws IOException {
+        logger.info("creating warehouses profit report for warehouse id {} from {} to {}", idWarehouse, startDate, endDate);
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=WarehouseLossReport.xlsx");
+            WarehouseReportDTO reportDTO = new WarehouseReportDTO();
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            reportDTO.setIdWarehouse(idWarehouse);
+            reportDTO.setStartDate(new LocalDate(format.parse(startDate).getTime()));
+            reportDTO.setEndDate(new LocalDate(format.parse(endDate).getTime()));
+            reportService.getWarehouseProfitReport(reportDTO, response.getOutputStream());
+        } catch (ParseException e) {
+            logger.error("Can't parse String to LocalDate: {}", e.getMessage());
         }
     }
 }
