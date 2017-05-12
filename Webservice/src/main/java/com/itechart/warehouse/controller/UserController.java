@@ -51,10 +51,6 @@ public class UserController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-
-
-
-
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<User>> getUsers(@RequestParam(defaultValue = "-1") int page,
@@ -69,6 +65,7 @@ public class UserController {
             users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
             long userCount = userService.getUsersCount(company.getIdWarehouseCompany());
             response.addHeader("X-total-count", String.valueOf(userCount));
+            response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(users, HttpStatus.OK);
     }

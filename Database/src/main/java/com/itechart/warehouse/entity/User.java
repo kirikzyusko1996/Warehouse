@@ -30,7 +30,7 @@ public class User {
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
-    @JsonIgnore
+//    @JsonIgnore
     private Warehouse warehouse;
     private List<Role> roles;
     @JsonIgnore

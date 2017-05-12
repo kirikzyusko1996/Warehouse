@@ -87,7 +87,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'Goods', 'GET')")
+    //todo secured version
+//    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'User', 'GET')")
     public User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user by id: {}", id);
         if (id == null)
