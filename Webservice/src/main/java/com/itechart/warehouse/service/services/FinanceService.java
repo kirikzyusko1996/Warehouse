@@ -20,5 +20,6 @@ public interface FinanceService {
 
     List<PriceList> findPricesForStorageSpaceType(Short idStorageSpaceType, int skip, int limit) throws DataAccessException;
 
-    List<PriceList> findPricesByDate(Short idStorageSpaceType, LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException, IllegalParametersException;
+    List<PriceList> findPricesByDateForStorageSpaceType(Short idStorageSpaceType, LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException;
+    List<PriceList> findPricesByDate(LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException;
 }

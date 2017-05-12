@@ -116,7 +116,6 @@
             <column name="id_goods" value="11"/>
             <column name="note" value=""/>
         </insert>
-
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="17"/>
             <column name="id_goods_status_name" value="3"/>
@@ -164,6 +163,20 @@
             <column name="id_goods_status_name" value="3"/>
             <column name="id_user" value="10"/>
             <column name="id_goods" value="18"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="24"/>
+            <column name="id_goods_status_name" value="12"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="18"/>
+            <column name="note" value=""/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="goods_status">
+            <column name="id_goods_status" value="25"/>
+            <column name="id_goods_status_name" value="12"/>
+            <column name="id_user" value="10"/>
+            <column name="id_goods" value="16"/>
             <column name="note" value=""/>
         </insert>
     </changeSet>

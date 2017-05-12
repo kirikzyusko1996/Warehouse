@@ -20,10 +20,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +44,7 @@ public class ReportServiceXLSXImpl implements ReportService {
     private GoodsStatusNameDAO goodsStatusNameDAO;
     private ActTypeDAO actTypeDAO;
     private ActDAO actDAO;
+    private GoodsDAO goodsDAO;
     private WarehouseDAO warehouseDAO;
 
     @Autowired
@@ -64,6 +70,11 @@ public class ReportServiceXLSXImpl implements ReportService {
     @Autowired
     public void setWarehouseDAO(WarehouseDAO warehouseDAO) {
         this.warehouseDAO = warehouseDAO;
+    }
+
+    @Autowired
+    public void setGoodsDAO(GoodsDAO goodsDAO) {
+        this.goodsDAO = goodsDAO;
     }
 
     public ReportServiceXLSXImpl(){
@@ -178,6 +189,13 @@ public class ReportServiceXLSXImpl implements ReportService {
             throw new DataAccessException(e.getCause());
         }  catch (IOException e) {
             logger.error("Error writing workbook: {}", e.getMessage());
+        }finally {
+            try {
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                logger.error("Error closing ServletOutputStream: {}", e.getMessage());
+            }
         }
     }
 
@@ -379,15 +397,179 @@ public class ReportServiceXLSXImpl implements ReportService {
             workbook.write(outputStream);
         }  catch (IOException e) {
             logger.error("Error generating Warehouse Loss Report With Liable Employees: {}", e.getMessage());
+        }finally {
+            try {
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                logger.error("Error closing ServletOutputStream: {}", e.getMessage());
+            }
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void getWarehouseProfitReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) {
         logger.info("getWarehousesProfitReport for warehouse id {} from {} to {}",
                 reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
+        List<Goods> goodsList = null;
         Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
         Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
+
+        try{
+            DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+            criteria.add(Restrictions.eq("name", GoodsStatusEnum.MOVED_OUT.toString()));
+            GoodsStatusName movedOutStatusName = goodsStatusNameDAO.findAll(criteria, 0, 1).get(0);
+
+            criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+            criteria.add(Restrictions.eq("name", GoodsStatusEnum.STORED.toString()));
+            GoodsStatusName storedStatusName = goodsStatusNameDAO.findAll(criteria, 0, 1).get(0);
+
+            criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+            criteria.add(Restrictions.in("name", GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY.toString(),
+                    GoodsStatusEnum.RECYCLED.toString(), GoodsStatusEnum.STOLEN.toString()));
+            List<GoodsStatusName> statusNamesCancellingFees = goodsStatusNameDAO.findAll(criteria, 0, 0);
+
+            String selectProfitGoodsQuery = "SELECT goods FROM Goods AS goods " +
+                    " INNER JOIN GoodsStatus AS goodsStatus ON goodsStatus.goods = goods " +
+                    " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
+                    " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
+                    " WHERE warehouse.idWarehouse = :idWarehouse AND (goodsStatus.goodsStatusName = :storedStatusName " +
+                    " AND goodsStatus.date < :endTimestamp) AND goods NOT IN (SELECT DISTINCT gs1.goods from GoodsStatus AS gs1 " +
+                    " WHERE (gs1.goodsStatusName = :movedOutStatusName " +
+                    " AND gs1.date < :startTimestamp)) AND goods NOT IN " +
+                    "(SELECT DISTINCT gs.goods from GoodsStatus AS gs where gs.goodsStatusName in (:statusNamesCancellingFees)) " +
+                    " GROUP BY goods.id";
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("idWarehouse", reportDTO.getIdWarehouse());
+            parameters.put("storedStatusName", storedStatusName);
+            parameters.put("movedOutStatusName", movedOutStatusName);
+            parameters.put("startTimestamp", startTimestamp);
+            parameters.put("endTimestamp" , endTimestamp);
+            parameters.put("statusNamesCancellingFees", statusNamesCancellingFees);
+            goodsList = goodsDAO.findByQuery(selectProfitGoodsQuery, parameters, -1, -1);
+            BigDecimal totalRevenue = new BigDecimal("0");
+            BigDecimal totalExpenses = new BigDecimal("0");
+            BigDecimal profit = new BigDecimal("0");
+            List<PriceList> priceList;
+            PriceList price = null;
+            GoodsStatus storedGoodsStatus = null;
+            GoodsStatus movedOutGoodsStatus = null;
+            LocalDate movedOutDate;
+            LocalDate storedDate;
+
+            for(Goods goods : goodsList){
+                priceList = goods.getCells().get(0).getStorageSpace().getStorageSpaceType().getPriceList();
+                //find status stored for current goods
+                for(GoodsStatus gs : goods.getStatuses()){
+                    if(gs.getGoodsStatusName().getName().equals(GoodsStatusEnum.STORED.toString())){
+                        storedGoodsStatus = gs;
+                        break;
+                    }
+                }
+                //find status moved_out for current goods
+                for(GoodsStatus gs : goods.getStatuses()){
+                    if(gs.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT.toString())){
+                        movedOutGoodsStatus = gs;
+                        break;
+                    }
+                }
+                for(PriceList p : priceList){
+                    //find price which started before goods were stored and ended after they were stored or is still active
+                    if(p.getStartTime().before(storedGoodsStatus.getDate())){
+                        if(p.getEndTime() == null){
+                            price = p;
+                            break;
+                        }
+                        if(p.getEndTime().after(storedGoodsStatus.getDate())){
+                            price = p;
+                            break;
+                        }
+                    }
+                }
+                //find number of days during which goods were in warehouse
+                if(movedOutGoodsStatus == null){
+                    movedOutDate = reportDTO.getEndDate().plusDays(1);
+                }
+                else {
+                    movedOutDate = (new DateTime(movedOutGoodsStatus.getDate().getTime())).toLocalDate();
+                }
+                int numberOfDays = Days.daysBetween(reportDTO.getStartDate(), movedOutDate).getDays();
+                //count income
+                totalRevenue = totalRevenue.add(price.getDailyPrice().multiply(new BigDecimal(numberOfDays)));
+            }
+            //count loss
+            String selectLossGoodsQuery = "SELECT goods FROM Goods AS goods " +
+                    " INNER JOIN GoodsStatus AS goodsStatus ON goodsStatus.goods = goods " +
+                    " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
+                    " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
+                    " WHERE warehouse.idWarehouse = :idWarehouse AND goods IN " +
+                    "(SELECT DISTINCT gs.goods from GoodsStatus AS gs where gs.goodsStatusName in (:statusNamesCancellingFees) " +
+                    " AND gs.date > :startTimestamp AND gs.date < :endTimestamp) " +
+                    " GROUP BY goods.id";
+            goodsList.clear();
+            parameters.clear();
+            statusNamesCancellingFees.removeIf(goodsStatusName
+                    -> goodsStatusName.getName().equals(GoodsStatusEnum.RECYCLED.toString()));
+            parameters.put("idWarehouse", reportDTO.getIdWarehouse());
+            parameters.put("startTimestamp", startTimestamp);
+            parameters.put("endTimestamp" , endTimestamp);
+            parameters.put("statusNamesCancellingFees", statusNamesCancellingFees);
+            goodsList = goodsDAO.findByQuery(selectLossGoodsQuery, parameters, -1, -1);
+            for(Goods goods : goodsList){
+                totalExpenses = totalExpenses.add(goods.getPrice());
+            }
+            //count profit
+            profit = totalRevenue.subtract(totalExpenses);
+
+            //generate excel workbook
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            XSSFCellStyle style = workbook.createCellStyle();
+            style.setBorderBottom(BorderStyle.MEDIUM);
+            XSSFSheet sheet = workbook.createSheet("1");
+            sheet.setHorizontallyCenter(true);
+            XSSFRow reportName = sheet.createRow(0);
+            Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
+            reportName.createCell(0).setCellValue("Отчет прибыли склада " +
+                    warehouse.getName() + " в период с "
+                    + reportDTO.getStartDate().toString() + " по " + reportDTO.getEndDate().toString());
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
+            XSSFRow header = sheet.createRow(1);
+            header.createCell(0).setCellValue("Показатель");
+            header.getCell(0).setCellStyle(style);
+            header.createCell(1).setCellValue("Сумма");
+            header.getCell(1).setCellStyle(style);
+
+            XSSFRow row = sheet.createRow(2);
+            row.createCell(0).setCellValue("Доходы");
+            row.createCell(1).setCellValue(totalRevenue.toPlainString());
+
+            row = sheet.createRow(3);
+            row.createCell(0).setCellValue("Издержки");
+            row.createCell(1).setCellValue(totalExpenses.toPlainString());
+
+            row = sheet.createRow(4);
+            row.createCell(0).setCellValue("Прибыль");
+            row.createCell(1).setCellValue(profit.toPlainString());
+
+            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(1);
+
+            workbook.write(outputStream);
+
+        } catch (GenericDAOException e) {
+            logger.error("GenericDAOException: {}", e.getMessage());
+        }
+        catch (IOException e) {
+            logger.error("Error generating Warehouse Loss Report With Liable Employees: {}", e.getMessage());
+        }finally {
+            try {
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                logger.error("Error closing ServletOutputStream: {}", e.getMessage());
+            }
+        }
     }
 }
