@@ -728,50 +728,5 @@
             <column name="id_storage_space" value="42"/>
             <column name="id_goods"  value="18" />
         </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="20"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="11" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="21"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="12" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="22"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="13" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="23"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="14" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="24"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="15" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="25"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="16" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="26"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="17" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="27"/>
-            <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="18" />
-        </insert>
-        <insert dbms="h2, mysql" tableName="storage_cell">
-            <column name="number" value="19"/>
-            <column name="id_storage_space" value="41"/>
-            <column name="id_goods"  value="18" />
-        </insert>
     </changeSet>
 </databaseChangeLog>

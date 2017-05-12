@@ -11,13 +11,13 @@
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
             <column name="id_act_goods" value="2"/>
-            <column name="id_act" value="2"/>
-            <column name="id_goods" value="1"/>
+            <column name="id_act" value="1"/>
+            <column name="id_goods" value="2"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
             <column name="id_act_goods" value="3"/>
-            <column name="id_act" value="3"/>
-            <column name="id_goods" value="2"/>
+            <column name="id_act" value="1"/>
+            <column name="id_goods" value="3"/>
         </insert>
         <insert dbms="h2, mysql" tableName="act_goods">
             <column name="id_act_goods" value="4"/>

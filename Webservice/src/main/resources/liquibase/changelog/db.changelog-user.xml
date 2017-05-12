@@ -136,7 +136,7 @@
             <column name="first_name" value="Ангелина"/>
             <column name="last_name" value="Яцевич"/>
             <column name="patronymic" value="Ивановна"/>
-            <column name="date_of_birth" value="1980-05-07"/>
+            <column name="date_of_birth" value="1980-09-12"/>
             <column name="city" value="Минск"/>
             <column name="street" value="Руссиянова"/>
             <column name="house" value="30"/>
@@ -152,7 +152,7 @@
             <column name="first_name" value="Светлана"/>
             <column name="last_name" value="Рощина"/>
             <column name="patronymic" value="Петровна"/>
-            <column name="date_of_birth" value="1970-05-07"/>
+            <column name="date_of_birth" value="1970-04-22"/>
             <column name="city" value="Минск"/>
             <column name="street" value="Жилуновича"/>
             <column name="house" value="10"/>
