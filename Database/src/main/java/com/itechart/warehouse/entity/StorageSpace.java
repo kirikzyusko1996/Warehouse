@@ -1,5 +1,9 @@
 package com.itechart.warehouse.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -8,7 +12,9 @@ import java.util.List;
 public class StorageSpace {
     private Long idStorageSpace;
     private StorageSpaceType storageSpaceType;
+    @JsonIgnore
     private Warehouse warehouse;
+
     private List<StorageCell> storageCellList;
 
     @Id
@@ -32,7 +38,7 @@ public class StorageSpace {
         this.storageSpaceType = storageSpaceType;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_warehouse", nullable = false)
     public Warehouse getWarehouse() {
         return warehouse;
@@ -71,5 +77,15 @@ public class StorageSpace {
     @Override
     public int hashCode() {
         return idStorageSpace != null ? idStorageSpace.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "StorageSpace{" +
+                "idStorageSpace=" + idStorageSpace +
+                ", storageSpaceType=" + storageSpaceType.getName() +
+                //", warehouse=" + warehouse +
+                ", storageCellList=" + storageCellList +
+                '}';
     }
 }

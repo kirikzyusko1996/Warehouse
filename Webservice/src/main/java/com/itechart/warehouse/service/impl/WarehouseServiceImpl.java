@@ -50,12 +50,14 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Warehouse> findWarehousesByCompanyId(Long id) throws DataAccessException {
+    public List<Warehouse> findWarehousesByCompanyId(String id) throws DataAccessException, IllegalParametersException {
         logger.info("Find warehouses by id company: {}", id);
-        if (id == null) return null;
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
         List<Warehouse> warehouses = null;
         DetachedCriteria criteria = DetachedCriteria.forClass(Warehouse.class);
-        criteria.add(Restrictions.eq("warehouseCompany", id));//it's no fact, that it will work
+        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", Long.valueOf(id)));//it's no fact, that it will work
 
         try {
             warehouses = warehouseDAO.findAll(criteria, -1, -1);

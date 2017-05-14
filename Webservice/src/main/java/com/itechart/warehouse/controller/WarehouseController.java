@@ -35,15 +35,19 @@ public class WarehouseController {
         this.warehouseService = warehouseService;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<List<Warehouse>> readWarehouses(){
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Warehouse>> readWarehouses(@PathVariable String id){
+        System.out.println("ID: "+id);
         logger.info("GET on /warehouse: find all companies");
 
         List<Warehouse> warehouses;
         try{
-            warehouses = warehouseService.findAllWarehouse();
+            warehouses = warehouseService.findWarehousesByCompanyId(id);
         } catch (DataAccessException e){
-            logger.error("Error while retrieving all warehouses", e);
+            logger.error("Error while retrieving warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 

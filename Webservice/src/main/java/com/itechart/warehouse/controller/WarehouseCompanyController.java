@@ -1,7 +1,11 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.security.UserDetailsProvider;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
 import static com.itechart.warehouse.util.Host.origins;
 
 /**
@@ -29,6 +34,7 @@ import static com.itechart.warehouse.util.Host.origins;
 @Validated
 public class WarehouseCompanyController {
     private WarehouseCompanyService warehouseCompanyService;
+    private UserService userService;
     private Logger logger = LoggerFactory.getLogger(WarehouseCompanyController.class);
 
     @Autowired
@@ -36,16 +42,33 @@ public class WarehouseCompanyController {
         this.warehouseCompanyService = warehouseCompanyService;
     }
 
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCompany>> readCompanies(){
         logger.info("GET on /company: find all companies");
-
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        User user = userDetails.getUser();//warning
         List<WarehouseCompany> companies;
         try{
-            companies = warehouseCompanyService.findAllWarehouseCompany();
+            boolean isAdmin = userService.hasRole(user.getId(), ROLE_ADMIN);
+            if(isAdmin) {
+                companies = warehouseCompanyService.findAllWarehouseCompany();
+            } else {
+                companies = warehouseCompanyService.findWarehouseCompany(userDetails.getUser().getId());
+            }
         } catch (DataAccessException e){
             logger.error("Error while retrieving all companies", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while getting company of warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("user with specified id not found while reading company", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(companies, HttpStatus.OK);

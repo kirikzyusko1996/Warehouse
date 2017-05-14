@@ -64,6 +64,25 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<WarehouseCompany> findWarehouseCompany(Long id_user) throws DataAccessException, IllegalParametersException {
+        if(id_user == null) {
+            throw new IllegalParametersException("Invalid id param");
+        }
+        logger.info("Find all warehouse companies");
+        DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCompany.class);
+        List<WarehouseCompany> warehouseCompanies = null;
+        criteria.add(Restrictions.eq("id", id_user));
+        try {
+            warehouseCompanies = warehouseCompanyDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for warehouse companies: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return warehouseCompanies;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Set<WarehouseCompany> findAllThatUsedForPeriod(Date startDate, Date dueDate)
             throws DataAccessException, IllegalParametersException {
         logger.info("Find all warehouse companies, that used system from {} to {}", startDate, dueDate);
