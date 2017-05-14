@@ -4,6 +4,7 @@ import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.UserDTO;
+import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.controller.error.RequestHandlingError;
@@ -83,6 +84,13 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/roles", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<Role>> getRoles() throws DataAccessException {
+        logger.info("Handling request for roles list");
+            List<Role> roles = userService.getRoles();
+        return new ResponseEntity<>(roles, HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
@@ -119,6 +127,9 @@ public class UserController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
 
     }
+
+
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)

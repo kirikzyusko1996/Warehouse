@@ -3,7 +3,9 @@ package com.itechart.warehouse.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
+import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,18 +40,18 @@ public class UserDTO {
     private String house;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String apartment;
-    @Email(message = "Illegal mail")
+    @Email(message = "Illegal email")
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String email;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
+//    @NotBlank
     private String login;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
+//    @NotBlank
     private String password;
-    @NotEmpty
-    private List<String> roles;
-    private Long warehouseId;
+//    @NotEmpty
+    private List<Role> roles;
+    private Warehouse warehouse;
 
     public User buildUserEntity() {
         User user = new User();

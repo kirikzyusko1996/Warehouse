@@ -207,24 +207,25 @@ public class UserServiceImpl implements UserService {
             if (StringUtils.isBlank(user.getLastName())) {
                 throw new IllegalParametersException("Field last name can not be empty");
             }
-            if (userDTO.getWarehouseId() != null)
-                user.setWarehouse(findWarehouseById(userDTO.getWarehouseId()));
+            if (userDTO.getWarehouse() != null)
+                if (userDTO.getWarehouse().getIdWarehouse()!=null)
+                user.setWarehouse(findWarehouseById(userDTO.getWarehouse().getIdWarehouse()));
             //todo uncomment
 //            if (StringUtils.isNotBlank(user.getPassword())) {
 //                user.setPassword(encoder.encode(user.getPassword()));
 //            }
             WarehouseCompany warehouseCompany = findWarehouseCompanyById(companyId);
             user.setWarehouseCompany(warehouseCompany);
-            List<String> roleNames = userDTO.getRoles();
-            if (roleNames != null) {
-                for (String roleName : roleNames) {
-                    try {
-                        List roles = new ArrayList();
-                        roles.add(findRoleByName(roleName));
+            List<Role> roles = userDTO.getRoles();
+            if (roles != null) {
+                for (Role role : roles) {
+//                    try {
+//                        List roles = new ArrayList();
+//                        roles.add(findRoleByName(roleName));
                         user.setRoles(roles);
-                    } catch (IllegalParametersException e) {
-                        logger.error("Role was not found: {}", e.getMessage());
-                    }
+//                    } catch (IllegalParametersException e) {
+//                        logger.error("Role was not found: {}", e.getMessage());
+//                    }
                 }
             } else throw new IllegalParametersException("At least one role has to be selected");
             return userDAO.insert(user);
@@ -277,7 +278,7 @@ public class UserServiceImpl implements UserService {
                 Role role = findRoleByName(UserRoleEnum.ROLE_ADMIN.toString());
                 List<Role> roles = new ArrayList<>();
                 if (role != null)
-                    roles.add(role);
+                    roles.add(findRoleByName(role.getRole()));
                 user.setRoles(roles);
                 return userDAO.insert(user);
             } else throw new ResourceNotFoundException("Company with such id was not found");
@@ -307,8 +308,9 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userDAO.findUserById(id);
             if (user != null) {
-                if (userDTO.getWarehouseId() != null)
-                    user.setWarehouse(findWarehouseById(userDTO.getWarehouseId()));
+                if (userDTO.getWarehouse() != null)
+                    if (userDTO.getWarehouse().getIdWarehouse() != null)
+                    user.setWarehouse(findWarehouseById(userDTO.getWarehouse().getIdWarehouse()));
                 user.setFirstName(userDTO.getFirstName());
                 if (StringUtils.isNotBlank(userDTO.getLastName()))
                     user.setLastName(userDTO.getLastName());
@@ -322,7 +324,6 @@ public class UserServiceImpl implements UserService {
                 user.setEmail(userDTO.getEmail());
                 if (StringUtils.isNotBlank(userDTO.getLogin()))
                     user.setLogin(userDTO.getLogin());
-                else throw new IllegalParametersException("Filed login can not be empty");
                 if (StringUtils.isNotBlank(userDTO.getPassword()))
                     user.setPassword(userDTO.getPassword());
                     //todo uncomment
@@ -330,12 +331,14 @@ public class UserServiceImpl implements UserService {
 //                    user.setPassword(encoder.encode(userDTO.getPassword()));
 //                }
 
-                else throw new IllegalParametersException("Field password can not be empty");
-                List<String> roleNames = userDTO.getRoles();
-                if (roleNames != null)
-                    for (String roleName : roleNames) {
-                        user.addRole(findRoleByName(roleName));
+                List<Role> roles = userDTO.getRoles();
+                List<Role> newRoles = new ArrayList<Role>();
+                if (roles != null) {
+                    for (Role role : roles) {
+                        newRoles.add(findRoleByName(role.getRole()));
                     }
+                    user.setRoles(newRoles);
+                }
                 else {
                     throw new IllegalParametersException("At least one role has to be selected");
                 }
@@ -378,22 +381,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean hasRole(Long userId, UserRoleEnum role) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Checking if user with id {} has role {}", userId, role);
         if (userId == null || role == null) throw new IllegalParametersException("User id or role is null");
-
         DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
         criteria.add(Restrictions.eq("role", role.toString()));
         try {
-            List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, 1);
-            if (fetchedRoles == null)
+            List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, -1);
+            if (fetchedRoles.isEmpty())
                 throw new ResourceNotFoundException("Role " + role.toString() + " was not found");
+            Role foundRole = fetchedRoles.get(0);
             User user = findUserById(userId);
             if (user == null)
                 throw new ResourceNotFoundException("User with such id was not found");
-            return user.getRoles().contains(role);
+            return user.getRoles().contains(foundRole);
         } catch (GenericDAOException e) {
             logger.error("Error during access to database: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Role> getRoles() throws DataAccessException {
+        logger.info("Getting roles list");
+        DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
+        try {
+            return roleDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during roles list retrieval: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }

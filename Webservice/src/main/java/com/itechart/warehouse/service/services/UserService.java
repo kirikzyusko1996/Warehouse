@@ -48,4 +48,6 @@ public interface UserService {
     boolean isUserExists(Long id) throws DataAccessException, IllegalParametersException;
 
     boolean hasRole(Long userId, UserRoleEnum role) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    List<Role> getRoles() throws DataAccessException;
 }
