@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -254,7 +255,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToIncomingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(invoice, dto.getRegistrationDate(), currentUser);
+            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(invoice, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
             List<GoodsDTO> goodsList = dto.getGoods();
@@ -281,7 +282,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToOutgoingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(invoice, dto.getRegistrationDate(), currentUser);
+            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(invoice, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
             List<Long> goodsListIds = parseIdFromGoods(dto.getGoods());
@@ -496,7 +497,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setGoodsQuantityUnit(invoice.getGoodsQuantityUnit());
 
         dto.setDispatcher(invoiceStatus.getUser());
-        dto.setRegistrationDate(invoiceStatus.getDate());
 
         dto = fillIncomingInvoiceWithGoodsInfo(dto, goodsList);
 
@@ -522,14 +522,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setGoodsQuantityUnit(invoice.getGoodsQuantityUnit());
 
         dto.setManager(invoiceStatus.getUser());
-        dto.setRegistrationDate(invoiceStatus.getDate());
 
         dto = fillOutgoingInvoiceWithGoodsInfo(dto, goodsList);
 
         return dto;
     }
 
-    private Invoice convertToIncomingInvoice(IncomingInvoiceDTO dto, Warehouse warehouse) throws GenericDAOException, DataAccessException {
+    private Invoice convertToIncomingInvoice(IncomingInvoiceDTO dto, Warehouse warehouse)
+            throws GenericDAOException, DataAccessException, ResourceNotFoundException, IllegalParametersException{
         Invoice invoice = new Invoice();
         invoice.setNumber(dto.getNumber());
         invoice.setIssueDate(dto.getIssueDate());
@@ -539,9 +539,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
-        WarehouseCustomerCompany supplierCompany = customerService.findWarehouseCustomerCompanyByName(dto.getSupplierCompany());
+        WarehouseCustomerCompany supplierCompany = customerService.findWarehouseCustomerCompanyById(dto.getSupplierCompanyId());
         invoice.setSupplierCompany(supplierCompany);
-        TransportCompany transportCompany = transportService.findTransportCompanyByName(dto.getTransportCompany());
+        TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompanyId());
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
@@ -556,7 +556,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     private Invoice convertToOutgoingInvoice(OutgoingInvoiceDTO dto, Warehouse warehouse)
-            throws GenericDAOException, DataAccessException {
+            throws GenericDAOException, DataAccessException, ResourceNotFoundException, IllegalParametersException {
         Invoice invoice = new Invoice();
         invoice.setNumber(dto.getNumber());
         invoice.setIssueDate(dto.getIssueDate());
@@ -566,9 +566,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
-        WarehouseCustomerCompany receiverCompany = customerService.findWarehouseCustomerCompanyByName(dto.getReceiverCompany());
+        WarehouseCustomerCompany receiverCompany = customerService.findWarehouseCustomerCompanyById(dto.getRecieverCompanyId());
         invoice.setSupplierCompany(receiverCompany);
-        TransportCompany transportCompany = transportService.findTransportCompanyByName(dto.getTransportCompany());
+        TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompanyId());
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
@@ -582,23 +582,24 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private InvoiceStatus createStatusForIncomingInvoice(Invoice invoice, Timestamp registrationDate, User user)
+    private InvoiceStatus createStatusForIncomingInvoice(Invoice invoice, User user)
             throws GenericDAOException {
-        return fillStatusWithInfo(invoice, registrationDate, user);
+        return fillStatusWithInfo(invoice, user);
     }
 
-    private InvoiceStatus createStatusForOutgoingInvoice(Invoice invoice, Timestamp registrationDate, User user)
+    private InvoiceStatus createStatusForOutgoingInvoice(Invoice invoice, User user)
             throws GenericDAOException {
-        return fillStatusWithInfo(invoice, registrationDate, user);
+        return fillStatusWithInfo(invoice, user);
     }
 
-    private InvoiceStatus fillStatusWithInfo(Invoice invoice, Timestamp registrationDate, User user)
+    private InvoiceStatus fillStatusWithInfo(Invoice invoice, User user)
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = new InvoiceStatus();
         invoiceStatus.setId(invoice.getId());
         invoiceStatus.setInvoice(invoice);
-        invoiceStatus.setDate(registrationDate);
 
+        Timestamp now = new Timestamp(new Date().getTime());
+        invoiceStatus.setDate(now);
 
         // todo specify status for created outgoing invoice
         InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());

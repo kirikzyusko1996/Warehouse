@@ -52,7 +52,7 @@ public class TransportCompanyController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TransportCompany> readCompanyById(@PathVariable String id){
+    public ResponseEntity<TransportCompany> readCompanyById(@PathVariable Long id){
         logger.info("GET on /tr-company/{}: find transport company by id");
 
         TransportCompany company;

@@ -58,24 +58,19 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional(readOnly = true)
-    public TransportCompany findTransportCompanyById(String id)
+    public TransportCompany findTransportCompanyById(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
         logger.info("Find transport dto by id #{}", id);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-
         TransportCompany company = null;
         try {
-            Long companyId = Long.valueOf(id);
-            if (transportDAO.isExistsEntity(companyId)) {
-                Optional<TransportCompany> optional = transportDAO.findById(companyId);
+            if (transportDAO.isExistsEntity(id)) {
+                Optional<TransportCompany> optional = transportDAO.findById(id);
                 if (optional.isPresent()){
                     company = optional.get();
                 }
             } else {
-                logger.error("Transport dto with id {} not found", companyId);
+                logger.error("Transport dto with id {} not found", id);
                 throw new ResourceNotFoundException("transport dto not found");
             }
         } catch (GenericDAOException e) {

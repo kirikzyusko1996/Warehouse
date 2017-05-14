@@ -29,7 +29,6 @@ public class IncomingInvoiceDTO {
     private String goodsQuantityUnit;
     private String goodsEntryCountUnit;
     private String dispatcher;
-    private Timestamp registrationDate;
     private List<GoodsDTO> goods;
 
     public void setSupplierCompany(WarehouseCustomerCompany supplierCompany) {
@@ -40,12 +39,20 @@ public class IncomingInvoiceDTO {
         this.supplierCompany = supplierCompany;
     }
 
+    public Long getSupplierCompanyId(){
+        return Long.valueOf(supplierCompany);
+    }
+
     public void setTransportCompany(TransportCompany transportCompany) {
         this.transportCompany = transportCompany.getName();
     }
 
     public void setTransportCompany(String  transportCompany) {
         this.transportCompany = transportCompany;
+    }
+
+    public Long getTransportCompanyId(){
+        return Long.valueOf(transportCompany);
     }
 
     public void setDispatcher(User dispatcher) {

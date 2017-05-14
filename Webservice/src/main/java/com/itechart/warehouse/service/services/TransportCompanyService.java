@@ -13,7 +13,7 @@ import java.util.List;
 public interface TransportCompanyService {
     List<TransportCompany> findAllTransportCompanies(int page, int count) throws DataAccessException;
 
-    TransportCompany findTransportCompanyById(String id)
+    TransportCompany findTransportCompanyById(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     TransportCompany findTransportCompanyByName(String name) throws DataAccessException;
