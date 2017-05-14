@@ -5,6 +5,7 @@ import com.itechart.warehouse.dao.StorageCellDAO;
 import com.itechart.warehouse.dao.StorageSpaceDAO;
 import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.dto.SchemeDTO;
 import com.itechart.warehouse.dto.StorageCellDTO;
 import com.itechart.warehouse.entity.StorageCell;
 import com.itechart.warehouse.entity.StorageSpace;
@@ -14,6 +15,9 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.StorageCellService;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,6 +52,34 @@ public class StorageCellServiceImpl implements StorageCellService {
     public void setStorageSpaceDAO(StorageSpaceDAO storageSpaceDAO) {
         this.storageSpaceDAO = storageSpaceDAO;
     }
+
+    /*@Override
+    @Transactional(readOnly = true)
+    public List<SchemeDTO> findStorageByWarehouseId(String id) throws DataAccessException, IllegalParametersException {
+        logger.info("Find storage by id warehouse: {}", id);
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
+        List<SchemeDTO> schemeDTOList = null;
+        DetachedCriteria criteria = DetachedCriteria.forClass(StorageCell.class);
+        criteria.add(Restrictions.eq("warehouse.idWarehouse", Long.valueOf(id)));//it's no fact, that it will work
+
+        try {
+            storageSpaces = storageSpaceDAO.findAll(criteria, -1, -1);
+            //it's no fact, that it will work
+
+            *//*for(StorageSpace storageSpace : storageSpaces) {
+                DetachedCriteria criteria2 = DetachedCriteria.forClass(StorageSpace.class);
+                criteria.add(Restrictions.eq("storageSpace.idStorageSpace", storageSpace.getIdStorageSpace()));
+                System.out.println(storageCellDAO.findAll(criteria2, -1, -1));
+            }*//*
+            System.out.println(storageSpaces);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for warehouse: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return storageSpaces;
+    }*/
 
     @Override
     @Transactional

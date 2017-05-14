@@ -13,7 +13,7 @@ import java.util.List;
 public interface WarehouseService {
     List<Warehouse> findAllWarehouse() throws DataAccessException;
 
-    List<Warehouse> findWarehousesByCompanyId(Long id) throws DataAccessException;
+    List<Warehouse> findWarehousesByCompanyId(String id) throws DataAccessException, IllegalParametersException;
 
     Warehouse findWarehouseById(Long id) throws DataAccessException;
 

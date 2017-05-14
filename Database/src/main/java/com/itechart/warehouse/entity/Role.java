@@ -59,15 +59,13 @@ public class Role {
         Role role1 = (Role) o;
 
         if (idRole != null ? !idRole.equals(role1.idRole) : role1.idRole != null) return false;
-        if (role != null ? !role.equals(role1.role) : role1.role != null) return false;
-        return users != null ? users.equals(role1.users) : role1.users == null;
+        return role != null ? !role.equals(role1.role) : role1.role != null;
     }
 
     @Override
     public int hashCode() {
         int result = idRole != null ? idRole.hashCode() : 0;
         result = 31 * result + (role != null ? role.hashCode() : 0);
-        result = 31 * result + (users != null ? users.hashCode() : 0);
         return result;
     }
 

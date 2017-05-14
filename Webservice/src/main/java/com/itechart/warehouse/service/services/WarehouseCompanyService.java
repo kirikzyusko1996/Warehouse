@@ -13,6 +13,8 @@ import java.util.Set;
  * Created by Lenovo on 25.04.2017.
  */
 public interface WarehouseCompanyService {
+    List<WarehouseCompany> findWarehouseCompany(Long id_user) throws DataAccessException, IllegalParametersException;
+
     List<WarehouseCompany> findAllWarehouseCompany() throws DataAccessException;
 
     Set<WarehouseCompany> findAllThatUsedForPeriod(Date startDate, Date dueDate)

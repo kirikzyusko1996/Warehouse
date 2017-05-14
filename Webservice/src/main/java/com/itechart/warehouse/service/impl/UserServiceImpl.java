@@ -378,20 +378,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean hasRole(Long userId, UserRoleEnum role) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Checking if user with id {} has role {}", userId, role);
         if (userId == null || role == null) throw new IllegalParametersException("User id or role is null");
-
         DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
         criteria.add(Restrictions.eq("role", role.toString()));
         try {
-            List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, 1);
-            if (fetchedRoles == null)
+            List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, -1);
+            if (fetchedRoles.isEmpty())
                 throw new ResourceNotFoundException("Role " + role.toString() + " was not found");
+            Role foundRole = fetchedRoles.get(0);
             User user = findUserById(userId);
             if (user == null)
                 throw new ResourceNotFoundException("User with such id was not found");
-            return user.getRoles().contains(role);
+            return user.getRoles().contains(foundRole);
         } catch (GenericDAOException e) {
             logger.error("Error during access to database: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
