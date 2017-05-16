@@ -216,16 +216,11 @@ public class UserServiceImpl implements UserService {
 //            }
             WarehouseCompany warehouseCompany = findWarehouseCompanyById(companyId);
             user.setWarehouseCompany(warehouseCompany);
-            List<Role> roles = userDTO.getRoles();
-            if (roles != null) {
-                for (Role role : roles) {
-//                    try {
-//                        List roles = new ArrayList();
-//                        roles.add(findRoleByName(roleName));
-                        user.setRoles(roles);
-//                    } catch (IllegalParametersException e) {
-//                        logger.error("Role was not found: {}", e.getMessage());
-//                    }
+            List<Role> roles = new ArrayList<>();
+            if (userDTO.getRoles() != null) {
+                for (Role role : userDTO.getRoles()) {
+                    roles.add(findRoleByName(role.getRole()));
+                    user.setRoles(roles);
                 }
             } else throw new IllegalParametersException("At least one role has to be selected");
             return userDAO.insert(user);

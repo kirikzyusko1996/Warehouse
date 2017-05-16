@@ -75,6 +75,10 @@ public class UserDAO extends DAO<User> {
                 " WHERE user.id = :id";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("id", id);
-        return query.getSingleResult();
+        try {
+            return query.getSingleResult();
+        } catch (Exception e) {
+            throw new GenericDAOException(e);
+        }
     }
 }

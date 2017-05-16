@@ -30,7 +30,7 @@ public class UserDTO {
     private String lastName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String patronymic;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Date dateOfBirth;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String city;

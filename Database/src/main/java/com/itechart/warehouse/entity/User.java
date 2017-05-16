@@ -17,7 +17,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String patronymic;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Date dateOfBirth;
     private String city;
     private String street;
