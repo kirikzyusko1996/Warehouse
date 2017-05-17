@@ -195,8 +195,24 @@ public class PermissionResolverService {
             return false;
         }
 
-        // todo evaluate
+        try {
+            if (userDetails.getCompany() != null) {
+                WarehouseCompany company = customerService.findWarehouseCompanyByCustomerId(customerId);
+                if (company != null && userDetails.getCompany() != null) {
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
+                }
+            }
 
-        return true;
+            return false;
+        } catch (DataAccessException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        } catch (IllegalParametersException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        } catch (ResourceNotFoundException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        }
     }
 }

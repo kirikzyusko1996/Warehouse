@@ -1,13 +1,17 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.controller.error.RequestHandlingError;
+import com.itechart.warehouse.controller.response.IdResponse;
+import com.itechart.warehouse.controller.response.StatusEnum;
+import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.WarehouseCustomerCompanyDTO;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
-import com.itechart.warehouse.security.WarehouseCompanyUserDetailsService;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.WarehouseCustomerCompanyService;
 import org.slf4j.Logger;
@@ -38,79 +42,114 @@ public class WarehouseCustomerCompanyController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCustomerCompany>> readCustomers(@RequestParam(defaultValue = "0") int page,
-                                                                        @RequestParam(defaultValue = "-1") int count) {
+                                                                        @RequestParam(defaultValue = "-1") int count)
+            throws DataAccessException, IllegalParametersException {
         logger.info("GET on /customer: find all customers");
 
-        List<WarehouseCustomerCompany> customers;
-        try {
-            customers = customerService.findAllWarehouseCustomerCompanies(page, count);
-        } catch (DataAccessException e) {
-            logger.error("Error while retrieving all customers", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            List<WarehouseCustomerCompany> customers = customerService.findAllCustomersForWarehouseCompany(page, count, company.getIdWarehouseCompany());
+            return new ResponseEntity<>(customers, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving customers");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+    }
 
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<WarehouseCustomerCompany> readCustomer(@PathVariable Long id)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("GET on /customer/{}: find customer", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            WarehouseCustomerCompany customer = customerService.findCustomerForCompanyById(id, company.getIdWarehouseCompany());
+            return new ResponseEntity<>(customer, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving customer");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<?> saveCustomer(@Valid @RequestBody WarehouseCustomerCompanyDTO customer) {
+    public ResponseEntity<?> saveCustomer(@Valid @RequestBody WarehouseCustomerCompanyDTO customer)
+            throws DataAccessException, RequestHandlingException {
         logger.info("POST on /customer: save new customer");
 
-        try {
-            WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-            if (userDetails != null) {
-                WarehouseCompany company = userDetails.getCompany();
-                customerService.saveWarehouseCustomerCompany(customer, company);
-            } else {
-                logger.error("Failed to retrieve authenticated user while saving new customer");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
+        WarehouseCustomerCompany savedCustomer;
 
-        } catch (DataAccessException e) {
-            logger.error("Error while saving new customer", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            savedCustomer = customerService.saveWarehouseCustomerCompany(customer, company);
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new customer");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if (savedCustomer.getId() != null){
+            return new ResponseEntity<>(new IdResponse(savedCustomer.getId()), HttpStatus.CREATED);
+        } else {
+            throw new RequestHandlingException("Customer was not saved");
+        }
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateCustomer(@PathVariable String id, @Valid @RequestBody WarehouseCustomerCompanyDTO customer) {
+    public ResponseEntity<StatusResponse> updateCustomer(@PathVariable Long id, @Valid @RequestBody WarehouseCustomerCompanyDTO customer)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("PUT on /customer/{}: update customer", id);
 
-        try {
-            customerService.updateWarehouseCustomerCompany(id, customer);
-        } catch (DataAccessException e) {
-            logger.error("Error while updating customer", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e) {
-            logger.error("Invalid params specified while updating customer", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e) {
-            logger.error("Customer with specified id not found while updating customer", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            customerService.updateWarehouseCustomerCompany(id, customer, company.getIdWarehouseCompany());
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new customer");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteCustomer(@PathVariable String id) {
+    public ResponseEntity<StatusResponse> deleteCustomer(@PathVariable Long id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
         logger.info("DELETE on /customer/{}: delete customer", id);
 
-        try {
-            customerService.deleteWarehouseCustomerCompany(id);
-        } catch (DataAccessException e) {
-            logger.error("Error while deleting customer", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e) {
-            logger.error("Invalid params specified while deleting customer", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e) {
-            logger.error("Customer with specified id not found while deleting customer", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        customerService.deleteWarehouseCustomerCompany(id);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
+    }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+    @ExceptionHandler(DataAccessException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(DataAccessException e) {
+        RequestHandlingError dataAccessError = new RequestHandlingError();
+        dataAccessError.setError(e.getMessage());
+        return dataAccessError;
+    }
+
+    @ExceptionHandler(IllegalParametersException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(IllegalParametersException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError illegalParametersError = new RequestHandlingError();
+        illegalParametersError.setError(e.getMessage());
+        return illegalParametersError;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(ResourceNotFoundException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError resourceNotFoundError = new RequestHandlingError();
+        resourceNotFoundError.setError(e.getMessage());
+        return resourceNotFoundError;
     }
 }

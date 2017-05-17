@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -401,7 +400,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional(readOnly = true)
     public Warehouse findWarehouseByInvoiceId(Long invoiceId)
             throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
-        logger.info("Find warehouse company of invoice with id {}", invoiceId);
+        logger.info("Find warehouse of invoice with id {}", invoiceId);
 
         if (invoiceId == null) {
             throw new IllegalParametersException("Invoice id is null");
@@ -539,7 +538,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
-        WarehouseCustomerCompany supplierCompany = customerService.findWarehouseCustomerCompanyById(dto.getSupplierCompanyId());
+        WarehouseCustomerCompany supplierCompany = customerService.findCustomerById(dto.getSupplierCompanyId());
         invoice.setSupplierCompany(supplierCompany);
         TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompanyId());
         invoice.setTransportCompany(transportCompany);
@@ -566,7 +565,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
-        WarehouseCustomerCompany receiverCompany = customerService.findWarehouseCustomerCompanyById(dto.getRecieverCompanyId());
+        WarehouseCustomerCompany receiverCompany = customerService.findCustomerById(dto.getRecieverCompanyId());
         invoice.setSupplierCompany(receiverCompany);
         TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompanyId());
         invoice.setTransportCompany(transportCompany);
