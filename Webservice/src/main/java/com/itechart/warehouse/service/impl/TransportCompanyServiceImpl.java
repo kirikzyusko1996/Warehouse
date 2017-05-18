@@ -18,6 +18,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,28 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
             companies = transportDAO.findAll(criteria, page, count);
         } catch (GenericDAOException e) {
             logger.error("Error while finding all transport companies: ", e);
+            throw new DataAccessException(e);
+        }
+
+        return companies;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#warehouseCompanyId, 'WarehouseCompany', 'GET')")
+    public List<TransportCompany> findAllCompaniesForWarehouseCompany(int page, int count, Long warehouseCompanyId)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("Find all transport companies");
+
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException("Company id is null");
+        }
+
+        List<TransportCompany> companies;
+        try {
+            companies = transportDAO.findCustomersByWarehouseCompanyId(warehouseCompanyId, page, count);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for customers: {}", e.getMessage());
             throw new DataAccessException(e);
         }
 
@@ -107,7 +130,34 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#warehouseCompanyId, 'TransportCompany', 'GET')")
+    public TransportCompany findTransportForCompanyById(Long id, Long warehouseCompanyId)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        return findTransportCompanyById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WarehouseCompany findWarehouseCompanyByTransportId(Long transportId)
+            throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+        logger.info("Find warehouse company of transport with id {}", transportId);
+
+        if (transportId == null) {
+            throw new IllegalParametersException("Transport company id is null");
+        }
+
+        TransportCompany company = findTransportCompanyById(transportId);
+        if (company == null) {
+            throw new ResourceNotFoundException("Transport company with such id was not found");
+        }
+
+        return company.getWarehouseCompany();
+    }
+
+    @Override
     @Transactional
+    //todo @PreAuthorize("hasPermission('WarehouseCustomerCompany', 'WRITE')")
     public TransportCompany saveTransportCompany(TransportCompanyDTO dto, WarehouseCompany warehouseCompany) throws DataAccessException {
         logger.info("Save transport dto: {}", dto);
 
@@ -127,31 +177,22 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional
-    public TransportCompany updateTransportCompany(String id, TransportCompanyDTO dto)
+    @PreAuthorize("hasPermission(#id, 'TransportCompany', 'UPDATE')")
+    public TransportCompany updateTransportCompany(Long id, TransportCompanyDTO dto, Long warehouseCompanyId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
         logger.info("Update transport dto: {}", dto);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-
         TransportCompany updatedCompany;
         try {
-            Long companyId = Long.valueOf(id);
-            if (transportDAO.isExistsEntity(companyId)) {
-                dto.setId(companyId);
+            dto.setId(id);
 
-                TransportCompany company = mapToEntity(dto);
-                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(dto.getWarehouseCompanyId());
-                company.setWarehouseCompany(companyOfTransportCompany);
+            TransportCompany company = mapToEntity(dto);
+            WarehouseCompany warehouseCompanyOfTransport = companyService.findWarehouseCompanyById(warehouseCompanyId);
+            company.setWarehouseCompany(warehouseCompanyOfTransport);
 
-                updatedCompany = transportDAO.update(company);
-            } else {
-                logger.error("Transport dto with id {} not found", companyId);
-                throw new ResourceNotFoundException("transport dto not found");
-            }
+            updatedCompany = transportDAO.update(company);
         } catch (GenericDAOException e) {
-            logger.error("Error while updating transport dto: ", e);
+            logger.error("Error while updating customer dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -160,22 +201,18 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional
-    public void deleteTransportCompany(String id)
+    @PreAuthorize("hasPermission(#id, 'TransportCompany', 'DELETE')")
+    public void deleteTransportCompany(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
         logger.info("Delete transport dto by id #{}", id);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-
         try {
-            Long companyId = Long.valueOf(id);
-            Optional<TransportCompany> optional = transportDAO.findById(companyId);
+            Optional<TransportCompany> optional = transportDAO.findById(id);
             if (optional.isPresent()) {
                 TransportCompany company = optional.get();
                 transportDAO.delete(company);
             } else {
-                logger.error("Transport dto with id {} not found", companyId);
+                logger.error("Transport dto with id {} not found", id);
                 throw new ResourceNotFoundException("Transport dto not found");
             }
         } catch (GenericDAOException e) {

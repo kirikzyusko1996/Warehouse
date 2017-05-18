@@ -152,4 +152,15 @@ public class WarehouseCustomerCompanyController {
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
     }
+
+    @ExceptionHandler(RequestHandlingException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(RequestHandlingException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError requestHandlingError = new RequestHandlingError();
+        requestHandlingError.setError(e.getMessage());
+        return requestHandlingError;
+    }
 }

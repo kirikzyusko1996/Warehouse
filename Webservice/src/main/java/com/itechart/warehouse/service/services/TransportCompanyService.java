@@ -13,17 +13,23 @@ import java.util.List;
 public interface TransportCompanyService {
     List<TransportCompany> findAllTransportCompanies(int page, int count) throws DataAccessException;
 
+    List<TransportCompany> findAllCompaniesForWarehouseCompany(int page, int count, Long idWarehouseCompany) throws DataAccessException, IllegalParametersException;
+
     TransportCompany findTransportCompanyById(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     TransportCompany findTransportCompanyByName(String name) throws DataAccessException;
 
+    TransportCompany findTransportForCompanyById(Long id, Long warehouseCompanyId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    WarehouseCompany findWarehouseCompanyByTransportId(Long transportId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+
     TransportCompany saveTransportCompany(TransportCompanyDTO dto, WarehouseCompany company) throws DataAccessException;
 
-    TransportCompany updateTransportCompany(String id, TransportCompanyDTO dto)
+    TransportCompany updateTransportCompany(Long id, TransportCompanyDTO dto, Long warehouseCompanyId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    void deleteTransportCompany(String id)
+    void deleteTransportCompany(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean TransportCompanyExists(TransportCompany company) throws DataAccessException;

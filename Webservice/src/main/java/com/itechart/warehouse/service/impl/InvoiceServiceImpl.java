@@ -96,6 +96,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Autowired
+    @Lazy
     public void setTransportService(TransportCompanyService service) {
         this.transportService = service;
     }

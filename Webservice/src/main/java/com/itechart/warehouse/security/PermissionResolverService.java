@@ -26,6 +26,7 @@ public class PermissionResolverService {
     private ActService actService;
     private UserService userService;
     private InvoiceService invoiceService;
+    private TransportCompanyService transportService;
     private WarehouseCustomerCompanyService customerService;
 
     @Autowired
@@ -49,6 +50,10 @@ public class PermissionResolverService {
     public void setInvoiceService(InvoiceService service){
         this.invoiceService = service;
     }
+
+    @Autowired
+    @Lazy
+    public void setTransportService(TransportCompanyService service){this.transportService = service;}
 
     @Autowired
     public void setCustomerService(WarehouseCustomerCompanyService service) {
@@ -184,9 +189,25 @@ public class PermissionResolverService {
             return false;
         }
 
-        // todo evaluate
+        try {
+            if (userDetails.getCompany() != null) {
+                WarehouseCompany company = transportService.findWarehouseCompanyByTransportId(transportId);
+                if (company != null && userDetails.getCompany() != null) {
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
+                }
+            }
 
-        return true;
+            return false;
+        } catch (DataAccessException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        } catch (IllegalParametersException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        } catch (ResourceNotFoundException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        }
     }
 
     public boolean resolvePermissionToAccessWarehouseCustomerCompany(WarehouseCompanyUserDetails userDetails, Long customerId) {
