@@ -3,10 +3,8 @@ package com.itechart.warehouse.service.services;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
-import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.GoodsStatus;
-import com.itechart.warehouse.entity.Warehouse;
-import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.dto.StorageCellDTO;
+import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -23,11 +21,13 @@ public interface GoodsService {
 
     Goods findGoodsById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Goods> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<GoodsDTO> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
 
     List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
@@ -51,11 +51,16 @@ public interface GoodsService {
 
     void setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    void putGoodsInCells(Long goodsId, List<Long> storageCellIds) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    void putGoodsInCells(Long goodsId, List<StorageCellDTO> storageCells) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void removeGoodsFromStorage(Long goodsId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void setOutgoingInvoice(List<Long> goodsIds, Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<GoodsStatusName> getStatusNames() throws DataAccessException;
+
+    List<Unit> getUnits() throws DataAccessException;
+
+    List<StorageSpaceType> getStorageSpaceTypes() throws DataAccessException;
 
 }

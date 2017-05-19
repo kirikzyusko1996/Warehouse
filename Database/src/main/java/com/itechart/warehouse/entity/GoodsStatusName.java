@@ -1,6 +1,5 @@
 package com.itechart.warehouse.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -8,7 +7,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "goods_status_name")
 public class GoodsStatusName {
-    @JsonIgnore
     private Short id;
     private String name;
 

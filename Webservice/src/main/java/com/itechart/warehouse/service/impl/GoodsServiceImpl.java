@@ -3,10 +3,7 @@ package com.itechart.warehouse.service.impl;
 import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
-import com.itechart.warehouse.dto.GoodsDTO;
-import com.itechart.warehouse.dto.GoodsSearchDTO;
-import com.itechart.warehouse.dto.GoodsStatusDTO;
-import com.itechart.warehouse.dto.GoodsStatusSearchDTO;
+import com.itechart.warehouse.dto.*;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.query.QueryBuilder;
 import com.itechart.warehouse.security.UserDetailsProvider;
@@ -14,15 +11,18 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -38,9 +38,15 @@ public class GoodsServiceImpl implements GoodsService {
     private InvoiceDAO invoiceDAO;
     private UnitDAO unitDAO;
     private StorageSpaceTypeDAO storageSpaceTypeDAO;
+    private StorageSpaceDAO storageSpaceDAO;
     private StorageCellDAO storageCellDAO;
     private UserDAO userDAO;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    public void setStorageSpaceDAO(StorageSpaceDAO storageSpaceDAO) {
+        this.storageSpaceDAO = storageSpaceDAO;
+    }
 
     @Autowired
     public void setGoodsDAO(GoodsDAO goodsDAO) {
@@ -114,13 +120,27 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
-    public List<Goods> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+    public List<GoodsDTO> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goods starting from index {} by warehouse id: {}", maxResults, firstResult, warehouseId);
         if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
-            return goodsDAO.findByWarehouseId(warehouseId, firstResult, maxResults);
+            List<Goods> goodsList = goodsDAO.findByWarehouseId(warehouseId, firstResult, maxResults);
+            return mapGoodsToDTOs(goodsList);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get users count for warehouse with id: {}", warehouseId);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        try {
+            return goodsDAO.getGoodsCount(warehouseId);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
@@ -148,13 +168,13 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
-    public List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+//    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")// TODO: 19.05.2017
+    public List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goods for warehouse with id {} starting from index {} by criteria: {}", maxResults, warehouseId, firstResult, goodsSearchDTO);
         if (goodsSearchDTO == null || warehouseId == null)
             throw new IllegalParametersException("Goods search DTO or warehouse id is null");
 
-        StringBuilder root = new StringBuilder("SELECT goods FROM Goods goods");
+        StringBuilder root = new StringBuilder("SELECT DISTINCT goods FROM Goods goods");
         QueryBuilder builder = new QueryBuilder(root);
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
         builder.addJoin("INNER JOIN GoodsStatus status ON status.goods = goods");
@@ -165,7 +185,7 @@ public class GoodsServiceImpl implements GoodsService {
         queryParameters.put("warehouseId", warehouseId);
 
 
-        if (goodsSearchDTO.getName() != null) {
+        if (StringUtils.isNotBlank(goodsSearchDTO.getName())) {
             builder.addRestriction("goods.name LIKE :goodsName");
             queryParameters.put("goodsName", "%" + goodsSearchDTO.getName() + "%");
         }
@@ -196,7 +216,7 @@ public class GoodsServiceImpl implements GoodsService {
             queryParameters.put("maxGoodsPrice", goodsSearchDTO.getMaxPrice());
         }
         try {
-            if (goodsSearchDTO.getCurrentStatus() != null) {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getCurrentStatus())) {
                 builder.addRestriction("status_2.goods IS NULL AND status.goodsStatusName = :statusName");
                 builder.addJoin("LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date");
                 queryParameters.put("statusName", findGoodsStatusNameByName(goodsSearchDTO.getCurrentStatus()));
@@ -206,36 +226,36 @@ public class GoodsServiceImpl implements GoodsService {
             throw new DataAccessException(e.getCause());
         }
         try {
-            if (goodsSearchDTO.getStorageTypeName() != null) {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getStorageType())) {
                 builder.addRestriction("goods.storageType = :goodsStorageType");
-                queryParameters.put("goodsStorageType", findStorageTypeByName(goodsSearchDTO.getStorageTypeName()));
+                queryParameters.put("goodsStorageType", findStorageTypeByName(goodsSearchDTO.getStorageType()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for storage type: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         try {
-            if (goodsSearchDTO.getQuantityUnitName() != null) {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getQuantityUnit())) {
                 builder.addRestriction("goods.quantityUnit = :goodsQuantityUnit");
-                queryParameters.put("goodsQuantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnitName()));
+                queryParameters.put("goodsQuantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         try {
-            if (goodsSearchDTO.getWeightUnitName() != null) {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getWeightUnit())) {
                 builder.addRestriction("goods.weightUnit = :goodsWeightUnit");
-                queryParameters.put("goodsWeightUnit", findUnitByName(goodsSearchDTO.getWeightUnitName()));
+                queryParameters.put("goodsWeightUnit", findUnitByName(goodsSearchDTO.getWeightUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
         try {
-            if (goodsSearchDTO.getPriceUnitName() != null) {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getPriceUnit())) {
                 builder.addRestriction("goods.priceUnit = :goodsPriceUnit");
-                queryParameters.put("goodsPriceUnit", findUnitByName(goodsSearchDTO.getPriceUnitName()));
+                queryParameters.put("goodsPriceUnit", findUnitByName(goodsSearchDTO.getPriceUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -246,38 +266,33 @@ public class GoodsServiceImpl implements GoodsService {
             int counter = 3;
             for (GoodsStatusSearchDTO statusDTO : goodsSearchDTO.getStatuses()) {
                 try {
-                    if (statusDTO.getStatusName() != null) {
-                        builder.addRestriction("status_" + counter + ".goodsStatusName = :statusName");
-                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
-                        queryParameters.put("statusName", findGoodsStatusNameByName(statusDTO.getStatusName()));
+                    builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                    if (StringUtils.isNotBlank(statusDTO.getName())) {
+                        builder.addRestriction("status_" + counter + ".goodsStatusName = :statusName_" + counter);
+                        queryParameters.put("statusName_" + counter, findGoodsStatusNameByName(statusDTO.getName()));
                     }
                     if (statusDTO.getFromDate() != null) {
                         builder.addRestriction("status_" + counter + ".date >= :statusFromDate_" + counter);
-                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
                         queryParameters.put("statusFromDate_" + counter, statusDTO.getFromDate());
                     }
                     if (statusDTO.getToDate() != null) {
                         builder.addRestriction("status_" + counter + ".date <= :statusToDate_" + counter);
-                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
-                        queryParameters.put("statusToDate_" + counter, statusDTO.getToDate());
+                        queryParameters.put("statusToDate_" + counter, new Timestamp(new DateTime(statusDTO.getToDate()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate().getTime()));
                     }
-                    if (statusDTO.getUserFirstName() != null) {
-                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                    if (StringUtils.isNotBlank(statusDTO.getUserFirstName()) || StringUtils.isNotBlank(statusDTO.getUserLastName()) || StringUtils.isNotBlank(statusDTO.getUserPatronymic())) {
                         builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
-                        builder.addRestriction("user_" + counter + ".firstName <= :statusUserFirstName_" + counter);
-                        queryParameters.put("statusUserFirstName_" + counter, statusDTO.getUserFirstName());
                     }
-                    if (statusDTO.getUserLastName() != null) {
-                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
-                        builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
-                        builder.addRestriction("user_" + counter + ".lastName <= :statusUserLastName_" + counter);
-                        queryParameters.put("statusUserLastName_" + counter, statusDTO.getUserLastName());
+                    if (StringUtils.isNotBlank(statusDTO.getUserFirstName())) {
+                        builder.addRestriction("user_" + counter + ".firstName LIKE :statusUserFirstName_" + counter);
+                        queryParameters.put("statusUserFirstName_" + counter, "%" + statusDTO.getUserFirstName() + "%");
                     }
-                    if (statusDTO.getUserPatronymic() != null) {
-                        builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
-                        builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
-                        builder.addRestriction("user_" + counter + ".patronymic <= :statusUserPatronymic_" + counter);
-                        queryParameters.put("statusUserPatronymic_" + counter, statusDTO.getUserPatronymic());
+                    if (StringUtils.isNotBlank(statusDTO.getUserLastName())) {
+                        builder.addRestriction("user_" + counter + ".lastName LIKE :statusUserLastName_" + counter);
+                        queryParameters.put("statusUserLastName_" + counter, "%" + statusDTO.getUserLastName() + "%");
+                    }
+                    if (StringUtils.isNotBlank(statusDTO.getUserPatronymic())) {
+                        builder.addRestriction("user_" + counter + ".patronymic LIKE :statusUserPatronymic_" + counter);
+                        queryParameters.put("statusUserPatronymic_" + counter, "%" + statusDTO.getUserPatronymic() + "%");
                     }
                     counter++;
                 } catch (GenericDAOException e) {
@@ -288,11 +303,38 @@ public class GoodsServiceImpl implements GoodsService {
         }
 
         try {
-            return goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
+            List<Goods> goodsList = goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
+            return mapGoodsToDTOs(goodsList);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    private List<GoodsDTO> mapGoodsToDTOs(List<Goods> goodsList) {
+        List<GoodsDTO> dtos = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(goodsList)) {
+            for (Goods goods : goodsList) {
+                GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
+                try {
+                    dto.setStatus(goodsDAO.findGoodsCurrentStatus(goods.getId()));
+                } catch (GenericDAOException e) {
+                    logger.error("Error getting current status: {}", e);
+                }
+                List<StorageCellDTO> cellDTOs = new ArrayList<>();
+                for (StorageCell cell : goods.getCells()) {
+                    StorageCellDTO cellDTO = new StorageCellDTO();
+                    cellDTO.setIdGoods(goods.getId());
+                    cellDTO.setIdStorageCell(cell.getIdStorageCell());
+                    cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
+                    cellDTO.setNumber(cell.getNumber());
+                    cellDTOs.add(cellDTO);
+                }
+                dto.setCells(cellDTOs);
+                dtos.add(dto);
+            }
+        }
+        return dtos;
     }
 
     @Override
@@ -389,18 +431,22 @@ public class GoodsServiceImpl implements GoodsService {
                 if (goodsDTO.getPrice() != null)
                     goodsToUpdate.setPrice(goodsDTO.getPrice());
                 else throw new IllegalParametersException("Field price can not be empty");
-                if (StringUtils.isNotBlank(goodsDTO.getStorageTypeName()))
-                    goodsToUpdate.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-                else throw new IllegalParametersException("Field storage type name can not be empty");
-                if (StringUtils.isNotBlank(goodsDTO.getQuantityUnitName()))
-                    goodsToUpdate.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-                else throw new IllegalParametersException("Field quantity unit name can not be empty");
-                if (StringUtils.isNotBlank(goodsDTO.getWeightUnitName()))
-                    goodsToUpdate.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-                else throw new IllegalParametersException("Field weight unit name can not be empty");
-                if (StringUtils.isNotBlank(goodsDTO.getPriceUnitName()))
-                    goodsToUpdate.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
-                else throw new IllegalParametersException("Field price unit name can not be empty");
+                if (goodsDTO.getPriceUnit() != null) {
+                    if (goodsDTO.getPriceUnit().getName() != null)
+                        goodsToUpdate.setPriceUnit(findUnitByName(goodsDTO.getPriceUnit().getName()));
+                } else throw new IllegalParametersException("Price unit can not be empty");
+                if (goodsDTO.getQuantityUnit() != null) {
+                    if (goodsDTO.getQuantityUnit().getName() != null)
+                        goodsToUpdate.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnit().getName()));
+                } else throw new IllegalParametersException("Quantity unit can not be empty");
+                if (goodsDTO.getWeightUnit() != null) {
+                    if (goodsDTO.getWeightUnit().getName() != null)
+                        goodsToUpdate.setWeightUnit(findUnitByName(goodsDTO.getWeightUnit().getName()));
+                } else throw new IllegalParametersException("Weight unit can not be empty");
+                if (goodsDTO.getStorageType() != null) {
+                    if (goodsDTO.getStorageType().getName() != null)
+                        goodsToUpdate.setStorageType(findStorageTypeByName(goodsDTO.getStorageType().getName()));
+                } else throw new IllegalParametersException("Storage type can not be empty");
                 return goodsDAO.update(goodsToUpdate);
             } else throw new ResourceNotFoundException("Goods with such id was not found");
         } catch (GenericDAOException e) {
@@ -454,18 +500,22 @@ public class GoodsServiceImpl implements GoodsService {
                 goods.setWeight(goodsDTO.getWeight());
             else throw new IllegalParametersException("Field weight can not be empty");
 
-            if (StringUtils.isNotBlank(goodsDTO.getPriceUnitName())) {
-                goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnitName()));
-            } else throw new IllegalParametersException("Field price unit name can not be empty");
-            if (StringUtils.isNotBlank(goodsDTO.getQuantityUnitName())) {
-                goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnitName()));
-            } else throw new IllegalParametersException("Field quantity unit name can not be empty");
-            if (StringUtils.isNotBlank(goodsDTO.getWeightUnitName())) {
-                goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnitName()));
-            } else throw new IllegalParametersException("Field weight unit name can not be empty");
-            if (StringUtils.isNotBlank(goodsDTO.getStorageTypeName())) {
-                goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageTypeName()));
-            } else throw new IllegalParametersException("Field storage type name can not be empty");
+            if (goodsDTO.getPriceUnit() != null) {
+                if (goodsDTO.getPriceUnit().getName() != null)
+                    goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnit().getName()));
+            } else throw new IllegalParametersException("Price unit can not be empty");
+            if (goodsDTO.getQuantityUnit() != null) {
+                if (goodsDTO.getQuantityUnit().getName() != null)
+                    goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnit().getName()));
+            } else throw new IllegalParametersException("Quantity unit can not be empty");
+            if (goodsDTO.getWeightUnit() != null) {
+                if (goodsDTO.getWeightUnit().getName() != null)
+                    goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnit().getName()));
+            } else throw new IllegalParametersException("Weight unit can not be empty");
+            if (goodsDTO.getStorageType() != null) {
+                if (goodsDTO.getStorageType().getName() != null)
+                    goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageType().getName()));
+            } else throw new IllegalParametersException("Storage type can not be empty");
             Invoice invoice = findInvoiceById(invoiceId);
             if (invoice != null)
                 goods.setIncomingInvoice(invoice);
@@ -575,7 +625,7 @@ public class GoodsServiceImpl implements GoodsService {
                 goodsStatus.setGoods(goods);
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
                 goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsStatusDTO.getStatusName()));
+                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsStatusDTO.getName()));
                 goodsStatusDAO.insert(goodsStatus);
             } else {
                 throw new ResourceNotFoundException("Goods with such id was not found");
@@ -589,16 +639,16 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#goodsId, 'Goods', 'UPDATE')")
-    public void putGoodsInCells(Long goodsId, List<Long> storageCellIds) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Putting goods with id {} in cells with ids: {}", goodsId, storageCellIds);
-        if (goodsId == null || storageCellIds == null)
+    public void putGoodsInCells(Long goodsId, List<StorageCellDTO> storageCells) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Putting goods with id {} in cells: {}", goodsId, storageCells);
+        if (goodsId == null || storageCells == null)
             throw new IllegalParametersException("Goods id or storage cell id's list is null");
         try {
             Optional<Goods> result = goodsDAO.findById(goodsId);
             if (!result.isPresent())
                 throw new ResourceNotFoundException("Goods with such id was not found");
-            for (Long id : storageCellIds) {
-                StorageCell storageCell = findStorageCellById(id);
+            for (StorageCellDTO cell : storageCells) {
+                StorageCell storageCell = findStorageCellById(cell.getIdStorageCell());
                 if (storageCell != null) {
                     storageCell.setGoods(result.get());
                 }
@@ -662,6 +712,45 @@ public class GoodsServiceImpl implements GoodsService {
             } else throw new ResourceNotFoundException("Invoice with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during saving goods status: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GoodsStatusName> getStatusNames() throws DataAccessException {
+        logger.info("Getting status names list");
+        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+        try {
+            return goodsStatusNameDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during goods status names list retrieval: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Unit> getUnits() throws DataAccessException {
+        logger.info("Getting units list");
+        DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
+        try {
+            return unitDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during units list retrieval: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StorageSpaceType> getStorageSpaceTypes() throws DataAccessException {
+        logger.info("Getting storage space types list");
+        DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
+        try {
+            return storageSpaceTypeDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during storage space types list retrieval: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }

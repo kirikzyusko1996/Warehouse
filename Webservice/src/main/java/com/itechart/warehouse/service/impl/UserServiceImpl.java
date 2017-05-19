@@ -353,7 +353,7 @@ public class UserServiceImpl implements UserService {
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<User> result = userDAO.findById(id);
-            if (result != null)
+            if (result.isPresent())
                 userDAO.delete(result.get());
             else throw new ResourceNotFoundException("User with such id was not found");
         } catch (GenericDAOException e) {

@@ -208,13 +208,13 @@ public class InvoiceControllerTest {
 
         GoodsDTO goodsDTO = new GoodsDTO();
         goodsDTO.setName("Test");
-        goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
-        goodsDTO.setPrice(new BigDecimal(10));
-        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
-        goodsDTO.setQuantity(new BigDecimal(10));
-        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
-        goodsDTO.setWeight(new BigDecimal(10));
-        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
+//        goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
+//        goodsDTO.setPrice(new BigDecimal(10));
+//        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
+//        goodsDTO.setQuantity(new BigDecimal(10));
+//        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+//        goodsDTO.setWeight(new BigDecimal(10));
+//        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
 
         goodsList.add(goodsDTO);
 

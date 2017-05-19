@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 @lombok.ToString
 public class GoodsStatusSearchDTO {
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
-    private String statusName;
+    private String name;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String userLastName;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
@@ -24,8 +24,8 @@ public class GoodsStatusSearchDTO {
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     private String userPatronymic;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Timestamp fromDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Timestamp toDate;
 }

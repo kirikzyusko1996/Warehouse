@@ -56,14 +56,13 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<User>> getUsers(@RequestParam(defaultValue = "-1") int page,
                                                @RequestParam(defaultValue = "0") int count,
-                                               HttpServletRequest request,
                                                HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<User> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
-            users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+            users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page-1) * count, count);
             long userCount = userService.getUsersCount(company.getIdWarehouseCompany());
             response.addHeader("X-total-count", String.valueOf(userCount));
             response.addHeader("Access-Control-Expose-Headers", "X-total-count");

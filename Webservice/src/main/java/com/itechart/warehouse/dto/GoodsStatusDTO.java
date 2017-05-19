@@ -15,7 +15,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class GoodsStatusDTO {
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
     @NotEmpty
-    private String statusName;
+    private String name;
     @JsonDeserialize(using=TrimmingJsonDeserializer.class)
-    private String statusNote;
+    private String note;
 }

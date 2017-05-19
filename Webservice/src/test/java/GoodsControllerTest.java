@@ -55,13 +55,13 @@ public class GoodsControllerTest {
     public void testGoodsUpdate() throws Exception {
         GoodsDTO goodsDTO = new GoodsDTO();
         goodsDTO.setName("Test");
-        goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
-        goodsDTO.setPrice(new BigDecimal(10));
-        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
-        goodsDTO.setQuantity(new BigDecimal(10));
-        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
-        goodsDTO.setWeight(new BigDecimal(10));
-        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
+//        goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
+//        goodsDTO.setPrice(new BigDecimal(10));
+//        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
+//        goodsDTO.setQuantity(new BigDecimal(10));
+//        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+//        goodsDTO.setWeight(new BigDecimal(10));
+//        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
         mockMvc.perform(put("/goods/save/2")
@@ -98,13 +98,13 @@ public class GoodsControllerTest {
     public void testGoodsSave() throws Exception {
         GoodsDTO goodsDTO = new GoodsDTO();
         goodsDTO.setName("Test");
-        goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
-        goodsDTO.setPrice(new BigDecimal(10));
-        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
-        goodsDTO.setQuantity(new BigDecimal(10));
-        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
-        goodsDTO.setWeight(new BigDecimal(10));
-        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
+//        goodsDTO.setStorageTypeName(StorageTypeEnum.FREEZING_CHAMBER.getName());
+//        goodsDTO.setPrice(new BigDecimal(10));
+//        goodsDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
+//        goodsDTO.setQuantity(new BigDecimal(10));
+//        goodsDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
+//        goodsDTO.setWeight(new BigDecimal(10));
+//        goodsDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsDTO = mapper.writeValueAsString(goodsDTO);
 
@@ -121,8 +121,8 @@ public class GoodsControllerTest {
     @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void testGoodsStatusSetting() throws Exception {
         GoodsStatusDTO statusDTO = new GoodsStatusDTO();
-        statusDTO.setStatusName(GoodsStatusEnum.REGISTERED.toString());
-        statusDTO.setStatusNote("Some note");
+//        statusDTO.setStatusName(GoodsStatusEnum.REGISTERED.toString());
+//        statusDTO.setStatusNote("Some note");
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsStatusDTO = mapper.writeValueAsString(statusDTO);
 
@@ -140,44 +140,44 @@ public class GoodsControllerTest {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy");
 
         GoodsSearchDTO searchDTO = new GoodsSearchDTO();
-        searchDTO.setName("Хле");
+        searchDTO.setName("");
         searchDTO.setStorageTypeName(StorageTypeEnum.UNHEATED_PLACE.getName());
-        searchDTO.setMinPrice(new BigDecimal(1.0));//1.30
-        searchDTO.setMaxPrice(new BigDecimal(10.2));
-        searchDTO.setMinQuantity(new BigDecimal(10.0));//1000
-        searchDTO.setMaxQuantity(new BigDecimal(10000.0));
-        searchDTO.setMinWeight(new BigDecimal(10));//500
-        searchDTO.setMaxWeight(new BigDecimal(1000));
+//        searchDTO.setMinPrice(new BigDecimal(1.0));//1.30
+//        searchDTO.setMaxPrice(new BigDecimal(10.2));
+//        searchDTO.setMinQuantity(new BigDecimal(10.0));//1000
+//        searchDTO.setMaxQuantity(new BigDecimal(10000.0));
+//        searchDTO.setMinWeight(new BigDecimal(10));//500
+//        searchDTO.setMaxWeight(new BigDecimal(1000));
         searchDTO.setPriceUnitName(UnitEnum.UNIT_BYN.getName());
         searchDTO.setQuantityUnitName(UnitEnum.UNIT_PIECE.getName());
         searchDTO.setWeightUnitName(UnitEnum.UNIT_KILOGRAM.getName());
 
         searchDTO.setCurrentStatus(GoodsStatusEnum.REGISTERED.toString());//registered, checked,stored
 
-        GoodsStatusSearchDTO statusSearchDTO = new GoodsStatusSearchDTO();
-        statusSearchDTO.setStatusName(GoodsStatusEnum.CHECKED.toString());
-        statusSearchDTO.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
-        statusSearchDTO.setToDate(new Timestamp(formatter.parseDateTime("15-05-2018").toDate().getTime()));
-        statusSearchDTO.setUserLastName("Зюсько");
-        statusSearchDTO.setUserFirstName("Кирилл");
-
-        GoodsStatusSearchDTO statusSearchDTO2 = new GoodsStatusSearchDTO();
-        statusSearchDTO2.setStatusName(GoodsStatusEnum.STORED.toString());
-        statusSearchDTO2.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
-        statusSearchDTO2.setToDate(new Timestamp(formatter.parseDateTime("15-05-2018").toDate().getTime()));
-        statusSearchDTO2.setUserLastName("Зюсько");
-        statusSearchDTO2.setUserFirstName("Кирилл");
+//        GoodsStatusSearchDTO statusSearchDTO = new GoodsStatusSearchDTO();
+//        statusSearchDTO.setStatusName(GoodsStatusEnum.CHECKED.toString());
+//        statusSearchDTO.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
+//        statusSearchDTO.setToDate(new Timestamp(formatter.parseDateTime("15-05-2018").toDate().getTime()));
+//        statusSearchDTO.setUserLastName("Зюсько");
+//        statusSearchDTO.setUserFirstName("Кирилл");
+//
+//        GoodsStatusSearchDTO statusSearchDTO2 = new GoodsStatusSearchDTO();
+//        statusSearchDTO2.setStatusName(GoodsStatusEnum.STORED.toString());
+//        statusSearchDTO2.setFromDate(new Timestamp(formatter.parseDateTime("11-02-2017").toDate().getTime()));
+//        statusSearchDTO2.setToDate(new Timestamp(formatter.parseDateTime("15-05-2018").toDate().getTime()));
+//        statusSearchDTO2.setUserLastName("Зюсько");
+//        statusSearchDTO2.setUserFirstName("Кирилл");
 
         List<GoodsStatusSearchDTO> statuses = new ArrayList<>();
-        statuses.add(statusSearchDTO);
-        statuses.add(statusSearchDTO2);
+//        statuses.add(statusSearchDTO);
+//        statuses.add(statusSearchDTO2);
 
         searchDTO.setStatuses(statuses);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonGoodsSearchDTO = mapper.writeValueAsString(searchDTO);
 
-        mockMvc.perform(get("/goods/search?page=1&count=10")
+        mockMvc.perform(post("/goods/search/10?page=1&count=10")
                 .content(jsonGoodsSearchDTO)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -193,7 +193,7 @@ public class GoodsControllerTest {
         Long[] cellsArray = new Long[]{Long.valueOf(1), Long.valueOf(2)};
         List<Long> cells = Arrays.asList(cellsArray);
         GoodsDTO goodsDTO = new GoodsDTO();
-        goodsDTO.setCells(cells);
+//        goodsDTO.setCells(cells);
         String jsonGoodsDTO = new ObjectMapper().writeValueAsString(goodsDTO);
         mockMvc.perform(put("/goods/2/put")
                 .content(jsonGoodsDTO)

@@ -661,10 +661,10 @@ public class InvoiceServiceImpl implements InvoiceService {
             goodsDTO.setPrice(goods.getPrice());
             goodsDTO.setWeight(goods.getWeight());
 
-            goodsDTO.setStorageTypeName(goods.getStorageType().getName());
-            goodsDTO.setPriceUnitName(goods.getPriceUnit().getName());
-            goodsDTO.setQuantityUnitName(goods.getQuantityUnit().getName());
-            goodsDTO.setWeightUnitName(goods.getWeightUnit().getName());
+            goodsDTO.setStorageType(goods.getStorageType());
+            goodsDTO.setPriceUnit(goods.getPriceUnit());
+            goodsDTO.setQuantityUnit(goods.getQuantityUnit());
+            goodsDTO.setWeightUnit(goods.getWeightUnit());
 
             goodsInvoiceDTOs.add(goodsDTO);
         }

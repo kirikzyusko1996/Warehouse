@@ -2,10 +2,11 @@ package com.itechart.warehouse.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.Goods;
+import com.itechart.warehouse.entity.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.util.Assert;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
@@ -34,25 +35,28 @@ public class GoodsDTO {
     @NotNull
     private BigDecimal price;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
-    private String storageTypeName;
+    @NotNull
+    private StorageSpaceType storageType;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
-    private String quantityUnitName;
+    @NotNull
+    private Unit quantityUnit;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
-    private String weightUnitName;
+    @NotNull
+    private Unit weightUnit;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
-    private String priceUnitName;
+    @NotNull
+    private Unit priceUnit;
 
-    private List<Long> cells;
+    private List<StorageCellDTO> cells;
 
-    public void addCell(Long cell) {
+    private GoodsStatus status;
+
+
+    public void addCell(StorageCellDTO cell) {
         cells.add(cell);
     }
 
-    public void removeCell(Long cell) {
+    public void removeCell(StorageCellDTO cell) {
         cells.remove(cell);
     }
 
@@ -64,6 +68,22 @@ public class GoodsDTO {
         goods.setPrice(price);
         goods.setQuantity(quantity);
         return goods;
+    }
+
+    public static GoodsDTO buildGoodsDTO(Goods goods) {
+        Assert.notNull(goods, "Goods is null");
+        GoodsDTO dto = new GoodsDTO();
+        dto.setId(goods.getId());
+        dto.setName(goods.getName());
+        dto.setQuantity(goods.getQuantity());
+        dto.setWeight(goods.getWeight());
+        dto.setPrice(goods.getPrice());
+        dto.setStorageType(goods.getStorageType());
+        dto.setWeightUnit(goods.getWeightUnit());
+        dto.setQuantityUnit(goods.getQuantityUnit());
+        dto.setPriceUnit(goods.getPriceUnit());
+        return dto;
+
     }
 
 

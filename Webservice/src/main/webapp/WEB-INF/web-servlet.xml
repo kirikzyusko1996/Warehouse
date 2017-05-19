@@ -14,7 +14,7 @@
 
     <mvc:cors>
         <mvc:mapping path="/**"
-                     allowed-origins="http://localhost:4200"
+                     allowed-origins="*"
                      allowed-methods="GET, PUT, POST, DELETE, OPTIONS"
                      max-age="3600"/>
     </mvc:cors>

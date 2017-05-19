@@ -7,8 +7,7 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
-import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.controller.error.RequestHandlingError;
 import com.itechart.warehouse.controller.error.ValidationError;
 import com.itechart.warehouse.controller.error.ValidationErrorBuilder;
@@ -31,6 +30,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -54,13 +54,41 @@ public class GoodsController {
 
     @RequestMapping(value = "/{warehouseId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Goods>> getGoods(@RequestParam(defaultValue = "-1") int page,
-                                                @RequestParam(defaultValue = "0") int count,
-                                                @PathVariable Long warehouseId) throws DataAccessException, IllegalParametersException {
+    public ResponseEntity<List<GoodsDTO>> getGoods(@RequestParam(defaultValue = "-1") int page,
+                                                   @RequestParam(defaultValue = "0") int count,
+                                                   @PathVariable Long warehouseId,
+                                                   HttpServletResponse response) throws DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of goods in warehouse with id {}, page: {}, count: {}", warehouseId, page, count);
-        List<Goods> goods = null;
+        List<GoodsDTO> goods = null;
         goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
+        long goodsCount = goodsService.getGoodsCount(warehouseId);
+        response.addHeader("X-total-count", String.valueOf(goodsCount));
+        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         return new ResponseEntity<>(goods, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/statuses", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<GoodsStatusName>> getStatuses() throws DataAccessException {
+        logger.info("Handling request for roles list");
+        List<GoodsStatusName> statuses = goodsService.getStatusNames();
+        return new ResponseEntity<>(statuses, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/storageTypes", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<StorageSpaceType>> getStorageTypes() throws DataAccessException {
+        logger.info("Handling request for storage space types list");
+        List<StorageSpaceType> storageSpaceTypes = goodsService.getStorageSpaceTypes();
+        return new ResponseEntity<>(storageSpaceTypes, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/units", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<Unit>> getUnits() throws DataAccessException {
+        logger.info("Handling request for units list");
+        List<Unit> units = goodsService.getUnits();
+        return new ResponseEntity<>(units, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{invoiceId}/save", method = RequestMethod.POST,
@@ -93,19 +121,19 @@ public class GoodsController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.GET,
+    @RequestMapping(value = "/search/{warehouseId}", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Goods>> findGoods(@RequestParam(defaultValue = "-1") int page,
+    public ResponseEntity<List<GoodsDTO>> findGoods(@RequestParam(defaultValue = "-1") int page,
                                                  @RequestParam(defaultValue = "0") int count,
-                                                 @RequestBody GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, GenericDAOException {
-        logger.info("Handling request for searching list of goods by: {}, page: {}, count: {}", searchDTO, page, count);
-        List<Goods> goods = null;
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        WarehouseCompany company = userDetails.getCompany();
-        if (company != null) {
-            goods = goodsService.findGoodsForWarehouseByCriteria(company.getIdWarehouseCompany(), searchDTO, (page - 1) * count, count);
-        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+                                                 @PathVariable Long warehouseId,
+                                                 @RequestBody GoodsSearchDTO searchDTO,
+                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException, GenericDAOException {
+        logger.info("Handling request for searching list of goods by DTO: {}, page: {}, count: {}", searchDTO, page, count);
+        long goodsCount = goodsService.getGoodsCount(warehouseId);
+        response.addHeader("X-total-count", String.valueOf(goodsCount));
+        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        List<GoodsDTO> goods = goodsService.findGoodsForWarehouseByCriteria(warehouseId, searchDTO, (page - 1) * count, count);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 

@@ -24,13 +24,13 @@ public class GoodsSearchDTO {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String storageTypeName;
+    private String storageType;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String quantityUnitName;
+    private String quantityUnit;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String weightUnitName;
+    private String weightUnit;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    private String priceUnitName;
+    private String priceUnit;
     private List<GoodsStatusSearchDTO> statuses;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String currentStatus;
