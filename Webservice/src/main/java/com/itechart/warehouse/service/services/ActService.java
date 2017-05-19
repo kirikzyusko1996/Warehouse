@@ -20,7 +20,7 @@ public interface ActService {
 
     Act findActById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Act> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    List<ActDTO> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<Act> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 

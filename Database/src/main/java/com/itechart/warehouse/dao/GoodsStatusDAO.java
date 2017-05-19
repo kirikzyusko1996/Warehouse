@@ -28,4 +28,15 @@ public class GoodsStatusDAO extends DAO<GoodsStatus> {
         query.setMaxResults(1);
         return query.getSingleResult();
     }
+
+
+    public List<GoodsStatus> findByGoodsId(Long goodsId) throws GenericDAOException {
+        logger.info("Find list of statuses for goods with id: {}", goodsId);
+        String queryHql = "SELECT DISTINCT status FROM GoodsStatus status" +
+                " INNER JOIN Goods goods ON goods = status.goods" +
+                " WHERE goods.id = :goodsId";
+        Query<GoodsStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("goodsId", goodsId);
+        return query.list();
+    }
 }

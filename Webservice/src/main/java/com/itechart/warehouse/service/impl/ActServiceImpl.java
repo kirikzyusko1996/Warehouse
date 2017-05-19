@@ -13,6 +13,7 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -23,8 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -91,19 +94,41 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Act> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public List<ActDTO> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find {} acts starting from index {} by goodsList id: {}", maxResults, firstResult, goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(goodsId);
-            if (result.isPresent())
-                return result.get().getActs();
-            else throw new ResourceNotFoundException("Goods with such id was not found");
+            return mapActsToDTOs(actDAO.findByGoodsId(goodsId));
         } catch (GenericDAOException e) {
             logger.error("Error during search for acts: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
+
+
+    private ActDTO mapActToDTO(Act act) {
+        Assert.notNull(act, "Act is null");
+        ActDTO dto = ActDTO.buildStatusDTO(act);
+        User user = new User();
+        user.setId(act.getUser().getId());
+        user.setLastName(act.getUser().getLastName());
+        user.setFirstName(act.getUser().getFirstName());
+        user.setPatronymic(act.getUser().getPatronymic());
+        dto.setUser(user);
+        return dto;
+    }
+
+    private List<ActDTO> mapActsToDTOs(List<Act> acts) {
+        Assert.notNull(acts, "Acts is null");
+        List<ActDTO> actDTOs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(acts)) {
+            for (Act act : acts) {
+                actDTOs.add(mapActToDTO(act));
+            }
+        }
+        return actDTOs;
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -134,13 +159,13 @@ public class ActServiceImpl implements ActService {
                 criteria.add(Restrictions.ge("date", actSearchDTO.getFromDate()));
             if (actSearchDTO.getToDate() != null)
                 criteria.add(Restrictions.le("date", actSearchDTO.getToDate()));
-            criteria.createAlias("user","user");
+            criteria.createAlias("user", "user");
             if (actSearchDTO.getCreatorLastName() != null)
-                criteria.add(Restrictions.like("user.lastName", "%"+actSearchDTO.getCreatorLastName()+"%"));
+                criteria.add(Restrictions.like("user.lastName", "%" + actSearchDTO.getCreatorLastName() + "%"));
             if (actSearchDTO.getCreatorFirstName() != null)
-                criteria.add(Restrictions.like("user.firstName", "%"+actSearchDTO.getCreatorFirstName()+"%"));
+                criteria.add(Restrictions.like("user.firstName", "%" + actSearchDTO.getCreatorFirstName() + "%"));
             if (actSearchDTO.getCreatorPatronymic() != null)
-                criteria.add(Restrictions.like("user.patronymic", "%"+actSearchDTO.getCreatorPatronymic()+"%"));
+                criteria.add(Restrictions.like("user.patronymic", "%" + actSearchDTO.getCreatorPatronymic() + "%"));
             criteria
                     .createCriteria("goods")
                     .createCriteria("incomingInvoice")

@@ -21,6 +21,8 @@ public interface GoodsService {
 
     Goods findGoodsById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    GoodsDTO findGoodsDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
     List<GoodsDTO> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
@@ -31,7 +33,7 @@ public interface GoodsService {
 
     List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    List<GoodsStatusDTO> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 

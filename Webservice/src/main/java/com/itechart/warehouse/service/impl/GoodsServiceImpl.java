@@ -11,7 +11,7 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.Assert;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -119,13 +119,29 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
+    public GoodsDTO findGoodsDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Find goods DTO by id: {}", id);
+        if (id == null) throw new IllegalParametersException("Id is null");
+        try {
+            Optional<Goods> result = goodsDAO.findById(id);
+            if (result.isPresent())
+                return mapGoodsToDTOs(result.get());
+            else throw new ResourceNotFoundException("Goods with such id was not found");
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for goods: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
     public List<GoodsDTO> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find {} goods starting from index {} by warehouse id: {}", maxResults, firstResult, warehouseId);
         if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
             List<Goods> goodsList = goodsDAO.findByWarehouseId(warehouseId, firstResult, maxResults);
-            return mapGoodsToDTOs(goodsList);
+            return mapGoodsListToDTOs(goodsList);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -304,38 +320,44 @@ public class GoodsServiceImpl implements GoodsService {
 
         try {
             List<Goods> goodsList = goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
-            return mapGoodsToDTOs(goodsList);
+            return mapGoodsListToDTOs(goodsList);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
 
-    private List<GoodsDTO> mapGoodsToDTOs(List<Goods> goodsList) {
+    private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
         List<GoodsDTO> dtos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(goodsList)) {
             for (Goods goods : goodsList) {
-                GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
-                try {
-                    dto.setStatus(goodsDAO.findGoodsCurrentStatus(goods.getId()));
-                } catch (GenericDAOException e) {
-                    logger.error("Error getting current status: {}", e);
-                }
-                List<StorageCellDTO> cellDTOs = new ArrayList<>();
-                for (StorageCell cell : goods.getCells()) {
-                    StorageCellDTO cellDTO = new StorageCellDTO();
-                    cellDTO.setIdGoods(goods.getId());
-                    cellDTO.setIdStorageCell(cell.getIdStorageCell());
-                    cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
-                    cellDTO.setNumber(cell.getNumber());
-                    cellDTOs.add(cellDTO);
-                }
-                dto.setCells(cellDTOs);
-                dtos.add(dto);
+                dtos.add(mapGoodsToDTOs(goods));
             }
         }
         return dtos;
     }
+
+    private GoodsDTO mapGoodsToDTOs(Goods goods) {
+        Assert.notNull(goods, "Goods is null");
+        GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
+        try {
+            dto.setStatus(goodsDAO.findGoodsCurrentStatus(goods.getId()));
+        } catch (GenericDAOException e) {
+            logger.error("Error getting current status: {}", e);
+        }
+        List<StorageCellDTO> cellDTOs = new ArrayList<>();
+        for (StorageCell cell : goods.getCells()) {
+            StorageCellDTO cellDTO = new StorageCellDTO();
+            cellDTO.setIdGoods(goods.getId());
+            cellDTO.setIdStorageCell(cell.getIdStorageCell());
+            cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
+            cellDTO.setNumber(cell.getNumber());
+            cellDTOs.add(cellDTO);
+        }
+        dto.setCells(cellDTOs);
+        return dto;
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -357,20 +379,41 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GoodsStatus> findStatusesOfGoods(Long goodsId) throws
+    public List<GoodsStatusDTO> findStatusesOfGoods(Long goodsId) throws
             IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find all statuses of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Optional<Goods> result = null;
         try {
-            result = goodsDAO.findById(goodsId);
-            if (result.isPresent())
-                return result.get().getStatuses();
-            else throw new ResourceNotFoundException("Goods with such id was not found");
+            List<GoodsStatus> statuses = goodsStatusDAO.findByGoodsId(goodsId);
+            return mapGoodsStatusesToDTOs(statuses);
         } catch (GenericDAOException e) {
             logger.error("Error during retrieval of goods statuses: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    private GoodsStatusDTO mapGoodsStatusToDTO(GoodsStatus status) {
+        Assert.notNull(status, "Status is null");
+        GoodsStatusDTO dto = GoodsStatusDTO.buildStatusDTO(status);
+        User user = new User();
+        user.setId(status.getUser().getId());
+        user.setLastName(status.getUser().getLastName());
+        user.setFirstName(status.getUser().getFirstName());
+        user.setPatronymic(status.getUser().getPatronymic());
+        dto.setUser(user);
+        return dto;
+    }
+
+    private List<GoodsStatusDTO> mapGoodsStatusesToDTOs(List<GoodsStatus> statuses) {
+        Assert.notNull(statuses, "Statuses is null");
+        List<GoodsStatusDTO> statusDTOs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(statuses)) {
+            for (GoodsStatus status : statuses) {
+                statusDTOs.add(mapGoodsStatusToDTO(status));
+            }
+        }
+        return statusDTOs;
     }
 
     @Override

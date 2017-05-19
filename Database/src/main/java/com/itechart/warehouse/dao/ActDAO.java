@@ -31,4 +31,16 @@ public class ActDAO extends DAO<Act> {
         query.setMaxResults(maxResults);
         return query.list();
     }
+
+
+    public List<Act> findByGoodsId(Long goodsId) throws GenericDAOException {
+        logger.info("Find list of acts for goods with id: {}", goodsId);
+
+        String queryHql = "SELECT DISTINCT act FROM Act act" +
+                " INNER JOIN act.goods goods" +
+                " WHERE goods.id = :goodsId";
+        Query<Act> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("goodsId", goodsId);
+        return query.list();
+    }
 }

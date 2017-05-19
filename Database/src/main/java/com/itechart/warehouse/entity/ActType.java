@@ -8,7 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "act_type")
 public class ActType {
-    @JsonIgnore
     private Short id;
     private String name;
 

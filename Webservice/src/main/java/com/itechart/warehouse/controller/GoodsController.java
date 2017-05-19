@@ -52,7 +52,7 @@ public class GoodsController {
         this.goodsService = goodsService;
     }
 
-    @RequestMapping(value = "/{warehouseId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{warehouseId}/list", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<GoodsDTO>> getGoods(@RequestParam(defaultValue = "-1") int page,
                                                    @RequestParam(defaultValue = "0") int count,
@@ -67,9 +67,25 @@ public class GoodsController {
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{goodsId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GoodsDTO> getGoodsById(@PathVariable Long goodsId)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Handling request for goods with id {}", goodsId);
+        return new ResponseEntity<>(goodsService.findGoodsDTOById(goodsId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "status/{goodsId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GoodsStatusDTO>> getStatusOfGoods(@PathVariable Long goodsId)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Handling request for status of goods with id {}", goodsId);
+        return new ResponseEntity<>(goodsService.findStatusesOfGoods(goodsId), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/statuses", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<GoodsStatusName>> getStatuses() throws DataAccessException {
+    public ResponseEntity<List<GoodsStatusName>> getStatusNames() throws DataAccessException {
         logger.info("Handling request for roles list");
         List<GoodsStatusName> statuses = goodsService.getStatusNames();
         return new ResponseEntity<>(statuses, HttpStatus.OK);
@@ -77,7 +93,7 @@ public class GoodsController {
 
     @RequestMapping(value = "/storageTypes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<StorageSpaceType>> getStorageTypes() throws DataAccessException {
+    public ResponseEntity<List<StorageSpaceType>> getStorageTypesNames() throws DataAccessException {
         logger.info("Handling request for storage space types list");
         List<StorageSpaceType> storageSpaceTypes = goodsService.getStorageSpaceTypes();
         return new ResponseEntity<>(storageSpaceTypes, HttpStatus.OK);
@@ -85,7 +101,7 @@ public class GoodsController {
 
     @RequestMapping(value = "/units", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Unit>> getUnits() throws DataAccessException {
+    public ResponseEntity<List<Unit>> getUnitsNames() throws DataAccessException {
         logger.info("Handling request for units list");
         List<Unit> units = goodsService.getUnits();
         return new ResponseEntity<>(units, HttpStatus.OK);
@@ -125,10 +141,10 @@ public class GoodsController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<GoodsDTO>> findGoods(@RequestParam(defaultValue = "-1") int page,
-                                                 @RequestParam(defaultValue = "0") int count,
-                                                 @PathVariable Long warehouseId,
-                                                 @RequestBody GoodsSearchDTO searchDTO,
-                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException, GenericDAOException {
+                                                    @RequestParam(defaultValue = "0") int count,
+                                                    @PathVariable Long warehouseId,
+                                                    @RequestBody GoodsSearchDTO searchDTO,
+                                                    HttpServletResponse response) throws DataAccessException, IllegalParametersException, GenericDAOException {
         logger.info("Handling request for searching list of goods by DTO: {}, page: {}, count: {}", searchDTO, page, count);
         long goodsCount = goodsService.getGoodsCount(warehouseId);
         response.addHeader("X-total-count", String.valueOf(goodsCount));

@@ -62,6 +62,16 @@ public class ActController {
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "acts/{goodsId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ActDTO>> getStatusOfGoods(@PathVariable Long goodsId)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Handling request for acts of goods with id {}", goodsId);
+        return new ResponseEntity<>(actService.findActsForGoods(goodsId, -1, -1), HttpStatus.OK);
+    }
+
+
     @RequestMapping(value = "/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
