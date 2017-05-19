@@ -33,15 +33,13 @@ public class WarehouseCustomerCompanyControllerTest {
     @Autowired
     private WebApplicationContext context;
 
-    @Autowired
-    private WarehouseCompanyService warehouseCompanyService;
-
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
     @Test
+    @WithUserDetails(userDetailsServiceBeanName = "userDetailsService")
     public void readCustomers() throws Exception {
         mockMvc.perform(get("/customer/")
                 .contentType(MediaType.APPLICATION_JSON))

@@ -13,7 +13,6 @@ import com.itechart.warehouse.service.services.WarehouseCompanyService;
 import com.itechart.warehouse.service.services.WarehouseCustomerCompanyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -38,7 +37,9 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     }
 
     @Autowired
-    public void setCompanyService(WarehouseCompanyService service){this.companyService = service;}
+    public void setCompanyService(WarehouseCompanyService service) {
+        this.companyService = service;
+    }
 
 
     @Override
@@ -60,7 +61,29 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCustomerCompany findWarehouseCustomerCompanyById(Long id) throws DataAccessException {
+    @PreAuthorize("hasPermission(#companyId, 'WarehouseCompany', 'GET')")
+    public List<WarehouseCustomerCompany> findAllCustomersForWarehouseCompany(int page, int count, Long companyId)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("Find all customer companies");
+
+        if (companyId == null) {
+            throw new IllegalParametersException("Company id is null");
+        }
+
+        List<WarehouseCustomerCompany> customers;
+        try {
+            customers = customerDAO.findCustomersByWarehouseCompanyId(companyId, page, count);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for customers: {}", e.getMessage());
+            throw new DataAccessException(e);
+        }
+
+        return customers;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WarehouseCustomerCompany findCustomerById(Long id) throws DataAccessException {
         logger.info("Find customer company by id #{}", id);
 
         WarehouseCustomerCompany company = null;
@@ -75,6 +98,13 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         }
 
         return company;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#warehouseCompanyId, 'WarehouseCompany', 'GET')")
+    public WarehouseCustomerCompany findCustomerForCompanyById(Long id, Long warehouseCompanyId) throws DataAccessException {
+        return findCustomerById(id);
     }
 
     @Override
@@ -103,6 +133,24 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public WarehouseCompany findWarehouseCompanyByCustomerId(Long customerId)
+            throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
+        logger.info("Find warehouse company of customer with id {}", customerId);
+
+        if (customerId == null) {
+            throw new IllegalParametersException("Customer id is null");
+        }
+
+        WarehouseCustomerCompany customer = findCustomerById(customerId);
+        if (customer == null) {
+            throw new ResourceNotFoundException("Customer with such id was not found");
+        }
+
+        return customer.getWarehouseCompany();
+    }
+
+    @Override
     @Transactional
     //todo @PreAuthorize("hasPermission('WarehouseCustomerCompany', 'WRITE')")
     public WarehouseCustomerCompany saveWarehouseCustomerCompany(WarehouseCustomerCompanyDTO dto, WarehouseCompany company) throws DataAccessException {
@@ -125,29 +173,19 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'UPDATE')")
-    public WarehouseCustomerCompany updateWarehouseCustomerCompany(String id, WarehouseCustomerCompanyDTO dto)
+    public WarehouseCustomerCompany updateWarehouseCustomerCompany(Long id, WarehouseCustomerCompanyDTO dto, Long companyId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Update customer dto: {}", dto);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-
         WarehouseCustomerCompany updatedCompany;
         try {
-            Long customerId = Long.valueOf(id);
-            if (customerDAO.isExistsEntity(customerId)) {
-                dto.setId(customerId);
+            dto.setId(id);
 
-                WarehouseCustomerCompany company = mapToEntity(dto);
-                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(dto.getWarehouseCompanyId());
-                company.setWarehouseCompany(companyOfCustomer);
+            WarehouseCustomerCompany company = mapToEntity(dto);
+            WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(companyId);
+            company.setWarehouseCompany(companyOfCustomer);
 
-                updatedCompany = customerDAO.update(company);
-            } else {
-                logger.error("Customer with id {} not found", customerId);
-                throw new ResourceNotFoundException("Customer not found");
-            }
+            updatedCompany = customerDAO.update(company);
         } catch (GenericDAOException e) {
             logger.error("Error while updating customer dto: ", e);
             throw new DataAccessException(e);
@@ -159,22 +197,17 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'DELETE')")
-    public void deleteWarehouseCustomerCompany(String id)
+    public void deleteWarehouseCustomerCompany(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Delete customer dto by: id {}", id);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-
         try {
-            Long customerId = Long.valueOf(id);
-            Optional<WarehouseCustomerCompany> optional = customerDAO.findById(customerId);
+            Optional<WarehouseCustomerCompany> optional = customerDAO.findById(id);
             if (optional.isPresent()) {
                 WarehouseCustomerCompany customer = optional.get();
                 customerDAO.delete(customer);
             } else {
-                logger.error("Customer with id {} not found", customerId);
+                logger.error("Customer with id {} not found", id);
                 throw new ResourceNotFoundException("Customer not found");
             }
         } catch (GenericDAOException e) {

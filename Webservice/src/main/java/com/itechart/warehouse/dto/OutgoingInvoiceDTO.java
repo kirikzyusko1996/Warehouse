@@ -28,7 +28,6 @@ public class OutgoingInvoiceDTO {
     private String goodsQuantityUnit;
     private String goodsEntryCountUnit;
     private String manager;
-    private Timestamp registrationDate;
     private List<GoodsDTO> goods;
 
     public void setReceiverCompany(WarehouseCustomerCompany receiverCompany) {
@@ -39,6 +38,9 @@ public class OutgoingInvoiceDTO {
         this.receiverCompany = receiverCompany;
     }
 
+    public Long getRecieverCompanyId(){
+        return Long.valueOf(receiverCompany);
+    }
 
     public void setTransportCompany(TransportCompany transportCompany) {
         this.transportCompany = transportCompany.getName();
@@ -46,6 +48,10 @@ public class OutgoingInvoiceDTO {
 
     public void setTransportCompany(String transportCompany) {
         this.transportCompany = transportCompany;
+    }
+
+    public Long getTransportCompanyId(){
+        return Long.valueOf(transportCompany);
     }
 
     public void setManager(User manager) {

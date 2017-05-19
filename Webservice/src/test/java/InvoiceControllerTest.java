@@ -162,7 +162,6 @@ public class InvoiceControllerTest {
         invoice.setGoodsEntryCount(4000);
         invoice.setGoodsQuantityUnit(createUnit("м"));
         invoice.setGoodsEntryCountUnit(createUnit("л"));
-        invoice.setRegistrationDate(new Timestamp(today().getTime()));
         invoice.setDispatcher(userService.findUserByLogin("kirikzyusko1996"));
         invoice.setGoods(createGoods());
 
@@ -184,7 +183,6 @@ public class InvoiceControllerTest {
         invoice.setGoodsEntryCount(4000);
         invoice.setGoodsQuantityUnit(createUnit("м"));
         invoice.setGoodsEntryCountUnit(createUnit("л"));
-        invoice.setRegistrationDate(new Timestamp(today().getTime()));
         invoice.setManager(userService.findUserByLogin("kirikzyusko1996"));
         invoice.setGoods(createGoods());
 
