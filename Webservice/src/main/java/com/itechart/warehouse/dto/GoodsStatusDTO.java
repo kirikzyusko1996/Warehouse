@@ -18,12 +18,12 @@ import java.sql.Timestamp;
 @Getter
 @lombok.ToString
 public class GoodsStatusDTO {
+    private Long id;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     @NotEmpty
     private String name;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String note;
-    private Long id;
     private Timestamp date;
     private User user;
 

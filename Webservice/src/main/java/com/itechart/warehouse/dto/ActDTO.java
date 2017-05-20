@@ -1,5 +1,6 @@
 package com.itechart.warehouse.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import com.itechart.warehouse.entity.Act;
@@ -29,6 +30,7 @@ public class ActDTO {
     private Long id;
     private Timestamp date;
     private String note;
+    private long totalCount;
 
     public static ActDTO buildStatusDTO(Act act) {
         Assert.notNull(act, "Act is null");

@@ -17,9 +17,9 @@ import java.sql.Timestamp;
 public class ActSearchDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String type;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Timestamp fromDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Timestamp toDate;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String creatorLastName;

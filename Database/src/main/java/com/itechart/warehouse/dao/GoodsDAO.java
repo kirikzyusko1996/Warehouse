@@ -75,7 +75,7 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
     public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find list of {} goods starting from {} by example: {}", maxResults, firstResult);
+        logger.info("Find list of {} goods starting from {} by query: {} with parameters", maxResults, firstResult, query, parameters);
         if (query == null || parameters == null) throw new AssertionError();
         Query<Goods> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
@@ -84,6 +84,27 @@ public class GoodsDAO extends DAO<Goods> {
         queryHQL.setFirstResult(firstResult);
         queryHQL.setMaxResults(maxResults);
         return queryHQL.list();
+    }
+
+    public long getCountByQuery(String query, Map<String, Object> parameters) throws GenericDAOException {
+        logger.info("Get count of goods by query: {} with parameters", query, parameters);
+        if (query == null || parameters == null) throw new AssertionError();
+        Query<Long> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            queryHQL.setParameter(entry.getKey(), entry.getValue());
+        }
+        return queryHQL.getSingleResult();
+    }
+
+
+    public int getGoodsSearchCount(String query, Map<String, Object> parameters) throws GenericDAOException {
+        logger.info("Find goods count by query: {} with parameters", query, parameters);
+        if (query == null || parameters == null) throw new AssertionError();
+        Query<Integer> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            queryHQL.setParameter(entry.getKey(), entry.getValue());
+        }
+        return queryHQL.getSingleResult();
     }
 
     public long getGoodsCount(Long warehouseId) throws GenericDAOException {

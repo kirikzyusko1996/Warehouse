@@ -161,6 +161,8 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
+
+
     @Override
     @Transactional
     public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
@@ -327,6 +329,148 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO goodsSearchDTO) throws DataAccessException, IllegalParametersException {
+        logger.info("Get users count for warehouse with id: {} by DTO:", warehouseId, goodsSearchDTO);
+        if (warehouseId == null||goodsSearchDTO == null) throw new IllegalParametersException("Warehouse id or DTO is null");
+        StringBuilder root = new StringBuilder("SELECT count(*) FROM Goods goods");
+        QueryBuilder builder = new QueryBuilder(root);
+        builder.addRestriction("warehouse.idWarehouse = :warehouseId");
+        builder.addJoin("INNER JOIN GoodsStatus status ON status.goods = goods");
+        builder.addJoin("INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice");
+        builder.addJoin("INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse");
+
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put("warehouseId", warehouseId);
+
+
+        if (StringUtils.isNotBlank(goodsSearchDTO.getName())) {
+            builder.addRestriction("goods.name LIKE :goodsName");
+            queryParameters.put("goodsName", "%" + goodsSearchDTO.getName() + "%");
+        }
+
+        if (goodsSearchDTO.getMinQuantity() != null) {
+            builder.addRestriction("goods.quantity >= :minGoodsQuantity");
+            queryParameters.put("minGoodsQuantity", goodsSearchDTO.getMinQuantity());
+        }
+        if (goodsSearchDTO.getMaxQuantity() != null) {
+            builder.addRestriction("goods.quantity <= :maxGoodsQuantity");
+            queryParameters.put("maxGoodsQuantity", goodsSearchDTO.getMaxQuantity());
+        }
+        if (goodsSearchDTO.getMinWeight() != null) {
+            builder.addRestriction("goods.weight >= :minGoodsWeight");
+            queryParameters.put("minGoodsWeight", goodsSearchDTO.getMinWeight());
+        }
+        if (goodsSearchDTO.getMaxWeight() != null) {
+            builder.addRestriction("goods.weight <= :maxGoodsWeight");
+            queryParameters.put("maxGoodsWeight", goodsSearchDTO.getMaxWeight());
+        }
+
+        if (goodsSearchDTO.getMinPrice() != null) {
+            builder.addRestriction("goods.price >= :minGoodsPrice");
+            queryParameters.put("minGoodsPrice", goodsSearchDTO.getMinPrice());
+        }
+        if (goodsSearchDTO.getMaxPrice() != null) {
+            builder.addRestriction("goods.price <= :maxGoodsPrice");
+            queryParameters.put("maxGoodsPrice", goodsSearchDTO.getMaxPrice());
+        }
+        try {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getCurrentStatus())) {
+                builder.addRestriction("status_2.goods IS NULL AND status.goodsStatusName = :statusName");
+                builder.addJoin("LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date");
+                queryParameters.put("statusName", findGoodsStatusNameByName(goodsSearchDTO.getCurrentStatus()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for goods status: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        try {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getStorageType())) {
+                builder.addRestriction("goods.storageType = :goodsStorageType");
+                queryParameters.put("goodsStorageType", findStorageTypeByName(goodsSearchDTO.getStorageType()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for storage type: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        try {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getQuantityUnit())) {
+                builder.addRestriction("goods.quantityUnit = :goodsQuantityUnit");
+                queryParameters.put("goodsQuantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnit()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for unit: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        try {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getWeightUnit())) {
+                builder.addRestriction("goods.weightUnit = :goodsWeightUnit");
+                queryParameters.put("goodsWeightUnit", findUnitByName(goodsSearchDTO.getWeightUnit()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for unit: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        try {
+            if (StringUtils.isNotBlank(goodsSearchDTO.getPriceUnit())) {
+                builder.addRestriction("goods.priceUnit = :goodsPriceUnit");
+                queryParameters.put("goodsPriceUnit", findUnitByName(goodsSearchDTO.getPriceUnit()));
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for unit: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+
+        if (goodsSearchDTO.getStatuses() != null) {
+            int counter = 3;
+            for (GoodsStatusSearchDTO statusDTO : goodsSearchDTO.getStatuses()) {
+                try {
+                    builder.addJoin("INNER JOIN GoodsStatus status_" + counter + " ON status_" + counter + ".goods = goods");
+                    if (StringUtils.isNotBlank(statusDTO.getName())) {
+                        builder.addRestriction("status_" + counter + ".goodsStatusName = :statusName_" + counter);
+                        queryParameters.put("statusName_" + counter, findGoodsStatusNameByName(statusDTO.getName()));
+                    }
+                    if (statusDTO.getFromDate() != null) {
+                        builder.addRestriction("status_" + counter + ".date >= :statusFromDate_" + counter);
+                        queryParameters.put("statusFromDate_" + counter, statusDTO.getFromDate());
+                    }
+                    if (statusDTO.getToDate() != null) {
+                        builder.addRestriction("status_" + counter + ".date <= :statusToDate_" + counter);
+                        queryParameters.put("statusToDate_" + counter, new Timestamp(new DateTime(statusDTO.getToDate()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate().getTime()));
+                    }
+                    if (StringUtils.isNotBlank(statusDTO.getUserFirstName()) || StringUtils.isNotBlank(statusDTO.getUserLastName()) || StringUtils.isNotBlank(statusDTO.getUserPatronymic())) {
+                        builder.addJoin("INNER JOIN User user_" + counter + " ON status_" + counter + ".user = user_" + counter);
+                    }
+                    if (StringUtils.isNotBlank(statusDTO.getUserFirstName())) {
+                        builder.addRestriction("user_" + counter + ".firstName LIKE :statusUserFirstName_" + counter);
+                        queryParameters.put("statusUserFirstName_" + counter, "%" + statusDTO.getUserFirstName() + "%");
+                    }
+                    if (StringUtils.isNotBlank(statusDTO.getUserLastName())) {
+                        builder.addRestriction("user_" + counter + ".lastName LIKE :statusUserLastName_" + counter);
+                        queryParameters.put("statusUserLastName_" + counter, "%" + statusDTO.getUserLastName() + "%");
+                    }
+                    if (StringUtils.isNotBlank(statusDTO.getUserPatronymic())) {
+                        builder.addRestriction("user_" + counter + ".patronymic LIKE :statusUserPatronymic_" + counter);
+                        queryParameters.put("statusUserPatronymic_" + counter, "%" + statusDTO.getUserPatronymic() + "%");
+                    }
+                    counter++;
+                } catch (GenericDAOException e) {
+                    logger.error("Error during search for goods status: {}", e.getMessage());
+                    throw new DataAccessException(e.getCause());
+                }
+            }
+        }
+
+        try {
+            return goodsDAO.getCountByQuery(builder.build().toString(), queryParameters);
+        } catch (GenericDAOException e) {
+            logger.error("Error during getting count: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+
     private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
         List<GoodsDTO> dtos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(goodsList)) {
@@ -341,7 +485,9 @@ public class GoodsServiceImpl implements GoodsService {
         Assert.notNull(goods, "Goods is null");
         GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
         try {
-            dto.setStatus(goodsDAO.findGoodsCurrentStatus(goods.getId()));
+            GoodsStatus status = goodsDAO.findGoodsCurrentStatus(goods.getId());
+            if (status!=null)
+            dto.setStatus(GoodsStatusDTO.buildStatusDTO(status));
         } catch (GenericDAOException e) {
             logger.error("Error getting current status: {}", e);
         }
@@ -490,7 +636,20 @@ public class GoodsServiceImpl implements GoodsService {
                     if (goodsDTO.getStorageType().getName() != null)
                         goodsToUpdate.setStorageType(findStorageTypeByName(goodsDTO.getStorageType().getName()));
                 } else throw new IllegalParametersException("Storage type can not be empty");
-                return goodsDAO.update(goodsToUpdate);
+                Goods savedGoods = goodsDAO.update(goodsToUpdate);
+
+                if (goodsDTO.getStatus() != null) {
+                    if (StringUtils.isNotBlank(goodsDTO.getStatus().getName())) {
+                        GoodsStatus goodsStatus = new GoodsStatus();
+                        goodsStatus.setGoods(savedGoods);
+                        goodsStatus.setDate(new Timestamp(new Date().getTime()));
+                        goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                        goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsDTO.getStatus().getName()));
+                        goodsStatusDAO.insert(goodsStatus);
+                    }
+                }
+                return savedGoods;
+
             } else throw new ResourceNotFoundException("Goods with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during saving goods: {}", e.getMessage());

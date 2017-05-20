@@ -27,6 +27,8 @@ public interface GoodsService {
 
     long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
 
+    long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException;
+
     List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;

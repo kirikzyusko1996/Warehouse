@@ -1,13 +1,16 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.controller.error.RequestHandlingError;
+import com.itechart.warehouse.controller.error.ValidationError;
+import com.itechart.warehouse.controller.error.ValidationErrorBuilder;
+import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.dto.ActDTO;
-import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.entity.Act;
+import com.itechart.warehouse.entity.ActType;
 import com.itechart.warehouse.entity.WarehouseCompany;
-import com.itechart.warehouse.controller.error.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -15,6 +18,7 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -50,25 +55,45 @@ public class ActController {
 
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Act>> getActs(@RequestParam(defaultValue = "-1") int page,
-                                             @RequestParam(defaultValue = "0") int count) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+    public ResponseEntity<List<ActDTO>> getActs(@RequestParam(defaultValue = "-1") int page,
+                                                @RequestParam(defaultValue = "0") int count,
+                                                HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for list of acts, page: {}, count: {}", page, count);
-        List<Act> acts = null;
+        List<ActDTO> acts = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
             acts = actService.findActsForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+            long actsCount = actService.getActsCount(company.getIdWarehouseCompany());
+            response.addHeader("X-total-count", String.valueOf(actsCount));
+            response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }
 
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ActDTO> getActsDTOs(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Handling request for act with id: {}", id);
+        ActDTO act = actService.findActDTOById(id);
+        return new ResponseEntity<>(act, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "acts/{goodsId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActDTO>> getStatusOfGoods(@PathVariable Long goodsId)
+    public ResponseEntity<List<ActDTO>> getActsForGoods(@PathVariable Long goodsId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for acts of goods with id {}", goodsId);
         return new ResponseEntity<>(actService.findActsForGoods(goodsId, -1, -1), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/acts", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<ActType>> getActTypes() throws DataAccessException {
+        logger.info("Handling request for units list");
+        List<ActType> actTypes = actService.getActTypes();
+        return new ResponseEntity<>(actTypes, HttpStatus.OK);
     }
 
 
@@ -90,7 +115,7 @@ public class ActController {
                                                     @Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for updating act with id: {} by DTO: {}", id, actDTO);
         actService.updateAct(id, actDTO);
-        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED),HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
@@ -101,18 +126,23 @@ public class ActController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.GET,
+    @RequestMapping(value = "/search", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Act>> findActs(@RequestParam(defaultValue = "-1") int page,
-                                              @RequestParam (defaultValue = "0")int count,
-                                              @RequestBody ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+    public ResponseEntity<List<ActDTO>> findActs(@RequestParam(defaultValue = "-1") int page,
+                                                 @RequestParam(defaultValue = "0") int count,
+                                                 @RequestBody ActSearchDTO actSearchDTO,
+                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for searching list of acts by field: {}, page: {}, count: {}", actSearchDTO, page, count);
-        List<Act> acts = null;
+        List<ActDTO> acts = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
             acts = actService.findActsForCompanyByCriteria(company.getIdWarehouseCompany(), actSearchDTO, (page - 1) * count, count);
+            if (CollectionUtils.isNotEmpty(acts)) {
+                if (acts.get(0) != null)
+                    response.addHeader("X-total-count", String.valueOf(acts.get(0).getTotalCount()));
+            } else response.addHeader("X-total-count", String.valueOf(0));
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }

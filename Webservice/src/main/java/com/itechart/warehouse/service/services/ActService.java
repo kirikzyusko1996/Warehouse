@@ -3,6 +3,7 @@ package com.itechart.warehouse.service.services;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.entity.Act;
+import com.itechart.warehouse.entity.ActType;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -20,11 +21,17 @@ public interface ActService {
 
     Act findActById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    ActDTO findActDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    List<ActType> getActTypes() throws DataAccessException;
+
     List<ActDTO> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Act> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<ActDTO> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Act> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    long getActsCount(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException;
+
+    List<ActDTO> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     WarehouseCompany findWarehouseCompanyOwner(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 

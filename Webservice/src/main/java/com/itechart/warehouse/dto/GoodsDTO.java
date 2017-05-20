@@ -22,34 +22,32 @@ import java.util.List;
 
 public class GoodsDTO {
     private Long id;
-    @NotBlank
+    @NotBlank(message = "Name can not be empty")
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String name;
     @DecimalMin(value = "0.0", message = "Quantity can not be less than 0.0")
-    @NotNull
+    @NotNull(message = "Quantity can not be empty")
     private BigDecimal quantity;
     @DecimalMin(value = "0.0", message = "Weight can not be less than 0.0")
-    @NotNull
+    @NotNull(message = "Weight can not be empty")
     private BigDecimal weight;
     @DecimalMin(value = "0.0", message = "Price can not be less than 0.0")
-    @NotNull
+    @NotNull(message = "Price can not be empty")
     private BigDecimal price;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotNull
+    @NotNull(message = "Storage type can not be empty")
     private StorageSpaceType storageType;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotNull
+    @NotNull(message = "Quantity unit can not be empty")
     private Unit quantityUnit;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotNull
+    @NotNull(message = "weight unit can not be empty")
     private Unit weightUnit;
-    @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotNull
+    @NotNull(message = "Price unit can not be empty")
     private Unit priceUnit;
 
     private List<StorageCellDTO> cells;
 
-    private GoodsStatus status;
+    private GoodsStatusDTO status;
+
+    private int totalCount;
 
 
     public void addCell(StorageCellDTO cell) {

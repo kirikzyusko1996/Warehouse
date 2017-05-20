@@ -146,10 +146,12 @@ public class GoodsController {
                                                     @RequestBody GoodsSearchDTO searchDTO,
                                                     HttpServletResponse response) throws DataAccessException, IllegalParametersException, GenericDAOException {
         logger.info("Handling request for searching list of goods by DTO: {}, page: {}, count: {}", searchDTO, page, count);
-        long goodsCount = goodsService.getGoodsCount(warehouseId);
-        response.addHeader("X-total-count", String.valueOf(goodsCount));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+
         List<GoodsDTO> goods = goodsService.findGoodsForWarehouseByCriteria(warehouseId, searchDTO, (page - 1) * count, count);
+
+        response.addHeader("X-total-count", String.valueOf(goodsService.getGoodsSearchResultCount(warehouseId, searchDTO)));
+        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
