@@ -131,7 +131,7 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#warehouseCompanyId, 'TransportCompany', 'GET')")
+    @PreAuthorize("hasPermission(#id, 'TransportCompany', 'GET')")
     public TransportCompany findTransportForCompanyById(Long id, Long warehouseCompanyId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         return findTransportCompanyById(id);

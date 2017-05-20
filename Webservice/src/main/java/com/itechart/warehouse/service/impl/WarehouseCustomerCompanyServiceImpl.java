@@ -102,7 +102,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#warehouseCompanyId, 'WarehouseCompany', 'GET')")
+    @PreAuthorize("hasPermission(#id, 'WarehouseCustomerCompany', 'GET')")
     public WarehouseCustomerCompany findCustomerForCompanyById(Long id, Long warehouseCompanyId) throws DataAccessException {
         return findCustomerById(id);
     }

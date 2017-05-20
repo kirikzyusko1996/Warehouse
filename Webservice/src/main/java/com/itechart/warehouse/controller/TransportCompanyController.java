@@ -61,7 +61,7 @@ public class TransportCompanyController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<TransportCompany> readCompany(@PathVariable Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("GET on /tr-company/{}: find transport company by id");
+        logger.info("GET on /tr-company/{}: find transport company by id", id);
 
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         if (userDetails != null) {
