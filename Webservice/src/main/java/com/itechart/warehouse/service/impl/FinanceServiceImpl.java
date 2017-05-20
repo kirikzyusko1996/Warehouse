@@ -151,7 +151,7 @@ public class FinanceServiceImpl implements FinanceService{
                         .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
             return priceListDAO.findAll(criteria, skip, limit);
         } catch (GenericDAOException e) {
-            logger.error("Error during search for goodsList: {}", e.getMessage());
+            logger.error("Error during search for goodsIdList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
@@ -171,7 +171,7 @@ public class FinanceServiceImpl implements FinanceService{
                     .add(Restrictions.eq("warehouseCompany",  UserDetailsProvider.getUserDetails().getCompany()));
             return priceListDAO.findAll(criteria, skip, limit);
         } catch (GenericDAOException e) {
-            logger.error("Error during search for goodsList: {}", e.getMessage());
+            logger.error("Error during search for goodsIdList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }

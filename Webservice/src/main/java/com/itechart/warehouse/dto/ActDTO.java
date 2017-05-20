@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
 import com.itechart.warehouse.entity.Act;
+import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,12 +20,13 @@ import java.util.List;
  */
 @Setter
 @Getter
-@lombok.ToString(exclude = "goodsList")
+@lombok.ToString(exclude = "goodsIdList")
 public class ActDTO {
-    @NotEmpty
-    private List<Long> goodsList;
+    @NotEmpty(message = "Goods id's list is empty")
+    private List<Long> goodsIdList;
+    private List<Goods> goodsList;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
-    @NotBlank
+    @NotBlank (message = "Act type is blank")
     private String type;
     private User user;
     private Long id;

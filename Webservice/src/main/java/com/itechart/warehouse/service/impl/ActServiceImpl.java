@@ -16,6 +16,7 @@ import com.itechart.warehouse.service.services.ActService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -110,6 +111,7 @@ public class ActServiceImpl implements ActService {
         }
     }
     @Override
+    @Transactional(readOnly = true)
     public List<ActType> getActTypes() throws DataAccessException {
         logger.info("Getting act types list");
         DetachedCriteria criteria = DetachedCriteria.forClass(ActType.class);
@@ -124,7 +126,7 @@ public class ActServiceImpl implements ActService {
     @Override
     @Transactional(readOnly = true)
     public List<ActDTO> findActsForGoods(Long goodsId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find {} acts starting from index {} by goodsList id: {}", maxResults, firstResult, goodsId);
+        logger.info("Find {} acts starting from index {} by goodsIdList id: {}", maxResults, firstResult, goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         try {
             return mapActsToDTOs(actDAO.findByGoodsId(goodsId));
@@ -134,7 +136,7 @@ public class ActServiceImpl implements ActService {
         }
     }
 
-
+    @Transactional(readOnly = true)
     private ActDTO mapActToDTO(Act act) {
         Assert.notNull(act, "Act is null");
         ActDTO dto = ActDTO.buildStatusDTO(act);
@@ -143,12 +145,14 @@ public class ActServiceImpl implements ActService {
         user.setLastName(act.getUser().getLastName());
         user.setFirstName(act.getUser().getFirstName());
         user.setPatronymic(act.getUser().getPatronymic());
+        Hibernate.initialize(act.getGoods());
         dto.setUser(user);
+        dto.setGoodsList(act.getGoods());
         return dto;
     }
 
     private List<ActDTO> mapActsToDTOs(List<Act> acts) {
-        Assert.notNull(acts, "Acts is null");
+        Assert.notNull(acts, "Acts list is null");
         List<ActDTO> actDTOs = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(acts)) {
             for (Act act : acts) {
@@ -190,7 +194,7 @@ public class ActServiceImpl implements ActService {
     @Transactional(readOnly = true)
 //    @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")//todo security check
     public List<ActDTO> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} goodsList for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, actSearchDTO);
+        logger.info("Find {} goodsIdList for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, actSearchDTO);
         if (actSearchDTO == null || companyId == null)
             throw new IllegalParametersException("Act search DTO or company id is null");
         try {
@@ -223,7 +227,7 @@ public class ActServiceImpl implements ActService {
             }
             return dtos;
         } catch (GenericDAOException e) {
-            logger.error("Error during search for goodsList: {}", e.getMessage());
+            logger.error("Error during search for goodsIdList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
     }
@@ -296,13 +300,13 @@ public class ActServiceImpl implements ActService {
             } else {
                 throw new ResourceNotFoundException("Authenticated user was not found");
             }
-            if (actDTO.getGoodsList() != null) {
-                setActToGoods(actDTO.getGoodsList(), act);
+            if (actDTO.getGoodsIdList() != null) {
+                setActToGoods(actDTO.getGoodsIdList(), act);
                 actDAO.insert(act);
                 return act;
             } else throw new IllegalParametersException("List of good's id's is null");
         } catch (GenericDAOException e) {
-            logger.error("Error during saving goodsList: {}", e.getMessage());
+            logger.error("Error during saving goodsIdList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
 
@@ -327,8 +331,8 @@ public class ActServiceImpl implements ActService {
             if (actResult.isPresent()) {
                 Act act = actResult.get();
                 act.setActType(findActTypeByName(actDTO.getType()));
-                if (actDTO.getGoodsList() != null) {
-                    setActToGoods(actDTO.getGoodsList(), act);
+                if (actDTO.getGoodsIdList() != null) {
+                    setActToGoods(actDTO.getGoodsIdList(), act);
                     return act;
                 } else throw new IllegalParametersException("List of good's id's is null");
             } else {

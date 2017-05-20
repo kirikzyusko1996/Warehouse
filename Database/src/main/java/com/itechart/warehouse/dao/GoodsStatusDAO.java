@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Implementation of goodsList status DAO.
+ * Implementation of goodsIdList status DAO.
  */
 @Repository
 public class GoodsStatusDAO extends DAO<GoodsStatus> {

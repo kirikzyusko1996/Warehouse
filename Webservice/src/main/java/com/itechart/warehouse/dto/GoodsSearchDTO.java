@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Data transfer object containing criteria for searching goodsList.
+ * Data transfer object containing criteria for searching goodsIdList.
  */
 @Setter
 @Getter

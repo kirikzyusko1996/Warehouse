@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of goodsList DAO.
+ * Implementation of goodsIdList DAO.
  */
 @Repository
 public class GoodsDAO extends DAO<Goods> {
