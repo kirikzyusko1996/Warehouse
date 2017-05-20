@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.itechart.warehouse.util.Host.origins;
@@ -22,7 +23,7 @@ import static com.itechart.warehouse.util.Host.origins;
 /**
  * Created by Lenovo on 01.05.2017.
  */
-@CrossOrigin(origins = origins, maxAge = 3600)
+
 @RestController
 @RequestMapping(value = "/warehouse")
 @Validated
@@ -35,8 +36,26 @@ public class WarehouseController {
         this.warehouseService = warehouseService;
     }
 
+    @RequestMapping(value = "/getWarehouseById/{id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Warehouse>> findWarehousesById(@PathVariable String id){
+        logger.info("GET on /warehouse #{}: find all companies", id);
+
+        List<Warehouse> warehouses = new ArrayList<>();
+        try{
+            warehouses.add(warehouseService.findWarehouseById(id));
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while reading warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>(warehouses, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Warehouse>> readWarehouses(@PathVariable String id){
+    public ResponseEntity<List<Warehouse>> findWarehousesByCompanyId(@PathVariable String id){
         System.out.println("ID: "+id);
         logger.info("GET on /warehouse: find all companies");
 

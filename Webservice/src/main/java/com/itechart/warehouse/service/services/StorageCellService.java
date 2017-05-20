@@ -13,4 +13,5 @@ public interface StorageCellService {
     StorageCell createStorageCell(StorageCellDTO storageCellDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
     StorageCell updateStorageCell(StorageCellDTO storageCellDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
     void deleteStorageCell(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    StorageCell findStorageCellById(String id) throws DataAccessException, IllegalParametersException;
 }

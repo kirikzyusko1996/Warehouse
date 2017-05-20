@@ -7,6 +7,7 @@ import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.SchemeDTO;
 import com.itechart.warehouse.dto.StorageCellDTO;
+import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.StorageCell;
 import com.itechart.warehouse.entity.StorageSpace;
 import com.itechart.warehouse.entity.User;
@@ -53,34 +54,6 @@ public class StorageCellServiceImpl implements StorageCellService {
         this.storageSpaceDAO = storageSpaceDAO;
     }
 
-    /*@Override
-    @Transactional(readOnly = true)
-    public List<SchemeDTO> findStorageByWarehouseId(String id) throws DataAccessException, IllegalParametersException {
-        logger.info("Find storage by id warehouse: {}", id);
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-        List<SchemeDTO> schemeDTOList = null;
-        DetachedCriteria criteria = DetachedCriteria.forClass(StorageCell.class);
-        criteria.add(Restrictions.eq("warehouse.idWarehouse", Long.valueOf(id)));//it's no fact, that it will work
-
-        try {
-            storageSpaces = storageSpaceDAO.findAll(criteria, -1, -1);
-            //it's no fact, that it will work
-
-            *//*for(StorageSpace storageSpace : storageSpaces) {
-                DetachedCriteria criteria2 = DetachedCriteria.forClass(StorageSpace.class);
-                criteria.add(Restrictions.eq("storageSpace.idStorageSpace", storageSpace.getIdStorageSpace()));
-                System.out.println(storageCellDAO.findAll(criteria2, -1, -1));
-            }*//*
-            System.out.println(storageSpaces);
-        } catch (GenericDAOException e) {
-            logger.error("Error during searching for warehouse: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
-        }
-        return storageSpaces;
-    }*/
-
     @Override
     @Transactional
     public StorageCell createStorageCell(StorageCellDTO storageCellDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
@@ -116,9 +89,9 @@ public class StorageCellServiceImpl implements StorageCellService {
                 storageCell.setStorageSpace(storageSpaceDAO.findById(storageCellDTO.getIdStorageSpace()).get());
                 storageCell.setNumber(storageCellDTO.getNumber());
                 storageCell.setIdStorageCell(storageCellDTO.getIdStorageCell());
-                storageCell.setGoods(goodsDAO.findById(storageCellDTO.getIdGoods()).get());
+                storageCell.setGoods(storageCell.getGoods());//because this parameter immutable to front end
                 if(storageCell.getStorageSpace()==null || storageCell.getNumber()==null
-                        || storageCell.getGoods()==null || storageCell.getIdStorageCell()==null) { //TODO: через
+                         || storageCell.getIdStorageCell()==null) {
                     throw new IllegalParametersException("Can't find such data in the database");
                 }
                 else {
@@ -148,5 +121,24 @@ public class StorageCellServiceImpl implements StorageCellService {
             logger.error("Error during deleting storage cell: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StorageCell findStorageCellById(String id) throws DataAccessException, IllegalParametersException {
+        logger.info("Find StorageCell by id: {}", id);
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
+        StorageCell storageCell = null;
+        try {
+            Long id_warehouse = Long.valueOf(id);
+            Optional<StorageCell> result = storageCellDAO.findById(id_warehouse);
+            storageCell = result.get();
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for warehouse: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return storageCell;
     }
 }

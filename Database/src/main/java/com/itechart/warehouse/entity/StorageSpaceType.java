@@ -17,7 +17,7 @@ public class StorageSpaceType {
     private List<PriceList> priceList;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_storage_space_type", unique = true, nullable = false)
     public Short getIdStorageSpaceType() {
         return idStorageSpaceType;

@@ -14,5 +14,5 @@ import lombok.Setter;
 public class StorageSpaceDTO {
     private Long idStorageSpace;
     private Long idWarehouse;
-    private Long idStorageSpaceType;
+    private Short idStorageSpaceType;
 }

@@ -2,6 +2,7 @@ package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.dto.StorageSpaceDTO;
 import com.itechart.warehouse.entity.StorageSpace;
+import com.itechart.warehouse.entity.StorageSpaceType;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -16,4 +17,5 @@ public interface StorageSpaceService {
     StorageSpace updateStorageSpace(StorageSpaceDTO storageSpaceDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
     void deleteStorageSpace(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
     List<StorageSpace> findStorageByWarehouseId(String id) throws DataAccessException, IllegalParametersException;
+    List<StorageSpaceType> findAllStorageSpaceType() throws DataAccessException;
 }

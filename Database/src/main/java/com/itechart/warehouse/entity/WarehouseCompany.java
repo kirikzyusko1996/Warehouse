@@ -78,6 +78,7 @@ public class WarehouseCompany {
     }
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_warehouse_company")
     public Long getIdWarehouseCompany() {
         return idWarehouseCompany;

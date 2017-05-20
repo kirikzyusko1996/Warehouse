@@ -20,7 +20,7 @@ public interface WarehouseCompanyService {
     Set<WarehouseCompany> findAllThatUsedForPeriod(Date startDate, Date dueDate)
             throws DataAccessException, IllegalParametersException;
 
-    WarehouseCompany findWarehouseCompanyById(Long id) throws DataAccessException;
+    WarehouseCompany findWarehouseCompanyById(String id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     WarehouseCompany saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException;
 

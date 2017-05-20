@@ -3,6 +3,8 @@ package com.itechart.warehouse.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,7 +20,7 @@ public class StorageSpace {
     private List<StorageCell> storageCellList;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_storage_space", unique = true, nullable = false)
     public Long getIdStorageSpace() {
         return idStorageSpace;
@@ -53,7 +55,8 @@ public class StorageSpace {
         storageCellList.add(storageCell);
     }
 
-    @OneToMany(mappedBy = "storageSpace", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "storageSpace", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SELECT)
     public List<StorageCell> getStorageCellList() {
         return storageCellList;
     }

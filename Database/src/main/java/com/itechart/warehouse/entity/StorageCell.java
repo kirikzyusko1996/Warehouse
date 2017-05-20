@@ -13,11 +13,11 @@ public class StorageCell {
     private String number;
     @JsonIgnore
     private StorageSpace storageSpace;
-    @JsonIgnore
+
     private Goods goods;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_storage_cell", unique = true, nullable = false)
     public Long getIdStorageCell() {
         return idStorageCell;
@@ -46,7 +46,7 @@ public class StorageCell {
         this.storageSpace = storageSpace;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_goods")
     public Goods getGoods() {
         return goods;

@@ -15,7 +15,7 @@ public interface WarehouseService {
 
     List<Warehouse> findWarehousesByCompanyId(String id) throws DataAccessException, IllegalParametersException;
 
-    Warehouse findWarehouseById(Long id) throws DataAccessException;
+    Warehouse findWarehouseById(String id) throws DataAccessException, IllegalParametersException;
 
     ////Warehouse findWarehouseByLogin(String login) throws DataAccessException;
 

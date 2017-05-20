@@ -96,4 +96,16 @@ public class TransportCompany {
         result = 31 * result + (isTrusted != null ? isTrusted.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "TransportCompany{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", isTrusted=" + isTrusted +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", warehouseCompany=" + warehouseCompany +
+                '}';
+    }
 }

@@ -114,12 +114,14 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyById(Long id) throws DataAccessException {
+    public WarehouseCompany findWarehouseCompanyById(String id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find warehouse by id: {}", id);
-        if (id == null) return null;
+        if (id == null || !NumberUtils.isNumber(id)) throw new IllegalParametersException("Id is null");
+
         WarehouseCompany warehouseCompany = null;
         try {
-            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(id);
+            Long companyId = Long.valueOf(id);
+            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
             warehouseCompany = result.get();
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
@@ -134,11 +136,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
         logger.info("Saving WarehouseCompany: {}", warehouseCompany);
         WarehouseCompany updatedWarehouseCompany = null;
         try {
-            if (isExists(warehouseCompany)) {
-                updatedWarehouseCompany = warehouseCompanyDAO.update(warehouseCompany);
-            } else {
-                throw new DataAccessException("Company doesn't exists");//TODO remake
-            }
+            updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

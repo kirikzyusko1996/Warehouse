@@ -181,9 +181,9 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         try {
             dto.setId(id);
 
-            WarehouseCustomerCompany company = mapToEntity(dto);
-            WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(companyId);
-            company.setWarehouseCompany(companyOfCustomer);
+                WarehouseCustomerCompany company = mapToEntity(dto);
+                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(Long.toString(dto.getWarehouseCompanyId()));
+                company.setWarehouseCompany(companyOfCustomer);
 
             updatedCompany = customerDAO.update(company);
         } catch (GenericDAOException e) {

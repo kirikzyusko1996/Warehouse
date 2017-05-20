@@ -186,9 +186,9 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
         try {
             dto.setId(id);
 
-            TransportCompany company = mapToEntity(dto);
-            WarehouseCompany warehouseCompanyOfTransport = companyService.findWarehouseCompanyById(warehouseCompanyId);
-            company.setWarehouseCompany(warehouseCompanyOfTransport);
+                TransportCompany company = mapToEntity(dto);
+                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(Long.toString(dto.getWarehouseCompanyId()));
+                company.setWarehouseCompany(companyOfTransportCompany);
 
             updatedCompany = transportDAO.update(company);
         } catch (GenericDAOException e) {

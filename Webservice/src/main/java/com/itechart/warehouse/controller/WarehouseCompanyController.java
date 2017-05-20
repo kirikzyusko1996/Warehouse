@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
@@ -28,7 +29,7 @@ import static com.itechart.warehouse.util.Host.origins;
 /**
  * Created by Lenovo on 01.05.2017.
  */
-@CrossOrigin(origins = origins, maxAge = 3600)
+
 @RestController
 @RequestMapping(value = "/company")
 @Validated
@@ -72,6 +73,28 @@ public class WarehouseCompanyController {
         }
 
         return new ResponseEntity<>(companies, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<List<WarehouseCompany>> getCompanyById(@PathVariable String id){
+        logger.info("GET on /company: by id {}", id);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        User user = userDetails.getUser();//warning
+        List<WarehouseCompany> company = new ArrayList<>();
+        try{
+            company.add(warehouseCompanyService.findWarehouseCompanyById(id));
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving all companies", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while getting company of warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("user with specified id not found while reading company", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(company, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)

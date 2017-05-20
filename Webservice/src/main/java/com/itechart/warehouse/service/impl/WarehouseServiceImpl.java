@@ -1,8 +1,10 @@
 package com.itechart.warehouse.service.impl;
 
+import com.itechart.warehouse.dao.WarehouseCompanyDAO;
 import com.itechart.warehouse.dao.WarehouseDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Warehouse;
+import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -26,11 +28,17 @@ import java.util.Optional;
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDAO warehouseDAO;
+    private WarehouseCompanyDAO warehouseCompanyDAO;
     private Logger logger = LoggerFactory.getLogger(WarehouseServiceImpl.class);
 
     @Autowired
     public void setWarehouseDAO(WarehouseDAO warehouseDAO) {
         this.warehouseDAO = warehouseDAO;
+    }
+
+    @Autowired
+    public void setWarehouseCompanyDAO(WarehouseCompanyDAO warehouseCompanyDAO) {
+        this.warehouseCompanyDAO = warehouseCompanyDAO;
     }
 
     @Override
@@ -70,12 +78,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseById(Long id) throws DataAccessException {
+    public Warehouse findWarehouseById(String id) throws DataAccessException, IllegalParametersException {
         logger.info("Find warehouse by id: {}", id);
-        if (id == null) return null;
+        if (!NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Invalid id param");
+        }
         Warehouse warehouse = null;
         try {
-            Optional<Warehouse> result = warehouseDAO.findById(id);
+            Long id_warehouse = Long.valueOf(id);
+            Optional<Warehouse> result = warehouseDAO.findById(id_warehouse);
             warehouse = result.get();
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
@@ -91,6 +102,9 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         Warehouse savedWarehouse;
         try {
+            Optional<WarehouseCompany> optional = warehouseCompanyDAO.findById(warehouse.getWarehouseCompany().getIdWarehouseCompany());
+            warehouse.setWarehouseCompany(optional.get());
+            System.out.println("nEW OBJECT: "+warehouse);
             savedWarehouse = warehouseDAO.insert(warehouse);
         } catch (GenericDAOException e) {
             logger.error("Error while saving Warehouse: ", e);
@@ -114,7 +128,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         try {
             Long warehouseId = Long.valueOf(id);
             if (warehouseDAO.isExistsEntity(warehouseId)) {
-                warehouse.setIdWarehouse(warehouseId);
+                warehouse.setWarehouseCompany(warehouseCompanyDAO.findById(warehouse.getWarehouseCompany().getIdWarehouseCompany()).get());
                 updatedWarehouse = warehouseDAO.update(warehouse);
             } else {
                 logger.error("Warehouse with id {} not found", warehouseId);

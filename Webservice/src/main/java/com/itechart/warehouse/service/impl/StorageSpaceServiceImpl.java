@@ -72,14 +72,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
 
         try {
             storageSpaces = storageSpaceDAO.findAll(criteria, -1, -1);
-            //it's no fact, that it will work
 
-            /*for(StorageSpace storageSpace : storageSpaces) {
-                DetachedCriteria criteria2 = DetachedCriteria.forClass(StorageSpace.class);
-                criteria.add(Restrictions.eq("storageSpace.idStorageSpace", storageSpace.getIdStorageSpace()));
-                System.out.println(storageCellDAO.findAll(criteria2, -1, -1));
-            }*/
-            System.out.println(storageSpaces);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -87,6 +80,22 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
         return storageSpaces;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<StorageSpaceType> findAllStorageSpaceType() throws DataAccessException {
+        logger.info("Find all storage space type");
+
+        List<StorageSpaceType> storageSpaceTypes = null;
+        DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
+
+        try {
+            storageSpaceTypes = storageSpaceTypeDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for warehouse: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return storageSpaceTypes;
+    }
 
     @Override
     @Transactional
