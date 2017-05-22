@@ -1,14 +1,15 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.controller.error.RequestHandlingError;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
-import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.Invoice;
-import com.itechart.warehouse.entity.User;
+import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
 import com.itechart.warehouse.service.services.InvoiceService;
@@ -87,6 +88,22 @@ public class InvoiceController {
         return new ResponseEntity<>(companies, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/incoming/{id}", method = RequestMethod.GET)
+    public ResponseEntity<IncomingInvoiceDTO> readIncomingInvoice(@PathVariable Long id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
+        logger.info("GET on /invoice/incoming/{}: find invoice", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            IncomingInvoiceDTO invoice = invoiceService.findIncomingInvoiceForCompanyById(id, company.getIdWarehouseCompany());
+            return new ResponseEntity<>(invoice, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @RequestMapping(value = "/incoming", method = RequestMethod.POST)
     public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice){
         logger.info("POST on /invoice/incoming: save new incoming invoice");
@@ -133,7 +150,21 @@ public class InvoiceController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    // todo update invoice's status, user and registration date
+    @RequestMapping(value = "/incoming/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateIncomingInvoice(@PathVariable Long id, @Valid @RequestBody IncomingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("PUT on /invoice/incoming/{}: update invoice", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            invoiceService.updateIncomingInvoice(id, invoice, warehouse.getIdWarehouse());
+        } else {
+            logger.error("Failed to retrieve authenticated user while updating incoming invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     //status is sent via param
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
@@ -201,4 +232,48 @@ public class InvoiceController {
 
         return new ResponseEntity<>(goodsList, HttpStatus.OK);
     }
+
+    @ExceptionHandler(DataAccessException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(DataAccessException e) {
+        RequestHandlingError dataAccessError = new RequestHandlingError();
+        dataAccessError.setError(e.getMessage());
+        return dataAccessError;
+    }
+
+    @ExceptionHandler(IllegalParametersException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(IllegalParametersException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError illegalParametersError = new RequestHandlingError();
+        illegalParametersError.setError(e.getMessage());
+        return illegalParametersError;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(ResourceNotFoundException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError resourceNotFoundError = new RequestHandlingError();
+        resourceNotFoundError.setError(e.getMessage());
+        return resourceNotFoundError;
+    }
+
+    @ExceptionHandler(RequestHandlingException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(RequestHandlingException e) {
+        logger.error("Exception during request handling: {}", e.getMessage());
+        RequestHandlingError requestHandlingError = new RequestHandlingError();
+        requestHandlingError.setError(e.getMessage());
+        return requestHandlingError;
+    }
 }
+

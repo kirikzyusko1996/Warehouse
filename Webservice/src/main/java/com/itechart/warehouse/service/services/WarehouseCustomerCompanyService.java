@@ -32,4 +32,8 @@ public interface WarehouseCustomerCompanyService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean warehouseCustomerCompanyExists(WarehouseCustomerCompany customer) throws DataAccessException;
+
+    WarehouseCustomerCompany mapToCustomer(WarehouseCustomerCompanyDTO dto);
+
+    WarehouseCustomerCompanyDTO mapToDto(WarehouseCustomerCompany customer);
 }

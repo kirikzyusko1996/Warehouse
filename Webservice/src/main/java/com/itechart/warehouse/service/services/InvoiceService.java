@@ -1,6 +1,7 @@
 package com.itechart.warehouse.service.services;
 
 
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
@@ -26,6 +27,8 @@ public interface InvoiceService {
 
     Invoice findInvoiceByNumber(String number) throws DataAccessException;
 
+    IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException;
+
     Invoice saveInvoice(Invoice invoice) throws DataAccessException;
 
     Invoice saveIncomingInvoice(WarehouseCompanyUserDetails principal, IncomingInvoiceDTO invoice)
@@ -33,6 +36,8 @@ public interface InvoiceService {
 
     Invoice saveOutgoingInvoice(WarehouseCompanyUserDetails principal, OutgoingInvoiceDTO invoice)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    void updateIncomingInvoice(Long id, IncomingInvoiceDTO invoice, Long idWarehouse) throws DataAccessException, ResourceNotFoundException, IllegalParametersException;
 
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
 

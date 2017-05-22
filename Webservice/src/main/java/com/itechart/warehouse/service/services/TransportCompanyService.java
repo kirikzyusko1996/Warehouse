@@ -33,4 +33,8 @@ public interface TransportCompanyService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean TransportCompanyExists(TransportCompany company) throws DataAccessException;
+
+    TransportCompany mapToCompany(TransportCompanyDTO dto);
+
+    TransportCompanyDTO mapToDto(TransportCompany company);
 }

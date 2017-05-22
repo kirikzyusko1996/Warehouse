@@ -158,7 +158,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
         WarehouseCustomerCompany savedCompany;
         try {
-            WarehouseCustomerCompany customer = mapToEntity(dto);
+            WarehouseCustomerCompany customer = mapToCustomer(dto);
             customer.setWarehouseCompany(company);
 
             savedCompany = customerDAO.insert(customer);
@@ -181,8 +181,8 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         try {
             dto.setId(id);
 
-                WarehouseCustomerCompany company = mapToEntity(dto);
-                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(Long.toString(dto.getWarehouseCompanyId()));
+                WarehouseCustomerCompany company = mapToCustomer(dto);
+                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(String.valueOf(companyId));
                 company.setWarehouseCompany(companyOfCustomer);
 
             updatedCompany = customerDAO.update(company);
@@ -229,11 +229,22 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         }
     }
 
-    private WarehouseCustomerCompany mapToEntity(WarehouseCustomerCompanyDTO dto) {
+    @Override
+    public WarehouseCustomerCompany mapToCustomer(WarehouseCustomerCompanyDTO dto) {
         WarehouseCustomerCompany company = new WarehouseCustomerCompany();
         company.setId(dto.getId());
         company.setName(dto.getName());
 
         return company;
+    }
+
+    @Override
+    public WarehouseCustomerCompanyDTO mapToDto(WarehouseCustomerCompany customer) {
+        WarehouseCustomerCompanyDTO dto = new WarehouseCustomerCompanyDTO();
+        dto.setId(customer.getId());
+        dto.setName(customer.getName());
+        dto.setWarehouseCompanyId(customer.getWarehouseCompany().getIdWarehouseCompany());
+
+        return dto;
     }
 }

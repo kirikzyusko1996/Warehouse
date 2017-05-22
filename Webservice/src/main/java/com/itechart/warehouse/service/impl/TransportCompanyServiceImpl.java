@@ -12,7 +12,6 @@ import com.itechart.warehouse.service.services.TransportCompanyService;
 import com.itechart.warehouse.service.services.WarehouseCompanyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -163,7 +162,7 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
         TransportCompany savedCompany;
         try {
-            TransportCompany transportCompany = mapToEntity(dto);
+            TransportCompany transportCompany = mapToCompany(dto);
             transportCompany.setWarehouseCompany(warehouseCompany);
 
             savedCompany = transportDAO.insert(transportCompany);
@@ -186,8 +185,8 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
         try {
             dto.setId(id);
 
-                TransportCompany company = mapToEntity(dto);
-                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(Long.toString(dto.getWarehouseCompanyId()));
+                TransportCompany company = mapToCompany(dto);
+                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(String.valueOf(warehouseCompanyId));
                 company.setWarehouseCompany(companyOfTransportCompany);
 
             updatedCompany = transportDAO.update(company);
@@ -234,7 +233,8 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
         }
     }
 
-    private TransportCompany mapToEntity(TransportCompanyDTO dto) {
+    @Override
+    public TransportCompany mapToCompany(TransportCompanyDTO dto) {
         TransportCompany company = new TransportCompany();
         company.setId(dto.getId());
         company.setName(dto.getName());
@@ -243,5 +243,14 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
         company.setPassword(dto.getPassword());
 
         return company;
+    }
+
+    @Override
+    public TransportCompanyDTO mapToDto(TransportCompany company) {
+        TransportCompanyDTO dto = new TransportCompanyDTO();
+        dto.setId(company.getId());
+        dto.setName(company.getName());
+
+        return dto;
     }
 }

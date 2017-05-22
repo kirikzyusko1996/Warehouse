@@ -17,11 +17,11 @@ public class OutgoingInvoiceDTO {
     private Long id;
     private String number;
     private Date issueDate;
-    private String receiverCompany;
-    private String transportCompany;
+    private WarehouseCustomerCompany receiverCompany;
+    private TransportCompany transportCompany;
     private String transportNumber;
     private String transportName;
-    private Driver driver;
+    private DriverDTO driver;
     private String description;
     private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
@@ -29,30 +29,6 @@ public class OutgoingInvoiceDTO {
     private String goodsEntryCountUnit;
     private String manager;
     private List<GoodsDTO> goods;
-
-    public void setReceiverCompany(WarehouseCustomerCompany receiverCompany) {
-        this.receiverCompany = receiverCompany.getName();
-    }
-
-    public void setReceiverCompany(String receiverCompany) {
-        this.receiverCompany = receiverCompany;
-    }
-
-    public Long getRecieverCompanyId(){
-        return Long.valueOf(receiverCompany);
-    }
-
-    public void setTransportCompany(TransportCompany transportCompany) {
-        this.transportCompany = transportCompany.getName();
-    }
-
-    public void setTransportCompany(String transportCompany) {
-        this.transportCompany = transportCompany;
-    }
-
-    public Long getTransportCompanyId(){
-        return Long.valueOf(transportCompany);
-    }
 
     public void setManager(User manager) {
         StringBuilder dispatcherName = new StringBuilder();

@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private UnitDAO unitDAO;
     private StorageSpaceTypeDAO storageDAO;
     private WarehouseCustomerCompanyDAO customerDAO;
+    private WarehouseDAO warehouseDAO;
     private TransportCompanyDAO transportDAO;
     private DriverDAO driverDAO;
     private GoodsService goodsService;
@@ -74,6 +76,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void setCustomerDAO(WarehouseCustomerCompanyDAO dao) {
         this.customerDAO = dao;
     }
+
+    @Autowired
+    public void setWarehouseDAO(WarehouseDAO dao){this.warehouseDAO = dao;}
 
     @Autowired
     public void setTransportDAO(TransportCompanyDAO dao) {
@@ -184,7 +189,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional(readOnly = true)
     public Invoice findInvoiceById(Long id) throws DataAccessException {
-        logger.info("Find invoice by id #{}", id);
+        logger.info("Find dto by id #{}", id);
 
         Invoice invoice = null;
         try {
@@ -193,7 +198,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice = optional.get();
             }
         } catch (GenericDAOException e) {
-            logger.error("Error while finding invoice by id: ", e);
+            logger.error("Error while finding dto by id: ", e);
             throw new DataAccessException(e);
         }
 
@@ -203,7 +208,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional(readOnly = true)
     public Invoice findInvoiceByNumber(String number) throws DataAccessException {
-        logger.info("Find invoice by number {}", number);
+        logger.info("Find dto by number {}", number);
 
         Invoice invoice = null;
 
@@ -217,7 +222,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     invoice = invoices.get(0);
                 }
             } catch (GenericDAOException e) {
-                logger.error("Error while finding invoice by number: ", e);
+                logger.error("Error while finding dto by number: ", e);
                 throw new DataAccessException(e);
             }
         }
@@ -226,15 +231,28 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#id, 'Invoice', 'GET')")
+    public IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long idWarehouseCompany)
+            throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException {
+        logger.info("Find dto by id #{}", id);
+
+        InvoiceStatus invoiceStatus = invoiceStatusDAO.findStatusForInvoice(id);
+        List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+
+        return convertToIncomingDTO(invoiceStatus, goodsList);
+    }
+
+    @Override
     @Transactional
     public Invoice saveInvoice(Invoice invoice) throws DataAccessException {
-        logger.info("Save invoice: {}", invoice);
+        logger.info("Save dto: {}", invoice);
 
         Invoice savedInvoice;
         try {
             savedInvoice = invoiceDAO.insert(invoice);
         } catch (GenericDAOException e) {
-            logger.error("Error while saving invoice: ", e);
+            logger.error("Error while saving dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -245,7 +263,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public Invoice saveIncomingInvoice(WarehouseCompanyUserDetails principal, IncomingInvoiceDTO dto)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Save incoming invoice: {}", dto);
+        logger.info("Save incoming dto: {}", dto);
 
         Invoice savedInvoice;
         try {
@@ -261,7 +279,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             List<GoodsDTO> goodsList = dto.getGoods();
             goodsService.createGoodsBatch(savedInvoice.getId(), goodsList);
         } catch (GenericDAOException e) {
-            logger.error("Error while saving incoming invoice: ", e);
+            logger.error("Error while saving incoming dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -272,7 +290,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public Invoice saveOutgoingInvoice(WarehouseCompanyUserDetails principal, OutgoingInvoiceDTO dto)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Save outgoing invoice: {}", dto);
+        logger.info("Save outgoing dto: {}", dto);
 
         Invoice savedInvoice;
         try {
@@ -289,7 +307,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             goodsService.setOutgoingInvoice(goodsListIds, savedInvoice.getId());
 
         } catch (GenericDAOException e) {
-            logger.error("Error while saving invoice: ", e);
+            logger.error("Error while saving dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -298,14 +316,38 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'Invoice', 'UPDATE')")
+    public void updateIncomingInvoice(Long id, IncomingInvoiceDTO dto, Long idWarehouse)
+            throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
+        logger.info("Update incoming dto: {}", dto);
+
+        try {
+            dto.setId(id);
+
+            Optional<Warehouse> optional = warehouseDAO.findById(idWarehouse);
+            if (optional.isPresent()) {
+                Warehouse warehouse = optional.get();
+                Invoice invoice = convertToIncomingInvoice(dto, warehouse);
+                invoice.setWarehouse(warehouse);
+
+                invoiceDAO.update(invoice);
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error while updating invoice: ", e);
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    @Transactional
     public Invoice updateInvoice(Invoice invoice) throws DataAccessException {
-        logger.info("Update invoice: {}", invoice);
+        logger.info("Update dto: {}", invoice);
 
         Invoice updatedInvoice;
         try {
             updatedInvoice = invoiceDAO.update(invoice);
         } catch (GenericDAOException e) {
-            logger.error("Error while updating invoice: ", e);
+            logger.error("Error while updating dto: ", e);
             throw new DataAccessException(e);
         }
 
@@ -316,7 +358,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public InvoiceStatus updateInvoiceStatus(String id, String status)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Update invoice's with id {} status", id);
+        logger.info("Update dto's with id {} status", id);
 
         if (!NumberUtils.isNumber(id)) {
             throw new IllegalParametersException("Invalid id param");
@@ -342,7 +384,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 throw new ResourceNotFoundException("Invoice not found");
             }
         } catch (GenericDAOException e) {
-            logger.error("Error while updating invoice' status: ", e);
+            logger.error("Error while updating dto' status: ", e);
             throw new DataAccessException(e);
         }
 
@@ -353,7 +395,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public void deleteInvoice(String id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Delete invoice by id #{}", id);
+        logger.info("Delete dto by id #{}", id);
 
         if (!NumberUtils.isNumber(id)) {
             throw new IllegalParametersException("Invalid id param");
@@ -379,7 +421,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 throw new ResourceNotFoundException("Invoice status not found");
             }
         } catch (GenericDAOException e) {
-            logger.error("Error while deleting invoice: ", e);
+            logger.error("Error while deleting dto: ", e);
             throw new DataAccessException(e);
         }
     }
@@ -387,12 +429,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional(readOnly = true)
     public boolean invoiceExists(Invoice invoice) throws DataAccessException {
-        logger.error("Determine if invoice #{} exists", invoice.getId());
+        logger.error("Determine if dto #{} exists", invoice.getId());
 
         try {
             return invoiceDAO.isExistsEntity(invoice.getId());
         } catch (GenericDAOException e) {
-            logger.error("Error while determine if invoice exists", e);
+            logger.error("Error while determine if dto exists", e);
             throw new DataAccessException(e);
         }
     }
@@ -401,7 +443,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional(readOnly = true)
     public Warehouse findWarehouseByInvoiceId(Long invoiceId)
             throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
-        logger.info("Find warehouse of invoice with id {}", invoiceId);
+        logger.info("Find warehouse of dto with id {}", invoiceId);
 
         if (invoiceId == null) {
             throw new IllegalParametersException("Invoice id is null");
@@ -439,6 +481,14 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         List<InvoiceStatusName> names = invoiceStatusNameDAO.findAll(criteria, -1, -1);
         return names.get(0);
+    }
+
+    private InvoiceStatus retrieveStatusByInvoiceId(Long invoiceId) throws GenericDAOException {
+        DetachedCriteria criteria = DetachedCriteria.forClass(InvoiceStatus.class);
+        criteria.add(Restrictions.eq("id_invoice", invoiceId));
+
+        List<InvoiceStatus> statuses = invoiceStatusDAO.findAll(criteria, -1, -1);
+        return statuses.get(0);
     }
 
     private Unit retrieveUnitByName(String unitName) throws GenericDAOException {
@@ -479,24 +529,31 @@ public class InvoiceServiceImpl implements InvoiceService {
     private IncomingInvoiceDTO convertToIncomingDTO(InvoiceStatus invoiceStatus, List<Goods> goodsList) {
         IncomingInvoiceDTO dto = new IncomingInvoiceDTO();
 
-        // todo maybe use model mapper
-
         Invoice invoice = invoiceStatus.getInvoice();
         dto.setId(invoice.getId());
         dto.setNumber(invoice.getNumber());
         dto.setIssueDate(invoice.getIssueDate());
-        dto.setSupplierCompany(invoice.getSupplierCompany());
-        dto.setTransportCompany(invoice.getTransportCompany());
+        WarehouseCustomerCompanyDTO customer = customerService.mapToDto(invoice.getSupplierCompany());
+        dto.setSupplierCompany(customer);
+        TransportCompanyDTO transport = transportService.mapToDto(invoice.getTransportCompany());
+        dto.setTransportCompany(transport);
         dto.setTransportNumber(invoice.getTransportNumber());
         dto.setTransportName(invoice.getTransportName());
         dto.setDescription(invoice.getDescription());
         dto.setGoodsQuantity(invoice.getGoodsQuantity());
         dto.setGoodsEntryCount(invoice.getGoodsEntryCount());
-        dto.setDriver(invoice.getDriver());
+
+        if (invoice.getDriver() != null) {
+            DriverDTO driver = mapToDto(invoice.getDriver());
+            dto.setDriver(driver);
+        }
+
         dto.setGoodsEntryCountUnit(invoice.getGoodsEntryCountUnit());
         dto.setGoodsQuantityUnit(invoice.getGoodsQuantityUnit());
 
         dto.setDispatcher(invoiceStatus.getUser());
+        dto.setStatus(invoiceStatus.getStatusName().getName());
+        dto.setRegistrationDate(invoiceStatus.getDate());
 
         dto = fillIncomingInvoiceWithGoodsInfo(dto, goodsList);
 
@@ -517,7 +574,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setDescription(invoice.getDescription());
         dto.setGoodsQuantity(invoice.getGoodsQuantity());
         dto.setGoodsEntryCount(invoice.getGoodsEntryCount());
-        dto.setDriver(invoice.getDriver());
+
+        if (invoice.getDriver() != null) {
+            DriverDTO driver = mapToDto(invoice.getDriver());
+            dto.setDriver(driver);
+        }
+
         dto.setGoodsEntryCountUnit(invoice.getGoodsEntryCountUnit());
         dto.setGoodsQuantityUnit(invoice.getGoodsQuantityUnit());
 
@@ -531,6 +593,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private Invoice convertToIncomingInvoice(IncomingInvoiceDTO dto, Warehouse warehouse)
             throws GenericDAOException, DataAccessException, ResourceNotFoundException, IllegalParametersException{
         Invoice invoice = new Invoice();
+        if (dto.getId() != null) {
+            invoice.setId(dto.getId());
+        }
         invoice.setNumber(dto.getNumber());
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setTransportNumber(dto.getTransportNumber());
@@ -539,9 +604,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
-        WarehouseCustomerCompany supplierCompany = customerService.findCustomerById(dto.getSupplierCompanyId());
+        WarehouseCustomerCompany supplierCompany = customerService.findCustomerById(dto.getSupplierCompany().getId());
         invoice.setSupplierCompany(supplierCompany);
-        TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompanyId());
+        TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompany().getId());
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
@@ -566,9 +631,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
-        WarehouseCustomerCompany receiverCompany = customerService.findCustomerById(dto.getRecieverCompanyId());
+        WarehouseCustomerCompany receiverCompany = customerService.findCustomerById(dto.getReceiverCompany().getId());
         invoice.setSupplierCompany(receiverCompany);
-        TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompanyId());
+        TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompany().getId());
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
@@ -601,7 +666,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Timestamp now = new Timestamp(new Date().getTime());
         invoiceStatus.setDate(now);
 
-        // todo specify status for created outgoing invoice
+        // todo specify status for created outgoing dto
         InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 
@@ -620,21 +685,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private Invoice fillInvoiceWithDriverInfo(Invoice invoice, Driver driver) throws GenericDAOException {
+    private Invoice fillInvoiceWithDriverInfo(Invoice invoice, DriverDTO driverDTO) throws GenericDAOException {
         Driver driverForInvoice;
-        String driverId = String.valueOf(driver.getId());
+        String driverId = String.valueOf(driverDTO.getId());
         if (NumberUtils.isNumber(driverId)) {
             Long validDriverId = Long.valueOf(driverId);
             Optional<Driver> optional = driverDAO.findById(validDriverId);
             if (optional.isPresent()) {
                 driverForInvoice = optional.get();
             } else {
-                driver.setTransportCompany(invoice.getTransportCompany());
-                driverForInvoice = driverDAO.insert(driver);
+                Driver driverToSave = mapToDriver(driverDTO);
+                driverForInvoice = driverDAO.insert(driverToSave);
             }
         } else {
-            driver.setTransportCompany(invoice.getTransportCompany());
-            driverForInvoice = driverDAO.insert(driver);
+            Driver driverToSave = mapToDriver(driverDTO);
+            driverForInvoice = driverDAO.insert(driverToSave);
         }
 
         invoice.setDriver(driverForInvoice);
@@ -679,5 +744,33 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         return ids;
+    }
+
+    private Driver mapToDriver(DriverDTO dto){
+        Driver driver = new Driver();
+        driver.setId(dto.getId());
+        driver.setPassportNumber(dto.getPassportNumber());
+        driver.setCountryCode(dto.getCountryCode());
+        driver.setIssueDate(dto.getIssueDate());
+        driver.setIssuedBy(dto.getIssuedBy());
+        driver.setFullName(dto.getFullName());
+        TransportCompany transport = transportService.mapToCompany(dto.getTransportCompany());
+        driver.setTransportCompany(transport);
+
+        return driver;
+    }
+
+    private DriverDTO mapToDto(Driver driver) {
+        DriverDTO dto = new DriverDTO();
+        dto.setId(driver.getId());
+        dto.setPassportNumber(driver.getPassportNumber());
+        dto.setCountryCode(driver.getCountryCode());
+        dto.setIssueDate(driver.getIssueDate());
+        dto.setIssuedBy(driver.getIssuedBy());
+        dto.setFullName(driver.getFullName());
+        TransportCompanyDTO transport = transportService.mapToDto(driver.getTransportCompany());
+        dto.setTransportCompany(transport);
+
+        return dto;
     }
 }
