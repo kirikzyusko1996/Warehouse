@@ -776,39 +776,53 @@ public class GoodsServiceImpl implements GoodsService {
                     Optional<Goods> goodsResult = goodsDAO.findById(goods.getId());
                     if (goodsResult.isPresent()) {
                         Goods initialGoods = goodsResult.get();
-                        Goods goodsInAct = new Goods(initialGoods);
-                        goodsInAct.setStatuses(new ArrayList<>());//emptying statuses for affected by act goods
-                        goodsInAct.setCells(new ArrayList<>());
-                        initialGoods.setActs(new ArrayList<>());//emptying acts for not affected by act goods
-                        if (goods.getQuantity().compareTo(initialGoods.getQuantity()) <= 0) {
-                            goodsInAct.setQuantity(goods.getQuantity());
-                            initialGoods.setQuantity(initialGoods.getQuantity().subtract(goods.getQuantity()));
-                        } else
-                            throw new IllegalParametersException("Quantity covered by act can not be more than initial value");
-
-
-                        if (goods.getWeight().compareTo(initialGoods.getWeight()) <= 0) {
-                            goodsInAct.setWeight(goods.getWeight());
-                            initialGoods.setWeight(initialGoods.getWeight().subtract(goods.getWeight()));
-                        } else
-                            throw new IllegalParametersException("Weight covered by act can not be more than initial value");
-
-                        if (goods.getPrice().compareTo(initialGoods.getPrice()) <= 0) {
-                            goodsInAct.setPrice(goods.getPrice());
-                            initialGoods.setPrice(initialGoods.getPrice().subtract(goods.getPrice()));
-                        } else
-                            throw new IllegalParametersException("Weight covered by act can not be more than initial value");
-
-                        Goods returnedGoods = goodsDAO.insert(goodsInAct);
-                        if (returnedGoods != null) {
+                        if (goods.getQuantity().compareTo(initialGoods.getQuantity()) == 0) {
+                            //if all amount is affected by act
+                            returnedList.add(initialGoods);
                             GoodsStatus goodsStatus = new GoodsStatus();
-                            goodsStatus.setGoods(goods);
+                            goodsStatus.setGoods(initialGoods);
                             goodsStatus.setDate(new Timestamp(new Date().getTime()));
                             goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
                             goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
                             goodsStatusDAO.insert(goodsStatus);
+
+                        } else {
+                            Goods goodsInAct = new Goods(initialGoods);
+                            goodsInAct.setStatuses(new ArrayList<>());//emptying statuses for affected by act goods
+                            goodsInAct.setCells(new ArrayList<>());//emptying cells for affected by act goods
+                            initialGoods.setActs(new ArrayList<>());//emptying acts for not affected by act goods
+
+                            if (goods.getQuantity().compareTo(initialGoods.getQuantity()) <= 0) {
+                                goodsInAct.setQuantity(goods.getQuantity());
+                                initialGoods.setQuantity(initialGoods.getQuantity().subtract(goods.getQuantity()));
+                            } else
+                                throw new IllegalParametersException("Quantity covered by act can not be more than initial value");
+
+                            if (goods.getWeight().compareTo(initialGoods.getWeight()) <= 0) {
+                                goodsInAct.setWeight(goods.getWeight());
+                                initialGoods.setWeight(initialGoods.getWeight().subtract(goods.getWeight()));
+                            } else
+                                throw new IllegalParametersException("Weight covered by act can not be more than initial value");
+
+                            if (goods.getPrice().compareTo(initialGoods.getPrice()) <= 0) {
+                                goodsInAct.setPrice(goods.getPrice());
+                                initialGoods.setPrice(initialGoods.getPrice().subtract(goods.getPrice()));
+                            } else
+                                throw new IllegalParametersException("Weight covered by act can not be more than initial value");
+
+
+                            Goods returnedGoods = goodsDAO.insert(goodsInAct);
+
+                            if (returnedGoods != null) {
+                                GoodsStatus goodsStatus = new GoodsStatus();
+                                goodsStatus.setGoods(goodsInAct);
+                                goodsStatus.setDate(new Timestamp(new Date().getTime()));
+                                goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
+                                goodsStatusDAO.insert(goodsStatus);
+                            }
+                            returnedList.add(returnedGoods);
                         }
-                        returnedList.add(returnedGoods);
 
 
                     }
