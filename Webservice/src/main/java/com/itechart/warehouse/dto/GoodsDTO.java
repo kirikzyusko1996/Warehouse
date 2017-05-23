@@ -81,7 +81,6 @@ public class GoodsDTO {
         dto.setQuantityUnit(goods.getQuantityUnit());
         dto.setPriceUnit(goods.getPriceUnit());
         return dto;
-
     }
 
 

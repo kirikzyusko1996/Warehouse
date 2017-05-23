@@ -22,8 +22,8 @@ import java.util.List;
 @Getter
 @lombok.ToString(exclude = "goodsIdList")
 public class ActDTO {
-    @NotEmpty(message = "Goods id's list is empty")
-    private List<Long> goodsIdList;
+//    @NotEmpty(message = "Goods id's list is empty")
+//    private List<Long> goodsIdList;
     private List<Goods> goodsList;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     @NotBlank (message = "Act type is blank")

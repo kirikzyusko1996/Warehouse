@@ -33,6 +33,27 @@ public class Goods implements Serializable {
     private List<StorageCell> cells;
 
 
+    public Goods() {
+    }
+
+    public Goods(Goods goods) {
+        if (goods == null) return;
+        this.id = goods.id;
+        this.name = goods.name;
+        this.quantity = goods.quantity;
+        this.weight = goods.weight;
+        this.price = goods.price;
+        this.storageType = goods.storageType;
+        this.quantityUnit = goods.quantityUnit;
+        this.weightUnit = goods.weightUnit;
+        this.priceUnit = goods.priceUnit;
+        this.incomingInvoice = goods.incomingInvoice;
+        this.outgoingInvoice = goods.outgoingInvoice;
+        this.acts = goods.acts;
+        this.statuses = goods.statuses;
+        this.cells = goods.cells;
+    }
+
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     public List<StorageCell> getCells() {
         return cells;

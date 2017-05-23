@@ -47,6 +47,8 @@ public interface GoodsService {
 
     Goods createGoods(Long invoiceId, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<Goods> splitGoodsForAct(String actType, List<Goods> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
+
     List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteGoods(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

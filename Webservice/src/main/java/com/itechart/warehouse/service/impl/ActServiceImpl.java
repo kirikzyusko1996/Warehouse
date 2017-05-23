@@ -1,5 +1,7 @@
 package com.itechart.warehouse.service.impl;
 
+import com.itechart.warehouse.constants.ActTypeEnum;
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.ActDAO;
 import com.itechart.warehouse.dao.ActTypeDAO;
 import com.itechart.warehouse.dao.GoodsDAO;
@@ -13,6 +15,7 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
+import com.itechart.warehouse.service.services.GoodsService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
@@ -24,6 +27,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +48,14 @@ public class ActServiceImpl implements ActService {
     private ActTypeDAO actTypeDAO;
     private UserDAO userDAO;
     private GoodsDAO goodsDAO;
+    private GoodsService goodsService;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    @Lazy
+    public void setGoodsService(GoodsService goodsService) {
+        this.goodsService = goodsService;
+    }
 
     @Autowired
     public void setActDAO(ActDAO actDAO) {
@@ -110,6 +121,7 @@ public class ActServiceImpl implements ActService {
             throw new DataAccessException(e.getCause());
         }
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<ActType> getActTypes() throws DataAccessException {
@@ -284,6 +296,7 @@ public class ActServiceImpl implements ActService {
         else throw new IllegalParametersException("Invalid act type name: " + actTypeName);
     }
 
+
     @Override
     @Transactional
     //todo     @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")
@@ -291,6 +304,7 @@ public class ActServiceImpl implements ActService {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
         try {
+            List<Goods> goodsList = goodsService.splitGoodsForAct(actDTO.getType(), actDTO.getGoodsList());
             Act act = new Act();
             act.setDate(new Timestamp(new Date().getTime()));
             act.setActType(findActTypeByName(actDTO.getType()));
@@ -300,8 +314,8 @@ public class ActServiceImpl implements ActService {
             } else {
                 throw new ResourceNotFoundException("Authenticated user was not found");
             }
-            if (actDTO.getGoodsIdList() != null) {
-                setActToGoods(actDTO.getGoodsIdList(), act);
+            if (actDTO.getGoodsList() != null) {
+                setActToGoods(goodsList, act);
                 actDAO.insert(act);
                 return act;
             } else throw new IllegalParametersException("List of good's id's is null");
@@ -312,11 +326,13 @@ public class ActServiceImpl implements ActService {
 
     }
 
-    private void setActToGoods(List<Long> goodsList, Act act) throws GenericDAOException {
-        for (Long goodsId : goodsList) {
-            Optional<Goods> result = goodsDAO.findById(goodsId);
-            if (result.isPresent())
-                result.get().addAct(act);
+    private void setActToGoods(List<Goods> goodsList, Act act) throws GenericDAOException {
+        for (Goods goods : goodsList) {
+            if (goods != null) {
+                Optional<Goods> result = goodsDAO.findById(goods.getId());
+                if (result.isPresent())
+                    result.get().addAct(act);
+            }
         }
     }
 
@@ -331,8 +347,8 @@ public class ActServiceImpl implements ActService {
             if (actResult.isPresent()) {
                 Act act = actResult.get();
                 act.setActType(findActTypeByName(actDTO.getType()));
-                if (actDTO.getGoodsIdList() != null) {
-                    setActToGoods(actDTO.getGoodsIdList(), act);
+                if (actDTO.getGoodsList() != null) {
+                    setActToGoods(actDTO.getGoodsList(), act);
                     return act;
                 } else throw new IllegalParametersException("List of good's id's is null");
             } else {

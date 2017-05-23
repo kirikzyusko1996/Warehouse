@@ -1,5 +1,6 @@
 package com.itechart.warehouse.service.impl;
 
+import com.itechart.warehouse.constants.ActTypeEnum;
 import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
@@ -160,7 +161,6 @@ public class GoodsServiceImpl implements GoodsService {
             throw new DataAccessException(e.getCause());
         }
     }
-
 
 
     @Override
@@ -333,7 +333,8 @@ public class GoodsServiceImpl implements GoodsService {
     @Transactional(readOnly = true)
     public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO goodsSearchDTO) throws DataAccessException, IllegalParametersException {
         logger.info("Get users count for warehouse with id: {} by DTO:", warehouseId, goodsSearchDTO);
-        if (warehouseId == null||goodsSearchDTO == null) throw new IllegalParametersException("Warehouse id or DTO is null");
+        if (warehouseId == null || goodsSearchDTO == null)
+            throw new IllegalParametersException("Warehouse id or DTO is null");
         StringBuilder root = new StringBuilder("SELECT count(*) FROM Goods goods");
         QueryBuilder builder = new QueryBuilder(root);
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
@@ -486,8 +487,8 @@ public class GoodsServiceImpl implements GoodsService {
         GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
         try {
             GoodsStatus status = goodsDAO.findGoodsCurrentStatus(goods.getId());
-            if (status!=null)
-            dto.setStatus(GoodsStatusDTO.buildStatusDTO(status));
+            if (status != null)
+                dto.setStatus(GoodsStatusDTO.buildStatusDTO(status));
         } catch (GenericDAOException e) {
             logger.error("Error getting current status: {}", e);
         }
@@ -731,6 +732,89 @@ public class GoodsServiceImpl implements GoodsService {
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
             }
             return savedGoods;
+        } catch (GenericDAOException e) {
+            logger.error("Error during saving goods: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    /**
+     * Splits goods entry into two new: one affected by act, other one - not affected.
+     * Quantity, weight and price split between two entries.
+     *
+     * @param actType   type of act, used to set status of affected by act goods.
+     * @param goodsList list of goods affected by act and have to be split.
+     * @return list of newly created goods entries, affected by act.
+     */
+    @Override
+    public List<Goods> splitGoodsForAct(String actType, List<Goods> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
+        logger.info("Splitting goods to become part of new act with type {} for list of goods: {}", actType, goodsList);
+        if (actType == null || goodsList == null)
+            throw new IllegalParametersException("Act type or goods list is null");
+        List<Goods> returnedList = new ArrayList<>();
+        try {
+            String statusName = null;
+            if (actType != null) {
+                switch (ActTypeEnum.valueOf(actType)) {
+                    case ACT_OF_LOSS:
+                        statusName = GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY.toString();
+                        break;
+                    case ACT_OF_THEFT:
+                        statusName = GoodsStatusEnum.STOLEN.toString();
+                        break;
+                    case WRITE_OFF_ACT:
+                        statusName = GoodsStatusEnum.RECYCLED.toString();
+                        break;
+                    case MISMATCH_ACT:
+                        statusName = GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH.toString();
+                        break;
+                }
+            }
+
+            for (Goods goods : goodsList) {
+                if (goods != null) {
+                    Optional<Goods> goodsResult = goodsDAO.findById(goods.getId());
+                    if (goodsResult.isPresent()) {
+                        Goods initialGoods = goodsResult.get();
+                        Goods goodsInAct = new Goods(initialGoods);
+                        goodsInAct.setStatuses(new ArrayList<>());//emptying statuses for affected by act goods
+                        goodsInAct.setCells(new ArrayList<>());
+                        initialGoods.setActs(new ArrayList<>());//emptying acts for not affected by act goods
+                        if (goods.getQuantity().compareTo(initialGoods.getQuantity()) <= 0) {
+                            goodsInAct.setQuantity(goods.getQuantity());
+                            initialGoods.setQuantity(initialGoods.getQuantity().subtract(goods.getQuantity()));
+                        } else
+                            throw new IllegalParametersException("Quantity covered by act can not be more than initial value");
+
+
+                        if (goods.getWeight().compareTo(initialGoods.getWeight()) <= 0) {
+                            goodsInAct.setWeight(goods.getWeight());
+                            initialGoods.setWeight(initialGoods.getWeight().subtract(goods.getWeight()));
+                        } else
+                            throw new IllegalParametersException("Weight covered by act can not be more than initial value");
+
+                        if (goods.getPrice().compareTo(initialGoods.getPrice()) <= 0) {
+                            goodsInAct.setPrice(goods.getPrice());
+                            initialGoods.setPrice(initialGoods.getPrice().subtract(goods.getPrice()));
+                        } else
+                            throw new IllegalParametersException("Weight covered by act can not be more than initial value");
+
+                        Goods returnedGoods = goodsDAO.insert(goodsInAct);
+                        if (returnedGoods != null) {
+                            GoodsStatus goodsStatus = new GoodsStatus();
+                            goodsStatus.setGoods(goods);
+                            goodsStatus.setDate(new Timestamp(new Date().getTime()));
+                            goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                            goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
+                            goodsStatusDAO.insert(goodsStatus);
+                        }
+                        returnedList.add(returnedGoods);
+
+
+                    }
+                }
+            }
+            return returnedList;
         } catch (GenericDAOException e) {
             logger.error("Error during saving goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
