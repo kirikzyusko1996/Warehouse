@@ -34,9 +34,9 @@
                 class="com.itechart.warehouse.security.WarehouseCompanyUserDetailsService">
     </beans:bean>
     <!--<beans:bean id="userDigestEntryPoint" class=-->
-            <!--"org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">-->
-        <!--<beans:property name="realmName" value="Warehouse clients"/>-->
-        <!--<beans:property name="key" value="acegi"/>-->
+    <!--"org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">-->
+    <!--<beans:property name="realmName" value="Warehouse clients"/>-->
+    <!--<beans:property name="key" value="acegi"/>-->
     <!--</beans:bean>-->
     <beans:bean id="userDigestEntryPoint" class=
             "com.itechart.warehouse.security.UserAuthenticationEntryPoint">
@@ -80,8 +80,12 @@
 
     <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web"
           entry-point-ref="userDigestEntryPoint">
-        <!--<intercept-url pattern='/web/login/**' access="permitAll"/>-->
-        <!--<intercept-url pattern='/web/**' access="permitAll" method="OPTIONS"/>-->
+        <intercept-url pattern='/web/login/**' access="hasAnyRole('ROLE_ADMIN',
+                                                                  'ROLE_SUPERVISOR',
+                                                                  'ROLE_DISPATCHER',
+                                                                  'ROLE_CONTROLLER',
+                                                                  'ROLE_MANAGER',
+                                                                  'ROLE_OWNER')"/>
         <intercept-url pattern='/web/company/**' access="hasRole('ROLE_ADMIN')"/>
         <intercept-url pattern='/web/warehouse/**' access="hasRole('ROLE_SUPERVISOR')"/>
         <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER')"/>

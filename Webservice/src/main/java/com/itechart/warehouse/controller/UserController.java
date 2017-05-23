@@ -52,6 +52,7 @@ public class UserController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<User>> getUsers(@RequestParam(defaultValue = "-1") int page,

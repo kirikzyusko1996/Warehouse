@@ -1,6 +1,7 @@
 package com.itechart.warehouse.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -73,10 +74,10 @@ public class Role {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "idRole=" + idRole +
-                ", role='" + role + '\'' +
-                ", users=" + users +
-                '}';
+        return new ToStringBuilder(this)
+                .append("idRole", idRole)
+                .append("role", role)
+                .append("users", users)
+                .toString();
     }
 }

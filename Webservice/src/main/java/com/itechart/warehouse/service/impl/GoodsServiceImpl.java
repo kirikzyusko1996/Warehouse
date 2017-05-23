@@ -739,7 +739,7 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     /**
-     * Splits goods entry into two new: one affected by act, other one - not affected.
+     * Splits goods entry into two: one affected by act, other one - not affected.
      * Quantity, weight and price split between two entries.
      *
      * @param actType   type of act, used to set status of affected by act goods.
