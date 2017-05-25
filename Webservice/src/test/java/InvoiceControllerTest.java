@@ -152,11 +152,11 @@ public class InvoiceControllerTest {
         IncomingInvoiceDTO invoice = new IncomingInvoiceDTO();
         invoice.setNumber("1");
         invoice.setIssueDate(today());
-        invoice.setSupplierCompany(customerService.findWarehouseCustomerCompanyByName("Левоправо"));
+        /*invoice.setSupplierCompany(customerService.findWarehouseCustomerCompanyByName("Левоправо"));
         invoice.setTransportCompany(transportService.findTransportCompanyByName("Карты"));
         invoice.setTransportNumber("1000");
         invoice.setTransportName("Volvo");
-        invoice.setDriver(createDriver());
+        invoice.setDriver(createDriver());*/
         invoice.setDescription("dnsivvdv");
         invoice.setGoodsQuantity(new BigDecimal("12.5"));
         invoice.setGoodsEntryCount(4000);
@@ -177,7 +177,7 @@ public class InvoiceControllerTest {
         invoice.setTransportCompany(transportService.findTransportCompanyByName("Карты"));
         invoice.setTransportNumber("1000");
         invoice.setTransportName("Volvo");
-        invoice.setDriver(createDriver());
+        //invoice.setDriver(createDriver());
         invoice.setDescription("dnsivvdv");
         invoice.setGoodsQuantity(new BigDecimal("12.5"));
         invoice.setGoodsEntryCount(4000);

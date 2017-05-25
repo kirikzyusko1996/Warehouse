@@ -57,7 +57,7 @@ public class ActControllerTest {
     public void testActUpdate() throws Exception {
         ActDTO actDTO = new ActDTO();
         Long[] idArray = new Long[]{Long.valueOf(5), Long.valueOf(7)};
-        actDTO.setGoodsIdList(Arrays.asList(idArray));
+        //actDTO.setGoodsIdList(Arrays.asList(idArray));
         actDTO.setType(ActTypeEnum.ACT_OF_LOSS.toString());
         ObjectMapper mapper = new ObjectMapper();
         String jsonActDTO = mapper.writeValueAsString(actDTO);
@@ -86,7 +86,7 @@ public class ActControllerTest {
         ActDTO actDTO = new ActDTO();
         actDTO.setType(ActTypeEnum.ACT_OF_THEFT.toString());
         Long[] idArray = new Long[]{Long.valueOf(5), Long.valueOf(7)};
-        actDTO.setGoodsIdList(Arrays.asList(idArray));
+        //actDTO.setGoodsIdList(Arrays.asList(idArray));
         String jsonActDTO = new ObjectMapper().writeValueAsString(actDTO);
 
         mockMvc.perform(post("/act/save")

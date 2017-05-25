@@ -1,10 +1,15 @@
 package com.itechart.warehouse.service.impl;
 
+import com.itechart.warehouse.dao.DriverDAO;
 import com.itechart.warehouse.dao.TransportCompanyDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.TransportCompanyDTO;
+import com.itechart.warehouse.entity.Driver;
 import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.service.elasticsearch.ElasticSearchDriver;
+import com.itechart.warehouse.service.elasticsearch.ElasticSearchTransportCompany;
+import com.itechart.warehouse.service.elasticsearch.SimilarityWrapper;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -21,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +43,6 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Autowired
     public void setCompanyService(WarehouseCompanyService service){this.companyService = service;}
-
 
     @Override
     @Transactional(readOnly = true)

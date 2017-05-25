@@ -48,12 +48,25 @@ public class ElasticSearchDriver {
         }
     }
 
+    private boolean isExist(String index) {
+        return client.admin().indices()
+                .prepareExists(index)
+                .execute().actionGet().isExists();
+    }
+
+    private void createIndex(String index) {
+        client.admin().indices().prepareCreate(index).get();
+    }
+
     /**
      * @return String - id of inserted record (driver)
      **/
     public String save(Driver driver, Long id_company) {
         logger.info("Saving driver with id: {}, for company with id: {}", driver.getId(), id_company);
         String index = id_company.toString();
+        if(!isExist(index)) {
+            createIndex(index);
+        }
         String json = ToJSON.toJSON(driver);
         logger.info("JSON object of driver: {}", json);
         IndexResponse response = client.prepareIndex(index, TYPE)
@@ -168,6 +181,9 @@ public class ElasticSearchDriver {
                 FIELD, driver.getFullName()
         );
         String index = id_company.toString();
+        if(!isExist(index)) {
+            return "";
+        }
         SearchResponse response = client.prepareSearch(index)
                 .setTypes(TYPE)
                 .setQuery(queryBuilder)// Query

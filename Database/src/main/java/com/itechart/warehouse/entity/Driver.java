@@ -110,4 +110,17 @@ public class Driver {
         result = 31 * result + (issueDate != null ? issueDate.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Driver{" +
+                "id=" + id +
+                ", fullName='" + fullName + '\'' +
+                ", passportNumber='" + passportNumber + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", issuedBy='" + issuedBy + '\'' +
+                ", issueDate=" + issueDate +
+                //", transportCompany=" + transportCompany +
+                '}';
+    }
 }

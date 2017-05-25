@@ -34,6 +34,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
  * for working with elastic search framework
  * to TransportCompany entity
  */
+
 public class ElasticSearchTransportCompany {
     private static TransportClient client;
     private static Logger logger = LoggerFactory.getLogger(ElasticSearchTransportCompany.class);
@@ -50,12 +51,25 @@ public class ElasticSearchTransportCompany {
         }
     }
 
+    private boolean isExist(String index) {
+        return client.admin().indices()
+                .prepareExists(index)
+                .execute().actionGet().isExists();
+    }
+
+    private void createIndex(String index) {
+        client.admin().indices().prepareCreate(index).get();
+    }
+
     /**
      * @return String - id of inserted record (transport company)
      */
     public String save(TransportCompany transportCompany) {
         logger.info("Saving transport company with id: {}", transportCompany.getId());
         String index = transportCompany.getWarehouseCompany().getIdWarehouseCompany().toString();//todo or id, if nounique
+        if(!isExist(index)) {
+            createIndex(index);
+        }
         IndexResponse response = client.prepareIndex(index, TYPE_COMPANY)
                 .setSource(ToJSON.toJSON(transportCompany))
                 .get();
@@ -172,6 +186,9 @@ public class ElasticSearchTransportCompany {
                 FIELD, transportCompany.getName()
         );
         String index = transportCompany.getWarehouseCompany().getIdWarehouseCompany().toString();
+        if(!isExist(index)) {
+            return "";
+        }
         SearchResponse response = client.prepareSearch(index)
                 .setTypes(TYPE_COMPANY)
                 .setQuery(queryBuilder)// Query
