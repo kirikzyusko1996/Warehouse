@@ -25,8 +25,8 @@ import java.util.List;
  * Created by Lenovo on 25.05.2017.
  */
 @Service
-public class ESTransportCompanyService implements ElasticSearchService{
-    private final static Logger logger = LoggerFactory.getLogger(ESTransportCompanyService.class);
+public class ElasticSearchServiceImpl implements ElasticSearchService{
+    private final static Logger logger = LoggerFactory.getLogger(ElasticSearchServiceImpl.class);
     private ElasticSearchTransportCompany elasticSearchTransportCompany = new ElasticSearchTransportCompany();
     private ElasticSearchDriver elasticSearchDriver = new ElasticSearchDriver();
     private DriverDAO driverDAO;
