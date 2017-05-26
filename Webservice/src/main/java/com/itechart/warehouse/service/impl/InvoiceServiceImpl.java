@@ -235,12 +235,25 @@ public class InvoiceServiceImpl implements InvoiceService {
     @PreAuthorize("hasPermission(#id, 'Invoice', 'GET')")
     public IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long idWarehouseCompany)
             throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException {
-        logger.info("Find dto by id #{}", id);
+        logger.info("Find incoming invoice by id #{}", id);
 
         InvoiceStatus invoiceStatus = invoiceStatusDAO.findStatusForInvoice(id);
         List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
 
         return convertToIncomingDTO(invoiceStatus, goodsList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#id, 'Invoice', 'GET')")
+    public OutgoingInvoiceDTO findOutgoingInvoiceForCompanyById(Long id, Long idWarehouseCompany)
+            throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Find outgoing invoice by id #{}", id);
+
+        InvoiceStatus invoiceStatus = invoiceStatusDAO.findStatusForInvoice(id);
+        List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+
+        return convertToOutgoingDTO(invoiceStatus, goodsList);
     }
 
     @Override
@@ -321,7 +334,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @PreAuthorize("hasPermission(#id, 'Invoice', 'UPDATE')")
     public void updateIncomingInvoice(Long id, IncomingInvoiceDTO dto, Long idWarehouse)
             throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
-        logger.info("Update incoming dto: {}", dto);
+        logger.info("Update incoming invoice: {}", dto);
 
         try {
             dto.setId(id);
@@ -330,6 +343,30 @@ public class InvoiceServiceImpl implements InvoiceService {
             if (optional.isPresent()) {
                 Warehouse warehouse = optional.get();
                 Invoice invoice = convertToIncomingInvoice(dto, warehouse);
+                invoice.setWarehouse(warehouse);
+
+                invoiceDAO.update(invoice);
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error while updating invoice: ", e);
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasPermission(#id, 'Invoice', 'UPDATE')")
+    public void updateOutgoingInvoice(Long id, OutgoingInvoiceDTO dto, Long idWarehouse)
+            throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
+        logger.info("Update outgoing dto: {}", dto);
+
+        try {
+            dto.setId(id);
+
+            Optional<Warehouse> optional = warehouseDAO.findById(idWarehouse);
+            if (optional.isPresent()) {
+                Warehouse warehouse = optional.get();
+                Invoice invoice = convertToOutgoingInvoice(dto, warehouse);
                 invoice.setWarehouse(warehouse);
 
                 invoiceDAO.update(invoice);
@@ -627,6 +664,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private Invoice convertToOutgoingInvoice(OutgoingInvoiceDTO dto, Warehouse warehouse)
             throws GenericDAOException, DataAccessException, ResourceNotFoundException, IllegalParametersException {
         Invoice invoice = new Invoice();
+        if (dto.getId() != null) {
+            invoice.setId(dto.getId());
+        }
         invoice.setNumber(dto.getNumber());
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setTransportNumber(dto.getTransportNumber());
@@ -636,7 +676,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
         WarehouseCustomerCompany receiverCompany = customerService.findCustomerById(dto.getReceiverCompany().getId());
-        invoice.setSupplierCompany(receiverCompany);
+        invoice.setReceiverCompany(receiverCompany);
         TransportCompany transportCompany = transportService.findTransportCompanyById(dto.getTransportCompany().getId());
         invoice.setTransportCompany(transportCompany);
 

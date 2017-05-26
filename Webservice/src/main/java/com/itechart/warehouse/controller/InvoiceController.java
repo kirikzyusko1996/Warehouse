@@ -1,6 +1,7 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.controller.error.RequestHandlingError;
+import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
@@ -104,24 +105,64 @@ public class InvoiceController {
         }
     }
 
+    @RequestMapping(value = "/outgoing/{id}", method = RequestMethod.GET)
+    public ResponseEntity<OutgoingInvoiceDTO> readOutgoingInvoice(@PathVariable Long id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
+        logger.info("GET on /invoice/outgoing/{}: find invoice", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            OutgoingInvoiceDTO invoice = invoiceService.findOutgoingInvoiceForCompanyById(id, company.getIdWarehouseCompany());
+            return new ResponseEntity<>(invoice, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @RequestMapping(value = "/incoming", method = RequestMethod.POST)
     public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("POST on /invoice/incoming: save new incoming invoice");
 
+        Invoice savedInvoice;
+
         WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
-        invoiceService.saveIncomingInvoice(principal, invoice);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if (principal != null) {
+            savedInvoice = invoiceService.saveIncomingInvoice(principal, invoice);
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new incoming invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (savedInvoice.getId() != null){
+            return new ResponseEntity<>(new IdResponse(savedInvoice.getId()), HttpStatus.CREATED);
+        } else {
+            throw new RequestHandlingException("Incoming invoice was not saved");
+        }
     }
 
     @RequestMapping(value = "/outgoing", method = RequestMethod.POST)
     public ResponseEntity<?> saveOutgoingInvoice(@Valid @RequestBody OutgoingInvoiceDTO invoice)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("POST on /invoice/outgoing: save new outgoing invoice");
 
+        Invoice savedInvoice;
+
         WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
-        invoiceService.saveOutgoingInvoice(principal, invoice);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if (principal != null) {
+            savedInvoice = invoiceService.saveOutgoingInvoice(principal, invoice);
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new outgoing invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (savedInvoice.getId() != null){
+            return new ResponseEntity<>(new IdResponse(savedInvoice.getId()), HttpStatus.CREATED);
+        } else {
+            throw new RequestHandlingException("Outgoing invoice was not saved");
+        }
     }
 
     @RequestMapping(value = "/incoming/{id}", method = RequestMethod.PUT)
@@ -135,6 +176,22 @@ public class InvoiceController {
             invoiceService.updateIncomingInvoice(id, invoice, warehouse.getIdWarehouse());
         } else {
             logger.error("Failed to retrieve authenticated user while updating incoming invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/outgoing/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateOutgoingInvoice(@PathVariable Long id, @Valid @RequestBody OutgoingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("PUT on /invoice/outgoing/{}: update invoice", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            invoiceService.updateOutgoingInvoice(id, invoice, warehouse.getIdWarehouse());
+        } else {
+            logger.error("Failed to retrieve authenticated user while updating outgoing invoice");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(HttpStatus.OK);

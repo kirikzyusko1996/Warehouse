@@ -29,6 +29,8 @@ public interface InvoiceService {
 
     IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException;
 
+    OutgoingInvoiceDTO findOutgoingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
     Invoice saveInvoice(Invoice invoice) throws DataAccessException;
 
     Invoice saveIncomingInvoice(WarehouseCompanyUserDetails principal, IncomingInvoiceDTO invoice)
@@ -38,6 +40,8 @@ public interface InvoiceService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void updateIncomingInvoice(Long id, IncomingInvoiceDTO invoice, Long idWarehouse) throws DataAccessException, ResourceNotFoundException, IllegalParametersException;
+
+    void updateOutgoingInvoice(Long id, OutgoingInvoiceDTO invoice, Long idWarehouse) throws DataAccessException, ResourceNotFoundException, IllegalParametersException;
 
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
 
