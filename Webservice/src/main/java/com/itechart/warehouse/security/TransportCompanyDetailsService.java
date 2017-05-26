@@ -33,7 +33,6 @@ public class TransportCompanyDetailsService implements UserDetailsService {
 //            TransportCompany transportCompany = transportCompanyService.findCompanyByLogin(username);
 //            if (transportCompany.getTrusted()) {
 //                return new TransportCompanyDetails(transportCompany);
-//                //todo return null if not trusted
 //            } else return null;
 //        } catch (DataAccessException e) {
 //            throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
