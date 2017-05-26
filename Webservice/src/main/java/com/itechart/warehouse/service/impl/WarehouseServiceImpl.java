@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +59,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Warehouse> findWarehousesByCompanyId(String id) throws DataAccessException, IllegalParametersException {
+    public List<Warehouse> findWarehousesByCompanyId(String id, int page, int count) throws DataAccessException, IllegalParametersException {
         logger.info("Find warehouses by id company: {}", id);
         if (!NumberUtils.isNumber(id)) {
             throw new IllegalParametersException("Invalid id param");
@@ -68,7 +69,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", Long.valueOf(id)));//it's no fact, that it will work
 
         try {
-            warehouses = warehouseDAO.findAll(criteria, -1, -1);
+            warehouses = warehouseDAO.findAll(criteria, page, count);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -93,6 +94,34 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new DataAccessException(e.getCause());
         }
         return warehouse;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long id_user)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("Find warehouses with criteria by id company: {}", id_user);
+        if (id_user == null) {
+            throw new IllegalParametersException("Invalid id param");
+        }
+        List<Warehouse> warehouses = null;
+        List<Warehouse> result = new ArrayList<>();
+        DetachedCriteria criteria = DetachedCriteria.forClass(Warehouse.class);
+        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", Long.valueOf(id_user)));
+
+        try {
+            warehouses = warehouseDAO.findAll(criteria, -1, -1);
+            for(Warehouse warehouse: warehouses) {
+                if(warehouse.getName()!=null &&
+                        warehouse.getName().toLowerCase().equals(searchWarehouse.getName().toLowerCase())) {
+                    result.add(warehouse);
+                }
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for warehouse: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return result;
     }
 
     @Override
