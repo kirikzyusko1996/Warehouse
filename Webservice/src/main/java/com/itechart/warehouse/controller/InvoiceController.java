@@ -105,48 +105,22 @@ public class InvoiceController {
     }
 
     @RequestMapping(value = "/incoming", method = RequestMethod.POST)
-    public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice){
+    public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("POST on /invoice/incoming: save new incoming invoice");
 
-        // todo security check
-
-        try{
-            WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
-            invoiceService.saveIncomingInvoice(principal, invoice);
-        } catch (DataAccessException e){
-            logger.error("Error while saving new incoming invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while saving new incoming invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while saving new incoming invoice", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        invoiceService.saveIncomingInvoice(principal, invoice);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/outgoing", method = RequestMethod.POST)
-    public ResponseEntity<?> saveOutgoingInvoice(@Valid @RequestBody OutgoingInvoiceDTO invoice){
+    public ResponseEntity<?> saveOutgoingInvoice(@Valid @RequestBody OutgoingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("POST on /invoice/outgoing: save new outgoing invoice");
 
-        // todo security check
-
-        try{
-            WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
-            invoiceService.saveOutgoingInvoice(principal, invoice);
-        } catch (DataAccessException e){
-            logger.error("Error while saving new outgoing invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while saving new outgoing invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while saving new outgoing invoice", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        invoiceService.saveOutgoingInvoice(principal, invoice);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

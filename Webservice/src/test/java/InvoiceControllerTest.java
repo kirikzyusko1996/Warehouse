@@ -173,10 +173,10 @@ public class InvoiceControllerTest {
         OutgoingInvoiceDTO invoice = new OutgoingInvoiceDTO();
         invoice.setNumber("99");
         invoice.setIssueDate(today());
-        invoice.setReceiverCompany(customerService.findWarehouseCustomerCompanyByName("Левоправо"));
-        invoice.setTransportCompany(transportService.findTransportCompanyByName("Карты"));
-        invoice.setTransportNumber("1000");
-        invoice.setTransportName("Volvo");
+//        invoice.setReceiverCompany(customerService.findWarehouseCustomerCompanyByName("Левоправо"));
+//        invoice.setTransportCompany(transportService.findTransportCompanyByName("Карты"));
+//        invoice.setTransportNumber("1000");
+//        invoice.setTransportName("Volvo");
         //invoice.setDriver(createDriver());
         invoice.setDescription("dnsivvdv");
         invoice.setGoodsQuantity(new BigDecimal("12.5"));

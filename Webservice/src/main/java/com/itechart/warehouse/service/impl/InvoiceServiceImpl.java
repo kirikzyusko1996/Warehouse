@@ -261,6 +261,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    //todo @PreAuthorize("hasPermission('WarehouseCustomerCompany', 'WRITE')")
     public Invoice saveIncomingInvoice(WarehouseCompanyUserDetails principal, IncomingInvoiceDTO dto)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Save incoming dto: {}", dto);
@@ -288,6 +289,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    //todo @PreAuthorize("hasPermission('WarehouseCustomerCompany', 'WRITE')")
     public Invoice saveOutgoingInvoice(WarehouseCompanyUserDetails principal, OutgoingInvoiceDTO dto)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Save outgoing dto: {}", dto);
@@ -567,8 +569,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setId(invoice.getId());
         dto.setNumber(invoice.getNumber());
         dto.setIssueDate(invoice.getIssueDate());
-        dto.setReceiverCompany(invoice.getReceiverCompany());
-        dto.setTransportCompany(invoice.getTransportCompany());
+        WarehouseCustomerCompanyDTO customer = customerService.mapToDto(invoice.getReceiverCompany());
+        dto.setReceiverCompany(customer);
+        TransportCompanyDTO transport = transportService.mapToDto(invoice.getTransportCompany());
+        dto.setTransportCompany(transport);
         dto.setTransportNumber(invoice.getTransportNumber());
         dto.setTransportName(invoice.getTransportName());
         dto.setDescription(invoice.getDescription());
@@ -649,12 +653,22 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private InvoiceStatus createStatusForIncomingInvoice(Invoice invoice, User user)
             throws GenericDAOException {
-        return fillStatusWithInfo(invoice, user);
+        InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
+
+        InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());
+        invoiceStatus.setStatusName(invoiceStatusName);
+
+        return invoiceStatus;
     }
 
     private InvoiceStatus createStatusForOutgoingInvoice(Invoice invoice, User user)
             throws GenericDAOException {
-        return fillStatusWithInfo(invoice, user);
+        InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
+
+        InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.MOVED_OUT.toString());
+        invoiceStatus.setStatusName(invoiceStatusName);
+
+        return invoiceStatus;
     }
 
     private InvoiceStatus fillStatusWithInfo(Invoice invoice, User user)
@@ -665,11 +679,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Timestamp now = new Timestamp(new Date().getTime());
         invoiceStatus.setDate(now);
-
-        // todo specify status for created outgoing dto
-        InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());
-        invoiceStatus.setStatusName(invoiceStatusName);
-
         invoiceStatus.setUser(user);
 
         return invoiceStatus;
