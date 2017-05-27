@@ -37,9 +37,6 @@ public class OutgoingInvoiceDTO {
         if (StringUtils.isNotEmpty(manager.getLastName())){
             dispatcherName.append(manager.getLastName());
         }
-        if (StringUtils.isNotEmpty(manager.getFirstName())){
-            dispatcherName.append(manager.getFirstName());
-        }
 
         this.manager = dispatcherName.toString();
     }

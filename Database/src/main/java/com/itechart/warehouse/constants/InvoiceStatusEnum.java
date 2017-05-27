@@ -13,15 +13,7 @@ public enum InvoiceStatusEnum {
     RELEASE_ALLOWED("Выпуск разрешен"),
     MOVED_OUT("Вывезен со склада");
 
-
-    private static Map<String, InvoiceStatusEnum> statuses = new HashMap();
     private String name;
-
-    static {
-        for (InvoiceStatusEnum instance : InvoiceStatusEnum.values()) {
-            statuses.put(instance.getName(),instance);
-        }
-    }
 
     InvoiceStatusEnum(String name) {
         this.name = name;
@@ -32,6 +24,6 @@ public enum InvoiceStatusEnum {
     }
 
     public static InvoiceStatusEnum getStatus(String str) {
-        return statuses.get(str);
+        return InvoiceStatusEnum.valueOf(str);
     }
 }
