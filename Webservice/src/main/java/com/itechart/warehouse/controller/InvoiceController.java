@@ -38,50 +38,47 @@ public class InvoiceController {
     private GoodsService goodsService;
 
     @Autowired
-    public void setInvoiceService(InvoiceService service){
+    public void setInvoiceService(InvoiceService service) {
         this.invoiceService = service;
     }
 
     @Autowired
-    public void setGoodsService(GoodsService service){this.goodsService = service; }
+    public void setGoodsService(GoodsService service) {
+        this.goodsService = service;
+    }
 
     @RequestMapping(value = "/incoming", method = RequestMethod.GET)
     public ResponseEntity<List<IncomingInvoiceDTO>> readIncomingInvoices(@RequestParam(defaultValue = "0") int page,
-                                                                         @RequestParam(defaultValue = "-1") int count){
+                                                                         @RequestParam(defaultValue = "-1") int count)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /invoice/incoming: find all registered incoming invoices");
 
-        List<IncomingInvoiceDTO> companies;
-        try{
-            companies = invoiceService.findAllIncomingInvoices(page, count);
-        } catch (DataAccessException e){
-            logger.error("Error while retrieving all registered incoming invoices", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while retrieving all registered incoming invoices", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while retrieving all registered incoming invoices", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            List<IncomingInvoiceDTO> invoices = invoiceService.findAllIncomingInvoicesForWarehouse(page, count, warehouse.getIdWarehouse());
+            return new ResponseEntity<>(invoices, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving incoming invoices");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        return new ResponseEntity<>(companies, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/outgoing", method = RequestMethod.GET)
     public ResponseEntity<List<OutgoingInvoiceDTO>> readOutgoingInvoices(@RequestParam(defaultValue = "0") int page,
-                                                                         @RequestParam(defaultValue = "-1") int count){
+                                                                         @RequestParam(defaultValue = "-1") int count) {
         logger.info("GET on /invoice/outgoing: find all registered outgoing invoices");
 
         List<OutgoingInvoiceDTO> companies;
-        try{
+        try {
             companies = invoiceService.findAllOutgoingInvoices(page, count);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while retrieving all registered outgoing invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
+        } catch (IllegalParametersException e) {
             logger.error("Invalid params specified while retrieving all registered outgoing invoices", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             logger.error("Invoice with specified id not found while retrieving all registered outgoing invoices", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -136,7 +133,7 @@ public class InvoiceController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        if (savedInvoice.getId() != null){
+        if (savedInvoice.getId() != null) {
             return new ResponseEntity<>(new IdResponse(savedInvoice.getId()), HttpStatus.CREATED);
         } else {
             throw new RequestHandlingException("Incoming invoice was not saved");
@@ -158,7 +155,7 @@ public class InvoiceController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        if (savedInvoice.getId() != null){
+        if (savedInvoice.getId() != null) {
             return new ResponseEntity<>(new IdResponse(savedInvoice.getId()), HttpStatus.CREATED);
         } else {
             throw new RequestHandlingException("Outgoing invoice was not saved");
@@ -199,20 +196,20 @@ public class InvoiceController {
 
     //status is sent via param
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status){
+    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status) {
         logger.info("PUT on /invoice/{}?status={}: update invoice status", id);
 
         // todo security check
 
-        try{
+        try {
             invoiceService.updateInvoiceStatus(id, status);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while updating invoice status", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
+        } catch (IllegalParametersException e) {
             logger.error("Invalid params specified while updating invoice status", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             logger.error("Invoice with specified id not found while updating invoice status", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -221,24 +218,11 @@ public class InvoiceController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteInvoice(@PathVariable String id){
+    public ResponseEntity<?> deleteInvoice(@PathVariable String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("DELETE on /invoice/{}: invoice", id);
 
-        // todo security check
-
-        try{
-            invoiceService.deleteInvoice(id);
-        } catch (DataAccessException e){
-            logger.error("Error while deleting transport company", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while deleting transport company", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Transport company with specified id not found while deleting transport company", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        invoiceService.deleteInvoice(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -251,9 +235,9 @@ public class InvoiceController {
         logger.info("GET on /invoice/{}/goods: find all goods for specified invoice", invoiceId);
 
         List<Goods> goodsList;
-        try{
+        try {
             goodsList = goodsService.findGoodsForInvoice(invoiceId, page, count);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while retrieving all goods for specified invoice", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (IllegalParametersException e) {

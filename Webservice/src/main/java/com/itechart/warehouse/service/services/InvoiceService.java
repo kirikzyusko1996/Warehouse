@@ -23,6 +23,8 @@ public interface InvoiceService {
     List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<IncomingInvoiceDTO> findAllIncomingInvoicesForWarehouse(int page, int count, Long idWarehouse) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
+
     Invoice findInvoiceById(Long id) throws DataAccessException;
 
     Invoice findInvoiceByNumber(String number) throws DataAccessException;

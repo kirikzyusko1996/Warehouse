@@ -7,6 +7,8 @@ import com.itechart.warehouse.entity.InvoiceStatus;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public class InvoiceStatusDAO extends DAO<InvoiceStatus>{
@@ -24,5 +26,18 @@ public class InvoiceStatusDAO extends DAO<InvoiceStatus>{
         Query<InvoiceStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("id", invoiceId);
         return query.getSingleResult();
+    }
+
+    public List<InvoiceStatus> findStatusesByWarehouseId(Long warehouseId, int page, int count)
+            throws GenericDAOException {
+        String queryHql = "SELECT DISTINCT status" +
+                " FROM InvoiceStatus status" +
+                " INNER JOIN Warehouse warehouse ON warehouse = status.invoice.warehouse" +
+                " WHERE warehouse.idWarehouse = :warehouseId";
+        Query<InvoiceStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+        query.setFirstResult(page);
+        query.setMaxResults(count);
+        return query.list();
     }
 }
