@@ -98,22 +98,23 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long id_user)
+    public List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long id_company)
             throws DataAccessException, IllegalParametersException {
-        logger.info("Find warehouses with criteria by id company: {}", id_user);
-        if (id_user == null) {
+        logger.info("Find warehouses with criteria by id company: {}", id_company);
+        if (id_company == null) {
             throw new IllegalParametersException("Invalid id param");
         }
         List<Warehouse> warehouses = null;
         List<Warehouse> result = new ArrayList<>();
         DetachedCriteria criteria = DetachedCriteria.forClass(Warehouse.class);
-        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", Long.valueOf(id_user)));
+        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", Long.valueOf(id_company)));
 
         try {
             warehouses = warehouseDAO.findAll(criteria, -1, -1);
             for(Warehouse warehouse: warehouses) {
+                System.out.println("From cycle: "+warehouse);
                 if(warehouse.getName()!=null &&
-                        warehouse.getName().toLowerCase().equals(searchWarehouse.getName().toLowerCase())) {
+                        warehouse.getName().toLowerCase().contains(searchWarehouse.getName().toLowerCase())) {
                     result.add(warehouse);
                 }
             }

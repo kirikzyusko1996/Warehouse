@@ -98,17 +98,18 @@ public class WarehouseCompanyController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<?> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany){
+    public ResponseEntity<User> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany){
         logger.info("POST on /company: save new company");
-        // todo security check
+        User user = null;
         try{
-            warehouseCompanyService.saveWarehouseCompany(warehouseCompany);
+            user = warehouseCompanyService.saveWarehouseCompany(warehouseCompany);
+            System.out.println(user);
         } catch (DataAccessException e){
             logger.error("Error while saving new company", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)

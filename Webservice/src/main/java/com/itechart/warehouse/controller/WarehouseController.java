@@ -75,23 +75,19 @@ public class WarehouseController {
             logger.error("Invalid params specified while reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-
+        System.out.println(warehouses);
         return new ResponseEntity<>(warehouses, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{name}", method = RequestMethod.GET)
-    public ResponseEntity<List<Warehouse>> searchWarehouses(@PathVariable String name){
-        logger.info("GET on /warehouse: search warehouse by criteria name={}", name);
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public ResponseEntity<List<Warehouse>> searchWarehouses(@RequestBody Warehouse warehouse){
+        logger.info("GET on /warehouse: search warehouse by criteria name={}", warehouse.getName());
 
-        Warehouse warehouse = new Warehouse();
-        warehouse.setName(name);
-
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        User user = userDetails.getUser();//warning
+        System.out.println(warehouse.getWarehouseCompany().getIdWarehouseCompany());
 
         List<Warehouse> warehouses;
         try{
-            warehouses = warehouseService.searchWarehouse(warehouse, user.getId());
+            warehouses = warehouseService.searchWarehouse(warehouse, warehouse.getWarehouseCompany().getIdWarehouseCompany());
         } catch (DataAccessException e){
             logger.error("Error reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -99,7 +95,7 @@ public class WarehouseController {
             logger.error("Invalid params specified while reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-
+        System.out.println(warehouse+" "+warehouses);
         return new ResponseEntity<>(warehouses, HttpStatus.OK);
     }
 
