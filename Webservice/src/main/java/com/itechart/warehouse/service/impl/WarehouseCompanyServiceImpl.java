@@ -5,11 +5,13 @@ import com.itechart.warehouse.dao.WarehouseCompanyStatusDAO;
 import com.itechart.warehouse.dao.WarehouseDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.entity.WarehouseCompanyStatus;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
+import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.services.WarehouseCompanyService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.Conjunction;
@@ -18,6 +20,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +38,14 @@ import java.util.stream.Collectors;
 public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
     private WarehouseCompanyDAO warehouseCompanyDAO;
     private WarehouseCompanyStatusDAO statusDAO;
+    private UserService userService;
     private Logger logger = LoggerFactory.getLogger(WarehouseCompanyServiceImpl.class);
+
+    @Lazy
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @Autowired
     public void setWarehouseCompanyDAO(WarehouseCompanyDAO warehouseCompanyDAO) {
@@ -132,16 +142,22 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional
-    public WarehouseCompany saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException {
+    public User saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException {
         logger.info("Saving WarehouseCompany: {}", warehouseCompany);
         WarehouseCompany updatedWarehouseCompany = null;
+        User user = null;
         try {
             updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
+            user = userService.createSupervisor(updatedWarehouseCompany.getIdWarehouseCompany());
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
+        } catch (ResourceNotFoundException e) {
+            logger.error("Error during creating supervisor: {}", e.getMessage());
+        } catch (IllegalParametersException e) {
+            logger.error("Error during creating supervisor: {}", e.getMessage());
         }
-        return updatedWarehouseCompany;
+        return user;
     }
 
     @Override

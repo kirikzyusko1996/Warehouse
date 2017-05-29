@@ -25,6 +25,7 @@ public class Invoice {
     private Unit goodsEntryCountUnit;
     private List<Goods> incomingGoods;
     private List<Goods> outgoingGoods;
+    private InvoiceStatus invoiceStatus;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -187,6 +188,15 @@ public class Invoice {
 
     public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit) {
         this.goodsEntryCountUnit = goodsEntryCountUnit;
+    }
+
+    @OneToOne (mappedBy="invoice")
+    public InvoiceStatus getInvoiceStatus() {
+        return invoiceStatus;
+    }
+
+    public void setInvoiceStatus(InvoiceStatus invoiceStatus) {
+        this.invoiceStatus = invoiceStatus;
     }
 
     @Override

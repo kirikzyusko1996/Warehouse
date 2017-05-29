@@ -1,5 +1,6 @@
 package com.itechart.warehouse.service.services;
 
+import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
@@ -22,7 +23,7 @@ public interface WarehouseCompanyService {
 
     WarehouseCompany findWarehouseCompanyById(String id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    WarehouseCompany saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException;
+    User saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException;
 
     WarehouseCompany updateWarehouseCompany(String id, WarehouseCompany company)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

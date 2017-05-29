@@ -38,9 +38,6 @@ public class IncomingInvoiceDTO {
         if (StringUtils.isNotEmpty(dispatcher.getLastName())){
             dispatcherName.append(dispatcher.getLastName());
         }
-        if (StringUtils.isNotEmpty(dispatcher.getFirstName())){
-            dispatcherName.append(dispatcher.getFirstName());
-        }
 
         this.dispatcher = dispatcherName.toString();
     }

@@ -1,7 +1,10 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.security.UserDetailsProvider;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -54,14 +57,17 @@ public class WarehouseController {
         return new ResponseEntity<>(warehouses, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Warehouse>> findWarehousesByCompanyId(@PathVariable String id){
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public ResponseEntity<List<Warehouse>> findWarehousesByCompanyId(@RequestParam(defaultValue = "0") String id,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "-1") int count){
         System.out.println("ID: "+id);
+        System.out.println("PAGE: "+page+" Count: "+count);
         logger.info("GET on /warehouse: find all companies");
 
         List<Warehouse> warehouses;
         try{
-            warehouses = warehouseService.findWarehousesByCompanyId(id);
+            warehouses = warehouseService.findWarehousesByCompanyId(id, page, count);
         } catch (DataAccessException e){
             logger.error("Error while retrieving warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -69,7 +75,27 @@ public class WarehouseController {
             logger.error("Invalid params specified while reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+        System.out.println(warehouses);
+        return new ResponseEntity<>(warehouses, HttpStatus.OK);
+    }
 
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public ResponseEntity<List<Warehouse>> searchWarehouses(@RequestBody Warehouse warehouse){
+        logger.info("GET on /warehouse: search warehouse by criteria name={}", warehouse.getName());
+
+        System.out.println(warehouse.getWarehouseCompany().getIdWarehouseCompany());
+
+        List<Warehouse> warehouses;
+        try{
+            warehouses = warehouseService.searchWarehouse(warehouse, warehouse.getWarehouseCompany().getIdWarehouseCompany());
+        } catch (DataAccessException e){
+            logger.error("Error reading warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while reading warehouse", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        System.out.println(warehouse+" "+warehouses);
         return new ResponseEntity<>(warehouses, HttpStatus.OK);
     }
 

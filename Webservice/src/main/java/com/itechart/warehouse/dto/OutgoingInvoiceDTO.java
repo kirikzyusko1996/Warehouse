@@ -17,8 +17,8 @@ public class OutgoingInvoiceDTO {
     private Long id;
     private String number;
     private Date issueDate;
-    private WarehouseCustomerCompany receiverCompany;
-    private TransportCompany transportCompany;
+    private WarehouseCustomerCompanyDTO receiverCompany;
+    private TransportCompanyDTO transportCompany;
     private String transportNumber;
     private String transportName;
     private DriverDTO driver;
@@ -29,14 +29,13 @@ public class OutgoingInvoiceDTO {
     private String goodsEntryCountUnit;
     private String manager;
     private List<GoodsDTO> goods;
+    private String status;
+    private Timestamp registrationDate;
 
     public void setManager(User manager) {
         StringBuilder dispatcherName = new StringBuilder();
         if (StringUtils.isNotEmpty(manager.getLastName())){
             dispatcherName.append(manager.getLastName());
-        }
-        if (StringUtils.isNotEmpty(manager.getFirstName())){
-            dispatcherName.append(manager.getFirstName());
         }
 
         this.manager = dispatcherName.toString();

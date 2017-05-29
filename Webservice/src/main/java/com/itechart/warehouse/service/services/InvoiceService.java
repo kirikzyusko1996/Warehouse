@@ -23,11 +23,17 @@ public interface InvoiceService {
     List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<IncomingInvoiceDTO> findAllIncomingInvoicesForWarehouse(int page, int count, Long idWarehouse) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
+
+    List<OutgoingInvoiceDTO> findAllOutgoingInvoicesForWarehouse(int page, int count, Long idWarehouse) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+
     Invoice findInvoiceById(Long id) throws DataAccessException;
 
     Invoice findInvoiceByNumber(String number) throws DataAccessException;
 
     IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException;
+
+    OutgoingInvoiceDTO findOutgoingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     Invoice saveInvoice(Invoice invoice) throws DataAccessException;
 
@@ -38,6 +44,8 @@ public interface InvoiceService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void updateIncomingInvoice(Long id, IncomingInvoiceDTO invoice, Long idWarehouse) throws DataAccessException, ResourceNotFoundException, IllegalParametersException;
+
+    void updateOutgoingInvoice(Long id, OutgoingInvoiceDTO invoice, Long idWarehouse) throws DataAccessException, ResourceNotFoundException, IllegalParametersException;
 
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
 

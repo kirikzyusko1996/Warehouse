@@ -1,6 +1,7 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.controller.error.RequestHandlingError;
+import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
@@ -37,55 +38,47 @@ public class InvoiceController {
     private GoodsService goodsService;
 
     @Autowired
-    public void setInvoiceService(InvoiceService service){
+    public void setInvoiceService(InvoiceService service) {
         this.invoiceService = service;
     }
 
     @Autowired
-    public void setGoodsService(GoodsService service){this.goodsService = service; }
+    public void setGoodsService(GoodsService service) {
+        this.goodsService = service;
+    }
 
     @RequestMapping(value = "/incoming", method = RequestMethod.GET)
     public ResponseEntity<List<IncomingInvoiceDTO>> readIncomingInvoices(@RequestParam(defaultValue = "0") int page,
-                                                                         @RequestParam(defaultValue = "-1") int count){
+                                                                         @RequestParam(defaultValue = "-1") int count)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /invoice/incoming: find all registered incoming invoices");
 
-        List<IncomingInvoiceDTO> companies;
-        try{
-            companies = invoiceService.findAllIncomingInvoices(page, count);
-        } catch (DataAccessException e){
-            logger.error("Error while retrieving all registered incoming invoices", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while retrieving all registered incoming invoices", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while retrieving all registered incoming invoices", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            List<IncomingInvoiceDTO> invoices = invoiceService.findAllIncomingInvoicesForWarehouse(page, count, warehouse.getIdWarehouse());
+            return new ResponseEntity<>(invoices, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving incoming invoices");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        return new ResponseEntity<>(companies, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/outgoing", method = RequestMethod.GET)
     public ResponseEntity<List<OutgoingInvoiceDTO>> readOutgoingInvoices(@RequestParam(defaultValue = "0") int page,
-                                                                         @RequestParam(defaultValue = "-1") int count){
+                                                                         @RequestParam(defaultValue = "-1") int count)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /invoice/outgoing: find all registered outgoing invoices");
 
-        List<OutgoingInvoiceDTO> companies;
-        try{
-            companies = invoiceService.findAllOutgoingInvoices(page, count);
-        } catch (DataAccessException e){
-            logger.error("Error while retrieving all registered outgoing invoices", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while retrieving all registered outgoing invoices", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while retrieving all registered outgoing invoices", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            List<OutgoingInvoiceDTO> invoices = invoiceService.findAllOutgoingInvoicesForWarehouse(page, count, warehouse.getIdWarehouse());
+            return new ResponseEntity<>(invoices, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving outgoing invoices");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        return new ResponseEntity<>(companies, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/incoming/{id}", method = RequestMethod.GET)
@@ -104,50 +97,64 @@ public class InvoiceController {
         }
     }
 
+    @RequestMapping(value = "/outgoing/{id}", method = RequestMethod.GET)
+    public ResponseEntity<OutgoingInvoiceDTO> readOutgoingInvoice(@PathVariable Long id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
+        logger.info("GET on /invoice/outgoing/{}: find invoice", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany company = userDetails.getCompany();
+            OutgoingInvoiceDTO invoice = invoiceService.findOutgoingInvoiceForCompanyById(id, company.getIdWarehouseCompany());
+            return new ResponseEntity<>(invoice, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @RequestMapping(value = "/incoming", method = RequestMethod.POST)
-    public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice){
+    public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("POST on /invoice/incoming: save new incoming invoice");
 
-        // todo security check
+        Invoice savedInvoice;
 
-        try{
-            WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
-            invoiceService.saveIncomingInvoice(principal, invoice);
-        } catch (DataAccessException e){
-            logger.error("Error while saving new incoming invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while saving new incoming invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while saving new incoming invoice", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        if (principal != null) {
+            savedInvoice = invoiceService.saveIncomingInvoice(principal, invoice);
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new incoming invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if (savedInvoice.getId() != null) {
+            return new ResponseEntity<>(new IdResponse(savedInvoice.getId()), HttpStatus.CREATED);
+        } else {
+            throw new RequestHandlingException("Incoming invoice was not saved");
+        }
     }
 
     @RequestMapping(value = "/outgoing", method = RequestMethod.POST)
-    public ResponseEntity<?> saveOutgoingInvoice(@Valid @RequestBody OutgoingInvoiceDTO invoice){
+    public ResponseEntity<?> saveOutgoingInvoice(@Valid @RequestBody OutgoingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("POST on /invoice/outgoing: save new outgoing invoice");
 
-        // todo security check
+        Invoice savedInvoice;
 
-        try{
-            WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
-            invoiceService.saveOutgoingInvoice(principal, invoice);
-        } catch (DataAccessException e){
-            logger.error("Error while saving new outgoing invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while saving new outgoing invoice", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while saving new outgoing invoice", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        if (principal != null) {
+            savedInvoice = invoiceService.saveOutgoingInvoice(principal, invoice);
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new outgoing invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if (savedInvoice.getId() != null) {
+            return new ResponseEntity<>(new IdResponse(savedInvoice.getId()), HttpStatus.CREATED);
+        } else {
+            throw new RequestHandlingException("Outgoing invoice was not saved");
+        }
     }
 
     @RequestMapping(value = "/incoming/{id}", method = RequestMethod.PUT)
@@ -166,48 +173,38 @@ public class InvoiceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/outgoing/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateOutgoingInvoice(@PathVariable Long id, @Valid @RequestBody OutgoingInvoiceDTO invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("PUT on /invoice/outgoing/{}: update invoice", id);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            invoiceService.updateOutgoingInvoice(id, invoice, warehouse.getIdWarehouse());
+        } else {
+            logger.error("Failed to retrieve authenticated user while updating outgoing invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     //status is sent via param
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status){
+    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("PUT on /invoice/{}?status={}: update invoice status", id);
 
-        // todo security check
-
-        try{
-            invoiceService.updateInvoiceStatus(id, status);
-        } catch (DataAccessException e){
-            logger.error("Error while updating invoice status", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while updating invoice status", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Invoice with specified id not found while updating invoice status", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        invoiceService.updateInvoiceStatus(id, status);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteInvoice(@PathVariable String id){
+    public ResponseEntity<?> deleteInvoice(@PathVariable String id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("DELETE on /invoice/{}: invoice", id);
 
-        // todo security check
-
-        try{
-            invoiceService.deleteInvoice(id);
-        } catch (DataAccessException e){
-            logger.error("Error while deleting transport company", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (IllegalParametersException e){
-            logger.error("Invalid params specified while deleting transport company", e);
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e){
-            logger.error("Transport company with specified id not found while deleting transport company", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        invoiceService.deleteInvoice(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -220,9 +217,9 @@ public class InvoiceController {
         logger.info("GET on /invoice/{}/goods: find all goods for specified invoice", invoiceId);
 
         List<Goods> goodsList;
-        try{
+        try {
             goodsList = goodsService.findGoodsForInvoice(invoiceId, page, count);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Error while retrieving all goods for specified invoice", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (IllegalParametersException e) {

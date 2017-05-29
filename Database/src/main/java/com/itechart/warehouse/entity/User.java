@@ -24,9 +24,9 @@ public class User {
     private String house;
     private String apartment;
     private String email;
-    @JsonIgnore
+    //@JsonIgnore
     private String login;
-    @JsonIgnore
+    //@JsonIgnore
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
