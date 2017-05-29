@@ -32,6 +32,8 @@ public interface TransportCompanyService {
     void deleteTransportCompany(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<TransportCompany> searchSimilarToCompanyForWarehouseCompany(TransportCompanyDTO transport, WarehouseCompany warehouseCompany);
+
     boolean TransportCompanyExists(TransportCompany company) throws DataAccessException;
 
     TransportCompany mapToCompany(TransportCompanyDTO dto);

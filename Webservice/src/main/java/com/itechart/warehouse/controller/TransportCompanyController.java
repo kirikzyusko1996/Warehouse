@@ -50,8 +50,8 @@ public class TransportCompanyController {
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         if (userDetails != null) {
             WarehouseCompany warehouseCompany = userDetails.getCompany();
-            List<TransportCompany> customers = transportService.findAllCompaniesForWarehouseCompany(page, count, warehouseCompany.getIdWarehouseCompany());
-            return new ResponseEntity<>(customers, HttpStatus.OK);
+            List<TransportCompany> companies = transportService.findAllCompaniesForWarehouseCompany(page, count, warehouseCompany.getIdWarehouseCompany());
+            return new ResponseEntity<>(companies, HttpStatus.OK);
         } else {
             logger.error("Failed to retrieve authenticated user while retrieving transport companies");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -120,6 +120,21 @@ public class TransportCompanyController {
 
         transportService.deleteTransportCompany(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public ResponseEntity<List<TransportCompany>> search(@RequestBody TransportCompanyDTO transport) {
+        logger.info("POST on /tr-company/search: search for transport company");
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany warehouseCompany = userDetails.getCompany();
+            List<TransportCompany> customers = transportService.searchSimilarToCompanyForWarehouseCompany(transport, warehouseCompany);
+            return new ResponseEntity<>(customers, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while searching for transport companies");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @ExceptionHandler(DataAccessException.class)
