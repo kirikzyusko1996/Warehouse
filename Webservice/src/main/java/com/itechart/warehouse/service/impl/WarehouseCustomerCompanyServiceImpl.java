@@ -217,6 +217,20 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
     }
 
     @Override
+    @PreAuthorize("hasPermission(#warehouseCompany.idWarehouseCompany, 'WarehouseCompany', 'GET')")
+    public List<WarehouseCustomerCompany> searchSimilarToCompanyForWarehouseCompany(WarehouseCustomerCompanyDTO customer, WarehouseCompany warehouseCompany) throws DataAccessException, IllegalParametersException {
+//        ElasticSearchTransportCompany searchTransportCompany = new ElasticSearchTransportCompany();
+//        TransportCompany company = mapToCompany(dto);
+//        company.setWarehouseCompany(warehouseCompany);
+//
+//        List<SimilarityWrapper<TransportCompany>> companiesByRelevance = searchTransportCompany.search(company);
+//        return companiesByRelevance.stream().map(SimilarityWrapper::getOjbect).collect(Collectors.toList());
+
+        // TODO: wait until elastic will be added
+        return findAllCustomersForWarehouseCompany(-1, -1, warehouseCompany.getIdWarehouseCompany());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public boolean warehouseCustomerCompanyExists(WarehouseCustomerCompany company) throws DataAccessException {
         logger.error("Determine if customer dto {} exists", company.getId());

@@ -31,6 +31,8 @@ public interface WarehouseCustomerCompanyService {
     void deleteWarehouseCustomerCompany(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<WarehouseCustomerCompany> searchSimilarToCompanyForWarehouseCompany(WarehouseCustomerCompanyDTO customer, WarehouseCompany warehouseCompany) throws DataAccessException, IllegalParametersException;
+
     boolean warehouseCustomerCompanyExists(WarehouseCustomerCompany customer) throws DataAccessException;
 
     WarehouseCustomerCompany mapToCustomer(WarehouseCustomerCompanyDTO dto);

@@ -121,6 +121,22 @@ public class WarehouseCustomerCompanyController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public ResponseEntity<List<WarehouseCustomerCompany>> search(@RequestBody WarehouseCustomerCompanyDTO customer)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("POST on /customer/search: search for customer");
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            WarehouseCompany warehouseCompany = userDetails.getCompany();
+            List<WarehouseCustomerCompany> customers = customerService.searchSimilarToCompanyForWarehouseCompany(customer, warehouseCompany);
+            return new ResponseEntity<>(customers, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while searching for customers");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @ExceptionHandler(DataAccessException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public

@@ -27,8 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TransportCompanyServiceImpl implements TransportCompanyService{
@@ -135,7 +137,7 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id, 'TransportCompany', 'GET')")
+    @PreAuthorize("hasPermission(#warehouseCompanyId, 'WarehouseCompany', 'GET')")
     public TransportCompany findTransportForCompanyById(Long id, Long warehouseCompanyId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         return findTransportCompanyById(id);
@@ -223,6 +225,17 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
             logger.error("Error while deleting transport dto: ", e);
             throw new DataAccessException(e);
         }
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#warehouseCompany.idWarehouseCompany, 'WarehouseCompany', 'GET')")
+    public List<TransportCompany> searchSimilarToCompanyForWarehouseCompany(TransportCompanyDTO dto, WarehouseCompany warehouseCompany) {
+        ElasticSearchTransportCompany searchTransportCompany = new ElasticSearchTransportCompany();
+        TransportCompany company = mapToCompany(dto);
+        company.setWarehouseCompany(warehouseCompany);
+
+        List<SimilarityWrapper<TransportCompany>> companiesByRelevance = searchTransportCompany.search(company);
+        return companiesByRelevance.stream().map(SimilarityWrapper::getOjbect).collect(Collectors.toList());
     }
 
     @Override
