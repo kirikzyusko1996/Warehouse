@@ -23,7 +23,7 @@ public interface UserService {
 
     User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    User findUserByLogin(String login) throws DataAccessException, IllegalParametersException;
+    User findUserByLogin(String login) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<User> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 

@@ -6,5 +6,7 @@ package com.itechart.warehouse.controller.response;
 public enum StatusEnum {
     DELETED,
     EXECUTED,
+    LOGIN_OCCUPIED,
+    LOGIN_VACANT,
     UPDATED;
 }

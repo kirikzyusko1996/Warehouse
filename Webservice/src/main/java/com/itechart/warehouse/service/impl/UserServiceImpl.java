@@ -15,6 +15,7 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.UserService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -106,13 +107,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User findUserByLogin(String login) throws DataAccessException, IllegalParametersException {
+    public User findUserByLogin(String login) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user by login name: {}", login);
         if (login == null) throw new IllegalParametersException("Login is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", login));
         try {
-            return userDAO.findAll(criteria, -1, -1).get(0);
+            List<User> users = userDAO.findAll(criteria, -1, -1);
+            if (CollectionUtils.isNotEmpty(users))
+                return users.get(0);
+            else return null;
         } catch (GenericDAOException e) {
             logger.error("Error during searching for users: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -190,6 +194,23 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional(readOnly = true)
+    private boolean isLoginOccupied(String loginName) throws IllegalParametersException, DataAccessException {
+        logger.info("Searching for user with login {}", loginName);
+        if (loginName == null) throw new IllegalParametersException("Login is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
+        criteria.add(Restrictions.eq("login", loginName));
+        try {
+            List<User> users = userDAO.findAll(criteria, -1, -1);
+            if (CollectionUtils.isNotEmpty(users))
+                return true;
+            else return false;
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for users: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#companyId, 'WarehouseCompany', 'CREATE')")
@@ -208,8 +229,8 @@ public class UserServiceImpl implements UserService {
                 throw new IllegalParametersException("Field last name can not be empty");
             }
             if (userDTO.getWarehouse() != null)
-                if (userDTO.getWarehouse().getIdWarehouse()!=null)
-                user.setWarehouse(findWarehouseById(userDTO.getWarehouse().getIdWarehouse()));
+                if (userDTO.getWarehouse().getIdWarehouse() != null)
+                    user.setWarehouse(findWarehouseById(userDTO.getWarehouse().getIdWarehouse()));
             //todo uncomment
 //            if (StringUtils.isNotBlank(user.getPassword())) {
 //                user.setPassword(encoder.encode(user.getPassword()));
@@ -305,7 +326,7 @@ public class UserServiceImpl implements UserService {
             if (user != null) {
                 if (userDTO.getWarehouse() != null)
                     if (userDTO.getWarehouse().getIdWarehouse() != null)
-                    user.setWarehouse(findWarehouseById(userDTO.getWarehouse().getIdWarehouse()));
+                        user.setWarehouse(findWarehouseById(userDTO.getWarehouse().getIdWarehouse()));
                 user.setFirstName(userDTO.getFirstName());
                 if (StringUtils.isNotBlank(userDTO.getLastName()))
                     user.setLastName(userDTO.getLastName());
@@ -317,11 +338,17 @@ public class UserServiceImpl implements UserService {
                 user.setHouse(userDTO.getHouse());
                 user.setApartment(userDTO.getApartment());
                 user.setEmail(userDTO.getEmail());
-                if (StringUtils.isNotBlank(userDTO.getLogin()))
-                    user.setLogin(userDTO.getLogin());
+                if (StringUtils.isNotBlank(userDTO.getLogin())) {
+                    if (!user.getLogin().equals(userDTO.getLogin()))
+                        if (!isLoginOccupied(userDTO.getLogin()))
+                            user.setLogin(userDTO.getLogin());
+                        else throw new IllegalParametersException("Login name is occupied");
+
+
+                }
                 if (StringUtils.isNotBlank(userDTO.getPassword()))
                     user.setPassword(userDTO.getPassword());
-                    //todo uncomment
+                //todo uncomment
 //                if (StringUtils.isNotBlank(userDTO.getPassword())) {
 //                    user.setPassword(encoder.encode(userDTO.getPassword()));
 //                }
@@ -333,8 +360,7 @@ public class UserServiceImpl implements UserService {
                         newRoles.add(findRoleByName(role.getRole()));
                     }
                     user.setRoles(newRoles);
-                }
-                else {
+                } else {
                     throw new IllegalParametersException("At least one role has to be selected");
                 }
                 return userDAO.update(user);

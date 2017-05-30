@@ -77,7 +77,6 @@ public class Role {
         return new ToStringBuilder(this)
                 .append("idRole", idRole)
                 .append("role", role)
-                .append("users", users)
                 .toString();
     }
 }

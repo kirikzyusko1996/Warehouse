@@ -63,7 +63,7 @@ public class UserController {
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
-            users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page-1) * count, count);
+            users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
             long userCount = userService.getUsersCount(company.getIdWarehouseCompany());
             response.addHeader("X-total-count", String.valueOf(userCount));
             response.addHeader("Access-Control-Expose-Headers", "X-total-count");
@@ -88,7 +88,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<Role>> getRoles() throws DataAccessException {
         logger.info("Handling request for roles list");
-            List<Role> roles = userService.getRoles();
+        List<Role> roles = userService.getRoles();
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 
@@ -125,10 +125,19 @@ public class UserController {
         logger.info("Handling request for deleting user with id: {}", id);
         userService.deleteUser(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
-
     }
 
 
+    @RequestMapping(value = "/is_occupied", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatusResponse> isLoginOccupied(@RequestParam String loginName) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
+        logger.info("Handling request for checking if loginName {} is occupied", loginName);
+        StatusResponse resp = new StatusResponse();
+        if (userService.findUserByLogin(loginName) != null) {
+            resp.setStatus(StatusEnum.LOGIN_OCCUPIED);
+        } else resp.setStatus(StatusEnum.LOGIN_VACANT);
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
