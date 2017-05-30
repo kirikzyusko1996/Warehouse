@@ -9,6 +9,9 @@ import java.util.List;
 public class Warehouse {
     private Long idWarehouse;
     private String name;
+    private Boolean status;
+    private Float x;
+    private Float y;
     private WarehouseCompany warehouseCompany;
     private List<StorageSpace> storageSpaceList;
     private List<Invoice> invoices;
@@ -63,6 +66,33 @@ public class Warehouse {
         this.warehouseCompany = warehouseCompany;
     }
 
+    @Column(name = "status")
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    @Column(name = "x")
+    public Float getX() {
+        return x;
+    }
+
+    public void setX(Float x) {
+        this.x = x;
+    }
+
+    @Column(name = "y")
+    public Float getY() {
+        return y;
+    }
+
+    public void setY(Float y) {
+        this.y = y;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,6 +103,11 @@ public class Warehouse {
         if (idWarehouse != null ? !idWarehouse.equals(warehouse.idWarehouse) : warehouse.idWarehouse != null)
             return false;
         if (name != null ? !name.equals(warehouse.name) : warehouse.name != null) return false;
+
+        if (status != null ? !status.equals(warehouse.status) : warehouse.status != null) return false;
+        if (x != null ? !x.equals(warehouse.x) : warehouse.x != null) return false;
+        if (y != null ? !y.equals(warehouse.y) : warehouse.y != null) return false;
+
         return warehouseCompany != null ? warehouseCompany.equals(warehouse.warehouseCompany) : warehouse.warehouseCompany == null;
     }
 
@@ -80,6 +115,9 @@ public class Warehouse {
     public int hashCode() {
         int result = idWarehouse != null ? idWarehouse.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (x != null ? x.hashCode() : 0);
+        result = 31 * result + (y != null ? y.hashCode() : 0);
         result = 31 * result + (warehouseCompany != null ? warehouseCompany.hashCode() : 0);
         return result;
     }
@@ -89,6 +127,9 @@ public class Warehouse {
         return "Warehouse{" +
                 "idWarehouse=" + idWarehouse +
                 ", name='" + name + '\'' +
+                ", status='"+ status + '\''+
+                ", x=" + x +
+                ", y=" + y +
                 ", warehouseCompany=" + warehouseCompany +
                 '}';
     }

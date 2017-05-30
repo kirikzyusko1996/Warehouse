@@ -19,4 +19,5 @@ public class StorageCellDTO {
     private String number;
     private Long idStorageSpace;
     private Long idGoods;
+    private Boolean status;
 }

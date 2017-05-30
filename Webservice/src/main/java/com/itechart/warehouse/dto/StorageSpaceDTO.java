@@ -15,4 +15,5 @@ public class StorageSpaceDTO {
     private Long idStorageSpace;
     private Long idWarehouse;
     private Short idStorageSpaceType;
+    private Boolean status;
 }

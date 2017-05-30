@@ -11,6 +11,8 @@ public class WarehouseCompany {
     private Long idWarehouseCompany;
     private String name;
     private Boolean status;
+    private Float x;
+    private Float y;
     private List<Warehouse> warehouses;
     private List<PriceList> priceList;
     private List<User> users;
@@ -106,6 +108,24 @@ public class WarehouseCompany {
         this.status = status;
     }
 
+    @Column(name = "x")
+    public Float getX() {
+        return x;
+    }
+
+    public void setX(Float x) {
+        this.x = x;
+    }
+
+    @Column(name = "y")
+    public Float getY() {
+        return y;
+    }
+
+    public void setY(Float y) {
+        this.y = y;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -117,6 +137,8 @@ public class WarehouseCompany {
             return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        if (x != null ? !x.equals(that.x) : that.x != null) return false;
+        if (y != null ? !y.equals(that.y) : that.y != null) return false;
 
         return true;
     }
@@ -126,6 +148,8 @@ public class WarehouseCompany {
         int result = idWarehouseCompany != null ? idWarehouseCompany.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (x != null ? x.hashCode() : 0);
+        result = 31 * result + (y != null ? y.hashCode() : 0);
         return result;
     }
 
@@ -135,6 +159,8 @@ public class WarehouseCompany {
                 "idWarehouseCompany=" + idWarehouseCompany +
                 ", name='" + name + '\'' +
                 ", status=" + status +
+                ", x=" + x +
+                ", y=" + y +
                 '}';
     }
 }

@@ -13,6 +13,7 @@ public class StorageCell {
     private String number;
     @JsonIgnore
     private StorageSpace storageSpace;
+    private Boolean status;
 
     private Goods goods;
 
@@ -56,6 +57,15 @@ public class StorageCell {
         this.goods = goods;
     }
 
+    @Column(name = "status")
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,6 +76,7 @@ public class StorageCell {
         if (idStorageCell != null ? !idStorageCell.equals(that.idStorageCell) : that.idStorageCell != null)
             return false;
         if (number != null ? !number.equals(that.number) : that.number != null) return false;
+        if (status != null ? !status.equals(that.status) : that.status != null) return false;
 
         return true;
     }
@@ -74,6 +85,7 @@ public class StorageCell {
     public int hashCode() {
         int result = idStorageCell != null ? idStorageCell.hashCode() : 0;
         result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
     }
 
@@ -82,6 +94,7 @@ public class StorageCell {
         return "StorageCell{" +
                 "idStorageCell=" + idStorageCell +
                 ", number='" + number + '\'' +
+                ", status='"+ status + '\''+
                 '}';
     }
 }
