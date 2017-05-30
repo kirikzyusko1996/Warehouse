@@ -2,6 +2,7 @@ package com.itechart.warehouse.security;
 
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,8 @@ public class WarehouseCompanyUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
         } catch (IllegalParametersException e) {
             throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
-
+        } catch (ResourceNotFoundException e) {
+            throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
         }
 
     }
