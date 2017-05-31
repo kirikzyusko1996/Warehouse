@@ -39,9 +39,9 @@ public interface GoodsService {
 
     GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    Warehouse findWarehouseOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    Warehouse findWarehouseOwnedBy(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    WarehouseCompany findWarehouseCompanyOwner(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    WarehouseCompany findWarehouseCompanyOwnedBy(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

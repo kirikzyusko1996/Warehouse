@@ -25,8 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Implementation of goods service.
@@ -108,9 +109,9 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find goods by id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(id);
-            if (result.isPresent())
-                return result.get();
+            Goods goods = goodsDAO.getById(id);
+            if (goods != null)
+                return goods;
             else throw new ResourceNotFoundException("Goods with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
@@ -124,9 +125,9 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find goods DTO by id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(id);
-            if (result.isPresent())
-                return mapGoodsToDTOs(result.get());
+            Goods goods = goodsDAO.getById(id);
+            if (goods != null)
+                return mapGoodsToDTOs(goods);
             else throw new ResourceNotFoundException("Goods with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
@@ -169,15 +170,11 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find {} goods starting from index {} by invoice id: {}", maxResults, firstResult, invoiceId);
         if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
         try {
-            Optional<Invoice> result = invoiceDAO.findById(invoiceId);
-            if (result.isPresent()) {
-                Invoice invoice = result.get();
-                List<Goods> goods = invoice.getIncomingGoods();
-                if (goods.isEmpty()) {
-                    goods = invoice.getOutgoingGoods();
-                }
-                return goods;
-            } else throw new ResourceNotFoundException("Invoice with such id was not found ");
+            DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
+            criteria.createAlias("goods.incomingInvoice", "invoice");
+            criteria.add(Restrictions.eq("invoice.id", invoiceId));
+            criteria.add(Restrictions.isNull("deleted"));
+            return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -319,6 +316,7 @@ public class GoodsServiceImpl implements GoodsService {
                 }
             }
         }
+        builder.addRestriction("goods.deleted IS NULL");
 
         try {
             List<Goods> goodsList = goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
@@ -462,6 +460,7 @@ public class GoodsServiceImpl implements GoodsService {
                 }
             }
         }
+        builder.addRestriction("goods.deleted IS NULL");
 
         try {
             return goodsDAO.getCountByQuery(builder.build().toString(), queryParameters);
@@ -580,7 +579,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseOwner(Long goodsId) throws
+    public Warehouse findWarehouseOwnedBy(Long goodsId) throws
             IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
@@ -590,7 +589,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyOwner(Long goodsId) throws
+    public WarehouseCompany findWarehouseCompanyOwnedBy(Long goodsId) throws
             IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
@@ -860,9 +859,9 @@ public class GoodsServiceImpl implements GoodsService {
     private User findUserById(Long userId) throws GenericDAOException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Searching for user with id: {}", userId);
         if (userId == null) throw new IllegalParametersException("User id is null");
-        Optional<User> result = userDAO.findById(userId);
-        if (result.isPresent())
-            return result.get();
+        User user = userDAO.findUserById(userId);
+        if (user!=null)
+            return user;
         else throw new ResourceNotFoundException("User was not found");
     }
 
@@ -885,12 +884,14 @@ public class GoodsServiceImpl implements GoodsService {
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<Goods> result = goodsDAO.findById(id);
-            if (result != null) {
+            if (result.isPresent()) {
+                Goods goods = result.get();
+                goods.setDeleted(new java.sql.Date(DateTime.now().toDate().getTime()));
                 removeGoodsFromStorage(id);
-                goodsDAO.delete(result.get());
             } else {
                 throw new ResourceNotFoundException("Goods with such id was not found");
             }
+
         } catch (GenericDAOException e) {
             logger.error("Error during deleting goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -918,9 +919,8 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsId == null || goodsStatusDTO == null)
             throw new IllegalParametersException("Goods status DTO or goods id is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(goodsId);
-            if (result.isPresent()) {
-                Goods goods = result.get();
+            Goods goods = goodsDAO.getById(goodsId);
+            if (goods!=null) {
                 GoodsStatus goodsStatus = new GoodsStatus();
                 goodsStatus.setGoods(goods);
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
@@ -944,13 +944,13 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsId == null || storageCells == null)
             throw new IllegalParametersException("Goods id or storage cell id's list is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(goodsId);
-            if (!result.isPresent())
+           Goods goods = goodsDAO.getById(goodsId);
+            if (goods==null)
                 throw new ResourceNotFoundException("Goods with such id was not found");
             for (StorageCellDTO cell : storageCells) {
                 StorageCell storageCell = findStorageCellById(cell.getIdStorageCell());
                 if (storageCell != null) {
-                    storageCell.setGoods(result.get());
+                    storageCell.setGoods(goods);
                 }
             }
         } catch (GenericDAOException e) {
@@ -977,9 +977,8 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsId == null)
             throw new IllegalParametersException("Goods id is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(goodsId);
-            if (result.isPresent()) {
-                Goods goods = result.get();
+            Goods goods = goodsDAO.getById(goodsId);
+            if (goods!=null) {
                 List<StorageCell> cells = goods.getCells();
                 for (StorageCell cell : cells) {
                     cell.setGoods(null);
@@ -1002,9 +1001,8 @@ public class GoodsServiceImpl implements GoodsService {
             if (invoice != null) {
                 for (Long id : goodsIds) {
                     if (id != null) {
-                        Optional<Goods> result = goodsDAO.findById(id);
-                        if (result.isPresent()) {
-                            Goods goods = result.get();
+                        Goods goods = goodsDAO.getById(id);
+                        if (goods!=null) {
                             goods.setOutgoingInvoice(invoice);
                         }
                     }

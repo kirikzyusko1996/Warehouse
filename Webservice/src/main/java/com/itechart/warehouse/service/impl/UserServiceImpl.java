@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseByOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public Warehouse findWarehouseOwnedBy(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find warehouse for user with id: {}", userId);
         if (userId == null) throw new IllegalParametersException("User id is null");
         User user = findUserById(userId);

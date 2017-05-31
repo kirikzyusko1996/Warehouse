@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -212,5 +213,14 @@ public class GoodsDAOTest {
 
     }
 
+
+    @Test
+    @Transactional
+    @Ignore
+    public void testGetGoodsByIdMethod() throws GenericDAOException {
+        Goods goods = goodsDAO.getById(1L);
+        assertEquals(goods.getName(),"Молоко");
+
+    }
 
 }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +32,9 @@ public class Goods implements Serializable {
     private List<GoodsStatus> statuses;
     @JsonIgnore
     private List<StorageCell> cells;
+    private Date deleted;
 
-
-    public Goods() {
+     public Goods() {
     }
 
     public Goods(Goods goods) {
@@ -52,6 +53,14 @@ public class Goods implements Serializable {
         this.acts = goods.acts;
         this.statuses = goods.statuses;
         this.cells = goods.cells;
+    }
+
+    public Date getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
     }
 
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)

@@ -22,7 +22,7 @@ public class GoodsStatusDAO extends DAO<GoodsStatus> {
         logger.info("Find find current status of goods with id: {}", goodsId);
         String queryHql = "SELECT status FROM GoodsStatus status" +
                 " INNER JOIN Goods goods ON status.goods=goods" +
-                " WHERE goods.id = :goodsId ORDER BY status.date DESC";
+                " WHERE goods.id = :goodsId AND goods.deleted IS NULL ORDER BY status.date DESC";
         Query<GoodsStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("goodsId", goodsId);
         query.setMaxResults(1);
@@ -34,7 +34,7 @@ public class GoodsStatusDAO extends DAO<GoodsStatus> {
         logger.info("Find list of statuses for goods with id: {}", goodsId);
         String queryHql = "SELECT DISTINCT status FROM GoodsStatus status" +
                 " INNER JOIN Goods goods ON goods = status.goods" +
-                " WHERE goods.id = :goodsId";
+                " WHERE goods.id = :goodsId AND goods.deleted IS NULL";
         Query<GoodsStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("goodsId", goodsId);
         return query.list();

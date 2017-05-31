@@ -89,6 +89,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="id_outgoing_invoice" type="BIGINT UNSIGNED"/>
+            <column name="deleted" type="date">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="5">

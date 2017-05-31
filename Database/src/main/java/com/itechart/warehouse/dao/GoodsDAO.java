@@ -4,11 +4,15 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.GoodsStatus;
 import com.itechart.warehouse.entity.GoodsStatusName;
+import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation of goodsIdList DAO.
@@ -19,13 +23,24 @@ public class GoodsDAO extends DAO<Goods> {
         super(Goods.class);
     }
 
+    @SuppressWarnings("unchecked")
+    public Goods getById(Long id) throws GenericDAOException {
+        logger.info("Find goods entity  with id: {}", id);
+        if (id == null) return null;
+        DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
+        criteria.add(Restrictions.eq("id", id));
+        criteria.add(Restrictions.isNull("deleted"));
+        List<Goods> foundGoods = (List<Goods>) hibernateTemplate.findByCriteria(criteria);
+        return CollectionUtils.isNotEmpty(foundGoods) ? foundGoods.get(0) : null;
+    }
+
     public List<Goods> findByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find list of {} goods starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
 
         String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
                 " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
                 " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
-                " WHERE warehouse.idWarehouse = :warehouseId";
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         query.setFirstResult(firstResult);
@@ -40,7 +55,7 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON status.goods = goods" +
                 " LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date" +
-                " WHERE status_2.goods IS NULL AND warehouse.idWarehouse = :warehouseId AND status.goodsStatusName = :statusName";
+                " WHERE status_2.goods IS NULL AND warehouse.idWarehouse = :warehouseId AND status.goodsStatusName = :statusName AND goods.deleted IS NULL";
 
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("statusName", statusName);
@@ -56,7 +71,7 @@ public class GoodsDAO extends DAO<Goods> {
         String queryHql = "SELECT status FROM GoodsStatus status" +
                 " INNER JOIN Goods goods ON goods = status.goods" +
                 " LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date" +
-                " WHERE status_2.goods IS NULL AND goods.id = :goodsId";
+                " WHERE status_2.goods IS NULL AND goods.id = :goodsId AND goods.deleted IS NULL";
         Query<GoodsStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("goodsId", goodsId);
         query.setMaxResults(1);
@@ -96,7 +111,7 @@ public class GoodsDAO extends DAO<Goods> {
                 " FROM Goods goods" +
                 " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
                 " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
-                " WHERE warehouse.idWarehouse = :warehouseId";
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         return query.getSingleResult();
