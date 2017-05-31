@@ -32,5 +32,7 @@
     <include file="liquibase/changelog/db.changelog-goods-status-name.xml"/>
     <include file="liquibase/changelog/db.changelog-goods-status.xml"/>
     <include file="liquibase/changelog/db.changelog-act-goods.xml"/>
+    <include file="liquibase/changelog/db.changelog-goods-2.xml"/>
+
 
 </databaseChangeLog>

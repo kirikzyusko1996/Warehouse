@@ -18,7 +18,6 @@ public class Act {
     private ActType actType;
     private Date deleted;
     private Warehouse warehouse;
-    private WarehouseCompany warehouseCompany;
     private String note;
 
     public String getNote() {
@@ -27,16 +26,6 @@ public class Act {
 
     public void setNote(String note) {
         this.note = note;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_warehouse_company")
-    public WarehouseCompany getWarehouseCompany() {
-        return warehouseCompany;
-    }
-
-    public void setWarehouseCompany(WarehouseCompany warehouseCompany) {
-        this.warehouseCompany = warehouseCompany;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

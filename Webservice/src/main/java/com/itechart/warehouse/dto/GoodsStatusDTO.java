@@ -29,7 +29,7 @@ public class GoodsStatusDTO {
 
 
     public static GoodsStatusDTO buildStatusDTO(GoodsStatus status) {
-        Assert.notNull(status, "Status is null");
+        if (status == null) return null;
         GoodsStatusDTO statusDTO = new GoodsStatusDTO();
         statusDTO.setId(status.getId());
         if (status.getGoodsStatusName() != null)

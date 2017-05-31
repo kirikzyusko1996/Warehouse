@@ -2,7 +2,9 @@ package com.itechart.warehouse.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.*;
+import com.itechart.warehouse.entity.Goods;
+import com.itechart.warehouse.entity.StorageSpaceType;
+import com.itechart.warehouse.entity.Unit;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
@@ -42,12 +44,11 @@ public class GoodsDTO {
     private Unit weightUnit;
     @NotNull(message = "Price unit can not be empty")
     private Unit priceUnit;
-
+    private Long warehouseId;
     private List<StorageCellDTO> cells;
-
-    private GoodsStatusDTO status;
-
-    private int totalCount;
+    private GoodsStatusDTO currentStatus;
+    private GoodsStatusDTO registeredStatus;
+    private GoodsStatusDTO movedOutStatus;
 
 
     public void addCell(StorageCellDTO cell) {
@@ -80,6 +81,11 @@ public class GoodsDTO {
         dto.setWeightUnit(goods.getWeightUnit());
         dto.setQuantityUnit(goods.getQuantityUnit());
         dto.setPriceUnit(goods.getPriceUnit());
+        dto.setCurrentStatus(GoodsStatusDTO.buildStatusDTO(goods.getCurrentStatus()));
+        dto.setRegisteredStatus(GoodsStatusDTO.buildStatusDTO(goods.getRegisteredStatus()));
+        dto.setMovedOutStatus(GoodsStatusDTO.buildStatusDTO(goods.getMovedOutStatus()));
+        dto.setWarehouseId(goods.getWarehouse().getIdWarehouse());
+
         return dto;
     }
 

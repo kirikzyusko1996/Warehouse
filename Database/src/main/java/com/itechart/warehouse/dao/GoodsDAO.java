@@ -38,8 +38,7 @@ public class GoodsDAO extends DAO<Goods> {
         logger.info("Find list of {} goods starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
 
         String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
-                " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
-                " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
@@ -51,8 +50,7 @@ public class GoodsDAO extends DAO<Goods> {
     public List<Goods> findByWarehouseIdAndCurrentStatus(Long warehouseId, GoodsStatusName statusName, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find list of {} goods starting from {} by warehouse id: {} and status: {}", maxResults, firstResult, warehouseId, statusName);
         String queryHql = "SELECT goods FROM Goods goods" +
-                " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
-                " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON status.goods = goods" +
                 " LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date" +
                 " WHERE status_2.goods IS NULL AND warehouse.idWarehouse = :warehouseId AND status.goodsStatusName = :statusName AND goods.deleted IS NULL";
@@ -109,8 +107,7 @@ public class GoodsDAO extends DAO<Goods> {
         logger.info("Get goods count for warehouse with id: {}", warehouseId);
         String queryHql = "SELECT  count(DISTINCT goods)" +
                 " FROM Goods goods" +
-                " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
-                " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);

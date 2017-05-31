@@ -19,6 +19,15 @@
             <column name="id_user" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
+            <column name="deleted" type="date">
+                <constraints nullable="true"/>
+            </column>
+            <column name="id_warehouse" type="BIGINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
+            <column name="note" type="VARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="2">
@@ -89,6 +98,28 @@
                 <constraints nullable="false"/>
             </column>
             <column name="id_outgoing_invoice" type="BIGINT UNSIGNED"/>
+            <column name="deleted" type="date">
+                <constraints nullable="true"/>
+            </column>
+            <column name="id_warehouse" type="BIGINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
+            <column name="id_current_status" type="BIGINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
+            <column name="id_registered_status" type="BIGINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
+            <column name="id_moved_out_status" type="BIGINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
+
+
+
+
+
+
+
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="5">
@@ -138,7 +169,7 @@
                 <constraints nullable="false"/>
             </column>
             <!--<column name="id_warehouse_company" type="BIGINT UNSIGNED">-->
-                <!--<constraints nullable="false"/>-->
+            <!--<constraints nullable="false"/>-->
             <!--</column>-->
             <column name="id_supplier_company" type="BIGINT UNSIGNED"/>
             <column name="id_receiver_company" type="BIGINT UNSIGNED"/>
@@ -193,10 +224,10 @@
             <column name="id_storage_space_type" type="SMALLINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
-            <column  name="setting_time" type="TIMESTAMP NULL DEFAULT NULL">
+            <column name="setting_time" type="TIMESTAMP NULL DEFAULT NULL">
                 <constraints nullable="true"/>
             </column>
-            <column  name="end_time" type="TIMESTAMP NULL DEFAULT NULL">
+            <column name="end_time" type="TIMESTAMP NULL DEFAULT NULL">
                 <constraints nullable="true"/>
             </column>
             <column name="daily_price" type="DECIMAL(12, 2)">
@@ -222,6 +253,9 @@
             <column name="number" type="VARCHAR(10)">
                 <constraints nullable="false"/>
             </column>
+            <column name="status" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
             <column name="id_storage_space" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
@@ -234,6 +268,9 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="id_storage_space_type" type="SMALLINT UNSIGNED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="BIT(1)">
                 <constraints nullable="false"/>
             </column>
             <column name="id_warehouse" type="BIGINT UNSIGNED">
@@ -307,6 +344,9 @@
             <column name="id_warehouse" type="BIGINT UNSIGNED">
                 <constraints nullable="true"/>
             </column>
+            <column name="deleted" type="date">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="18">
@@ -330,6 +370,15 @@
             <column name="name" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
+            <column name="status" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="x" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="y" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
             <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
@@ -344,6 +393,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="status" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="x" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="y" type="FLOAT">
                 <constraints nullable="false"/>
             </column>
         </createTable>

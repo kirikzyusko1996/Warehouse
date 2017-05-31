@@ -10,15 +10,11 @@ import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.entity.Act;
 import com.itechart.warehouse.entity.ActType;
-import com.itechart.warehouse.entity.WarehouseCompany;
-import com.itechart.warehouse.security.UserDetailsProvider;
-import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,21 +49,17 @@ public class ActController {
         this.actService = actService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET,
+    @RequestMapping(value = "list/{warehouseId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActDTO>> getActs(@RequestParam(defaultValue = "-1") int page,
+    public ResponseEntity<List<ActDTO>> getActs(@PathVariable Long warehouseId,
+                                                @RequestParam(defaultValue = "-1") int page,
                                                 @RequestParam(defaultValue = "0") int count,
                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for list of acts, page: {}, count: {}", page, count);
-        List<ActDTO> acts = null;
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        WarehouseCompany company = userDetails.getCompany();
-        if (company != null) {
-            acts = actService.findActsForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
-            long actsCount = actService.getActsCount(company.getIdWarehouseCompany());
-            response.addHeader("X-total-count", String.valueOf(actsCount));
-            response.addHeader("Access-Control-Expose-Headers", "X-total-count");
-        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+        List<ActDTO> acts = actService.findActsForWarehouse(warehouseId, (page - 1) * count, count);
+        long actsCount = actService.getActsCount(warehouseId);
+        response.addHeader("X-total-count", String.valueOf(actsCount));
+        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }
 
@@ -126,24 +118,19 @@ public class ActController {
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.POST,
+    @RequestMapping(value = "/search/{warehouseId}", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActDTO>> findActs(@RequestParam(defaultValue = "-1") int page,
+    public ResponseEntity<List<ActDTO>> findActs(@PathVariable Long warehouseId,
+                                                 @RequestParam(defaultValue = "-1") int page,
                                                  @RequestParam(defaultValue = "0") int count,
                                                  @RequestBody ActSearchDTO actSearchDTO,
                                                  HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
         logger.info("Handling request for searching list of acts by field: {}, page: {}, count: {}", actSearchDTO, page, count);
-        List<ActDTO> acts = null;
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        WarehouseCompany company = userDetails.getCompany();
-        if (company != null) {
-            acts = actService.findActsForCompanyByCriteria(company.getIdWarehouseCompany(), actSearchDTO, (page - 1) * count, count);
-            if (CollectionUtils.isNotEmpty(acts)) {
-                if (acts.get(0) != null)
-                    response.addHeader("X-total-count", String.valueOf(acts.get(0).getTotalCount()));
-            } else response.addHeader("X-total-count", String.valueOf(0));
-        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+        List<ActDTO> acts = actService.findActsForWarehouseByCriteria(warehouseId, actSearchDTO, (page - 1) * count, count);
+        long c = actService.getCountOfActsForWarehouseByCriteria(warehouseId, actSearchDTO);
+        response.addHeader("X-total-count", String.valueOf(c));
+        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }
 

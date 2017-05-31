@@ -16,6 +16,7 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="1"/>
             <column name="id_outgoing_invoice" value="2"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="2"/>
@@ -29,6 +30,8 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="1"/>
             <column name="id_outgoing_invoice" value="2"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="3"/>
@@ -42,6 +45,8 @@
             <column name="id_price_unit" value="10"/>
             <column name="id_incoming_invoice" value="1"/>
             <column name="id_outgoing_invoice" value="2"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="4"/>
@@ -55,6 +60,8 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="3"/>
             <column name="id_outgoing_invoice" value="4"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="5"/>
@@ -68,6 +75,8 @@
             <column name="id_price_unit" value="10"/>
             <column name="id_incoming_invoice" value="3"/>
             <column name="id_outgoing_invoice" value="4"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="6"/>
@@ -81,6 +90,8 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="5"/>
             <column name="id_outgoing_invoice" value="6"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="7"/>
@@ -94,6 +105,8 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="5"/>
             <column name="id_outgoing_invoice" value="6"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="8"/>
@@ -107,6 +120,8 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="7"/>
             <column name="id_outgoing_invoice" value="8"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="9"/>
@@ -120,6 +135,8 @@
             <column name="id_price_unit" value="10"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="10"/>
@@ -133,11 +150,13 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="11"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Сырая нефть"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -147,10 +166,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="12"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Газовая плита"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -160,10 +181,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="13"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Обои"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -173,10 +196,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="14"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Мясо"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -186,10 +211,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="15"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Металлопрофиль"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -199,10 +226,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="16"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Крупа"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -212,10 +241,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="17"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Ткань"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -225,10 +256,12 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
         <insert dbms="h2, mysql" tableName="goods">
             <column name="id_goods" value="18"/>
-            <column name="name" value="Бумага"/>
+            <column name="name" value="Овощи"/>
             <column name="id_storage_type" value="2"/>
             <column name="quantity" value="100"/>
             <column name="id_quantity_unit" value="7"/>
@@ -238,6 +271,8 @@
             <column name="id_price_unit" value="9"/>
             <column name="id_incoming_invoice" value="9"/>
             <column name="id_outgoing_invoice" value="10"/>
+            <column name="id_warehouse" value="10"/>
+
         </insert>
     </changeSet>
 </databaseChangeLog>

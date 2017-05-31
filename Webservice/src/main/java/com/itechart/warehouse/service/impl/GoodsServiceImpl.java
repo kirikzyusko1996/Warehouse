@@ -12,6 +12,9 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.GoodsService;
+import com.itechart.warehouse.service.services.InvoiceService;
+import com.itechart.warehouse.service.services.UserService;
+import com.itechart.warehouse.service.services.WarehouseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -20,6 +23,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +47,28 @@ public class GoodsServiceImpl implements GoodsService {
     private StorageSpaceDAO storageSpaceDAO;
     private StorageCellDAO storageCellDAO;
     private UserDAO userDAO;
+    private WarehouseService warehouseService;
+    private InvoiceService invoiceService;
+    private UserService userService;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    @Lazy
+    public void setInvoiceService(InvoiceService invoiceService) {
+        this.invoiceService = invoiceService;
+    }
+
+    @Autowired
+    @Lazy
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    @Lazy
+    public void setWarehouseService(WarehouseService warehouseService) {
+        this.warehouseService = warehouseService;
+    }
 
     @Autowired
     public void setStorageSpaceDAO(StorageSpaceDAO storageSpaceDAO) {
@@ -192,9 +217,8 @@ public class GoodsServiceImpl implements GoodsService {
         StringBuilder root = new StringBuilder("SELECT DISTINCT goods FROM Goods goods");
         QueryBuilder builder = new QueryBuilder(root);
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
-        builder.addJoin("INNER JOIN GoodsStatus status ON status.goods = goods");
-        builder.addJoin("INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice");
-        builder.addJoin("INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse");
+        builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
+        builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
 
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
@@ -232,9 +256,9 @@ public class GoodsServiceImpl implements GoodsService {
         }
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getCurrentStatus())) {
-                builder.addRestriction("status_2.goods IS NULL AND status.goodsStatusName = :statusName");
-                builder.addJoin("LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date");
+                builder.addRestriction("status.goodsStatusName = :statusName");
                 queryParameters.put("statusName", findGoodsStatusNameByName(goodsSearchDTO.getCurrentStatus()));
+
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods status: {}", e.getMessage());
@@ -336,9 +360,8 @@ public class GoodsServiceImpl implements GoodsService {
         StringBuilder root = new StringBuilder("SELECT count(DISTINCT goods.id) FROM Goods goods");
         QueryBuilder builder = new QueryBuilder(root);
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
-        builder.addJoin("INNER JOIN GoodsStatus status ON status.goods = goods");
-        builder.addJoin("INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice");
-        builder.addJoin("INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse");
+        builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
+        builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
 
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
@@ -376,9 +399,9 @@ public class GoodsServiceImpl implements GoodsService {
         }
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getCurrentStatus())) {
-                builder.addRestriction("status_2.goods IS NULL AND status.goodsStatusName = :statusName");
-                builder.addJoin("LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date");
+                builder.addRestriction("status.goodsStatusName = :statusName");
                 queryParameters.put("statusName", findGoodsStatusNameByName(goodsSearchDTO.getCurrentStatus()));
+
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods status: {}", e.getMessage());
@@ -484,13 +507,6 @@ public class GoodsServiceImpl implements GoodsService {
     private GoodsDTO mapGoodsToDTOs(Goods goods) {
         Assert.notNull(goods, "Goods is null");
         GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
-        try {
-            GoodsStatus status = goodsDAO.findGoodsCurrentStatus(goods.getId());
-            if (status != null)
-                dto.setStatus(GoodsStatusDTO.buildStatusDTO(status));
-        } catch (GenericDAOException e) {
-            logger.error("Error getting current status: {}", e);
-        }
         List<StorageCellDTO> cellDTOs = new ArrayList<>();
         for (StorageCell cell : goods.getCells()) {
             StorageCellDTO cellDTO = new StorageCellDTO();
@@ -584,7 +600,7 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Goods goods = findGoodsById(goodsId);
-        return goods.getIncomingInvoice().getWarehouse();
+        return goods.getWarehouse();
     }
 
     @Override
@@ -594,7 +610,7 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Find warehouse of goods with id: {}", goodsId);
         if (goodsId == null) throw new IllegalParametersException("Goods id is null");
         Goods goods = findGoodsById(goodsId);
-        return goods.getIncomingInvoice().getWarehouse().getWarehouseCompany();
+        return goods.getWarehouse().getWarehouseCompany();
     }
 
 
@@ -638,14 +654,19 @@ public class GoodsServiceImpl implements GoodsService {
                 } else throw new IllegalParametersException("Storage type can not be empty");
                 Goods savedGoods = goodsDAO.update(goodsToUpdate);
 
-                if (goodsDTO.getStatus() != null) {
-                    if (StringUtils.isNotBlank(goodsDTO.getStatus().getName())) {
+                if (goodsDTO.getCurrentStatus() != null) {
+                    if (StringUtils.isNotBlank(goodsDTO.getCurrentStatus().getName())) {
                         GoodsStatus goodsStatus = new GoodsStatus();
                         goodsStatus.setGoods(savedGoods);
                         goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                        goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                        goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsDTO.getStatus().getName()));
+                        goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                        goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsDTO.getCurrentStatus().getName()));
                         goodsStatusDAO.insert(goodsStatus);
+                        savedGoods.setCurrentStatus(goodsStatus);
+                        if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED))
+                            savedGoods.setRegisteredStatus(goodsStatus);
+                        if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT))
+                            savedGoods.setRegisteredStatus(goodsStatus);
                     }
                 }
                 return savedGoods;
@@ -701,6 +722,9 @@ public class GoodsServiceImpl implements GoodsService {
             if (goodsDTO.getWeight() != null)
                 goods.setWeight(goodsDTO.getWeight());
             else throw new IllegalParametersException("Field weight can not be empty");
+            if (goodsDTO.getWarehouseId() != null)
+                goods.setWarehouse(warehouseService.findWarehouseById(goodsDTO.getWarehouseId().toString()));
+            else throw new IllegalParametersException("Warehouse id can not be null");
 
             if (goodsDTO.getPriceUnit() != null) {
                 if (goodsDTO.getPriceUnit().getName() != null)
@@ -718,7 +742,7 @@ public class GoodsServiceImpl implements GoodsService {
                 if (goodsDTO.getStorageType().getName() != null)
                     goods.setStorageType(findStorageTypeByName(goodsDTO.getStorageType().getName()));
             } else throw new IllegalParametersException("Storage type can not be empty");
-            Invoice invoice = findInvoiceById(invoiceId);
+            Invoice invoice = invoiceService.findInvoiceById(invoiceId);
             if (invoice != null)
                 goods.setIncomingInvoice(invoice);
             else throw new ResourceNotFoundException("Invoice with such id was not found");
@@ -727,8 +751,9 @@ public class GoodsServiceImpl implements GoodsService {
                 GoodsStatus goodsStatus = new GoodsStatus();
                 goodsStatus.setGoods(savedGoods);
                 goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
-                goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
+                savedGoods.setCurrentStatus(goodsStatus);//todo check if works
             }
             return savedGoods;
         } catch (GenericDAOException e) {
@@ -746,11 +771,11 @@ public class GoodsServiceImpl implements GoodsService {
      * @return list of newly created goods entries, affected by act.
      */
     @Override
-    public List<Goods> splitGoodsForAct(String actType, List<Goods> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
+    public List<GoodsDTO> splitGoodsForAct(String actType, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
         logger.info("Splitting goods to become part of new act with type {} for list of goods: {}", actType, goodsList);
         if (actType == null || goodsList == null)
             throw new IllegalParametersException("Act type or goods list is null");
-        List<Goods> returnedList = new ArrayList<>();
+        List<GoodsDTO> returnedList = new ArrayList<>();
         //todo remove from storage if all amount is under act
         try {
             String statusName = null;
@@ -771,18 +796,18 @@ public class GoodsServiceImpl implements GoodsService {
                 }
             }
 
-            for (Goods goods : goodsList) {
+            for (GoodsDTO goods : goodsList) {
                 if (goods != null) {
                     Optional<Goods> goodsResult = goodsDAO.findById(goods.getId());
                     if (goodsResult.isPresent()) {
                         Goods initialGoods = goodsResult.get();
                         if (goods.getQuantity().compareTo(initialGoods.getQuantity()) == 0) {
                             //if all amount is affected by act
-                            returnedList.add(initialGoods);
+                            returnedList.add(GoodsDTO.buildGoodsDTO(initialGoods));
                             GoodsStatus goodsStatus = new GoodsStatus();
                             goodsStatus.setGoods(initialGoods);
                             goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                            goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                            goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
                             goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
                             goodsStatusDAO.insert(goodsStatus);
 
@@ -817,11 +842,12 @@ public class GoodsServiceImpl implements GoodsService {
                                 GoodsStatus goodsStatus = new GoodsStatus();
                                 goodsStatus.setGoods(goodsInAct);
                                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                                goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
                                 goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
                                 goodsStatusDAO.insert(goodsStatus);
+                                returnedGoods.setCurrentStatus(goodsStatus);
                             }
-                            returnedList.add(returnedGoods);
+                            returnedList.add(GoodsDTO.buildGoodsDTO(returnedGoods));
                         }
 
 
@@ -848,23 +874,6 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsList;
     }
 
-    private Invoice findInvoiceById(Long invoiceId) throws GenericDAOException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Searching for invoice with id: {}", invoiceId);
-        if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
-        Optional<Invoice> result = invoiceDAO.findById(invoiceId);
-        if (result.isPresent())
-            return result.get();
-        else throw new ResourceNotFoundException("Invoice was not found");
-    }
-
-    private User findUserById(Long userId) throws GenericDAOException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Searching for user with id: {}", userId);
-        if (userId == null) throw new IllegalParametersException("User id is null");
-        User user = userDAO.findUserById(userId);
-        if (user!=null)
-            return user;
-        else throw new ResourceNotFoundException("User was not found");
-    }
 
     private GoodsStatusName findGoodsStatusNameByName(String goodsStatusNameName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for goods status name with name: {}", goodsStatusNameName);
@@ -885,7 +894,7 @@ public class GoodsServiceImpl implements GoodsService {
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Goods goods = goodsDAO.getById(id);
-            if (goods!=null) {
+            if (goods != null) {
                 goods.setDeleted(new java.sql.Date(DateTime.now().toDate().getTime()));
                 removeGoodsFromStorage(id);
             } else {
@@ -920,13 +929,18 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Goods status DTO or goods id is null");
         try {
             Goods goods = goodsDAO.getById(goodsId);
-            if (goods!=null) {
+            if (goods != null) {
                 GoodsStatus goodsStatus = new GoodsStatus();
                 goodsStatus.setGoods(goods);
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                goodsStatus.setUser(findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
                 goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsStatusDTO.getName()));
                 goodsStatusDAO.insert(goodsStatus);
+                goods.setCurrentStatus(goodsStatus);
+                if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED.toString()))
+                    goods.setRegisteredStatus(goodsStatus);
+                if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT.toString()))
+                    goods.setMovedOutStatus(goodsStatus);
             } else {
                 throw new ResourceNotFoundException("Goods with such id was not found");
             }
@@ -944,8 +958,8 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsId == null || storageCells == null)
             throw new IllegalParametersException("Goods id or storage cell id's list is null");
         try {
-           Goods goods = goodsDAO.getById(goodsId);
-            if (goods==null)
+            Goods goods = goodsDAO.getById(goodsId);
+            if (goods == null)
                 throw new ResourceNotFoundException("Goods with such id was not found");
             for (StorageCellDTO cell : storageCells) {
                 StorageCell storageCell = findStorageCellById(cell.getIdStorageCell());
@@ -978,7 +992,7 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Goods id is null");
         try {
             Goods goods = goodsDAO.getById(goodsId);
-            if (goods!=null) {
+            if (goods != null) {
                 List<StorageCell> cells = goods.getCells();
                 for (StorageCell cell : cells) {
                     cell.setGoods(null);
@@ -997,12 +1011,12 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsIds == null || invoiceId == null)
             throw new IllegalParametersException("Goods id's or invoice id is null");
         try {
-            Invoice invoice = findInvoiceById(invoiceId);
+            Invoice invoice = invoiceService.findInvoiceById(invoiceId);
             if (invoice != null) {
                 for (Long id : goodsIds) {
                     if (id != null) {
                         Goods goods = goodsDAO.getById(id);
-                        if (goods!=null) {
+                        if (goods != null) {
                             goods.setOutgoingInvoice(invoice);
                         }
                     }

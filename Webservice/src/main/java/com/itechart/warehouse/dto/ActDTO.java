@@ -18,9 +18,9 @@ import java.util.List;
  */
 @Setter
 @Getter
-@lombok.ToString(exclude = "goodsIdList")
+@lombok.ToString(exclude = "goodsList")
 public class ActDTO {
-    private List<Goods> goodsList;
+    private List<GoodsDTO> goodsList;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     @NotBlank (message = "Act type is blank")
     private String type;
@@ -28,7 +28,6 @@ public class ActDTO {
     private Long id;
     private Timestamp date;
     private String note;
-    private long totalCount;
     private Long warehouseId;
 
     public static ActDTO buildActDTO(Act act) {

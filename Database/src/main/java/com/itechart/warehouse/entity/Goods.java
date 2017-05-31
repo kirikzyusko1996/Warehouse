@@ -1,6 +1,5 @@
 package com.itechart.warehouse.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -22,15 +21,10 @@ public class Goods implements Serializable {
     private Unit quantityUnit;
     private Unit weightUnit;
     private Unit priceUnit;
-    @JsonIgnore
     private Invoice incomingInvoice;
-    @JsonIgnore
     private Invoice outgoingInvoice;
-    @JsonIgnore
     private List<Act> acts;
-    @JsonIgnore
     private List<GoodsStatus> statuses;
-    @JsonIgnore
     private List<StorageCell> cells;
     private Date deleted;
     private Warehouse warehouse;
@@ -57,6 +51,7 @@ public class Goods implements Serializable {
         this.acts = goods.acts;
         this.statuses = goods.statuses;
         this.cells = goods.cells;
+        this.warehouse = goods.warehouse;
     }
 
     @OneToOne(fetch = FetchType.LAZY)

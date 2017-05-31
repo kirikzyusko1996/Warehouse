@@ -25,9 +25,6 @@
             <column name="id_warehouse" type="BIGINT UNSIGNED">
                 <constraints nullable="true"/>
             </column>
-            <column name="id_warehouse_company" type="BIGINT UNSIGNED">
-                <constraints nullable="true"/>
-            </column>
             <column name="note" type="VARCHAR(500)">
                 <constraints nullable="true"/>
             </column>

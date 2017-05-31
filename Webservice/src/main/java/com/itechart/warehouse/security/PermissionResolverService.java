@@ -46,13 +46,15 @@ public class PermissionResolverService {
     }
 
     @Autowired
-    public void setInvoiceService(InvoiceService service){
+    public void setInvoiceService(InvoiceService service) {
         this.invoiceService = service;
     }
 
     @Autowired
     @Lazy
-    public void setTransportService(TransportCompanyService service){this.transportService = service;}
+    public void setTransportService(TransportCompanyService service) {
+        this.transportService = service;
+    }
 
     @Autowired
     public void setCustomerService(WarehouseCustomerCompanyService service) {
@@ -63,28 +65,22 @@ public class PermissionResolverService {
         logger.info("Evaluating access permission to goods with id {} for user {}", goodsId, userDetails);
         if (userDetails == null || goodsId == null) return false;
         try {
-            if (userDetails.getUser().getWarehouseCompany() != null) {
-                WarehouseCompany company = goodsService.findWarehouseCompanyOwnedBy(goodsId);
-                if (company == null) return false;
-                if (userDetails.getCompany() != null)
-                    if (userDetails.getCompany().getIdWarehouseCompany() != null)
-                        return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
-            } else {
-                Warehouse warehouse = goodsService.findWarehouseOwnedBy(goodsId);
-                if (warehouse != null) {
-                    if (userDetails.getWarehouse() != null)
-                        if (userDetails.getWarehouse().getIdWarehouse() != null)
-                            return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
-                }
+//            if (userDetails.getUser().getWarehouseCompany() != null) {
+//                WarehouseCompany company = goodsService.findWarehouseCompanyOwnedBy(goodsId);
+//                if (company == null) return false;
+//                if (userDetails.getCompany() != null)
+//                    if (userDetails.getCompany().getIdWarehouseCompany() != null)
+//                        return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
+//            } else {
+            Warehouse warehouse = goodsService.findWarehouseOwnedBy(goodsId);
+            if (warehouse != null) {
+                if (userDetails.getWarehouse() != null)
+                    if (userDetails.getWarehouse().getIdWarehouse() != null)
+                        return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
             }
+//            }
             return false;
-        } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (ResourceNotFoundException e) {
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }
@@ -110,13 +106,7 @@ public class PermissionResolverService {
                 }
             }
             return false;
-        } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (ResourceNotFoundException e) {
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }
@@ -141,19 +131,13 @@ public class PermissionResolverService {
                 }
             }
             return false;
-        } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (ResourceNotFoundException e) {
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }
     }
 
-    public boolean resolvePermissionToAccessInvoice(WarehouseCompanyUserDetails userDetails, Long invoiceId){
+    public boolean resolvePermissionToAccessInvoice(WarehouseCompanyUserDetails userDetails, Long invoiceId) {
         logger.info("Evaluating access permission to invoice with id {} for user {}", invoiceId, userDetails);
 
         if (userDetails == null || invoiceId == null) {
@@ -164,19 +148,13 @@ public class PermissionResolverService {
             if (userDetails.getUser().getWarehouse() != null) {
                 Warehouse warehouse = invoiceService.findWarehouseByInvoiceId(invoiceId);
                 if (warehouse != null && userDetails.getWarehouse() != null) {
-                        if (userDetails.getWarehouse().getIdWarehouse() != null)
-                            return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
+                    if (userDetails.getWarehouse().getIdWarehouse() != null)
+                        return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
                 }
             }
 
             return false;
-        } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (ResourceNotFoundException e) {
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }
@@ -197,13 +175,7 @@ public class PermissionResolverService {
             }
 
             return false;
-        } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (ResourceNotFoundException e) {
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }
@@ -224,13 +196,7 @@ public class PermissionResolverService {
             }
 
             return false;
-        } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
-            return false;
-        } catch (ResourceNotFoundException e) {
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }

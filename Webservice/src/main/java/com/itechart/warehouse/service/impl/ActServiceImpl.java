@@ -1,7 +1,5 @@
 package com.itechart.warehouse.service.impl;
 
-import com.itechart.warehouse.constants.ActTypeEnum;
-import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.ActDAO;
 import com.itechart.warehouse.dao.ActTypeDAO;
 import com.itechart.warehouse.dao.GoodsDAO;
@@ -9,6 +7,7 @@ import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.dto.ActSearchDTO;
+import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -24,6 +23,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Implementation of act service.
@@ -167,7 +166,12 @@ public class ActServiceImpl implements ActService {
         user.setPatronymic(act.getUser().getPatronymic());
         Hibernate.initialize(act.getGoods());
         dto.setUser(user);
-        dto.setGoodsList(act.getGoods());
+        List<GoodsDTO> goodsDTOs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(act.getGoods())) {
+            for (Goods goods : act.getGoods())
+                goodsDTOs.add(GoodsDTO.buildGoodsDTO(goods));
+        }
+        dto.setGoodsList(goodsDTOs);
         Hibernate.initialize(act.getWarehouse());
         if (act.getWarehouse() != null)
             dto.setWarehouseId(act.getWarehouse().getIdWarehouse());
@@ -188,12 +192,12 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
-//    @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")//todo security check
-    public List<ActDTO> findActsForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} acts starting from index {} by company id: {}", maxResults, firstResult, companyId);
-        if (companyId == null) throw new IllegalParametersException("Company id is null");
+//    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")//todo security check
+    public List<ActDTO> findActsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find {} acts starting from index {} by warehouse id: {}", maxResults, firstResult, warehouseId);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
-            return mapActsToDTOs(actDAO.findActsByWarehouseCompanyId(companyId, firstResult, maxResults));
+            return mapActsToDTOs(actDAO.findActsByWarehouseId(warehouseId, firstResult, maxResults));
         } catch (GenericDAOException e) {
             logger.error("Error during search for acts: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -202,11 +206,11 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
-    public long getActsCount(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException {
-        logger.info("Get acts count for warehouse company with id: {}", warehouseCompanyId);
-        if (warehouseCompanyId == null) throw new IllegalParametersException("Warehouse company id is null");
+    public long getActsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get acts count for warehouse with id: {}", warehouseId);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
-            return actDAO.getActsCount(warehouseCompanyId);
+            return actDAO.getActsCount(warehouseId);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for acts: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -216,10 +220,10 @@ public class ActServiceImpl implements ActService {
     @Override
     @Transactional(readOnly = true)
 //    @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")//todo security check
-    public List<ActDTO> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} goodsIdList for company with id {} starting from index {} by criteria: {}", maxResults, companyId, firstResult, actSearchDTO);
-        if (actSearchDTO == null || companyId == null)
-            throw new IllegalParametersException("Act search DTO or company id is null");
+    public List<ActDTO> findActsForWarehouseByCriteria(Long warehouseId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find {} acts for warehouse with id {} starting from index {} by criteria: {}", maxResults, warehouseId, firstResult, actSearchDTO);
+        if (actSearchDTO == null || warehouseId == null)
+            throw new IllegalParametersException("Act search DTO or warehouse id is null");
         try {
             DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
             if (StringUtils.isNotBlank(actSearchDTO.getType()))
@@ -236,20 +240,52 @@ public class ActServiceImpl implements ActService {
             if (StringUtils.isNotBlank(actSearchDTO.getCreatorPatronymic()))
                 criteria.add(Restrictions.like("user.patronymic", "%" + actSearchDTO.getCreatorPatronymic() + "%"));
             criteria
-                    .createCriteria("goods")
-                    .createCriteria("incomingInvoice")
-                    .createCriteria("warehouse")
-                    .createCriteria("warehouseCompany").add(Restrictions.eq("idWarehouseCompany", companyId));
+                    .createCriteria("warehouse").add(Restrictions.eq("idWarehouse", warehouseId));
             criteria.add(Restrictions.isNull("deleted"));
-            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+            criteria.setProjection(Projections.distinct(Projections.id()));
+            DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
+            criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
 
-            List<ActDTO> dtos = mapActsToDTOs(actDAO.findAll(criteria, firstResult, maxResults));
-            if (CollectionUtils.isNotEmpty(dtos)) {
-                criteria.setProjection(Projections.rowCount());
-                if (dtos.get(0) != null)
-                    dtos.get(0).setTotalCount(actDAO.getActsSearchCount(criteria));
-            }
-            return dtos;
+//            criteria.setResultTransformer(Criteria.ROOT_ENTITY);
+            return mapActsToDTOs(actDAO.findAll(criteriaWithSubquery, firstResult, maxResults));
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for goodsIdList: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+//    @PreAuthorize("hasPermission(#companyId, 'Company', 'GET')")//todo security check
+    public long getCountOfActsForWarehouseByCriteria(Long warehouseId, ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException {
+        logger.info("Find count of acts for warehouse with id {} by criteria: {}", warehouseId, actSearchDTO);
+        if (actSearchDTO == null || warehouseId == null)
+            throw new IllegalParametersException("Act search DTO or warehouse id is null");
+        try {
+            DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
+            if (StringUtils.isNotBlank(actSearchDTO.getType()))
+                criteria.add(Restrictions.eq("actType", findActTypeByName(actSearchDTO.getType())));
+            if (actSearchDTO.getFromDate() != null)
+                criteria.add(Restrictions.ge("date", actSearchDTO.getFromDate()));
+            if (actSearchDTO.getToDate() != null)
+                criteria.add(Restrictions.le("date", new Timestamp(new DateTime(actSearchDTO.getToDate()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate().getTime())));
+            criteria.createAlias("user", "user");
+            if (StringUtils.isNotBlank(actSearchDTO.getCreatorLastName()))
+                criteria.add(Restrictions.like("user.lastName", "%" + actSearchDTO.getCreatorLastName() + "%"));
+            if (StringUtils.isNotBlank(actSearchDTO.getCreatorFirstName()))
+                criteria.add(Restrictions.like("user.firstName", "%" + actSearchDTO.getCreatorFirstName() + "%"));
+            if (StringUtils.isNotBlank(actSearchDTO.getCreatorPatronymic()))
+                criteria.add(Restrictions.like("user.patronymic", "%" + actSearchDTO.getCreatorPatronymic() + "%"));
+            criteria
+                    .createCriteria("warehouse").add(Restrictions.eq("idWarehouse", warehouseId));
+            criteria.add(Restrictions.isNull("deleted"));
+//            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+            criteria.setProjection(Projections.distinct(Projections.id()));
+//            DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
+//            criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
+            criteria.setProjection(Projections.rowCount());
+            return actDAO.getCount(criteria);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsIdList: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -261,21 +297,11 @@ public class ActServiceImpl implements ActService {
     public WarehouseCompany findWarehouseCompanyOwnedBy(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse company of act with id {}", actId);
         if (actId == null) throw new IllegalParametersException("Act id is null");
-        //todo add field warehouse into entity
         Act act = findActById(actId);
         if (act == null)
             throw new ResourceNotFoundException("Act with such id was not found");
-        List<Goods> goods = act.getGoods();
-        if (!goods.isEmpty())
-            if (goods.get(0) != null) {
-                Invoice invoice = goods.get(0).getIncomingInvoice();
-                if (invoice != null) {
-                    Warehouse warehouse = invoice.getWarehouse();
-                    if (warehouse != null)
-                        return warehouse.getWarehouseCompany();
-                }
-            }
-
+        if (act.getWarehouse() != null)
+            return act.getWarehouse().getWarehouseCompany();
         throw new ResourceNotFoundException("Warehouse company was not found");
     }
 
@@ -287,15 +313,7 @@ public class ActServiceImpl implements ActService {
         Act act = findActById(actId);
         if (act == null)
             throw new ResourceNotFoundException("Act with such id was not found");
-        List<Goods> goods = act.getGoods();
-        if (!goods.isEmpty())
-            if (goods.get(0) != null) {
-                Invoice invoice = goods.get(0).getIncomingInvoice();
-                if (invoice != null) {
-                    return invoice.getWarehouse();
-                }
-            }
-        throw new ResourceNotFoundException("Warehouse was not found");
+        return act.getWarehouse();
     }
 
     private ActType findActTypeByName(String actTypeName) throws GenericDAOException, IllegalParametersException {
@@ -317,7 +335,7 @@ public class ActServiceImpl implements ActService {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
         try {
-            List<Goods> goodsList = goodsService.splitGoodsForAct(actDTO.getType(), actDTO.getGoodsList());
+            List<GoodsDTO> goodsList = goodsService.splitGoodsForAct(actDTO.getType(), actDTO.getGoodsList());
             Act act = new Act();
             act.setDate(new Timestamp(new Date().getTime()));
             act.setActType(findActTypeByName(actDTO.getType()));
@@ -345,8 +363,8 @@ public class ActServiceImpl implements ActService {
     }
 
 
-    private void setActToGoods(List<Goods> goodsList, Act act) throws GenericDAOException {
-        for (Goods goods : goodsList) {
+    private void setActToGoods(List<GoodsDTO> goodsList, Act act) throws GenericDAOException {
+        for (GoodsDTO goods : goodsList) {
             if (goods != null) {
                 Goods goodsResult = goodsDAO.getById(goods.getId());
                 if (goodsResult != null)
