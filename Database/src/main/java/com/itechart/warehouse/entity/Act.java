@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -21,6 +22,15 @@ public class Act {
     @JsonIgnore
     private List<Goods> goods;
     private ActType actType;
+    private Date deleted;
+
+    public Date getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "act_goods",

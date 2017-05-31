@@ -751,6 +751,7 @@ public class GoodsServiceImpl implements GoodsService {
         if (actType == null || goodsList == null)
             throw new IllegalParametersException("Act type or goods list is null");
         List<Goods> returnedList = new ArrayList<>();
+        //todo remove from storage if all amount is under act
         try {
             String statusName = null;
             if (actType != null) {
@@ -883,9 +884,8 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Deleting goods with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
-            Optional<Goods> result = goodsDAO.findById(id);
-            if (result.isPresent()) {
-                Goods goods = result.get();
+            Goods goods = goodsDAO.getById(id);
+            if (goods!=null) {
                 goods.setDeleted(new java.sql.Date(DateTime.now().toDate().getTime()));
                 removeGoodsFromStorage(id);
             } else {

@@ -33,9 +33,9 @@ public interface ActService {
 
     List<ActDTO> findActsForCompanyByCriteria(Long companyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    WarehouseCompany findWarehouseCompanyOwner(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    WarehouseCompany findWarehouseCompanyOwnedBy(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    Warehouse findWarehouseOwner(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException;
+    Warehouse findWarehouseOwnedBy(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException;
 
     Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
@@ -43,6 +43,6 @@ public interface ActService {
 
     void deleteAct(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    boolean isAcExists(Long id) throws DataAccessException, IllegalParametersException;
+    boolean isActExists(Long id) throws DataAccessException, IllegalParametersException;
 
 }
