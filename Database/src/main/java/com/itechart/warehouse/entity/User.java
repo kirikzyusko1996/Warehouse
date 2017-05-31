@@ -24,13 +24,10 @@ public class User {
     private String house;
     private String apartment;
     private String email;
-    //@JsonIgnore
     private String login;
-    //@JsonIgnore
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
-    //    @JsonIgnore
     private Warehouse warehouse;
     private List<Role> roles;
     @JsonIgnore
@@ -39,7 +36,15 @@ public class User {
     private List<GoodsStatus> goodsStatusList;
     @JsonIgnore
     private List<InvoiceStatus> invoiceStatusList;
+    private Date deleted;
 
+    public Date getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     public List<InvoiceStatus> getInvoiceStatusList() {
@@ -237,7 +242,7 @@ public class User {
         if (email != null ? !email.equals(user.email) : user.email != null) return false;
         if (login != null ? !login.equals(user.login) : user.login != null) return false;
         if (password != null ? !password.equals(user.password) : user.password != null) return false;
-        return warehouseCompany != null ? warehouseCompany.equals(user.warehouseCompany) : user.warehouseCompany == null;
+        return true;
     }
 
     @Override
@@ -254,7 +259,6 @@ public class User {
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (login != null ? login.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (warehouseCompany != null ? warehouseCompany.hashCode() : 0);
         return result;
     }
 

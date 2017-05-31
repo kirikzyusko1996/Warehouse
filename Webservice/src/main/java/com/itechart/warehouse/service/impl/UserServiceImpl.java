@@ -30,6 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -113,6 +114,7 @@ public class UserServiceImpl implements UserService {
         if (login == null) throw new IllegalParametersException("Login is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", login));
+        criteria.add(Restrictions.isNull("deleted"));
         try {
             List<User> users = userDAO.findAll(criteria, -1, -1);
             if (CollectionUtils.isNotEmpty(users))
@@ -153,7 +155,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public Warehouse findWarehouseByOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find warehouse for user with id: {}", userId);
         if (userId == null) throw new IllegalParametersException("User id is null");
         User user = findUserById(userId);
@@ -201,6 +203,7 @@ public class UserServiceImpl implements UserService {
         if (loginName == null) throw new IllegalParametersException("Login is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", loginName));
+        criteria.add(Restrictions.isNull("deleted"));
         try {
             List<User> users = userDAO.findAll(criteria, -1, -1);
             if (CollectionUtils.isNotEmpty(users))
@@ -391,9 +394,10 @@ public class UserServiceImpl implements UserService {
         if (id == null) throw new IllegalParametersException("Id is null");
         try {
             Optional<User> result = userDAO.findById(id);
-            if (result.isPresent())
-                userDAO.delete(result.get());
-            else throw new ResourceNotFoundException("User with such id was not found");
+            if (result.isPresent()) {
+                User user = result.get();
+                user.setDeleted(new Date(DateTime.now().toDate().getTime()));
+            } else throw new ResourceNotFoundException("User with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during deleting user: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -403,6 +407,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public boolean isUserExists(Long id) throws DataAccessException, IllegalParametersException {
+        //todo
         logger.info("Checking if user with id {} exists", id);
         if (id == null) throw new IllegalParametersException("Id is null");
         try {

@@ -29,7 +29,7 @@ public interface UserService {
 
     long getUsersCount(Long companyId) throws DataAccessException, IllegalParametersException;
 
-    Warehouse findWarehouseOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    Warehouse findWarehouseByOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     WarehouseCompany findWarehouseCompanyOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

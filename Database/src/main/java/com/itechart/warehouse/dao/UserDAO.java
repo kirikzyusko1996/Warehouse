@@ -22,7 +22,7 @@ public class UserDAO extends DAO<User> {
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " INNER JOIN WarehouseCompany company ON company = user.warehouseCompany" +
-                " WHERE company.idWarehouseCompany = :warehouseCompanyId";
+                " WHERE company.idWarehouseCompany = :warehouseCompanyId AND user.deleted IS NULL";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseCompanyId", warehouseCompanyId);
         query.setFirstResult(firstResult);
@@ -33,10 +33,10 @@ public class UserDAO extends DAO<User> {
 
     public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException {
         logger.info("Get users count for warehouse company with id: {}", warehouseCompanyId);
-        String queryHql = "SELECT count(user)" +
+        String queryHql = "SELECT count(DISTINCT user.id)" +
                 " FROM User user" +
                 " INNER JOIN WarehouseCompany company ON company = user.warehouseCompany" +
-                " WHERE company.idWarehouseCompany = :warehouseCompanyId";
+                " WHERE company.idWarehouseCompany = :warehouseCompanyId AND user.deleted IS NULL";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseCompanyId", warehouseCompanyId);
         return query.getSingleResult();
@@ -47,7 +47,7 @@ public class UserDAO extends DAO<User> {
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " INNER JOIN Warehouse warehouse ON warehouse = user.warehouse" +
-                " WHERE warehouse.idWarehouse = :warehouseId";
+                " WHERE warehouse.idWarehouse = :warehouseId AND user.deleted IS NULL";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         query.setFirstResult(firstResult);
@@ -60,7 +60,7 @@ public class UserDAO extends DAO<User> {
         logger.info("Find users by birthday: {}", date);
         String queryHql = "SELECT user" +
                 " FROM User user" +
-                " WHERE MONTH(user.dateOfBirth) = :month AND DAY(user.dateOfBirth) = :day";
+                " WHERE MONTH(user.dateOfBirth) = :month AND DAY(user.dateOfBirth) = :day AND user.deleted IS NULL";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("month", date.getMonthOfYear());
         query.setParameter("day", date.getDayOfMonth());
@@ -72,7 +72,7 @@ public class UserDAO extends DAO<User> {
         logger.info("Find user by id: {}", id);
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
-                " WHERE user.id = :id";
+                " WHERE user.id = :id AND user.deleted IS NULL";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("id", id);
         try {
