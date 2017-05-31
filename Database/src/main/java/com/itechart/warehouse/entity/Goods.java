@@ -33,8 +33,12 @@ public class Goods implements Serializable {
     @JsonIgnore
     private List<StorageCell> cells;
     private Date deleted;
+    private Warehouse warehouse;
+    private GoodsStatus currentStatus;
+    private GoodsStatus registeredStatus;
+    private GoodsStatus movedOutStatus;
 
-     public Goods() {
+    public Goods() {
     }
 
     public Goods(Goods goods) {
@@ -53,6 +57,47 @@ public class Goods implements Serializable {
         this.acts = goods.acts;
         this.statuses = goods.statuses;
         this.cells = goods.cells;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_registered_status")
+    public GoodsStatus getRegisteredStatus() {
+        return registeredStatus;
+    }
+
+    public void setRegisteredStatus(GoodsStatus registeredStatus) {
+        this.registeredStatus = registeredStatus;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_moved_out_status")
+    public GoodsStatus getMovedOutStatus() {
+        return movedOutStatus;
+    }
+
+    public void setMovedOutStatus(GoodsStatus movedOutStatus) {
+        this.movedOutStatus = movedOutStatus;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_current_status")
+    public GoodsStatus getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(GoodsStatus currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_warehouse")
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
     }
 
     public Date getDeleted() {

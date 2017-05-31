@@ -15,6 +15,28 @@ public class Warehouse {
     private WarehouseCompany warehouseCompany;
     private List<StorageSpace> storageSpaceList;
     private List<Invoice> invoices;
+    private List<Act> acts;
+    private List<Goods> goodsList;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<Goods> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<Goods> goodsList) {
+        this.goodsList = goodsList;
+    }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<Act> getActs() {
+        return acts;
+    }
+
+    public void setActs(List<Act> acts) {
+        this.acts = acts;
+    }
 
     @JsonIgnore
     @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -127,7 +149,7 @@ public class Warehouse {
         return "Warehouse{" +
                 "idWarehouse=" + idWarehouse +
                 ", name='" + name + '\'' +
-                ", status='"+ status + '\''+
+                ", status='" + status + '\'' +
                 ", x=" + x +
                 ", y=" + y +
                 ", warehouseCompany=" + warehouseCompany +

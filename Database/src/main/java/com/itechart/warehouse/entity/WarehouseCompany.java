@@ -19,6 +19,20 @@ public class WarehouseCompany {
     private List<WarehouseCompanyStatus> statuses;
     private List<TransportCompany> transportCompanies;
     private List<WarehouseCustomerCompany> customerCompanies;
+    private List<Act> acts;
+
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<Act> getActs() {
+        return acts;
+    }
+
+    public void setActs(List<Act> acts) {
+        this.acts = acts;
+    }
+
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
