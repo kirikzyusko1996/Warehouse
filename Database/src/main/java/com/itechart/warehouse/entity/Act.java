@@ -1,9 +1,6 @@
 package com.itechart.warehouse.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.ToString;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -15,16 +12,22 @@ import java.util.List;
 @Table(name = "act")
 public class Act {
     private Long id;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp date;
-    @JsonIgnore
     private User user;
-    @JsonIgnore
     private List<Goods> goods;
     private ActType actType;
     private Date deleted;
     private Warehouse warehouse;
     private WarehouseCompany warehouseCompany;
+    private String note;
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_warehouse_company")

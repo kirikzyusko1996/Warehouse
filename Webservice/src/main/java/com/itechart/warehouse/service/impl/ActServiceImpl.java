@@ -16,6 +16,7 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
 import com.itechart.warehouse.service.services.GoodsService;
+import com.itechart.warehouse.service.services.WarehouseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
@@ -49,7 +50,14 @@ public class ActServiceImpl implements ActService {
     private UserDAO userDAO;
     private GoodsDAO goodsDAO;
     private GoodsService goodsService;
+    private WarehouseService warehouseService;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    @Lazy
+    public void setWarehouseService(WarehouseService warehouseService) {
+        this.warehouseService = warehouseService;
+    }
 
     @Autowired
     @Lazy
@@ -151,7 +159,7 @@ public class ActServiceImpl implements ActService {
     @Transactional(readOnly = true)
     private ActDTO mapActToDTO(Act act) {
         Assert.notNull(act, "Act is null");
-        ActDTO dto = ActDTO.buildStatusDTO(act);
+        ActDTO dto = ActDTO.buildActDTO(act);
         User user = new User();
         user.setId(act.getUser().getId());
         user.setLastName(act.getUser().getLastName());
@@ -160,6 +168,9 @@ public class ActServiceImpl implements ActService {
         Hibernate.initialize(act.getGoods());
         dto.setUser(user);
         dto.setGoodsList(act.getGoods());
+        Hibernate.initialize(act.getWarehouse());
+        if (act.getWarehouse() != null)
+            dto.setWarehouseId(act.getWarehouse().getIdWarehouse());
         return dto;
     }
 
@@ -310,12 +321,17 @@ public class ActServiceImpl implements ActService {
             Act act = new Act();
             act.setDate(new Timestamp(new Date().getTime()));
             act.setActType(findActTypeByName(actDTO.getType()));
-            Optional<User> userResult = userDAO.findById(UserDetailsProvider.getUserDetails().getUserId());
-            if (userResult.isPresent()) {
-                act.setUser(userResult.get());
+            User user = userDAO.findUserById(UserDetailsProvider.getUserDetails().getUserId());
+            if (user != null) {
+                act.setUser(user);
             } else {
                 throw new ResourceNotFoundException("Authenticated user was not found");
             }
+            if (actDTO.getWarehouseId() != null) {
+                Warehouse warehouse = warehouseService.findWarehouseById(actDTO.getWarehouseId().toString());
+                act.setWarehouse(warehouse);
+            }
+            act.setNote(actDTO.getNote());
             if (actDTO.getGoodsList() != null) {
                 setActToGoods(goodsList, act);
                 actDAO.insert(act);
@@ -327,6 +343,7 @@ public class ActServiceImpl implements ActService {
         }
 
     }
+
 
     private void setActToGoods(List<Goods> goodsList, Act act) throws GenericDAOException {
         for (Goods goods : goodsList) {
@@ -347,7 +364,9 @@ public class ActServiceImpl implements ActService {
         try {
             Act act = actDAO.getById(id);
             if (act != null) {
-                act.setActType(findActTypeByName(actDTO.getType()));
+                if (actDTO.getType() != null)
+                    act.setActType(findActTypeByName(actDTO.getType()));
+                act.setNote(actDTO.getNote());
                 if (actDTO.getGoodsList() != null) {
                     setActToGoods(actDTO.getGoodsList(), act);
                     return act;
