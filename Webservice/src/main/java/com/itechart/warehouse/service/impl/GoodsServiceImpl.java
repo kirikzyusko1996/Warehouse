@@ -332,10 +332,10 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional(readOnly = true)
     public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO goodsSearchDTO) throws DataAccessException, IllegalParametersException {
-        logger.info("Get users count for warehouse with id: {} by DTO:", warehouseId, goodsSearchDTO);
+        logger.info("Get goods search result count for warehouse with id: {} by DTO: {}", warehouseId, goodsSearchDTO);
         if (warehouseId == null || goodsSearchDTO == null)
             throw new IllegalParametersException("Warehouse id or DTO is null");
-        StringBuilder root = new StringBuilder("SELECT count(*) FROM Goods goods");
+        StringBuilder root = new StringBuilder("SELECT count(DISTINCT goods.id) FROM Goods goods");
         QueryBuilder builder = new QueryBuilder(root);
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
         builder.addJoin("INNER JOIN GoodsStatus status ON status.goods = goods");

@@ -68,12 +68,6 @@ public class GoodsDAO extends DAO<Goods> {
         }
     }
 
-
-    public List<Goods> findByExample(Goods goods, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find list of {} goods starting from {} by example: {}", maxResults, firstResult, goods);
-        return hibernateTemplate.findByExample(goods, firstResult, maxResults);
-    }
-
     public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find list of {} goods starting from {} by query: {} with parameters", maxResults, firstResult, query, parameters);
         if (query == null || parameters == null) throw new AssertionError();
@@ -90,17 +84,6 @@ public class GoodsDAO extends DAO<Goods> {
         logger.info("Get count of goods by query: {} with parameters", query, parameters);
         if (query == null || parameters == null) throw new AssertionError();
         Query<Long> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
-        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            queryHQL.setParameter(entry.getKey(), entry.getValue());
-        }
-        return queryHQL.getSingleResult();
-    }
-
-
-    public int getGoodsSearchCount(String query, Map<String, Object> parameters) throws GenericDAOException {
-        logger.info("Find goods count by query: {} with parameters", query, parameters);
-        if (query == null || parameters == null) throw new AssertionError();
-        Query<Integer> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             queryHQL.setParameter(entry.getKey(), entry.getValue());
         }

@@ -59,8 +59,7 @@ public class GoodsController {
                                                    @PathVariable Long warehouseId,
                                                    HttpServletResponse response) throws DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of goods in warehouse with id {}, page: {}, count: {}", warehouseId, page, count);
-        List<GoodsDTO> goods = null;
-        goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
+        List<GoodsDTO> goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
         long goodsCount = goodsService.getGoodsCount(warehouseId);
         response.addHeader("X-total-count", String.valueOf(goodsCount));
         response.addHeader("Access-Control-Expose-Headers", "X-total-count");
@@ -146,12 +145,9 @@ public class GoodsController {
                                                     @RequestBody GoodsSearchDTO searchDTO,
                                                     HttpServletResponse response) throws DataAccessException, IllegalParametersException, GenericDAOException {
         logger.info("Handling request for searching list of goods by DTO: {}, page: {}, count: {}", searchDTO, page, count);
-
         List<GoodsDTO> goods = goodsService.findGoodsForWarehouseByCriteria(warehouseId, searchDTO, (page - 1) * count, count);
-
         response.addHeader("X-total-count", String.valueOf(goodsService.getGoodsSearchResultCount(warehouseId, searchDTO)));
         response.addHeader("Access-Control-Expose-Headers", "X-total-count");
-
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
