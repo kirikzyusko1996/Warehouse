@@ -11,6 +11,7 @@ import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -240,7 +241,12 @@ public class UserServiceImpl implements UserService {
             List<Role> roles = new ArrayList<>();
             if (userDTO.getRoles() != null) {
                 for (Role role : userDTO.getRoles()) {
-                    roles.add(findRoleByName(role.getRole()));
+                    if (role.getRole().equals(UserRoleEnum.ROLE_ADMIN.toString())) {
+                        if (UserDetailsProvider.getUserDetails().getUser() != null)
+                            if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString()))
+                                roles.add(findRoleByName(role.getRole()));
+                    } else
+                        roles.add(findRoleByName(role.getRole()));
                     user.setRoles(roles);
                 }
             } else throw new IllegalParametersException("At least one role has to be selected");
@@ -250,6 +256,7 @@ public class UserServiceImpl implements UserService {
             throw new DataAccessException(e.getCause());
         }
     }
+
 
     private Warehouse findWarehouseById(Long warehouseId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException {
         logger.info("Searching for warehouse with id: {}", warehouseId);
@@ -355,9 +362,14 @@ public class UserServiceImpl implements UserService {
 
                 List<Role> roles = userDTO.getRoles();
                 List<Role> newRoles = new ArrayList<Role>();
+
                 if (roles != null) {
                     for (Role role : roles) {
-                        newRoles.add(findRoleByName(role.getRole()));
+                        if (role.getRole().equals(UserRoleEnum.ROLE_ADMIN.toString())) {
+                            if (UserDetailsProvider.getUserDetails().getUser() != null)
+                                if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString()))
+                                    newRoles.add(findRoleByName(role.getRole()));
+                        } else newRoles.add(findRoleByName(role.getRole()));
                     }
                     user.setRoles(newRoles);
                 } else {

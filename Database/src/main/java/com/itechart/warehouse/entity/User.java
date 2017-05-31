@@ -30,7 +30,7 @@ public class User {
     private String password;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
-//    @JsonIgnore
+    //    @JsonIgnore
     private Warehouse warehouse;
     private List<Role> roles;
     @JsonIgnore
@@ -275,4 +275,16 @@ public class User {
                 .append("password", password)
                 .toString();
     }
+
+    public boolean hasRole(String role) {
+        boolean has = false;
+        for (Role r : this.roles) {
+            if (r.getRole().equals(role)) {
+                has = true;
+                break;
+            }
+        }
+        return has;
+    }
+
 }
