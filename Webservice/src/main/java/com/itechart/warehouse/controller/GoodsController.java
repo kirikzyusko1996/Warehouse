@@ -26,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +65,24 @@ public class GoodsController {
         response.addHeader("X-total-count", String.valueOf(goodsCount));
         response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         return new ResponseEntity<>(goods, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GoodsDTO>> getAllGoods(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "-1") int count)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("Handling request for list of goods in warehouse, page: {}, count: {}", page, count);
+
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Warehouse warehouse = userDetails.getWarehouse();
+            List<GoodsDTO> goods = goodsService.findGoodsForWarehouse(warehouse.getIdWarehouse(), page, count);
+            return new ResponseEntity<>(goods, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving goods");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @RequestMapping(value = "/{goodsId}", method = RequestMethod.GET,

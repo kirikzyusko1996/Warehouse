@@ -1,5 +1,6 @@
 package com.itechart.warehouse.service.services;
 
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
@@ -69,4 +70,7 @@ public interface GoodsService {
 
     List<StorageSpaceType> getStorageSpaceTypes() throws DataAccessException;
 
+    GoodsDTO mapToDto(Goods goods);
+
+    Goods saveGoodsForOutgoingInvoice(Goods goodsForInvoice) throws GenericDAOException;
 }

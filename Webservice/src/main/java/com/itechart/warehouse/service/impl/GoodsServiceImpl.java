@@ -957,6 +957,33 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
+    @Override
+    @Transactional
+    public Goods saveGoodsForOutgoingInvoice(Goods goodsForInvoice) throws GenericDAOException {
+        Goods savedGoods = null;
+        if (goodsForInvoice != null) {
+            savedGoods = goodsDAO.insert(goodsForInvoice);
+        }
+
+        return savedGoods;
+    }
+
+    @Override
+    public GoodsDTO mapToDto(Goods goods) {
+        GoodsDTO dto = new GoodsDTO();
+        dto.setId(goods.getId());
+        dto.setName(goods.getName());
+        dto.setQuantity(goods.getQuantity());
+        dto.setWeight(goods.getWeight());
+        dto.setPrice(goods.getPrice());
+        dto.setStorageType(goods.getStorageType());
+        dto.setQuantityUnit(goods.getQuantityUnit());
+        dto.setWeightUnit(goods.getWeightUnit());
+        dto.setPriceUnit(goods.getPriceUnit());
+
+        return dto;
+    }
+
 
     private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
         List<GoodsDTO> dtos = new ArrayList<>();

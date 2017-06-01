@@ -1,6 +1,7 @@
 package com.itechart.warehouse.service.impl;
 
 
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.constants.InvoiceStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
@@ -24,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +38,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceDAO invoiceDAO;
     private InvoiceStatusDAO invoiceStatusDAO;
     private InvoiceStatusNameDAO invoiceStatusNameDAO;
+    private GoodsStatusDAO goodsStatusDAO;
+    private GoodsStatusNameDAO goodsStatusNameDAO;
     private UnitDAO unitDAO;
     private StorageSpaceTypeDAO storageDAO;
     private WarehouseCustomerCompanyDAO customerDAO;
@@ -60,6 +64,16 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Autowired
     public void setInvoiceStatusNameDAO(InvoiceStatusNameDAO dao) {
         this.invoiceStatusNameDAO = dao;
+    }
+
+    @Autowired
+    public void setGoodsStatusDAO(GoodsStatusDAO dao) {
+        this.goodsStatusDAO = dao;
+    }
+
+    @Autowired
+    public void setGoodsStatusNameDAO(GoodsStatusNameDAO dao) {
+        this.goodsStatusNameDAO = dao;
     }
 
     @Autowired
@@ -351,7 +365,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToIncomingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(invoice, currentUser);
+            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(savedInvoice, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
             List<GoodsDTO> goodsList = dto.getGoods();
@@ -379,14 +393,13 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToOutgoingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(invoice, currentUser);
+            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(savedInvoice, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
 
-            List<Long> goodsListIds = parseIdFromGoods(dto.getGoods());
-            goodsService.setOutgoingInvoice(goodsListIds, savedInvoice.getId());
+            processGoodsForOutgoingInvoice(dto.getGoods(), savedInvoice, principal.getUser());
 
         } catch (GenericDAOException e) {
-            logger.error("Error while saving dto: ", e);
+            logger.error("Error while saving outgoing invoice: ", e);
             throw new DataAccessException(e);
         }
 
@@ -478,7 +491,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             if (optional.isPresent()) {
                 InvoiceStatus invoiceStatus = optional.get();
 
-                InvoiceStatusName statusName = retrieveStatusByName(status);
+                InvoiceStatusName statusName = retrieveInvoiceStatusByName(status);
                 invoiceStatus.setStatusName(statusName);
 
                 updatedInvoice = invoiceStatusDAO.update(invoiceStatus);
@@ -578,11 +591,19 @@ public class InvoiceServiceImpl implements InvoiceService {
         return types.get(0);
     }
 
-    private InvoiceStatusName retrieveStatusByName(String statusName) throws GenericDAOException {
+    private InvoiceStatusName retrieveInvoiceStatusByName(String statusName) throws GenericDAOException {
         DetachedCriteria criteria = DetachedCriteria.forClass(InvoiceStatusName.class);
         criteria.add(Restrictions.eq("name", statusName));
 
         List<InvoiceStatusName> names = invoiceStatusNameDAO.findAll(criteria, -1, -1);
+        return names.get(0);
+    }
+
+    private GoodsStatusName retrieveGoodsStatusByName(String statusName) throws GenericDAOException {
+        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+        criteria.add(Restrictions.eq("name", statusName));
+
+        List<GoodsStatusName> names = goodsStatusNameDAO.findAll(criteria, -1, -1);
         return names.get(0);
     }
 
@@ -763,7 +784,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
 
-        InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.REGISTERED.toString());
+        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(InvoiceStatusEnum.REGISTERED.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 
         return invoiceStatus;
@@ -773,7 +794,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
 
-        InvoiceStatusName invoiceStatusName = retrieveStatusByName(InvoiceStatusEnum.MOVED_OUT.toString());
+        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(InvoiceStatusEnum.MOVED_OUT.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 
         return invoiceStatus;
@@ -832,6 +853,84 @@ public class InvoiceServiceImpl implements InvoiceService {
     private OutgoingInvoiceDTO fillOutgoingInvoiceWithGoodsInfo(OutgoingInvoiceDTO invoice, List<Goods> goodsList) {
         invoice.setGoods(mapToDTOs(goodsList));
         return invoice;
+    }
+
+    private void processGoodsForOutgoingInvoice(List<GoodsDTO> goodsList, Invoice invoice, User user)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
+        for (GoodsDTO goodsToChange : goodsList) {
+            Goods initGoods = goodsService.findGoodsById(goodsToChange.getId());
+            BigDecimal leftQuantity = initGoods.getQuantity().subtract(goodsToChange.getQuantity());
+            if (leftQuantity.compareTo(BigDecimal.ZERO) == 1) {
+                processGoodsSeparation(initGoods, goodsToChange, invoice, user);
+                logger.info("goods separation");
+            } else if (leftQuantity.compareTo(BigDecimal.ZERO) == 0) {
+                setGoodsStatusForOutgoingInvoice(initGoods, user);
+                processGoodsRemoving(goodsList, invoice);
+                logger.info("goods removing");
+            } else {
+                throw new IllegalParametersException("Quantity of goods can't be more than available");
+            }
+        }
+    }
+
+    private void processGoodsSeparation(Goods goodsToChange, GoodsDTO goodsChangeParamsDto, Invoice invoice, User user)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
+        Goods goodsForInvoice = reduceGoodsQuantity(goodsToChange, goodsChangeParamsDto);
+        Goods savedGoods = saveGoodsForOutgoingInvoice(goodsForInvoice, goodsChangeParamsDto, invoice);
+        setGoodsStatusForOutgoingInvoice(savedGoods, user);
+    }
+
+    private void processGoodsRemoving(List<GoodsDTO> goodsList, Invoice invoice)
+            throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        List<Long> goodsListIds = parseIdFromGoods(goodsList);
+        goodsService.setOutgoingInvoice(goodsListIds, invoice.getId());
+    }
+
+    private Goods reduceGoodsQuantity(Goods goodsToChange, GoodsDTO goodsChangeParamsDto)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        BigDecimal leftQuantity = goodsToChange.getQuantity().subtract(goodsChangeParamsDto.getQuantity());
+        goodsToChange.setQuantity(leftQuantity);
+        GoodsDTO dto = goodsService.mapToDto(goodsToChange);
+        return goodsService.updateGoods(goodsToChange.getId(), dto);
+    }
+
+    private Goods saveGoodsForOutgoingInvoice(Goods leftGoods, GoodsDTO goodsChangeParamsDto, Invoice invoice)
+            throws GenericDAOException {
+        Goods goodsForInvoice = new Goods();
+        goodsForInvoice.setName(leftGoods.getName());
+        goodsForInvoice.setWeight(leftGoods.getWeight());
+        goodsForInvoice.setPrice(leftGoods.getPrice());
+        goodsForInvoice.setStorageType(leftGoods.getStorageType());
+        goodsForInvoice.setQuantityUnit(leftGoods.getQuantityUnit());
+        goodsForInvoice.setWeightUnit(leftGoods.getWeightUnit());
+        goodsForInvoice.setPriceUnit(leftGoods.getPriceUnit());
+        goodsForInvoice.setIncomingInvoice(leftGoods.getIncomingInvoice());
+        // todo maybe status history and acts
+
+        goodsForInvoice.setQuantity(goodsChangeParamsDto.getQuantity());
+        goodsForInvoice.setOutgoingInvoice(invoice);
+
+        return goodsService.saveGoodsForOutgoingInvoice(goodsForInvoice);
+    }
+
+    private Goods updateGoodsForOutgoingInvoice(Goods goodsToChange, Invoice invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        goodsToChange.setOutgoingInvoice(invoice);
+        GoodsDTO dto = goodsService.mapToDto(goodsToChange);
+        return goodsService.updateGoods(goodsToChange.getId(), dto);
+    }
+
+    private void setGoodsStatusForOutgoingInvoice(Goods savedGoods, User user) throws GenericDAOException {
+        GoodsStatus status = new GoodsStatus();
+        status.setGoods(savedGoods);
+
+        GoodsStatusName statusName = retrieveGoodsStatusByName(GoodsStatusEnum.MOVED_OUT.toString());
+        status.setGoodsStatusName(statusName);
+        Timestamp now = new Timestamp(new Date().getTime());
+        status.setDate(now);
+        status.setUser(user);
+
+        goodsStatusDAO.insert(status);
     }
 
     private List<GoodsDTO> mapToDTOs(List<Goods> goodsList) {
