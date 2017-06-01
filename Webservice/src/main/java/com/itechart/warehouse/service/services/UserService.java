@@ -1,9 +1,8 @@
 package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.constants.UserRoleEnum;
-import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.dto.RoleDTO;
 import com.itechart.warehouse.dto.UserDTO;
-import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
@@ -21,17 +20,19 @@ import java.util.List;
 public interface UserService {
     List<User> findAllUsers(int firstResult, int maxResults) throws DataAccessException;
 
+    UserDTO findUserDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
     User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     User findUserByLogin(String login) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<User> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+    List<UserDTO> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
     long getUsersCount(Long companyId) throws DataAccessException, IllegalParametersException;
 
     Warehouse findWarehouseOwnedBy(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    WarehouseCompany findWarehouseCompanyOwner(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    WarehouseCompany findWarehouseCompanyOwnedBy(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<User> findUsersForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
@@ -49,5 +50,5 @@ public interface UserService {
 
     boolean hasRole(Long userId, UserRoleEnum role) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Role> getRoles() throws DataAccessException;
+    List<RoleDTO> getRoles() throws DataAccessException;
 }

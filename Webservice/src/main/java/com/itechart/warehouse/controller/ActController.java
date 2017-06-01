@@ -55,7 +55,7 @@ public class ActController {
                                                 @RequestParam(defaultValue = "-1") int page,
                                                 @RequestParam(defaultValue = "0") int count,
                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
-        logger.info("Handling request for list of acts, page: {}, count: {}", page, count);
+        logger.info("GET on list/{}, page: {}, count: {}", warehouseId, page, count);
         List<ActDTO> acts = actService.findActsForWarehouse(warehouseId, (page - 1) * count, count);
         long actsCount = actService.getActsCount(warehouseId);
         response.addHeader("X-total-count", String.valueOf(actsCount));

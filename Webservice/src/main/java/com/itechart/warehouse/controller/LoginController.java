@@ -1,5 +1,6 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.dto.UserDTO;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
@@ -35,12 +36,12 @@ public class LoginController {
 
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<User> getUser() throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
+    public ResponseEntity<UserDTO> getUser() throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("Handling login request");
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        User user = null;
+        UserDTO user = null;
         if (userDetails.getUser() != null) {
-            user = userService.findUserById(userDetails.getUser().getId());
+            user = userService.findUserDTOById(userDetails.getUser().getId());
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

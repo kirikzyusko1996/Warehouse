@@ -2,12 +2,11 @@ package com.itechart.warehouse.service.impl;
 
 import com.itechart.warehouse.dao.ActDAO;
 import com.itechart.warehouse.dao.ActTypeDAO;
-import com.itechart.warehouse.dao.GoodsDAO;
-import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.ActDTO;
 import com.itechart.warehouse.dto.ActSearchDTO;
 import com.itechart.warehouse.dto.GoodsDTO;
+import com.itechart.warehouse.dto.UserDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -15,10 +14,10 @@ import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ActService;
 import com.itechart.warehouse.service.services.GoodsService;
+import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.services.WarehouseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -46,10 +45,10 @@ import java.util.List;
 public class ActServiceImpl implements ActService {
     private ActDAO actDAO;
     private ActTypeDAO actTypeDAO;
-    private UserDAO userDAO;
-    private GoodsDAO goodsDAO;
     private GoodsService goodsService;
     private WarehouseService warehouseService;
+    private UserService userService;
+
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
@@ -75,13 +74,9 @@ public class ActServiceImpl implements ActService {
     }
 
     @Autowired
-    public void setUserDAO(UserDAO userDAO) {
-        this.userDAO = userDAO;
-    }
-
-    @Autowired
-    public void setGoodsDAO(GoodsDAO goodsDAO) {
-        this.goodsDAO = goodsDAO;
+    @Lazy
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -153,40 +148,6 @@ public class ActServiceImpl implements ActService {
             logger.error("Error during search for acts: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
-    }
-
-    @Transactional(readOnly = true)
-    private ActDTO mapActToDTO(Act act) {
-        Assert.notNull(act, "Act is null");
-        ActDTO dto = ActDTO.buildActDTO(act);
-        User user = new User();
-        user.setId(act.getUser().getId());
-        user.setLastName(act.getUser().getLastName());
-        user.setFirstName(act.getUser().getFirstName());
-        user.setPatronymic(act.getUser().getPatronymic());
-        Hibernate.initialize(act.getGoods());
-        dto.setUser(user);
-        List<GoodsDTO> goodsDTOs = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(act.getGoods())) {
-            for (Goods goods : act.getGoods())
-                goodsDTOs.add(GoodsDTO.buildGoodsDTO(goods));
-        }
-        dto.setGoodsList(goodsDTOs);
-        Hibernate.initialize(act.getWarehouse());
-        if (act.getWarehouse() != null)
-            dto.setWarehouseId(act.getWarehouse().getIdWarehouse());
-        return dto;
-    }
-
-    private List<ActDTO> mapActsToDTOs(List<Act> acts) {
-        Assert.notNull(acts, "Acts list is null");
-        List<ActDTO> actDTOs = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(acts)) {
-            for (Act act : acts) {
-                actDTOs.add(mapActToDTO(act));
-            }
-        }
-        return actDTOs;
     }
 
 
@@ -339,7 +300,8 @@ public class ActServiceImpl implements ActService {
             Act act = new Act();
             act.setDate(new Timestamp(new Date().getTime()));
             act.setActType(findActTypeByName(actDTO.getType()));
-            User user = userDAO.findUserById(UserDetailsProvider.getUserDetails().getUserId());
+            Long userId = UserDetailsProvider.getUserDetails().getUserId();
+            User user = userService.findUserById(userId);
             if (user != null) {
                 act.setUser(user);
             } else {
@@ -363,10 +325,10 @@ public class ActServiceImpl implements ActService {
     }
 
 
-    private void setActToGoods(List<GoodsDTO> goodsList, Act act) throws GenericDAOException {
+    private void setActToGoods(List<GoodsDTO> goodsList, Act act) throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException {
         for (GoodsDTO goods : goodsList) {
             if (goods != null) {
-                Goods goodsResult = goodsDAO.getById(goods.getId());
+                Goods goodsResult = goodsService.findGoodsById(goods.getId());
                 if (goodsResult != null)
                     goodsResult.addAct(act);
             }
@@ -425,5 +387,38 @@ public class ActServiceImpl implements ActService {
             logger.error("Error while determine if act exists: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
         }
+    }
+
+    private ActDTO mapActToDTO(Act act) {
+        Assert.notNull(act, "Act is null");
+        ActDTO dto = ActDTO.buildActDTO(act);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(act.getUser().getId());
+        userDTO.setLastName(act.getUser().getLastName());
+        userDTO.setFirstName(act.getUser().getFirstName());
+        userDTO.setPatronymic(act.getUser().getPatronymic());
+        Hibernate.initialize(act.getGoods());
+        dto.setUser(userDTO);
+        List<GoodsDTO> goodsDTOs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(act.getGoods())) {
+            for (Goods goods : act.getGoods())
+                goodsDTOs.add(GoodsDTO.buildGoodsDTO(goods));
+        }
+        dto.setGoodsList(goodsDTOs);
+        Hibernate.initialize(act.getWarehouse());
+        if (act.getWarehouse() != null)
+            dto.setWarehouseId(act.getWarehouse().getIdWarehouse());
+        return dto;
+    }
+
+    private List<ActDTO> mapActsToDTOs(List<Act> acts) {
+        Assert.notNull(acts, "Acts list is null");
+        List<ActDTO> actDTOs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(acts)) {
+            for (Act act : acts) {
+                actDTOs.add(mapActToDTO(act));
+            }
+        }
+        return actDTOs;
     }
 }

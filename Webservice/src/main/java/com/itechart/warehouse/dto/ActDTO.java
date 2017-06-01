@@ -24,9 +24,10 @@ public class ActDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     @NotBlank (message = "Act type is blank")
     private String type;
-    private User user;
+    private UserDTO user;
     private Long id;
     private Timestamp date;
+    @NotBlank (message = "Note is blank")
     private String note;
     private Long warehouseId;
 
@@ -38,6 +39,7 @@ public class ActDTO {
             actDTO.setType(act.getActType().getName());
         actDTO.setDate(act.getDate());
         actDTO.setNote(act.getNote());
+//        actDTO.setUser(UserDTO.buildUserDTO(act.getUser()));
         return actDTO;
     }
 }

@@ -3,8 +3,8 @@ package com.itechart.warehouse.controller;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
+import com.itechart.warehouse.dto.RoleDTO;
 import com.itechart.warehouse.dto.UserDTO;
-import com.itechart.warehouse.entity.Role;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.controller.error.RequestHandlingError;
@@ -20,7 +20,6 @@ import com.itechart.warehouse.service.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +29,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
-
-import static com.itechart.warehouse.util.Host.origins;
 
 /**
  * REST controller for handling requests to user service.
@@ -55,11 +51,11 @@ public class UserController {
 
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<User>> getUsers(@RequestParam(defaultValue = "-1") int page,
+    public ResponseEntity<List<UserDTO>> getUsers(@RequestParam(defaultValue = "-1") int page,
                                                @RequestParam(defaultValue = "0") int count,
                                                HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
-        List<User> users = null;
+        List<UserDTO> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
@@ -73,22 +69,22 @@ public class UserController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<User> getUser(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("Handling request for user with id: {}", id);
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
-        User user = null;
+        UserDTO user = null;
         if (company != null) {
-            user = userService.findUserById(id);
+            user = userService.findUserDTOById(id);
         } else throw new RequestHandlingException("Could not retrieve authenticated user information");
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/roles", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Role>> getRoles() throws DataAccessException {
+    public ResponseEntity<List<RoleDTO>> getRoles() throws DataAccessException {
         logger.info("Handling request for roles list");
-        List<Role> roles = userService.getRoles();
+        List<RoleDTO> roles = userService.getRoles();
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 

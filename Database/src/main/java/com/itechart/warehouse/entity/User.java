@@ -17,7 +17,6 @@ public class User {
     private String firstName;
     private String lastName;
     private String patronymic;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private Date dateOfBirth;
     private String city;
     private String street;
@@ -26,15 +25,11 @@ public class User {
     private String email;
     private String login;
     private String password;
-    @JsonIgnore
     private WarehouseCompany warehouseCompany;
     private Warehouse warehouse;
     private List<Role> roles;
-    @JsonIgnore
     private List<Act> acts;
-    @JsonIgnore
     private List<GoodsStatus> goodsStatusList;
-    @JsonIgnore
     private List<InvoiceStatus> invoiceStatusList;
     private Date deleted;
 

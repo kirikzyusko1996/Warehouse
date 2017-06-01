@@ -1,6 +1,5 @@
 package com.itechart.warehouse.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -12,10 +11,8 @@ import java.util.List;
  */
 @Entity
 public class Role {
-    @JsonIgnore
     private Short idRole;
     private String role;
-    @JsonIgnore
     private List<User> users = new ArrayList<User>();
 
     @Id

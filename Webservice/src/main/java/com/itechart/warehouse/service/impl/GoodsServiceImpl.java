@@ -29,9 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.sql.*;
+import java.sql.Timestamp;
 import java.util.*;
-import java.util.Date;
 
 /**
  * Implementation of goods service.
@@ -41,12 +40,9 @@ public class GoodsServiceImpl implements GoodsService {
     private GoodsDAO goodsDAO;
     private GoodsStatusDAO goodsStatusDAO;
     private GoodsStatusNameDAO goodsStatusNameDAO;
-    private InvoiceDAO invoiceDAO;
     private UnitDAO unitDAO;
     private StorageSpaceTypeDAO storageSpaceTypeDAO;
-    private StorageSpaceDAO storageSpaceDAO;
     private StorageCellDAO storageCellDAO;
-    private UserDAO userDAO;
     private WarehouseService warehouseService;
     private InvoiceService invoiceService;
     private UserService userService;
@@ -68,11 +64,6 @@ public class GoodsServiceImpl implements GoodsService {
     @Lazy
     public void setWarehouseService(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
-    }
-
-    @Autowired
-    public void setStorageSpaceDAO(StorageSpaceDAO storageSpaceDAO) {
-        this.storageSpaceDAO = storageSpaceDAO;
     }
 
     @Autowired
@@ -103,16 +94,6 @@ public class GoodsServiceImpl implements GoodsService {
     @Autowired
     public void setStorageCellDAO(StorageCellDAO storageCellDAO) {
         this.storageCellDAO = storageCellDAO;
-    }
-
-    @Autowired
-    public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
-        this.invoiceDAO = invoiceDAO;
-    }
-
-    @Autowired
-    public void setUserDAO(UserDAO userDAO) {
-        this.userDAO = userDAO;
     }
 
     @Override
@@ -493,34 +474,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-
-    private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
-        List<GoodsDTO> dtos = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(goodsList)) {
-            for (Goods goods : goodsList) {
-                dtos.add(mapGoodsToDTOs(goods));
-            }
-        }
-        return dtos;
-    }
-
-    private GoodsDTO mapGoodsToDTOs(Goods goods) {
-        Assert.notNull(goods, "Goods is null");
-        GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
-        List<StorageCellDTO> cellDTOs = new ArrayList<>();
-        for (StorageCell cell : goods.getCells()) {
-            StorageCellDTO cellDTO = new StorageCellDTO();
-            cellDTO.setIdGoods(goods.getId());
-            cellDTO.setIdStorageCell(cell.getIdStorageCell());
-            cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
-            cellDTO.setNumber(cell.getNumber());
-            cellDTOs.add(cellDTO);
-        }
-        dto.setCells(cellDTOs);
-        return dto;
-    }
-
-
     @Override
     @Transactional(readOnly = true)
     public List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult,
@@ -555,28 +508,7 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    private GoodsStatusDTO mapGoodsStatusToDTO(GoodsStatus status) {
-        Assert.notNull(status, "Status is null");
-        GoodsStatusDTO dto = GoodsStatusDTO.buildStatusDTO(status);
-        User user = new User();
-        user.setId(status.getUser().getId());
-        user.setLastName(status.getUser().getLastName());
-        user.setFirstName(status.getUser().getFirstName());
-        user.setPatronymic(status.getUser().getPatronymic());
-        dto.setUser(user);
-        return dto;
-    }
 
-    private List<GoodsStatusDTO> mapGoodsStatusesToDTOs(List<GoodsStatus> statuses) {
-        Assert.notNull(statuses, "Statuses is null");
-        List<GoodsStatusDTO> statusDTOs = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(statuses)) {
-            for (GoodsStatus status : statuses) {
-                statusDTOs.add(mapGoodsStatusToDTO(status));
-            }
-        }
-        return statusDTOs;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -679,27 +611,6 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
 
-    private Unit findUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
-        logger.info("Searching for unit with name: {}", unitName);
-        if (unitName == null) throw new IllegalParametersException("Unit name is null");
-        DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
-        criteria.add(Restrictions.eq("name", unitName));
-        List<Unit> fetchedUnits = unitDAO.findAll(criteria, -1, 1);
-        if (!fetchedUnits.isEmpty())
-            return fetchedUnits.get(0);
-        else throw new IllegalParametersException("Invalid unit name: " + unitName);
-    }
-
-    private StorageSpaceType findStorageTypeByName(String spaceTypeName) throws GenericDAOException, IllegalParametersException {
-        logger.info("Searching for storage space type with name: {}", spaceTypeName);
-        if (spaceTypeName == null) throw new IllegalParametersException("Storage space type name is null");
-        DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
-        criteria.add(Restrictions.eq("name", spaceTypeName));
-        List<StorageSpaceType> fetchedSpaceType = storageSpaceTypeDAO.findAll(criteria, -1, 1);
-        if (!fetchedSpaceType.isEmpty())
-            return fetchedSpaceType.get(0);
-        else throw new IllegalParametersException("Invalid storage space type name: " + spaceTypeName);
-    }
 
     @Override
     @Transactional
@@ -874,18 +785,6 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsList;
     }
 
-
-    private GoodsStatusName findGoodsStatusNameByName(String goodsStatusNameName) throws GenericDAOException, IllegalParametersException {
-        logger.info("Searching for goods status name with name: {}", goodsStatusNameName);
-        if (goodsStatusNameName == null) throw new IllegalParametersException("Goods status name name is null");
-        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
-        criteria.add(Restrictions.eq("name", goodsStatusNameName));
-        List<GoodsStatusName> fetchedStatusName = goodsStatusNameDAO.findAll(criteria, -1, 1);
-        if (!fetchedStatusName.isEmpty())
-            return fetchedStatusName.get(0);
-        else throw new IllegalParametersException("Invalid status name: " + goodsStatusNameName);
-    }
-
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#id, 'Goods', 'DELETE')")
@@ -973,15 +872,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    private StorageCell findStorageCellById(Long storageCellId) throws GenericDAOException, IllegalParametersException {
-        logger.info("Searching for storage cell with id: {}", storageCellId);
-        if (storageCellId == null) throw new IllegalParametersException("Storage cell id is null");
-        Optional<StorageCell> result = storageCellDAO.findById(storageCellId);
-        if (result.isPresent())
-            return result.get();
-        else return null;
-    }
-
 
     @Override
     @Transactional
@@ -1066,5 +956,98 @@ public class GoodsServiceImpl implements GoodsService {
             throw new DataAccessException(e.getCause());
         }
     }
+
+
+    private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
+        List<GoodsDTO> dtos = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(goodsList)) {
+            for (Goods goods : goodsList) {
+                dtos.add(mapGoodsToDTOs(goods));
+            }
+        }
+        return dtos;
+    }
+
+    private GoodsDTO mapGoodsToDTOs(Goods goods) {
+        Assert.notNull(goods, "Goods is null");
+        GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
+        List<StorageCellDTO> cellDTOs = new ArrayList<>();
+        for (StorageCell cell : goods.getCells()) {
+            StorageCellDTO cellDTO = new StorageCellDTO();
+            cellDTO.setIdGoods(goods.getId());
+            cellDTO.setIdStorageCell(cell.getIdStorageCell());
+            cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
+            cellDTO.setNumber(cell.getNumber());
+            cellDTOs.add(cellDTO);
+        }
+        dto.setCells(cellDTOs);
+        return dto;
+    }
+
+    private StorageCell findStorageCellById(Long storageCellId) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for storage cell with id: {}", storageCellId);
+        if (storageCellId == null) throw new IllegalParametersException("Storage cell id is null");
+        Optional<StorageCell> result = storageCellDAO.findById(storageCellId);
+        if (result.isPresent())
+            return result.get();
+        else return null;
+    }
+
+    private GoodsStatusName findGoodsStatusNameByName(String goodsStatusNameName) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for goods status name with name: {}", goodsStatusNameName);
+        if (goodsStatusNameName == null) throw new IllegalParametersException("Goods status name name is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
+        criteria.add(Restrictions.eq("name", goodsStatusNameName));
+        List<GoodsStatusName> fetchedStatusName = goodsStatusNameDAO.findAll(criteria, -1, 1);
+        if (!fetchedStatusName.isEmpty())
+            return fetchedStatusName.get(0);
+        else throw new IllegalParametersException("Invalid status name: " + goodsStatusNameName);
+    }
+
+    private GoodsStatusDTO mapGoodsStatusToDTO(GoodsStatus status) {
+        Assert.notNull(status, "Status is null");
+        GoodsStatusDTO dto = GoodsStatusDTO.buildStatusDTO(status);
+        User user = new User();
+        user.setId(status.getUser().getId());
+        user.setLastName(status.getUser().getLastName());
+        user.setFirstName(status.getUser().getFirstName());
+        user.setPatronymic(status.getUser().getPatronymic());
+        dto.setUser(user);
+        return dto;
+    }
+
+    private List<GoodsStatusDTO> mapGoodsStatusesToDTOs(List<GoodsStatus> statuses) {
+        Assert.notNull(statuses, "Statuses is null");
+        List<GoodsStatusDTO> statusDTOs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(statuses)) {
+            for (GoodsStatus status : statuses) {
+                statusDTOs.add(mapGoodsStatusToDTO(status));
+            }
+        }
+        return statusDTOs;
+    }
+
+    private Unit findUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for unit with name: {}", unitName);
+        if (unitName == null) throw new IllegalParametersException("Unit name is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
+        criteria.add(Restrictions.eq("name", unitName));
+        List<Unit> fetchedUnits = unitDAO.findAll(criteria, -1, 1);
+        if (!fetchedUnits.isEmpty())
+            return fetchedUnits.get(0);
+        else throw new IllegalParametersException("Invalid unit name: " + unitName);
+    }
+
+    private StorageSpaceType findStorageTypeByName(String spaceTypeName) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for storage space type with name: {}", spaceTypeName);
+        if (spaceTypeName == null) throw new IllegalParametersException("Storage space type name is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
+        criteria.add(Restrictions.eq("name", spaceTypeName));
+        List<StorageSpaceType> fetchedSpaceType = storageSpaceTypeDAO.findAll(criteria, -1, 1);
+        if (!fetchedSpaceType.isEmpty())
+            return fetchedSpaceType.get(0);
+        else throw new IllegalParametersException("Invalid storage space type name: " + spaceTypeName);
+    }
+
 
 }
