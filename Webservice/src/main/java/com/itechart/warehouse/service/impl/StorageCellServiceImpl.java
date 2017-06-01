@@ -64,6 +64,7 @@ public class StorageCellServiceImpl implements StorageCellService {
             storageCell.setGoods(null);//TODO: maybe here will be an exception
             storageCell.setNumber(storageCellDTO.getNumber());
             storageCell.setStorageSpace(storageSpaceDAO.findById(storageCellDTO.getIdStorageSpace()).get());
+            storageCell.setStatus(storageCellDTO.getStatus());
 
             if (storageCell.getNumber()!=null && storageCell.getStorageSpace()!=null) {
                 storageCell = storageCellDAO.insert(storageCell);
@@ -90,6 +91,8 @@ public class StorageCellServiceImpl implements StorageCellService {
                 storageCell.setNumber(storageCellDTO.getNumber());
                 storageCell.setIdStorageCell(storageCellDTO.getIdStorageCell());
                 storageCell.setGoods(storageCell.getGoods());//because this parameter immutable to front end
+                storageCell.setStatus(storageCellDTO.getStatus());
+
                 if(storageCell.getStorageSpace()==null || storageCell.getNumber()==null
                          || storageCell.getIdStorageCell()==null) {
                     throw new IllegalParametersException("Can't find such data in the database");
@@ -115,7 +118,8 @@ public class StorageCellServiceImpl implements StorageCellService {
         try {
             Optional<StorageCell> result = storageCellDAO.findById(id);
             if (result.isPresent()) {
-                storageCellDAO.delete(result.get());
+                result.get().setStatus(false);//so we can repair
+                storageCellDAO.update(result.get());
             } else throw new ResourceNotFoundException("Storage cell with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during deleting storage cell: {}", e.getMessage());
@@ -135,6 +139,7 @@ public class StorageCellServiceImpl implements StorageCellService {
             Long id_warehouse = Long.valueOf(id);
             Optional<StorageCell> result = storageCellDAO.findById(id_warehouse);
             storageCell = result.get();
+            System.out.println(storageCell);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

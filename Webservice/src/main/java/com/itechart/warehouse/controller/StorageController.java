@@ -146,6 +146,27 @@ public class StorageController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/cell/delete/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteStorageCell(@PathVariable Long id){
+        logger.info("DELETE on /Cell: disable storageCell");
+        // todo security check
+        try {
+            System.out.println(id);
+            storageCellService.deleteStorageCell(id);
+        } catch (DataAccessException e){
+            logger.error("Error while updating new storageCell", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while updating storageCell", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Warehouse with specified id not found while updating storageCell", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
     @RequestMapping(value = "/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> saveStorage(@RequestBody StorageSpaceDTO storageSpace){
@@ -183,6 +204,27 @@ public class StorageController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (ResourceNotFoundException e){
             logger.error("Warehouse with specified id not found while updating storageSpace", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteStorage(@PathVariable Long id){
+        logger.info("DELETE on /Storage: disable storageCell");
+        // todo security check
+        try {
+            System.out.println(id);
+            storageSpaceService.deleteStorageSpace(id);
+        } catch (DataAccessException e){
+            logger.error("Error while updating new storageCell", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e){
+            logger.error("Invalid params specified while updating storageCell", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e){
+            logger.error("Warehouse with specified id not found while updating storageCell", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

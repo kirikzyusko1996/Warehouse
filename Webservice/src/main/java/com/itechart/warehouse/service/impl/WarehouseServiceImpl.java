@@ -187,7 +187,8 @@ public class WarehouseServiceImpl implements WarehouseService {
             Optional<Warehouse> optional = warehouseDAO.findById(warehouseId);
             if (optional.isPresent()) {
                 Warehouse company = optional.get();
-                warehouseDAO.delete(company);
+                company.setStatus(false);
+                warehouseDAO.update(company);
             } else {
                 logger.error("Warehouse with id {} not found", warehouseId);
                 throw new ResourceNotFoundException("Warehouse not found");

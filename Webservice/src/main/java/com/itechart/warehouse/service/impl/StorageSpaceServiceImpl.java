@@ -107,7 +107,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
             storageSpace.setStorageCellList(new ArrayList<>());//so we are creating only place
             storageSpace.setWarehouse(warehouseDAO.findById(storageSpaceDTO.getIdWarehouse()).get());
             storageSpace.setStorageSpaceType(storageSpaceTypeDAO.findById(storageSpaceDTO.getIdStorageSpaceType()).get());
-
+            storageSpace.setStatus(storageSpaceDTO.getStatus());
             if (storageSpace.getWarehouse() != null && storageSpace.getStorageSpaceType() != null ) {
                 storageSpace = storageSpaceDAO.insert(storageSpace);
                 return storageSpace;
@@ -141,6 +141,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
                     storageSpace.setWarehouse(warehouse);
                     storageSpace.setStorageSpaceType(storageSpaceType);
                     storageSpace.setIdStorageSpace(idStorageSpace);
+                    storageSpace.setStatus(storageSpaceDTO.getStatus());
                     storageSpace = storageSpaceDAO.update(storageSpace);
                     return storageSpace;
                 }
@@ -161,7 +162,8 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
         try {
             Optional<StorageSpace> result = storageSpaceDAO.findById(id);
             if (result.isPresent()) {
-                storageSpaceDAO.delete(result.get());
+                result.get().setStatus(false);//so we can repair it
+                storageSpaceDAO.update(result.get());
             } else throw new ResourceNotFoundException("Storage space with such id was not found");
         } catch (GenericDAOException e) {
             logger.error("Error during deleting storage space: {}", e.getMessage());

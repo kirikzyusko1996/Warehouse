@@ -193,12 +193,16 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
     public void deleteWarehouseCompany(String id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting act with id: {}", id);
-        if (id == null || !NumberUtils.isNumber(id)) throw new IllegalParametersException("Id is null");
+        if (id == null || !NumberUtils.isNumber(id)) {
+            throw new IllegalParametersException("Id is null");
+        }
         try {
             Long companyId = Long.valueOf(id);
             Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
-            if (result != null)
-                warehouseCompanyDAO.delete(result.get());
+            if (result != null) {
+                result.get().setStatus(false);//so can recovery it
+                warehouseCompanyDAO.update(result.get());
+            }
         } catch (GenericDAOException e) {
             logger.error("Error during deleting act: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
