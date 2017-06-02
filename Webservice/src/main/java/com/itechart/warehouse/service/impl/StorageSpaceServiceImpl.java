@@ -154,6 +154,12 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
         }
     }
 
+    /**
+     * Because this method don't delete really in the database
+     * and merely change status, this method can call twice:
+     * when you "delete" entity and "restore" entity,
+     * so this method just change status to opposite
+     * */
     @Override
     @Transactional
     public void deleteStorageSpace(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
@@ -162,7 +168,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
         try {
             Optional<StorageSpace> result = storageSpaceDAO.findById(id);
             if (result.isPresent()) {
-                result.get().setStatus(false);//so we can repair it
+                result.get().setStatus(!result.get().getStatus());//so can recovery it, merely change status to opposite
                 storageSpaceDAO.update(result.get());
             } else throw new ResourceNotFoundException("Storage space with such id was not found");
         } catch (GenericDAOException e) {

@@ -149,6 +149,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
         try {
             updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
             user = userService.createSupervisor(updatedWarehouseCompany.getIdWarehouseCompany());
+
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -188,6 +189,12 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
         return updatedCompany;
     }
 
+    /**
+     * Because this method don't delete really in the database
+     * and merely change status, this method can call twice:
+     * when you "delete" entity and "restore" entity,
+     * so this method just change status to opposite
+     * */
     @Override
     @Transactional
     public void deleteWarehouseCompany(String id)
@@ -200,7 +207,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
             Long companyId = Long.valueOf(id);
             Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
             if (result != null) {
-                result.get().setStatus(false);//so can recovery it
+                result.get().setStatus(!result.get().getStatus());//so can recovery it, merely change status to opposite
                 warehouseCompanyDAO.update(result.get());
             }
         } catch (GenericDAOException e) {

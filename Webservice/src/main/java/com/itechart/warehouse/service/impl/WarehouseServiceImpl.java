@@ -172,6 +172,12 @@ public class WarehouseServiceImpl implements WarehouseService {
         return updatedWarehouse;
     }
 
+    /**
+     * Because this method don't delete really in the database
+     * and merely change status, this method can call twice:
+     * when you "delete" entity and "restore" entity,
+     * so this method just change status to opposite
+     * */
     @Override
     @Transactional
     public void deleteWarehouse(String id)
@@ -187,7 +193,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             Optional<Warehouse> optional = warehouseDAO.findById(warehouseId);
             if (optional.isPresent()) {
                 Warehouse company = optional.get();
-                company.setStatus(false);
+                company.setStatus(!company.getStatus());//merely change status to opposite
                 warehouseDAO.update(company);
             } else {
                 logger.error("Warehouse with id {} not found", warehouseId);
