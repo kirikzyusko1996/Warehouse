@@ -35,7 +35,7 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
     public List<Goods> findByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find list of {} goods starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
+        logger.info("Find goods, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
 
         String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
@@ -46,6 +46,39 @@ public class GoodsDAO extends DAO<Goods> {
         query.setMaxResults(maxResults);
         return query.list();
     }
+
+    public List<Goods> findStoredGoodsByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find stored goods, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
+
+        String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
+                " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
+                " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL AND statusName.name = 'STORED'";
+        Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+        return query.list();
+    }
+    public List<Goods> findApplicableToActGoodsByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find goods applicable to act, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
+
+        String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
+                " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
+                " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
+                " AND statusName.name <> 'MOVED_OUT' AND statusName.name <> 'STOLEN' AND statusName.name <> 'SEIZED'" +
+                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH' AND statusName.name <> 'RECYCLED' AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'";
+        Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+        return query.list();
+    }
+
+
 
     public List<Goods> findByWarehouseIdAndCurrentStatus(Long warehouseId, GoodsStatusName statusName, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find list of {} goods starting from {} by warehouse id: {} and status: {}", maxResults, firstResult, warehouseId, statusName);
@@ -64,22 +97,7 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
 
-    public GoodsStatus findGoodsCurrentStatus(Long goodsId) throws GenericDAOException {
-        logger.info("Find current status of goods with id: {}", goodsId);
-        String queryHql = "SELECT status FROM GoodsStatus status" +
-                " INNER JOIN Goods goods ON goods = status.goods" +
-                " LEFT OUTER JOIN GoodsStatus status_2 ON status.goods = status_2.goods AND status.date < status_2.date" +
-                " WHERE status_2.goods IS NULL AND goods.id = :goodsId AND goods.deleted IS NULL";
-        Query<GoodsStatus> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("goodsId", goodsId);
-        query.setMaxResults(1);
-        try {
-            return query.getSingleResult();
-        } catch (Exception e) {
-            logger.error("Error getting current status: {}", e);
-            throw new GenericDAOException(e);
-        }
-    }
+
 
     public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find list of {} goods starting from {} by query: {} with parameters", maxResults, firstResult, query, parameters);
@@ -104,11 +122,39 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
     public long getGoodsCount(Long warehouseId) throws GenericDAOException {
-        logger.info("Get goods count for warehouse with id: {}", warehouseId);
+        logger.info("Get goods count, warehouse id: {}", warehouseId);
         String queryHql = "SELECT  count(DISTINCT goods)" +
                 " FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL";
+        Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+        return query.getSingleResult();
+    }
+
+    public long getStoredGoodsCount(Long warehouseId) throws GenericDAOException {
+        logger.info("Get stored goods count, warehouse id: {}", warehouseId);
+        String queryHql = "SELECT  count(DISTINCT goods)" +
+                " FROM Goods goods" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
+                " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
+                " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL AND statusName.name = 'STORED'";
+        Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+        return query.getSingleResult();
+    }
+
+    public long getApplicableToActGoodsCount(Long warehouseId) throws GenericDAOException {
+        logger.info("Get goods applicable to act count, warehouse id: {}", warehouseId);
+        String queryHql = "SELECT  count(DISTINCT goods)" +
+                " FROM Goods goods" +
+                " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
+                " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
+                " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
+                " AND statusName.name <> 'MOVED_OUT' AND statusName.name <> 'STOLEN' AND statusName.name <> 'SEIZED'" +
+                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH' AND statusName.name <> 'RECYCLED' AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         return query.getSingleResult();

@@ -145,7 +145,7 @@ public class GoodsServiceImpl implements GoodsService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
     public List<GoodsDTO> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} goods starting from index {} by warehouse id: {}", maxResults, firstResult, warehouseId);
+        logger.info("Find goods, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
         if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
             List<Goods> goodsList = goodsDAO.findByWarehouseId(warehouseId, firstResult, maxResults);
@@ -158,29 +158,13 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
-        logger.info("Get users count for warehouse with id: {}", warehouseId);
+    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
+    public List<GoodsDTO> findStoredGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find stored goods, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
         if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
-            return goodsDAO.getGoodsCount(warehouseId);
-        } catch (GenericDAOException e) {
-            logger.error("Error during searching for goods: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
-        }
-    }
-
-
-    @Override
-    @Transactional
-    public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find {} goods starting from index {} by invoice id: {}", maxResults, firstResult, invoiceId);
-        if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
-        try {
-            DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
-            criteria.createAlias("incomingInvoice", "invoice");
-            criteria.add(Restrictions.eq("invoice.id", invoiceId));
-            criteria.add(Restrictions.isNull("deleted"));
-            return goodsDAO.findAll(criteria, firstResult, maxResults);
+            List<Goods> goodsList = goodsDAO.findStoredGoodsByWarehouseId(warehouseId, firstResult, maxResults);
+            return mapGoodsListToDTOs(goodsList);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -189,9 +173,89 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<GoodsDTO> findActApplicableGoods(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find goods applicable to act, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        try {
+            List<Goods> goodsList = goodsDAO.findApplicableToActGoodsByWarehouseId(warehouseId, firstResult, maxResults);
+            return mapGoodsListToDTOs(goodsList);
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for goods: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
+    public long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get goods count, warehouse id: {}", warehouseId);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        try {
+            return goodsDAO.getGoodsCount(warehouseId);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for goods: {}", e);
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
+    public long getStoredGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get stored goods count, warehouse id: {}", warehouseId);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        try {
+            return goodsDAO.getStoredGoodsCount(warehouseId);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for goods: {}", e);
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getActApplicableGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get goods applicable to act count, warehouse id: {}", warehouseId);
+        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        try {
+            return goodsDAO.getApplicableToActGoodsCount(warehouseId);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for goods: {}", e);
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Find goods, invoice id: {}, first result: {}, max results: {}", invoiceId, firstResult, maxResults);
+        if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
+        try {
+            DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
+            criteria.createAlias("incomingInvoice", "invoice");
+            criteria.add(Restrictions.eq("invoice.id", invoiceId));
+            criteria.add(Restrictions.isNull("deleted"));
+            return goodsDAO.findAll(criteria, firstResult, maxResults);
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for goods: {}", e);
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GoodsDTO> findGoodsDTOsForInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Find goods DTOs, invoice id: {}", invoiceId);
+        if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
+        return mapGoodsListToDTOs(findGoodsForInvoice(invoiceId, -1, -1));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
 //    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")// TODO: 19.05.2017
     public List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} goods for warehouse with id {} starting from index {} by criteria: {}", maxResults, warehouseId, firstResult, goodsSearchDTO);
+        logger.info("Find goods, warehouse id: {}, first result: {}, max results: {}, search criteria: {}", warehouseId, firstResult, maxResults, goodsSearchDTO);
         if (goodsSearchDTO == null || warehouseId == null)
             throw new IllegalParametersException("Goods search DTO or warehouse id is null");
 
@@ -335,7 +399,7 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional(readOnly = true)
     public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO goodsSearchDTO) throws DataAccessException, IllegalParametersException {
-        logger.info("Get goods search result count for warehouse with id: {} by DTO: {}", warehouseId, goodsSearchDTO);
+        logger.info("Get goods count, warehouse id: {}, search criteria: {}", warehouseId, goodsSearchDTO);
         if (warehouseId == null || goodsSearchDTO == null)
             throw new IllegalParametersException("Warehouse id or DTO is null");
         StringBuilder root = new StringBuilder("SELECT count(DISTINCT goods.id) FROM Goods goods");
@@ -705,6 +769,7 @@ public class GoodsServiceImpl implements GoodsService {
                 }
             }
 
+
             for (GoodsDTO goods : goodsList) {
                 if (goods != null) {
                     Optional<Goods> goodsResult = goodsDAO.findById(goods.getId());
@@ -764,6 +829,24 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public boolean validateGoodsListForAct(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        for (GoodsDTO goodsDTO : goodsDTOList) {
+            Goods goods = findGoodsById(goodsDTO.getId());
+            if (hasAnyStatus(goods,
+                    GoodsStatusEnum.MOVED_OUT,
+                    GoodsStatusEnum.STOLEN,
+                    GoodsStatusEnum.SEIZED,
+                    GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
+                    GoodsStatusEnum.RECYCLED,
+                    GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
+                    GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     @Transactional
     public List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Creating batch of goods {} for invoice with id: {}", goodsDtoList, invoiceId);
@@ -820,7 +903,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goods = goodsDAO.getById(goodsId);
             if (goods != null) {
-                //if status is one of further listed then status cant be changed
+                //if one of listed statuses already set then it cant be changed
                 if (hasAnyStatus(goods,
                         GoodsStatusEnum.MOVED_OUT,
                         GoodsStatusEnum.STOLEN,
@@ -831,6 +914,55 @@ public class GoodsServiceImpl implements GoodsService {
                         GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
                     return null;
                 }
+                //Cant be registered if already registered
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.CHECKED)
+                        && !hasAnyStatus(goods)) {
+                    return null;
+                }
+                //status LOST_BY_TRANSPORT_COMPANY and TRANSPORT_COMPANY_MISMATCH cant be set if goods already were checked and stored etc
+                if ((goodsStatusDTO.getName().equals(GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY) ||
+                        goodsStatusDTO.getName().equals(GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH) &&
+                                hasAnyStatus(goods, GoodsStatusEnum.STORED,
+                                        GoodsStatusEnum.CHECKED,
+                                        GoodsStatusEnum.WITHDRAWN,
+                                        GoodsStatusEnum.RELEASE_ALLOWED))) {
+                    return null;
+                }
+
+                //Cant be checked if goods are not registered
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.CHECKED) && !hasStatus(goods, GoodsStatusEnum.REGISTERED)) {
+                    return null;
+                }
+                //Cant be stored if are not checked or withdrawn or release allowed
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.STORED)
+                        && !hasAnyStatus(goods, GoodsStatusEnum.CHECKED, GoodsStatusEnum.WITHDRAWN, GoodsStatusEnum.RELEASE_ALLOWED)) {
+                    return null;
+                }
+                //Cant be withdrawn if goods are not stored
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.WITHDRAWN) && !hasStatus(goods, GoodsStatusEnum.STORED)) {
+                    return null;
+                }
+
+                //Cant allow release if not withdrawn
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.RELEASE_ALLOWED)
+                        && !hasAnyStatus(goods, GoodsStatusEnum.WITHDRAWN)) {
+                    return null;
+                }
+                //Cant be moved out if release was not allowed
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.MOVED_OUT)
+                        && !hasAnyStatus(goods, GoodsStatusEnum.RELEASE_ALLOWED)) {
+                    return null;
+                }
+                //cant be seized or recycled or stolen if not stored or withdrawn
+                if ((goodsStatusDTO.getName().equals(GoodsStatusEnum.SEIZED) ||
+                        goodsStatusDTO.getName().equals(GoodsStatusEnum.RECYCLED) ||
+                        goodsStatusDTO.getName().equals(GoodsStatusEnum.STOLEN)) &&
+                        hasAnyStatus(goods, GoodsStatusEnum.STORED,
+                                GoodsStatusEnum.WITHDRAWN,
+                                GoodsStatusEnum.RELEASE_ALLOWED)) {
+                    return null;
+                }
+
 
                 GoodsStatus goodsStatus = new GoodsStatus();
                 goodsStatus.setGoods(goods);
@@ -867,8 +999,8 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Goods id or storage cell id's list is null");
         try {
             Goods goods = goodsDAO.getById(goodsId);
-            //if status is not one of listed then goods cant be put in storage
-            if (!hasAnyStatus(goods, GoodsStatusEnum.CHECKED, GoodsStatusEnum.STORED, GoodsStatusEnum.WITHDRAWN)) {
+            //if status is not one of listed then goods cant be put in storage cells
+            if (!hasAnyStatus(goods, GoodsStatusEnum.CHECKED, GoodsStatusEnum.STORED, GoodsStatusEnum.WITHDRAWN, GoodsStatusEnum.RELEASE_ALLOWED)) {
                 return;
             }
             if (goods == null)
@@ -893,8 +1025,13 @@ public class GoodsServiceImpl implements GoodsService {
         logger.info("Removing goods with id {} from storage", goodsId);
         if (goodsId == null)
             throw new IllegalParametersException("Goods id is null");
+
         try {
             Goods goods = goodsDAO.getById(goodsId);
+            //if status is not stored then can not be removed from storage
+            if (!hasAnyStatus(goods, GoodsStatusEnum.STORED)) {
+                return;
+            }
             if (goods != null) {
                 List<StorageCell> cells = goods.getCells();
                 for (StorageCell cell : cells) {
@@ -920,7 +1057,17 @@ public class GoodsServiceImpl implements GoodsService {
                     if (id != null) {
                         Goods goods = goodsDAO.getById(id);
                         if (goods != null) {
-                            goods.setOutgoingInvoice(invoice);
+                            //if one of listed statuses set then cant be a part of outgoing invoice
+                            if (!hasAnyStatus(goods,
+                                    GoodsStatusEnum.MOVED_OUT,
+                                    GoodsStatusEnum.STOLEN,
+                                    GoodsStatusEnum.SEIZED,
+                                    GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
+                                    GoodsStatusEnum.RECYCLED,
+                                    GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
+                                    GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
+                                goods.setOutgoingInvoice(invoice);
+                            }
                         }
                     }
                 }
@@ -1019,6 +1166,23 @@ public class GoodsServiceImpl implements GoodsService {
             }
         }
         return false;
+
+    }
+
+    private boolean hasAnyStatus(Goods goods) {
+        if (goods == null) throw new IllegalArgumentException("Goods is null");
+        return hasAnyStatus(goods, GoodsStatusEnum.REGISTERED,
+                GoodsStatusEnum.CHECKED,
+                GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
+                GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
+                GoodsStatusEnum.STORED,
+                GoodsStatusEnum.STOLEN,
+                GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY,
+                GoodsStatusEnum.RECYCLED,
+                GoodsStatusEnum.SEIZED,
+                GoodsStatusEnum.WITHDRAWN,
+                GoodsStatusEnum.RELEASE_ALLOWED,
+                GoodsStatusEnum.MOVED_OUT);
 
     }
 

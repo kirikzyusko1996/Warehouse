@@ -18,6 +18,7 @@ import java.util.List;
  * and setting status.
  */
 public interface GoodsService {
+
     List<Goods> findAllGoods(int firstResult, int maxResults) throws DataAccessException;
 
     Goods findGoodsById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
@@ -26,11 +27,21 @@ public interface GoodsService {
 
     List<GoodsDTO> findGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
+    List<GoodsDTO> findStoredGoodsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    List<GoodsDTO> findActApplicableGoods(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
     long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
+
+    long getStoredGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
+
+    long getActApplicableGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
 
     long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO searchDTO) throws DataAccessException, IllegalParametersException;
 
     List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    List<GoodsDTO> findGoodsDTOsForInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
@@ -49,6 +60,8 @@ public interface GoodsService {
     Goods createGoods(Long invoiceId, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<GoodsDTO> splitGoodsForAct(String actType, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
+
+    boolean validateGoodsListForAct(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
