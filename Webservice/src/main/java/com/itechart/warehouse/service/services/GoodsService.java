@@ -56,7 +56,7 @@ public interface GoodsService {
 
     boolean isGoodsExists(Long id) throws DataAccessException, IllegalParametersException;
 
-    void setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    GoodsStatus setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void putGoodsInCells(Long goodsId, List<StorageCellDTO> storageCells) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

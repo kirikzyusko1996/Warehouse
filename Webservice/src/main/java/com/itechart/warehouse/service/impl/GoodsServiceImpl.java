@@ -177,7 +177,7 @@ public class GoodsServiceImpl implements GoodsService {
         if (invoiceId == null) throw new IllegalParametersException("Invoice id is null");
         try {
             DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
-            criteria.createAlias("goods.incomingInvoice", "invoice");
+            criteria.createAlias("incomingInvoice", "invoice");
             criteria.add(Restrictions.eq("invoice.id", invoiceId));
             criteria.add(Restrictions.isNull("deleted"));
             return goodsDAO.findAll(criteria, firstResult, maxResults);
@@ -509,7 +509,6 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
 
-
     @Override
     @Transactional(readOnly = true)
     public GoodsStatus findGoodsCurrentStatus(Long goodsId) throws
@@ -588,17 +587,18 @@ public class GoodsServiceImpl implements GoodsService {
 
                 if (goodsDTO.getCurrentStatus() != null) {
                     if (StringUtils.isNotBlank(goodsDTO.getCurrentStatus().getName())) {
-                        GoodsStatus goodsStatus = new GoodsStatus();
-                        goodsStatus.setGoods(savedGoods);
-                        goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                        goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                        goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsDTO.getCurrentStatus().getName()));
-                        goodsStatusDAO.insert(goodsStatus);
-                        savedGoods.setCurrentStatus(goodsStatus);
-                        if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED))
-                            savedGoods.setRegisteredStatus(goodsStatus);
-                        if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT))
-                            savedGoods.setRegisteredStatus(goodsStatus);
+                        GoodsStatusDTO goodsStatusDTO = new GoodsStatusDTO();
+                        goodsStatusDTO.setName(goodsDTO.getCurrentStatus().getName());
+                        GoodsStatus goodsStatus = setGoodsStatus(savedGoods.getId(), goodsStatusDTO);
+                        if (goodsStatus != null) {
+                            savedGoods.setCurrentStatus(goodsStatus);
+                            if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED.toString())) {
+                                savedGoods.setRegisteredStatus(goodsStatus);
+                            }
+                            if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT.toString())) {
+                                savedGoods.setRegisteredStatus(goodsStatus);
+                            }
+                        }
                     }
                 }
                 return savedGoods;
@@ -609,7 +609,6 @@ public class GoodsServiceImpl implements GoodsService {
             throw new DataAccessException(e.getCause());
         }
     }
-
 
 
     @Override
@@ -687,7 +686,6 @@ public class GoodsServiceImpl implements GoodsService {
         if (actType == null || goodsList == null)
             throw new IllegalParametersException("Act type or goods list is null");
         List<GoodsDTO> returnedList = new ArrayList<>();
-        //todo remove from storage if all amount is under act
         try {
             String statusName = null;
             if (actType != null) {
@@ -715,12 +713,10 @@ public class GoodsServiceImpl implements GoodsService {
                         if (goods.getQuantity().compareTo(initialGoods.getQuantity()) == 0) {
                             //if all amount is affected by act
                             returnedList.add(GoodsDTO.buildGoodsDTO(initialGoods));
-                            GoodsStatus goodsStatus = new GoodsStatus();
-                            goodsStatus.setGoods(initialGoods);
-                            goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                            goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                            goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
-                            goodsStatusDAO.insert(goodsStatus);
+                            GoodsStatusDTO goodsStatusDTO = new GoodsStatusDTO();
+                            goodsStatusDTO.setName(statusName);
+                            setGoodsStatus(initialGoods.getId(), goodsStatusDTO);
+                            removeGoodsFromStorage(initialGoods.getId());
 
                         } else {
                             Goods goodsInAct = new Goods(initialGoods);
@@ -750,18 +746,13 @@ public class GoodsServiceImpl implements GoodsService {
                             Goods returnedGoods = goodsDAO.insert(goodsInAct);
 
                             if (returnedGoods != null) {
-                                GoodsStatus goodsStatus = new GoodsStatus();
-                                goodsStatus.setGoods(goodsInAct);
-                                goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(statusName));
-                                goodsStatusDAO.insert(goodsStatus);
-                                returnedGoods.setCurrentStatus(goodsStatus);
+                                GoodsStatusDTO goodsStatus = new GoodsStatusDTO();
+                                goodsStatus.setName(statusName);
+                                setGoodsStatus(returnedGoods.getId(), goodsStatus);
+
                             }
                             returnedList.add(GoodsDTO.buildGoodsDTO(returnedGoods));
                         }
-
-
                     }
                 }
             }
@@ -822,13 +813,25 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#goodsId, 'Goods', 'UPDATE')")
-    public void setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public GoodsStatus setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Setting status: {} to goods with id {}", goodsStatusDTO, goodsId);
         if (goodsId == null || goodsStatusDTO == null)
             throw new IllegalParametersException("Goods status DTO or goods id is null");
         try {
             Goods goods = goodsDAO.getById(goodsId);
             if (goods != null) {
+                //if status is one of further listed then status cant be changed
+                if (hasAnyStatus(goods,
+                        GoodsStatusEnum.MOVED_OUT,
+                        GoodsStatusEnum.STOLEN,
+                        GoodsStatusEnum.SEIZED,
+                        GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
+                        GoodsStatusEnum.RECYCLED,
+                        GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
+                        GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
+                    return null;
+                }
+
                 GoodsStatus goodsStatus = new GoodsStatus();
                 goodsStatus.setGoods(goods);
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
@@ -836,10 +839,16 @@ public class GoodsServiceImpl implements GoodsService {
                 goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(goodsStatusDTO.getName()));
                 goodsStatusDAO.insert(goodsStatus);
                 goods.setCurrentStatus(goodsStatus);
-                if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED.toString()))
+                if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED.toString())) {
                     goods.setRegisteredStatus(goodsStatus);
-                if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT.toString()))
+                }
+                if (goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.MOVED_OUT.toString())) {
                     goods.setMovedOutStatus(goodsStatus);
+                }
+                if (!goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.STORED.toString())) {
+                    removeGoodsFromStorage(goods.getId());
+                }
+                return goodsStatus;
             } else {
                 throw new ResourceNotFoundException("Goods with such id was not found");
             }
@@ -858,6 +867,10 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Goods id or storage cell id's list is null");
         try {
             Goods goods = goodsDAO.getById(goodsId);
+            //if status is not one of listed then goods cant be put in storage
+            if (!hasAnyStatus(goods, GoodsStatusEnum.CHECKED, GoodsStatusEnum.STORED, GoodsStatusEnum.WITHDRAWN)) {
+                return;
+            }
             if (goods == null)
                 throw new ResourceNotFoundException("Goods with such id was not found");
             for (StorageCellDTO cell : storageCells) {
@@ -984,6 +997,30 @@ public class GoodsServiceImpl implements GoodsService {
         return dto;
     }
 
+
+    private boolean hasStatus(Goods goods, GoodsStatusEnum status) {
+        if (goods == null) throw new IllegalArgumentException("Goods is null");
+        if (status == null) throw new IllegalArgumentException("Status name is null");
+        GoodsStatus currentStatus = goods.getCurrentStatus();
+        if (goods.getCurrentStatus() == null) return false;
+        if (status.toString().equals(currentStatus.getGoodsStatusName().getName()))
+            return true;
+        return false;
+
+    }
+
+    private boolean hasAnyStatus(Goods goods, GoodsStatusEnum... statusNames) {
+        if (goods == null) throw new IllegalArgumentException("Goods is null");
+        for (GoodsStatusEnum status : statusNames) {
+            if (status != null) {
+                if (hasStatus(goods, status)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
 
     private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
         List<GoodsDTO> dtos = new ArrayList<>();
