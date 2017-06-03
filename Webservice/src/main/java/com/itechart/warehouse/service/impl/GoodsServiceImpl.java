@@ -269,24 +269,42 @@ public class GoodsServiceImpl implements GoodsService {
         builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
 
 
-
-
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
 
         if (goodsSearchDTO.getActApplicable() != null) {
             if (goodsSearchDTO.getActApplicable()) {
                 builder.addJoin("INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName");
-                builder.addRestriction("statusName.name <> 'MOVED_OUT'");
-                builder.addRestriction("statusName.name <> 'STOLEN'");
-                builder.addRestriction("statusName.name <> 'CHECKED'");
-                builder.addRestriction("statusName.name <> 'RELEASE_ALLOWED'");
-                builder.addRestriction("statusName.name <> 'SEIZED'");
-                builder.addRestriction("statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'");
-                builder.addRestriction("statusName.name <> 'RECYCLED'");
-                builder.addRestriction("statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'");
-                builder.addRestriction("statusName.name <> 'LOST_BY_TRANSPORT_COMPANY'");
-                builder.addRestriction("statusName.name IS NOT NULL");
+                if (StringUtils.isNotBlank(goodsSearchDTO.getActType())) {
+                    switch (ActTypeEnum.valueOf(goodsSearchDTO.getActType())) {
+                        case ACT_OF_LOSS:
+                            builder.addRestriction("(statusName.name = 'STORED' OR statusName.name = 'WITHDRAWN')");
+                            break;
+                        case ACT_OF_THEFT:
+                            builder.addRestriction("(statusName.name = 'STORED' OR statusName.name = 'WITHDRAWN')");
+                            break;
+                        case WRITE_OFF_ACT:
+                            builder.addRestriction("(statusName.name = 'STORED' OR statusName.name = 'WITHDRAWN')");
+                            break;
+                        case MISMATCH_ACT:
+                            builder.addRestriction("statusName.name = 'REGISTERED'");
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    builder.addRestriction("statusName.name <> 'MOVED_OUT'");
+                    builder.addRestriction("statusName.name <> 'STOLEN'");
+                    builder.addRestriction("statusName.name <> 'CHECKED'");
+                    builder.addRestriction("statusName.name <> 'RELEASE_ALLOWED'");
+                    builder.addRestriction("statusName.name <> 'SEIZED'");
+                    builder.addRestriction("statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'");
+                    builder.addRestriction("statusName.name <> 'RECYCLED'");
+                    builder.addRestriction("statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'");
+                    builder.addRestriction("statusName.name <> 'LOST_BY_TRANSPORT_COMPANY'");
+                    builder.addRestriction("statusName.name IS NOT NULL");
+                }
+
             }
         }
 
@@ -449,16 +467,37 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsSearchDTO.getActApplicable() != null) {
             if (goodsSearchDTO.getActApplicable()) {
                 builder.addJoin("INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName");
-                builder.addRestriction("statusName.name <> 'MOVED_OUT'");
-                builder.addRestriction("statusName.name <> 'STOLEN'");
-                builder.addRestriction("statusName.name <> 'CHECKED'");
-                builder.addRestriction("statusName.name <> 'RELEASE_ALLOWED'");
-                builder.addRestriction("statusName.name <> 'SEIZED'");
-                builder.addRestriction("statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'");
-                builder.addRestriction("statusName.name <> 'RECYCLED'");
-                builder.addRestriction("statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'");
-                builder.addRestriction("statusName.name <> 'LOST_BY_TRANSPORT_COMPANY'");
-                builder.addRestriction("statusName.name IS NOT NULL");
+                if (StringUtils.isNotBlank(goodsSearchDTO.getActType())) {
+                    switch (ActTypeEnum.valueOf(goodsSearchDTO.getActType())) {
+                        case ACT_OF_LOSS:
+                            builder.addRestriction("(statusName.name = 'STORED' OR statusName.name = 'WITHDRAWN')");
+                            break;
+                        case ACT_OF_THEFT:
+                            builder.addRestriction("(statusName.name = 'STORED' OR statusName.name = 'WITHDRAWN')");
+                            break;
+                        case WRITE_OFF_ACT:
+                            builder.addRestriction("(statusName.name = 'STORED' OR statusName.name = 'WITHDRAWN')");
+                            break;
+                        case MISMATCH_ACT:
+                            builder.addRestriction("statusName.name = 'REGISTERED'");
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    builder.addRestriction("statusName.name <> 'MOVED_OUT'");
+                    builder.addRestriction("statusName.name <> 'STOLEN'");
+                    builder.addRestriction("statusName.name <> 'CHECKED'");
+                    builder.addRestriction("statusName.name <> 'RELEASE_ALLOWED'");
+                    builder.addRestriction("statusName.name <> 'SEIZED'");
+                    builder.addRestriction("statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'");
+                    builder.addRestriction("statusName.name <> 'RECYCLED'");
+                    builder.addRestriction("statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'");
+                    builder.addRestriction("statusName.name <> 'LOST_BY_TRANSPORT_COMPANY'");
+                    builder.addRestriction("statusName.name IS NOT NULL");
+                }
+
+
             }
         }
 
