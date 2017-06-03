@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -85,6 +86,7 @@ public class UserServiceImpl implements UserService {
     public List<User> findAllUsers(int firstResult, int maxResults) throws DataAccessException {
         logger.info("Find {} users starting from index {}", maxResults, firstResult);
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
+        criteria.addOrder(Order.asc("id"));
         try {
             return userDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {

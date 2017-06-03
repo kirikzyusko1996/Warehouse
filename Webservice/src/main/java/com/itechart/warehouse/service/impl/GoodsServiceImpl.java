@@ -18,6 +18,7 @@ import com.itechart.warehouse.service.services.WarehouseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -101,6 +102,7 @@ public class GoodsServiceImpl implements GoodsService {
     public List<Goods> findAllGoods(int firstResult, int maxResults) throws DataAccessException {
         logger.info("Find {} goods starting from index {}", maxResults, firstResult);
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
+        criteria.addOrder(Order.asc("id"));
         try {
             return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
@@ -236,6 +238,7 @@ public class GoodsServiceImpl implements GoodsService {
             criteria.createAlias("incomingInvoice", "invoice");
             criteria.add(Restrictions.eq("invoice.id", invoiceId));
             criteria.add(Restrictions.isNull("deleted"));
+            criteria.addOrder(Order.asc("id"));
             return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e);
@@ -264,6 +267,9 @@ public class GoodsServiceImpl implements GoodsService {
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
         builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
         builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
+
+        builder.addJoin("INNER JOIN Invoice incomingInvoice ON goods.incomingInvoice = incomingInvoice");
+        builder.addJoin("INNER JOIN Invoice outgoingInvoice ON goods.outgoingInvoice = outgoingInvoice");
 
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
@@ -299,6 +305,17 @@ public class GoodsServiceImpl implements GoodsService {
             builder.addRestriction("goods.price <= :maxGoodsPrice");
             queryParameters.put("maxGoodsPrice", goodsSearchDTO.getMaxPrice());
         }
+        if (goodsSearchDTO.getIncomingInvoiceId() != null) {
+            builder.addRestriction("incomingInvoice.id = :incomingInvoiceId");
+            queryParameters.put("incomingInvoiceId", goodsSearchDTO.getIncomingInvoiceId());
+        }
+
+        if (goodsSearchDTO.getOutgoingInvoiceId() != null) {
+            builder.addRestriction("outgoingInvoice.id = :outgoingInvoice");
+            queryParameters.put("outgoingInvoice", goodsSearchDTO.getOutgoingInvoiceId());
+        }
+
+
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getCurrentStatus())) {
                 builder.addRestriction("status.goodsStatusName = :statusName");
@@ -386,6 +403,7 @@ public class GoodsServiceImpl implements GoodsService {
             }
         }
         builder.addRestriction("goods.deleted IS NULL");
+        builder.addOrderBy("ORDER BY goods.id");
 
         try {
             List<Goods> goodsList = goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
@@ -407,6 +425,9 @@ public class GoodsServiceImpl implements GoodsService {
         builder.addRestriction("warehouse.idWarehouse = :warehouseId");
         builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
         builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
+
+        builder.addJoin("INNER JOIN Invoice incomingInvoice ON goods.incomingInvoice = incomingInvoice");
+        builder.addJoin("INNER JOIN Invoice outgoingInvoice ON goods.outgoingInvoice = outgoingInvoice");
 
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
@@ -441,6 +462,16 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsSearchDTO.getMaxPrice() != null) {
             builder.addRestriction("goods.price <= :maxGoodsPrice");
             queryParameters.put("maxGoodsPrice", goodsSearchDTO.getMaxPrice());
+        }
+
+        if (goodsSearchDTO.getIncomingInvoiceId() != null) {
+            builder.addRestriction("incomingInvoice.id = :incomingInvoiceId");
+            queryParameters.put("incomingInvoiceId", goodsSearchDTO.getIncomingInvoiceId());
+        }
+
+        if (goodsSearchDTO.getOutgoingInvoiceId() != null) {
+            builder.addRestriction("outgoingInvoice.id = :outgoingInvoice");
+            queryParameters.put("outgoingInvoice", goodsSearchDTO.getOutgoingInvoiceId());
         }
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getCurrentStatus())) {
@@ -722,12 +753,18 @@ public class GoodsServiceImpl implements GoodsService {
             else throw new ResourceNotFoundException("Invoice with such id was not found");
             Goods savedGoods = goodsDAO.insert(goods);
             if (savedGoods != null) {
-                GoodsStatus goodsStatus = new GoodsStatus();
-                goodsStatus.setGoods(savedGoods);
-                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
-                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                savedGoods.setCurrentStatus(goodsStatus);//todo check if works
+//                GoodsStatus goodsStatus = new GoodsStatus();
+//                goodsStatus.setGoods(savedGoods);
+//                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
+//                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+//                goodsStatus.setDate(new Timestamp(new Date().getTime()));
+//                goodsStatusDAO.insert(goodsStatus);
+//                savedGoods.setCurrentStatus(goodsStatus);
+
+                GoodsStatusDTO goodsStatus = new GoodsStatusDTO();
+                goodsStatus.setName(GoodsStatusEnum.REGISTERED.toString());
+                setGoodsStatus(savedGoods.getId(), goodsStatus);
+
             }
             return savedGoods;
         } catch (GenericDAOException e) {
@@ -915,7 +952,7 @@ public class GoodsServiceImpl implements GoodsService {
                     return null;
                 }
                 //Cant be registered if already registered
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.CHECKED)
+                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.REGISTERED)
                         && !hasAnyStatus(goods)) {
                     return null;
                 }

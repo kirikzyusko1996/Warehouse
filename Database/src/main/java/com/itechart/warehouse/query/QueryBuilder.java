@@ -20,6 +20,7 @@ public class QueryBuilder {
     private List<String> joins = new LinkedList<>();
     private List<String> restrictions = new LinkedList<>();
     private String groupBy;
+    private String orderBy;
 
 
     public QueryBuilder(StringBuilder query) {
@@ -44,7 +45,11 @@ public class QueryBuilder {
         this.groupBy = projectionString;
         return this;
     }
-
+    public QueryBuilder addOrderBy(String projectionString) {
+        if (projectionString == null) throw new IllegalArgumentException();
+        this.orderBy = projectionString;
+        return this;
+    }
 
     public String build() {
         joins.forEach(this::appendWithSpace);
@@ -60,6 +65,9 @@ public class QueryBuilder {
         }
         if (groupBy != null) {
             appendWithSpace(groupBy);
+        }
+        if (orderBy != null) {
+            appendWithSpace(orderBy);
         }
         return query.toString();
     }

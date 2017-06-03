@@ -18,11 +18,9 @@ import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.services.WarehouseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.model.internal.RankedComparator;
 import org.hibernate.Hibernate;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
+import org.hibernate.criterion.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +82,7 @@ public class ActServiceImpl implements ActService {
     public List<Act> findAllActs(int firstResult, int maxResults) throws DataAccessException {
         logger.info("Find {} acts starting from index {}", maxResults, firstResult);
         DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
+        criteria.addOrder(Order.asc("date"));
         try {
             return actDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
@@ -206,8 +205,7 @@ public class ActServiceImpl implements ActService {
             criteria.setProjection(Projections.distinct(Projections.id()));
             DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
             criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
-
-//            criteria.setResultTransformer(Criteria.ROOT_ENTITY);
+            criteriaWithSubquery.addOrder(Order.asc("date"));
             return mapActsToDTOs(actDAO.findAll(criteriaWithSubquery, firstResult, maxResults));
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsIdList: {}", e.getMessage());

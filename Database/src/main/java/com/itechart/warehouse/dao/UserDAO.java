@@ -22,7 +22,8 @@ public class UserDAO extends DAO<User> {
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " INNER JOIN WarehouseCompany company ON company = user.warehouseCompany" +
-                " WHERE company.idWarehouseCompany = :warehouseCompanyId AND user.deleted IS NULL";
+                " WHERE company.idWarehouseCompany = :warehouseCompanyId AND user.deleted IS NULL" +
+                " ORDER BY user.id";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseCompanyId", warehouseCompanyId);
         query.setFirstResult(firstResult);
@@ -47,7 +48,8 @@ public class UserDAO extends DAO<User> {
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " INNER JOIN Warehouse warehouse ON warehouse = user.warehouse" +
-                " WHERE warehouse.idWarehouse = :warehouseId AND user.deleted IS NULL";
+                " WHERE warehouse.idWarehouse = :warehouseId AND user.deleted IS NULL" +
+                " ORDER BY user.id";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         query.setFirstResult(firstResult);
@@ -60,7 +62,8 @@ public class UserDAO extends DAO<User> {
         logger.info("Find users by birthday: {}", date);
         String queryHql = "SELECT user" +
                 " FROM User user" +
-                " WHERE MONTH(user.dateOfBirth) = :month AND DAY(user.dateOfBirth) = :day AND user.deleted IS NULL";
+                " WHERE MONTH(user.dateOfBirth) = :month AND DAY(user.dateOfBirth) = :day AND user.deleted IS NULL" +
+                " ORDER BY user.id";
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("month", date.getMonthOfYear());
         query.setParameter("day", date.getDayOfMonth());

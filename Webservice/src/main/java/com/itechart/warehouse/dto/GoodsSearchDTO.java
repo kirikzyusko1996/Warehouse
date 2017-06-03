@@ -34,6 +34,8 @@ public class GoodsSearchDTO {
     private List<GoodsStatusSearchDTO> statuses;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String currentStatus;
+    private Long incomingInvoiceId;
+    private Long outgoingInvoiceId;
 
     public void addStatusSearchDTO(GoodsStatusSearchDTO statusSearchDTO) {
         if (statuses != null)

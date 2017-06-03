@@ -46,7 +46,8 @@ public class ActDAO extends DAO<Act> {
         String queryHql = "SELECT DISTINCT act" +
                 " FROM Act act" +
                 " INNER JOIN Warehouse warehouse ON warehouse = act.warehouse" +
-                " WHERE warehouse.idWarehouse = :warehouseId AND act.deleted IS NULL";
+                " WHERE warehouse.idWarehouse = :warehouseId AND act.deleted IS NULL" +
+                " ORDER BY act.date";
         Query<Act> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         query.setFirstResult(firstResult);
@@ -60,7 +61,8 @@ public class ActDAO extends DAO<Act> {
 
         String queryHql = "SELECT DISTINCT act FROM Act act" +
                 " INNER JOIN act.goods goods" +
-                " WHERE goods.id = :goodsId AND act.deleted IS NULL";
+                " WHERE goods.id = :goodsId AND act.deleted IS NULL" +
+                " ORDER BY act.date";
         Query<Act> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("goodsId", goodsId);
         return query.list();
