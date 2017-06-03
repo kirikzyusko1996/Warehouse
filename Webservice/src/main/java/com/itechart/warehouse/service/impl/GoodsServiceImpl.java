@@ -403,7 +403,7 @@ public class GoodsServiceImpl implements GoodsService {
             }
         }
         builder.addRestriction("goods.deleted IS NULL");
-        builder.addOrderBy("ORDER BY goods.id");
+        builder.addOrderBy("ORDER BY goods.id ASC");
 
         try {
             List<Goods> goodsList = goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);

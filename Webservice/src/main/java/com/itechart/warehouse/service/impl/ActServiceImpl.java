@@ -82,7 +82,7 @@ public class ActServiceImpl implements ActService {
     public List<Act> findAllActs(int firstResult, int maxResults) throws DataAccessException {
         logger.info("Find {} acts starting from index {}", maxResults, firstResult);
         DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
-        criteria.addOrder(Order.asc("date"));
+        criteria.addOrder(Order.desc("date"));
         try {
             return actDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
@@ -205,7 +205,7 @@ public class ActServiceImpl implements ActService {
             criteria.setProjection(Projections.distinct(Projections.id()));
             DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
             criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
-            criteriaWithSubquery.addOrder(Order.asc("date"));
+            criteriaWithSubquery.addOrder(Order.desc("date"));
             return mapActsToDTOs(actDAO.findAll(criteriaWithSubquery, firstResult, maxResults));
         } catch (GenericDAOException e) {
             logger.error("Error during search for goodsIdList: {}", e.getMessage());
@@ -239,10 +239,7 @@ public class ActServiceImpl implements ActService {
             criteria
                     .createCriteria("warehouse").add(Restrictions.eq("idWarehouse", warehouseId));
             criteria.add(Restrictions.isNull("deleted"));
-//            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
             criteria.setProjection(Projections.distinct(Projections.id()));
-//            DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
-//            criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
             criteria.setProjection(Projections.rowCount());
             return actDAO.getCount(criteria);
         } catch (GenericDAOException e) {
