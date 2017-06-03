@@ -18,7 +18,6 @@ import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.services.WarehouseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.model.internal.RankedComparator;
 import org.hibernate.Hibernate;
 import org.hibernate.criterion.*;
 import org.joda.time.DateTime;
@@ -291,7 +290,7 @@ public class ActServiceImpl implements ActService {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
         try {
-            if (!goodsService.validateGoodsListForAct(actDTO.getGoodsList())) return null;
+            if (!goodsService.isEditable(actDTO.getGoodsList())) return null;
             List<GoodsDTO> goodsList = goodsService.splitGoodsForAct(actDTO.getType(), actDTO.getGoodsList());
             Act act = new Act();
             act.setDate(new Timestamp(new Date().getTime()));

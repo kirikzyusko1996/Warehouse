@@ -102,7 +102,7 @@ public class GoodsServiceImpl implements GoodsService {
     public List<Goods> findAllGoods(int firstResult, int maxResults) throws DataAccessException {
         logger.info("Find {} goods starting from index {}", maxResults, firstResult);
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
-        criteria.addOrder(Order.asc("id"));
+        criteria.addOrder(Order.desc("id"));
         try {
             return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
@@ -238,7 +238,7 @@ public class GoodsServiceImpl implements GoodsService {
             criteria.createAlias("incomingInvoice", "invoice");
             criteria.add(Restrictions.eq("invoice.id", invoiceId));
             criteria.add(Restrictions.isNull("deleted"));
-            criteria.addOrder(Order.asc("id"));
+            criteria.addOrder(Order.desc("id"));
             return goodsDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
             logger.error("Error during search for goods: {}", e);
@@ -268,8 +268,7 @@ public class GoodsServiceImpl implements GoodsService {
         builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
         builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
 
-        builder.addJoin("INNER JOIN Invoice incomingInvoice ON goods.incomingInvoice = incomingInvoice");
-        builder.addJoin("INNER JOIN Invoice outgoingInvoice ON goods.outgoingInvoice = outgoingInvoice");
+
 
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
@@ -306,12 +305,14 @@ public class GoodsServiceImpl implements GoodsService {
             queryParameters.put("maxGoodsPrice", goodsSearchDTO.getMaxPrice());
         }
         if (goodsSearchDTO.getIncomingInvoiceId() != null) {
+            builder.addJoin("INNER JOIN Invoice incomingInvoice ON goods.incomingInvoice = incomingInvoice");
             builder.addRestriction("incomingInvoice.id = :incomingInvoiceId");
             queryParameters.put("incomingInvoiceId", goodsSearchDTO.getIncomingInvoiceId());
         }
 
         if (goodsSearchDTO.getOutgoingInvoiceId() != null) {
             builder.addRestriction("outgoingInvoice.id = :outgoingInvoice");
+            builder.addJoin("INNER JOIN Invoice outgoingInvoice ON goods.outgoingInvoice = outgoingInvoice");
             queryParameters.put("outgoingInvoice", goodsSearchDTO.getOutgoingInvoiceId());
         }
 
@@ -403,7 +404,7 @@ public class GoodsServiceImpl implements GoodsService {
             }
         }
         builder.addRestriction("goods.deleted IS NULL");
-        builder.addOrderBy("ORDER BY goods.id ASC");
+        builder.addOrderBy("ORDER BY goods.id DESC");
 
         try {
             List<Goods> goodsList = goodsDAO.findByQuery(builder.build().toString(), queryParameters, firstResult, maxResults);
@@ -426,8 +427,7 @@ public class GoodsServiceImpl implements GoodsService {
         builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
         builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
 
-        builder.addJoin("INNER JOIN Invoice incomingInvoice ON goods.incomingInvoice = incomingInvoice");
-        builder.addJoin("INNER JOIN Invoice outgoingInvoice ON goods.outgoingInvoice = outgoingInvoice");
+
 
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
@@ -465,11 +465,13 @@ public class GoodsServiceImpl implements GoodsService {
         }
 
         if (goodsSearchDTO.getIncomingInvoiceId() != null) {
+            builder.addJoin("INNER JOIN Invoice incomingInvoice ON goods.incomingInvoice = incomingInvoice");
             builder.addRestriction("incomingInvoice.id = :incomingInvoiceId");
             queryParameters.put("incomingInvoiceId", goodsSearchDTO.getIncomingInvoiceId());
         }
 
         if (goodsSearchDTO.getOutgoingInvoiceId() != null) {
+            builder.addJoin("INNER JOIN Invoice outgoingInvoice ON goods.outgoingInvoice = outgoingInvoice");
             builder.addRestriction("outgoingInvoice.id = :outgoingInvoice");
             queryParameters.put("outgoingInvoice", goodsSearchDTO.getOutgoingInvoiceId());
         }
@@ -650,6 +652,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goodsToUpdate = findGoodsById(id);
             if (goodsToUpdate != null) {
+                if (!isEditable(goodsToUpdate)) return null;
                 if (StringUtils.isNotBlank(goodsDTO.getName()))
                     goodsToUpdate.setName(goodsDTO.getName());
                 else throw new IllegalParametersException("Field name can not be empty");
@@ -753,14 +756,6 @@ public class GoodsServiceImpl implements GoodsService {
             else throw new ResourceNotFoundException("Invoice with such id was not found");
             Goods savedGoods = goodsDAO.insert(goods);
             if (savedGoods != null) {
-//                GoodsStatus goodsStatus = new GoodsStatus();
-//                goodsStatus.setGoods(savedGoods);
-//                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
-//                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-//                goodsStatus.setDate(new Timestamp(new Date().getTime()));
-//                goodsStatusDAO.insert(goodsStatus);
-//                savedGoods.setCurrentStatus(goodsStatus);
-
                 GoodsStatusDTO goodsStatus = new GoodsStatusDTO();
                 goodsStatus.setName(GoodsStatusEnum.REGISTERED.toString());
                 setGoodsStatus(savedGoods.getId(), goodsStatus);
@@ -865,23 +860,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    @Override
-    public boolean validateGoodsListForAct(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        for (GoodsDTO goodsDTO : goodsDTOList) {
-            Goods goods = findGoodsById(goodsDTO.getId());
-            if (hasAnyStatus(goods,
-                    GoodsStatusEnum.MOVED_OUT,
-                    GoodsStatusEnum.STOLEN,
-                    GoodsStatusEnum.SEIZED,
-                    GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
-                    GoodsStatusEnum.RECYCLED,
-                    GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
-                    GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     @Override
     @Transactional
@@ -940,67 +918,9 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goods = goodsDAO.getById(goodsId);
             if (goods != null) {
-                //if one of listed statuses already set then it cant be changed
-                if (hasAnyStatus(goods,
-                        GoodsStatusEnum.MOVED_OUT,
-                        GoodsStatusEnum.STOLEN,
-                        GoodsStatusEnum.SEIZED,
-                        GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
-                        GoodsStatusEnum.RECYCLED,
-                        GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
-                        GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
+                if (!validateNewStatus(goods, goodsStatusDTO.getName())) {
                     return null;
                 }
-                //Cant be registered if already registered
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.REGISTERED)
-                        && !hasAnyStatus(goods)) {
-                    return null;
-                }
-                //status LOST_BY_TRANSPORT_COMPANY and TRANSPORT_COMPANY_MISMATCH cant be set if goods already were checked and stored etc
-                if ((goodsStatusDTO.getName().equals(GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY) ||
-                        goodsStatusDTO.getName().equals(GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH) &&
-                                hasAnyStatus(goods, GoodsStatusEnum.STORED,
-                                        GoodsStatusEnum.CHECKED,
-                                        GoodsStatusEnum.WITHDRAWN,
-                                        GoodsStatusEnum.RELEASE_ALLOWED))) {
-                    return null;
-                }
-
-                //Cant be checked if goods are not registered
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.CHECKED) && !hasStatus(goods, GoodsStatusEnum.REGISTERED)) {
-                    return null;
-                }
-                //Cant be stored if are not checked or withdrawn or release allowed
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.STORED)
-                        && !hasAnyStatus(goods, GoodsStatusEnum.CHECKED, GoodsStatusEnum.WITHDRAWN, GoodsStatusEnum.RELEASE_ALLOWED)) {
-                    return null;
-                }
-                //Cant be withdrawn if goods are not stored
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.WITHDRAWN) && !hasStatus(goods, GoodsStatusEnum.STORED)) {
-                    return null;
-                }
-
-                //Cant allow release if not withdrawn
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.RELEASE_ALLOWED)
-                        && !hasAnyStatus(goods, GoodsStatusEnum.WITHDRAWN)) {
-                    return null;
-                }
-                //Cant be moved out if release was not allowed
-                if (goodsStatusDTO.getName().equals(GoodsStatusEnum.MOVED_OUT)
-                        && !hasAnyStatus(goods, GoodsStatusEnum.RELEASE_ALLOWED)) {
-                    return null;
-                }
-                //cant be seized or recycled or stolen if not stored or withdrawn
-                if ((goodsStatusDTO.getName().equals(GoodsStatusEnum.SEIZED) ||
-                        goodsStatusDTO.getName().equals(GoodsStatusEnum.RECYCLED) ||
-                        goodsStatusDTO.getName().equals(GoodsStatusEnum.STOLEN)) &&
-                        hasAnyStatus(goods, GoodsStatusEnum.STORED,
-                                GoodsStatusEnum.WITHDRAWN,
-                                GoodsStatusEnum.RELEASE_ALLOWED)) {
-                    return null;
-                }
-
-
                 GoodsStatus goodsStatus = new GoodsStatus();
                 goodsStatus.setGoods(goods);
                 goodsStatus.setDate(new Timestamp(new Date().getTime()));
@@ -1026,6 +946,7 @@ public class GoodsServiceImpl implements GoodsService {
             throw new DataAccessException(e.getCause());
         }
     }
+
 
     @Override
     @Transactional
@@ -1181,6 +1102,31 @@ public class GoodsServiceImpl implements GoodsService {
         return dto;
     }
 
+    @Override
+    public boolean isEditable(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        for (GoodsDTO goodsDTO : goodsDTOList) {
+            Goods goods = findGoodsById(goodsDTO.getId());
+            if (!isEditable(goods)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isEditable(Goods goods) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        if (hasAnyStatus(goods,
+                GoodsStatusEnum.MOVED_OUT,
+                GoodsStatusEnum.STOLEN,
+                GoodsStatusEnum.SEIZED,
+                GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
+                GoodsStatusEnum.RECYCLED,
+                GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
+                GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     private boolean hasStatus(Goods goods, GoodsStatusEnum status) {
         if (goods == null) throw new IllegalArgumentException("Goods is null");
@@ -1314,5 +1260,58 @@ public class GoodsServiceImpl implements GoodsService {
         else throw new IllegalParametersException("Invalid storage space type name: " + spaceTypeName);
     }
 
+    private boolean validateNewStatus(Goods goods, String newStatus) {
+        if (goods == null) {
+            throw new IllegalArgumentException("Goods is null");
+        }
+        if (newStatus == null) {
+            throw new IllegalArgumentException("New status name is null");
+        }
+        if (goods.getCurrentStatus() == null) {
+            return true;
+        }
+        GoodsStatusEnum val = GoodsStatusEnum.valueOf(goods.getCurrentStatus().getGoodsStatusName().getName());
+        switch (val) {
+            case REGISTERED:
+                return newStatus.equals(GoodsStatusEnum.CHECKED.toString()) ||
+                        newStatus.equals(GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH.toString()) ||
+                        newStatus.equals(GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY.toString());
+            case CHECKED:
+                return newStatus.equals(GoodsStatusEnum.STORED.toString());
+            case STORED:
+                return !newStatus.equals(GoodsStatusEnum.CHECKED.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.REGISTERED.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.MOVED_OUT.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.RELEASE_ALLOWED.toString());
+            case STOLEN:
+                return false;
+            case SEIZED:
+                return false;
+            case TRANSPORT_COMPANY_MISMATCH:
+                return false;
+            case LOST_BY_TRANSPORT_COMPANY:
+                return false;
+            case LOST_BY_WAREHOUSE_COMPANY:
+                return false;
+            case RECYCLED:
+                return false;
+            case WITHDRAWN:
+                return !newStatus.equals(GoodsStatusEnum.CHECKED.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.REGISTERED.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.MOVED_OUT.toString()) &&
+                        !newStatus.equals(GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY.toString());
+            case RELEASE_ALLOWED:
+                return newStatus.equals(GoodsStatusEnum.STORED.toString()) ||
+                        newStatus.equals(GoodsStatusEnum.MOVED_OUT.toString());
+            case MOVED_OUT:
+                return false;
+            default:
+                return false;
+        }
+
+    }
 
 }
