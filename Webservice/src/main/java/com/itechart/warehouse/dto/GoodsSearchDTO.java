@@ -36,6 +36,7 @@ public class GoodsSearchDTO {
     private String currentStatus;
     private Long incomingInvoiceId;
     private Long outgoingInvoiceId;
+    private Boolean actApplicable;
 
     public void addStatusSearchDTO(GoodsStatusSearchDTO statusSearchDTO) {
         if (statuses != null)

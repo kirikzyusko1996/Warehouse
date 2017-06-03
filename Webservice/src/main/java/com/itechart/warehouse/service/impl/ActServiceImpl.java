@@ -290,7 +290,7 @@ public class ActServiceImpl implements ActService {
         logger.info("Creating act from DTO: {}", actDTO);
         if (actDTO == null) throw new IllegalParametersException("Act DTO is null");
         try {
-            if (!goodsService.isEditable(actDTO.getGoodsList())) return null;
+            if (!goodsService.isActApplicable(actDTO.getGoodsList())) return null;
             List<GoodsDTO> goodsList = goodsService.splitGoodsForAct(actDTO.getType(), actDTO.getGoodsList());
             Act act = new Act();
             act.setDate(new Timestamp(new Date().getTime()));

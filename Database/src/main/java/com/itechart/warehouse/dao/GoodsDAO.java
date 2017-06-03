@@ -63,6 +63,7 @@ public class GoodsDAO extends DAO<Goods> {
         query.setMaxResults(maxResults);
         return query.list();
     }
+
     public List<Goods> findApplicableToActGoodsByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find goods applicable to act, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
 
@@ -70,10 +71,18 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
                 " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
-                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
-                " AND statusName.name <> 'MOVED_OUT' AND statusName.name <> 'STOLEN' AND statusName.name <> 'SEIZED'" +
-                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH' AND statusName.name <> 'RECYCLED'" +
-                " AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY' AND statusName.name IS NOT NULL" +
+                " WHERE warehouse.idWarehouse = :warehouseId" +
+                " AND goods.deleted IS NULL" +
+                " AND statusName.name <> 'MOVED_OUT'" +
+                " AND statusName.name <> 'STOLEN'" +
+                " AND statusName.name <> 'CHECKED'" +
+                " AND statusName.name <> 'RELEASE_ALLOWED'" +
+                " AND statusName.name <> 'SEIZED'" +
+                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'" +
+                " AND statusName.name <> 'RECYCLED'" +
+                " AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY' " +
+                " AND statusName.name <> 'LOST_BY_TRANSPORT_COMPANY' " +
+                " AND statusName.name IS NOT NULL" +
                 " ORDER BY goods.id DESC";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
@@ -81,7 +90,6 @@ public class GoodsDAO extends DAO<Goods> {
         query.setMaxResults(maxResults);
         return query.list();
     }
-
 
 
     public List<Goods> findByWarehouseIdAndCurrentStatus(Long warehouseId, GoodsStatusName statusName, int firstResult, int maxResults) throws GenericDAOException {
@@ -99,8 +107,6 @@ public class GoodsDAO extends DAO<Goods> {
         query.setMaxResults(maxResults);
         return query.list();
     }
-
-
 
 
     public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
@@ -157,9 +163,17 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
                 " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
-                " AND statusName.name <> 'MOVED_OUT' AND statusName.name <> 'STOLEN' AND statusName.name <> 'SEIZED'" +
-                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH' AND statusName.name <> 'RECYCLED'" +
-                " AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY' AND statusName.name IS NOT NULL";
+                " AND goods.deleted IS NULL" +
+                " AND statusName.name <> 'MOVED_OUT'" +
+                " AND statusName.name <> 'STOLEN'" +
+                " AND statusName.name <> 'CHECKED'" +
+                " AND statusName.name <> 'RELEASE_ALLOWED'" +
+                " AND statusName.name <> 'SEIZED'" +
+                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'" +
+                " AND statusName.name <> 'RECYCLED'" +
+                " AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY' " +
+                " AND statusName.name <> 'LOST_BY_TRANSPORT_COMPANY' " +
+                " AND statusName.name IS NOT NULL";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         return query.getSingleResult();

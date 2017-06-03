@@ -270,9 +270,25 @@ public class GoodsServiceImpl implements GoodsService {
 
 
 
+
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
 
+        if (goodsSearchDTO.getActApplicable() != null) {
+            if (goodsSearchDTO.getActApplicable()) {
+                builder.addJoin("INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName");
+                builder.addRestriction("statusName.name <> 'MOVED_OUT'");
+                builder.addRestriction("statusName.name <> 'STOLEN'");
+                builder.addRestriction("statusName.name <> 'CHECKED'");
+                builder.addRestriction("statusName.name <> 'RELEASE_ALLOWED'");
+                builder.addRestriction("statusName.name <> 'SEIZED'");
+                builder.addRestriction("statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'");
+                builder.addRestriction("statusName.name <> 'RECYCLED'");
+                builder.addRestriction("statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'");
+                builder.addRestriction("statusName.name <> 'LOST_BY_TRANSPORT_COMPANY'");
+                builder.addRestriction("statusName.name IS NOT NULL");
+            }
+        }
 
         if (StringUtils.isNotBlank(goodsSearchDTO.getName())) {
             builder.addRestriction("goods.name LIKE :goodsName");
@@ -427,11 +443,24 @@ public class GoodsServiceImpl implements GoodsService {
         builder.addJoin("INNER JOIN GoodsStatus status ON status = goods.currentStatus");
         builder.addJoin("INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse");
 
-
-
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put("warehouseId", warehouseId);
 
+        if (goodsSearchDTO.getActApplicable() != null) {
+            if (goodsSearchDTO.getActApplicable()) {
+                builder.addJoin("INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName");
+                builder.addRestriction("statusName.name <> 'MOVED_OUT'");
+                builder.addRestriction("statusName.name <> 'STOLEN'");
+                builder.addRestriction("statusName.name <> 'CHECKED'");
+                builder.addRestriction("statusName.name <> 'RELEASE_ALLOWED'");
+                builder.addRestriction("statusName.name <> 'SEIZED'");
+                builder.addRestriction("statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'");
+                builder.addRestriction("statusName.name <> 'RECYCLED'");
+                builder.addRestriction("statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY'");
+                builder.addRestriction("statusName.name <> 'LOST_BY_TRANSPORT_COMPANY'");
+                builder.addRestriction("statusName.name IS NOT NULL");
+            }
+        }
 
         if (StringUtils.isNotBlank(goodsSearchDTO.getName())) {
             builder.addRestriction("goods.name LIKE :goodsName");
@@ -652,7 +681,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goodsToUpdate = findGoodsById(id);
             if (goodsToUpdate != null) {
-                if (!isEditable(goodsToUpdate)) return null;
+                if (!isActApplicable(goodsToUpdate)) return null;
                 if (StringUtils.isNotBlank(goodsDTO.getName()))
                     goodsToUpdate.setName(goodsDTO.getName());
                 else throw new IllegalParametersException("Field name can not be empty");
@@ -1103,21 +1132,23 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public boolean isEditable(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public boolean isActApplicable(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         for (GoodsDTO goodsDTO : goodsDTOList) {
             Goods goods = findGoodsById(goodsDTO.getId());
-            if (!isEditable(goods)) {
+            if (!isActApplicable(goods)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isEditable(Goods goods) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    private boolean isActApplicable(Goods goods) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         if (hasAnyStatus(goods,
                 GoodsStatusEnum.MOVED_OUT,
                 GoodsStatusEnum.STOLEN,
                 GoodsStatusEnum.SEIZED,
+                GoodsStatusEnum.CHECKED,
+                GoodsStatusEnum.RELEASE_ALLOWED,
                 GoodsStatusEnum.TRANSPORT_COMPANY_MISMATCH,
                 GoodsStatusEnum.RECYCLED,
                 GoodsStatusEnum.LOST_BY_TRANSPORT_COMPANY,
