@@ -77,7 +77,7 @@ public class GoodsController {
     /**
      * Method for getting list of goods with current status = STORED.
      *
-     * @param page        number of requested page pagination wise.
+     * @param page        number of requested page pagination wi
      * @param count       count of goods on page pagination wise.
      * @param warehouseId id of warehouse.
      * @param response    response object.

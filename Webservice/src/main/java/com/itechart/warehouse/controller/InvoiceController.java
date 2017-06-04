@@ -189,14 +189,19 @@ public class InvoiceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //status is sent via param
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateInvoiceStatus(@PathVariable String id, @RequestParam String status)
+    public ResponseEntity<?> updateInvoiceStatus(@PathVariable Long id, @RequestParam String status)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("PUT on /invoice/{}?status={}: update invoice status", id);
+        logger.info("PUT on /invoice/{}?status={}: update invoice status", id, status);
 
-        invoiceService.updateInvoiceStatus(id, status);
-        return new ResponseEntity<>(HttpStatus.OK);
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        if (principal != null) {
+            invoiceService.updateInvoiceStatus(id, status, principal.getUser());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while saving new incoming invoice");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

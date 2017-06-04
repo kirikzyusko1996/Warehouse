@@ -25,8 +25,8 @@ public class Invoice {
     private Unit goodsEntryCountUnit;
     private List<Goods> incomingGoods;
     private List<Goods> outgoingGoods;
-    private InvoiceStatus invoiceStatus;
-
+    private InvoiceStatus currentStatus;
+    private List<InvoiceStatus> statuses;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_warehouse")
@@ -190,13 +190,23 @@ public class Invoice {
         this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 
-    @OneToOne (mappedBy="invoice")
-    public InvoiceStatus getInvoiceStatus() {
-        return invoiceStatus;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_current_status")
+    public InvoiceStatus getCurrentStatus() {
+        return currentStatus;
     }
 
-    public void setInvoiceStatus(InvoiceStatus invoiceStatus) {
-        this.invoiceStatus = invoiceStatus;
+    public void setCurrentStatus(InvoiceStatus currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<InvoiceStatus> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<InvoiceStatus> statuses) {
+        this.statuses = statuses;
     }
 
     @Override

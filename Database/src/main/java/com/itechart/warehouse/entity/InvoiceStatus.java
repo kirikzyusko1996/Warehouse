@@ -53,7 +53,7 @@ public class InvoiceStatus {
         this.user = user;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_invoice", nullable = false)
     public Invoice getInvoice() {
         return invoice;

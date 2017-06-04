@@ -5,7 +5,7 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.Invoice;
-import com.itechart.warehouse.entity.InvoiceStatus;
+import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -49,7 +49,7 @@ public interface InvoiceService {
 
     Invoice updateInvoice(Invoice invoice) throws DataAccessException;
 
-    InvoiceStatus updateInvoiceStatus(String id, String status)
+    Invoice updateInvoiceStatus(Long invoiceId, String status, User user)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteInvoice(String id)

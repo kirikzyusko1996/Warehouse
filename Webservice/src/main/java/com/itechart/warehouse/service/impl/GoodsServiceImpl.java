@@ -828,6 +828,14 @@ public class GoodsServiceImpl implements GoodsService {
                 goodsStatus.setName(GoodsStatusEnum.REGISTERED.toString());
                 setGoodsStatus(savedGoods.getId(), goodsStatus);
 
+                GoodsStatus goodsStatus = new GoodsStatus();
+                goodsStatus.setGoods(savedGoods);
+                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
+                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
+                goodsStatus.setDate(new Timestamp(new Date().getTime()));
+                savedGoods.setCurrentStatus(goodsStatus);//todo check if works
+
+                goodsStatusDAO.insert(goodsStatus);
             }
             return savedGoods;
         } catch (GenericDAOException e) {

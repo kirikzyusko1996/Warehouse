@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -215,16 +216,16 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         List<IncomingInvoiceDTO> invoiceDTOs = new ArrayList<>();
         try {
-            List<InvoiceStatus> statuses = invoiceStatusDAO.findStatusesByWarehouseId(warehouseId, page, count);
-            List<InvoiceStatus> incomingStatuses = parseIncomingInvoices(statuses);
+            List<Invoice> invoices = invoiceDAO.findInvoicesByWarehouseId(warehouseId, page, count);
+            List<Invoice> incomingInvoices = parseIncoming(invoices);
 
-            for (InvoiceStatus invoiceStatus : incomingStatuses) {
-                Invoice invoice = invoiceStatus.getInvoice();
+            for (Invoice invoice : incomingInvoices) {
                 List<Goods> goodsForInvoice = goodsService.findGoodsForInvoice(invoice.getId(), -1, -1);
 
-                IncomingInvoiceDTO dto = convertToIncomingDTO(invoiceStatus, goodsForInvoice);
+                IncomingInvoiceDTO dto = convertToIncomingDTO(invoice.getCurrentStatus(), goodsForInvoice);
                 invoiceDTOs.add(dto);
             }
+
         } catch (GenericDAOException e) {
             logger.error("Error during searching for incoming invoices: {}", e);
             throw new DataAccessException(e);
@@ -246,14 +247,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         List<OutgoingInvoiceDTO> invoiceDTOs = new ArrayList<>();
         try {
-            List<InvoiceStatus> statuses = invoiceStatusDAO.findStatusesByWarehouseId(warehouseId, page, count);
-            List<InvoiceStatus> outgoingStatuses = parseOutgoingInvoices(statuses);
+            List<Invoice> invoices = invoiceDAO.findInvoicesByWarehouseId(warehouseId, page, count);
+            List<Invoice> incomingInvoices = parseOutgoing(invoices);
 
-            for (InvoiceStatus invoiceStatus : outgoingStatuses) {
-                Invoice invoice = invoiceStatus.getInvoice();
+            for (Invoice invoice : incomingInvoices) {
                 List<Goods> goodsForInvoice = goodsService.findGoodsForInvoice(invoice.getId(), -1, -1);
 
-                OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoiceStatus, goodsForInvoice);
+                OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoice.getCurrentStatus(), goodsForInvoice);
                 invoiceDTOs.add(dto);
             }
         } catch (GenericDAOException e) {
@@ -315,10 +315,15 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException {
         logger.info("Find incoming invoice by id #{}", id);
 
-        InvoiceStatus invoiceStatus = invoiceStatusDAO.findStatusForInvoice(id);
-        List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+        Optional<Invoice> optional = invoiceDAO.findById(id);
+        if (optional.isPresent()) {
+            Invoice invoice = optional.get();
+            List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
 
-        return convertToIncomingDTO(invoiceStatus, goodsList);
+            return convertToIncomingDTO(invoice.getCurrentStatus(), goodsList);
+        } else {
+            throw new ResourceNotFoundException("Invoice not found");
+        }
     }
 
     @Override
@@ -365,8 +370,10 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToIncomingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForIncomingInvoice(savedInvoice, currentUser);
+            InvoiceStatus invoiceStatus = createStatusForNewIncomingInvoice(savedInvoice, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
+
+            invoice.setCurrentStatus(invoiceStatus);
 
             List<GoodsDTO> goodsList = dto.getGoods();
             goodsService.createGoodsBatch(savedInvoice.getId(), goodsList);
@@ -393,8 +400,10 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = convertToOutgoingInvoice(dto, currentWarehouse);
             savedInvoice = invoiceDAO.insert(invoice);
 
-            InvoiceStatus invoiceStatus = createStatusForOutgoingInvoice(savedInvoice, currentUser);
+            InvoiceStatus invoiceStatus = createStatusForNewOutgoingInvoice(savedInvoice, currentUser);
             invoiceStatusDAO.insert(invoiceStatus);
+
+            invoice.setCurrentStatus(invoiceStatus);
 
             processGoodsForOutgoingInvoice(dto.getGoods(), savedInvoice, principal.getUser());
 
@@ -472,39 +481,35 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public InvoiceStatus updateInvoiceStatus(String id, String status)
+    public Invoice updateInvoiceStatus(Long invoiceId, String statusName, User user)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Update dto's with id {} status", id);
+        logger.info("Update dto's with id {} statusName", invoiceId);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
+        if (StringUtils.isEmpty(statusName)) {
+            throw new IllegalParametersException("Invalid statusName value");
         }
 
-        if (StringUtils.isEmpty(status)) {
-            throw new IllegalParametersException("Invalid status value");
-        }
-
-        InvoiceStatus updatedInvoice;
+        Invoice invoice;
         try {
-            Long invoiceId = Long.valueOf(id);
-            Optional<InvoiceStatus> optional = invoiceStatusDAO.findById(invoiceId);
+            Optional<Invoice> optional = invoiceDAO.findById(invoiceId);
             if (optional.isPresent()) {
-                InvoiceStatus invoiceStatus = optional.get();
+                invoice = optional.get();
+                InvoiceStatus status = createStatusForInvoice(invoice, statusName, user);
 
-                InvoiceStatusName statusName = retrieveInvoiceStatusByName(status);
-                invoiceStatus.setStatusName(statusName);
+                InvoiceStatus createdStatusInvoice = invoiceStatusDAO.insert(status);
+                invoice.setCurrentStatus(createdStatusInvoice);
+                invoiceDAO.update(invoice);
 
-                updatedInvoice = invoiceStatusDAO.update(invoiceStatus);
             } else {
                 logger.error("Invoice with id {} not found", invoiceId);
                 throw new ResourceNotFoundException("Invoice not found");
             }
         } catch (GenericDAOException e) {
-            logger.error("Error while updating dto' status: ", e);
+            logger.error("Error while updating dto' statusName: ", e);
             throw new DataAccessException(e);
         }
 
-        return updatedInvoice;
+        return invoice;
     }
 
     @Override
@@ -533,8 +538,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                 InvoiceStatus status = optionalInvoiceStatus.get();
                 invoiceStatusDAO.delete(status);
             } else {
-                logger.error("Invoice status with id {} not found", invoiceId);
-                throw new ResourceNotFoundException("Invoice status not found");
+                logger.error("Invoice statusName with id {} not found", invoiceId);
+                throw new ResourceNotFoundException("Invoice statusName not found");
             }
         } catch (GenericDAOException e) {
             logger.error("Error while deleting dto: ", e);
@@ -650,6 +655,33 @@ public class InvoiceServiceImpl implements InvoiceService {
         return outgoingInvoices;
     }
 
+    private List<Invoice> parseIncoming(List<Invoice> invoices) {
+        List<Invoice> incomingInvoices = new ArrayList<>();
+        for (Invoice invoice : invoices) {
+            String statusName = invoice.getCurrentStatus().getStatusName().getName();
+            if (statusName.equals(InvoiceStatusEnum.REGISTERED.toString())
+                    || statusName.equals(InvoiceStatusEnum.CHECKED.toString())
+                    || statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
+                incomingInvoices.add(invoice);
+            }
+        }
+
+        return incomingInvoices;
+    }
+
+    private List<Invoice> parseOutgoing(List<Invoice> invoices) {
+        List<Invoice> outgoingInvoices = new ArrayList<>();
+        for (Invoice invoice : invoices) {
+            String statusName = invoice.getCurrentStatus().getStatusName().getName();
+            if (statusName.equals(InvoiceStatusEnum.RELEASE_ALLOWED.toString())
+                    || statusName.equals(InvoiceStatusEnum.MOVED_OUT.toString())) {
+                outgoingInvoices.add(invoice);
+            }
+        }
+
+        return outgoingInvoices;
+    }
+
     private IncomingInvoiceDTO convertToIncomingDTO(InvoiceStatus invoiceStatus, List<Goods> goodsList) {
         IncomingInvoiceDTO dto = new IncomingInvoiceDTO();
 
@@ -677,7 +709,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         dto.setDispatcher(invoiceStatus.getUser());
         InvoiceStatusEnum status = InvoiceStatusEnum.getStatus(invoiceStatus.getStatusName().getName());
-        dto.setStatus(status.getName());
+        dto.setStatus(status.toString());
         dto.setRegistrationDate(invoiceStatus.getDate());
 
         dto = fillIncomingInvoiceWithGoodsInfo(dto, goodsList);
@@ -780,7 +812,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private InvoiceStatus createStatusForIncomingInvoice(Invoice invoice, User user)
+    private InvoiceStatus createStatusForNewIncomingInvoice(Invoice invoice, User user)
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
 
@@ -790,7 +822,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceStatus;
     }
 
-    private InvoiceStatus createStatusForOutgoingInvoice(Invoice invoice, User user)
+    private InvoiceStatus createStatusForNewOutgoingInvoice(Invoice invoice, User user)
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
 
@@ -803,8 +835,22 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceStatus fillStatusWithInfo(Invoice invoice, User user)
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = new InvoiceStatus();
-        invoiceStatus.setId(invoice.getId());
         invoiceStatus.setInvoice(invoice);
+
+        Timestamp now = new Timestamp(new Date().getTime());
+        invoiceStatus.setDate(now);
+        invoiceStatus.setUser(user);
+
+        return invoiceStatus;
+    }
+
+    private InvoiceStatus createStatusForInvoice(Invoice invoice, String statusName, User user)
+            throws GenericDAOException {
+        InvoiceStatus invoiceStatus = new InvoiceStatus();
+        invoiceStatus.setInvoice(invoice);
+
+        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(statusName);
+        invoiceStatus.setStatusName(invoiceStatusName);
 
         Timestamp now = new Timestamp(new Date().getTime());
         invoiceStatus.setDate(now);
@@ -905,7 +951,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         goodsForInvoice.setWeightUnit(leftGoods.getWeightUnit());
         goodsForInvoice.setPriceUnit(leftGoods.getPriceUnit());
         goodsForInvoice.setIncomingInvoice(leftGoods.getIncomingInvoice());
-        // todo maybe status history and acts
+        // todo maybe statusName history and acts
 
         goodsForInvoice.setQuantity(goodsChangeParamsDto.getQuantity());
         goodsForInvoice.setOutgoingInvoice(invoice);

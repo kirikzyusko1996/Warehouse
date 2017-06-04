@@ -123,4 +123,10 @@
     <changeSet author="ulad_bondar" id="100">
         <addForeignKeyConstraint baseColumnNames="id_warehouse_company" baseTableName="warehouse_company_status" constraintName="warehouse_company_status_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_company" referencedTableName="warehouse_company"/>
     </changeSet>
+    <changeSet id="100a" author="ulad_bondar">
+        <addForeignKeyConstraint baseColumnNames="id_current_status" baseTableName="invoice"
+                                 constraintName="invoice_ibfk_8" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice_status"
+                                 referencedTableName="invoice_status"/>
+    </changeSet>
 </databaseChangeLog>
