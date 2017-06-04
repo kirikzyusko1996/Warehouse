@@ -193,7 +193,7 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
             dto.setId(id);
 
                 TransportCompany company = mapToCompany(dto);
-                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(String.valueOf(warehouseCompanyId));
+                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(warehouseCompanyId);
                 company.setWarehouseCompany(companyOfTransportCompany);
 
             updatedCompany = transportDAO.update(company);

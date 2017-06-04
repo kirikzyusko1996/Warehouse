@@ -99,5 +99,29 @@
             <column name="y" value="25.692615"/>
             <column name="id_warehouse_company" value="10"/>
         </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="13"/>
+            <column name="name" value="Складовичок"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="x" value="51.156302"/>
+            <column name="y" value="27.692615"/>
+            <column name="id_warehouse_company" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="14"/>
+            <column name="name" value="Подпольный"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="x" value="53.156302"/>
+            <column name="y" value="24.692615"/>
+            <column name="id_warehouse_company" value="10"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="warehouse">
+            <column name="id_warehouse" value="15"/>
+            <column name="name" value="Нереальный"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="x" value="51.156302"/>
+            <column name="y" value="23.692615"/>
+            <column name="id_warehouse_company" value="10"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

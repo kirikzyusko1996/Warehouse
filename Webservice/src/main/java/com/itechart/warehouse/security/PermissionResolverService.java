@@ -1,5 +1,6 @@
 package com.itechart.warehouse.security;
 
+import com.itechart.warehouse.constants.UserRoleEnum;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
+import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
 
 /**
  * Service for resolving permission for user.
@@ -27,9 +30,21 @@ public class PermissionResolverService {
     private InvoiceService invoiceService;
     private TransportCompanyService transportService;
     private WarehouseCustomerCompanyService customerService;
+    private WarehouseCompanyService warehouseCompanyService;
+    private WarehouseService warehouseService;
+    private StorageCellService storageCellService;
 
     @Autowired
+    public void setStorageCellService(StorageCellService storageCellService) {
+        this.storageCellService = storageCellService;
+    }
 
+    @Autowired
+    public void setWarehouseService(WarehouseService warehouseService) {
+        this.warehouseService = warehouseService;
+    }
+
+    @Autowired
     public void setGoodsService(GoodsService goodsService) {
         this.goodsService = goodsService;
     }
@@ -59,6 +74,11 @@ public class PermissionResolverService {
     @Autowired
     public void setCustomerService(WarehouseCustomerCompanyService service) {
         this.customerService = service;
+    }
+
+    @Autowired
+    public void setWarehouseCompanyService(WarehouseCompanyService warehouseCompanyService) {
+        this.warehouseCompanyService = warehouseCompanyService;
     }
 
     public boolean resolvePermissionToAccessGoods(WarehouseCompanyUserDetails userDetails, Long goodsId) {
@@ -197,6 +217,72 @@ public class PermissionResolverService {
 
             return false;
         } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean resolvePermissionToAccessWarehouseCompany(WarehouseCompanyUserDetails userDetails, Long warehouseCompanyId) {
+        logger.info("Evaluating access permission to company with id {} for user {}", warehouseCompanyId, userDetails);
+        if (userDetails == null || warehouseCompanyId == null) {
+            return false;
+        }
+        /*if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
+            return true;
+        }*/
+        try {
+            if (userDetails.getCompany() != null) {
+                WarehouseCompany company = warehouseCompanyService.findWarehouseCompanyById(warehouseCompanyId);
+                if (company != null) {
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
+                }
+            }
+            return false;
+        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean resolvePermissionToAccessWarehouse(WarehouseCompanyUserDetails userDetails, Long id_warehouse) {
+        logger.info("Evaluating access permission to warehouse with id {} for user {}", id_warehouse, userDetails);
+        if (userDetails == null || id_warehouse == null) {
+            return false;
+        }
+        /*if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
+            return true;
+        }*/
+        try {
+            if (userDetails.getCompany() != null) {
+                Warehouse warehouse = warehouseService.findWarehouseById(id_warehouse);
+                if(warehouse != null){
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(warehouse.getWarehouseCompany().getIdWarehouseCompany());
+                }
+            }
+            return false;
+        } catch (DataAccessException|IllegalParametersException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean resolvePermissionToAccessCell(WarehouseCompanyUserDetails userDetails, Long id_cell) {
+        logger.info("Evaluating access permission to cell with id {} for user {}", id_cell, userDetails);
+        if (userDetails == null || id_cell == null) {
+            return false;
+        }
+        /*if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
+            return true;
+        }*/
+        try {
+            if (userDetails.getCompany() != null) {
+                WarehouseCompany warehouseCompany = storageCellService.findWarehouseCompanyByCell(id_cell);
+                if(warehouseCompany != null){
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(warehouseCompany.getIdWarehouseCompany());
+                }
+            }
+            return false;
+        } catch (DataAccessException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }

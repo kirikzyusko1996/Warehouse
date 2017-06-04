@@ -303,7 +303,7 @@ public class ActServiceImpl implements ActService {
                 throw new ResourceNotFoundException("Authenticated user was not found");
             }
             if (actDTO.getWarehouseId() != null) {
-                Warehouse warehouse = warehouseService.findWarehouseById(actDTO.getWarehouseId().toString());
+                Warehouse warehouse = warehouseService.findWarehouseById(actDTO.getWarehouseId());
                 act.setWarehouse(warehouse);
             }
             act.setNote(actDTO.getNote());

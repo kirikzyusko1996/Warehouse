@@ -15,6 +15,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,14 +62,13 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<StorageSpace> findStorageByWarehouseId(String id) throws DataAccessException, IllegalParametersException {
-        logger.info("Find storage by id warehouse: {}", id);
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
+    @PreAuthorize("hasPermission(#id_warehouse, 'Warehouse', 'GET')")
+    public List<StorageSpace> findStorageByWarehouseId(Long id_warehouse) throws DataAccessException, IllegalParametersException {
+        logger.info("Find storage by id warehouse: {}", id_warehouse);
+
         List<StorageSpace> storageSpaces = null;
         DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpace.class);
-        criteria.add(Restrictions.eq("warehouse.idWarehouse", Long.valueOf(id)));//it's no fact, that it will work
+        criteria.add(Restrictions.eq("warehouse.idWarehouse", id_warehouse));
 
         try {
             storageSpaces = storageSpaceDAO.findAll(criteria, -1, -1);
@@ -82,6 +82,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
 
     @Override
     @Transactional(readOnly = true)
+    //it's not private information => don't need in the security
     public List<StorageSpaceType> findAllStorageSpaceType() throws DataAccessException {
         logger.info("Find all storage space type");
 
@@ -99,6 +100,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#storageSpaceDTO.idWarehouse, 'Warehouse', 'POST')")
     public StorageSpace createStorageSpace(StorageSpaceDTO storageSpaceDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Creating storage space from DTO: {}", storageSpaceDTO);
         if (storageSpaceDTO == null) throw new IllegalParametersException("storage space DTO is null");
@@ -122,6 +124,7 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#storageSpaceDTO.idWarehouse, 'Warehouse', 'PUT')")
     public StorageSpace updateStorageSpace(StorageSpaceDTO storageSpaceDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating storage space with id {} from DTO: {}", storageSpaceDTO.getIdStorageSpace(), storageSpaceDTO);
         if (storageSpaceDTO == null || storageSpaceDTO.getIdStorageSpace() == null) throw new IllegalParametersException("Id or act DTO is null");
@@ -162,6 +165,8 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
      * */
     @Override
     @Transactional
+    //@PreAuthorize("hasPermission(#storageSpaceDTO.idWarehouse, 'Warehouse', 'POST')")
+    //todo: make here storage space authentification
     public void deleteStorageSpace(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting storage space with id: {}", id);
         if (id == null) throw new IllegalParametersException("Id is null");

@@ -40,12 +40,12 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/getWarehouseById/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Warehouse>> findWarehousesById(@PathVariable String id){
-        logger.info("GET on /warehouse #{}: find all companies", id);
+    public ResponseEntity<List<Warehouse>> findWarehousesById(@PathVariable Long id){
+        logger.info("GET on /warehouse #{}: find all warehouses", id);
 
         List<Warehouse> warehouses = new ArrayList<>();
         try{
-            warehouses.add(warehouseService.findWarehouseById(id));
+            warehouses.add(warehouseService.findWarehouseOfCompanyById(id));
         } catch (DataAccessException e){
             logger.error("Error while retrieving warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -58,12 +58,12 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<List<Warehouse>> findWarehousesByCompanyId(@RequestParam(defaultValue = "0") String id,
+    public ResponseEntity<List<Warehouse>> findWarehousesByCompanyId(@RequestParam(defaultValue = "0") Long id,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "-1") int count){
         System.out.println("ID: "+id);
         System.out.println("PAGE: "+page+" Count: "+count);
-        logger.info("GET on /warehouse: find all companies");
+        logger.info("GET on /warehouse: find warehouses");
 
         List<Warehouse> warehouses;
         try{
@@ -114,7 +114,7 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateWarehouse(@PathVariable String id, @Valid @RequestBody Warehouse warehouse){
+    public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody Warehouse warehouse){
         logger.info("PUT on /warehouse/{}: update warehouse", id);
         // todo security check
         try{
@@ -134,7 +134,7 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteWarehouse(@PathVariable String id){
+    public ResponseEntity<?> deleteWarehouse(@PathVariable Long id){
         logger.info("DELETE on /company/{}: delete company", id);
         // todo security check
         try {

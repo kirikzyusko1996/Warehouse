@@ -799,7 +799,7 @@ public class GoodsServiceImpl implements GoodsService {
                 goods.setWeight(goodsDTO.getWeight());
             else throw new IllegalParametersException("Field weight can not be empty");
             if (goodsDTO.getWarehouseId() != null)
-                goods.setWarehouse(warehouseService.findWarehouseById(goodsDTO.getWarehouseId().toString()));
+                goods.setWarehouse(warehouseService.findWarehouseById(goodsDTO.getWarehouseId()));
             else throw new IllegalParametersException("Warehouse id can not be null");
 
             if (goodsDTO.getPriceUnit() != null) {

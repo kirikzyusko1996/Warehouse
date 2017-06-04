@@ -50,7 +50,7 @@ public class TransportCompanyApiController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> saveIncomingInvoice(@PathVariable String id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<?> saveIncomingInvoice(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /api/{id}: get info about warehouseCompany from system");
         WarehouseCompany company = warehouseCompanyService.findWarehouseCompanyById(id);
         return new ResponseEntity<>(company, HttpStatus.OK);

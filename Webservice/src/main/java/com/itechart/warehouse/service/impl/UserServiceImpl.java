@@ -258,7 +258,7 @@ public class UserServiceImpl implements UserService {
             }
             if (userDTO.getWarehouse() != null) {
                 if (userDTO.getWarehouse().getIdWarehouse() != null) {
-                    Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse().toString());
+                    Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse());
                     user.setWarehouse(warehouse);
                 }
             }
@@ -266,7 +266,7 @@ public class UserServiceImpl implements UserService {
 //            if (StringUtils.isNotBlank(user.getPassword())) {
 //                user.setPassword(encoder.encode(user.getPassword()));
 //            }
-            WarehouseCompany warehouseCompany = warehouseCompanyService.findWarehouseCompanyById(companyId.toString());
+            WarehouseCompany warehouseCompany = warehouseCompanyService.findWarehouseCompanyById(companyId);
             user.setWarehouseCompany(warehouseCompany);
             List<Role> roles = new ArrayList<>();
             if (userDTO.getRoles() != null) {
@@ -314,7 +314,7 @@ public class UserServiceImpl implements UserService {
         logger.info("Create supervisor for warehouse with id: {}", warehouseId);
         if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
         try {
-            Warehouse warehouse = warehouseService.findWarehouseById(warehouseId.toString());
+            Warehouse warehouse = warehouseService.findWarehouseById(warehouseId);
             if (warehouse != null) {
                 User user = new User();
                 user.setWarehouse(warehouse);
@@ -362,7 +362,7 @@ public class UserServiceImpl implements UserService {
             if (user != null) {
                 if (userDTO.getWarehouse() != null) {
                     if (userDTO.getWarehouse().getIdWarehouse() != null) {
-                        Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse().toString());
+                        Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse());
                         user.setWarehouse(warehouse);
                     }
                 }

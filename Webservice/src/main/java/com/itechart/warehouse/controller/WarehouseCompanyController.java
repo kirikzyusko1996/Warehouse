@@ -76,13 +76,13 @@ public class WarehouseCompanyController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<WarehouseCompany>> getCompanyById(@PathVariable String id){
+    public ResponseEntity<List<WarehouseCompany>> getCompanyById(@PathVariable Long id){
         logger.info("GET on /company: by id {}", id);
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         User user = userDetails.getUser();//warning
         List<WarehouseCompany> company = new ArrayList<>();
         try{
-            company.add(warehouseCompanyService.findWarehouseCompanyById(id));
+            company.add(warehouseCompanyService.getWarehouseCompanyById(id));
         } catch (DataAccessException e){
             logger.error("Error while retrieving all companies", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -113,7 +113,7 @@ public class WarehouseCompanyController {
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateCompany(@PathVariable String id, @Valid @RequestBody WarehouseCompany company){
+    public ResponseEntity<?> updateCompany(@PathVariable Long id, @Valid @RequestBody WarehouseCompany company){
         logger.info("PUT on /company/{}: update company", id);
         // todo security check
         try{
@@ -133,7 +133,7 @@ public class WarehouseCompanyController {
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteCompany(@PathVariable String id){
+    public ResponseEntity<?> deleteCompany(@PathVariable Long id){
         logger.info("DELETE on /company/{}: delete company", id);
         // todo security check
         try {

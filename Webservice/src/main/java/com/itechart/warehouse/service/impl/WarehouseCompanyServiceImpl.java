@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -124,14 +125,19 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyById(String id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    @PreAuthorize("hasPermission(#id_warehouse, 'WarehouseCompany', 'GET')")
+    public WarehouseCompany getWarehouseCompanyById(Long id_warehouse) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        return findWarehouseCompanyById(id_warehouse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WarehouseCompany findWarehouseCompanyById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find warehouse by id: {}", id);
-        if (id == null || !NumberUtils.isNumber(id)) throw new IllegalParametersException("Id is null");
 
         WarehouseCompany warehouseCompany = null;
         try {
-            Long companyId = Long.valueOf(id);
-            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
+            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(id);
             warehouseCompany = result.get();
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
@@ -142,6 +148,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#warehouseCompany.idWarehouseCompany, 'WarehouseCompany', 'POST')")
     public User saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException {
         logger.info("Saving WarehouseCompany: {}", warehouseCompany);
         WarehouseCompany updatedWarehouseCompany = null;
@@ -149,7 +156,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
         try {
             updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
             user = userService.createSupervisor(updatedWarehouseCompany.getIdWarehouseCompany());
-
+            //todo: make a sending message to email
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -163,22 +170,18 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional
-    public WarehouseCompany updateWarehouseCompany(String id, WarehouseCompany company)
+    @PreAuthorize("hasPermission(#id, 'WarehouseCompany', 'GET')")
+    public WarehouseCompany updateWarehouseCompany(Long id, WarehouseCompany company)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Update company: {}", company);
 
-        if (!NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Invalid id param");
-        }
-
         WarehouseCompany updatedCompany;
         try {
-            Long companyId = Long.valueOf(id);
-            if (warehouseCompanyDAO.isExistsEntity(companyId)) {
-                company.setIdWarehouseCompany(companyId);
+            if (warehouseCompanyDAO.isExistsEntity(id)) {
+                company.setIdWarehouseCompany(id);
                 updatedCompany = warehouseCompanyDAO.update(company);
             } else {
-                logger.error("Company with id {} not found", companyId);
+                logger.error("Company with id {} not found", id);
                 throw new ResourceNotFoundException("Company not found");
             }
         } catch (GenericDAOException e) {
@@ -197,15 +200,13 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
      * */
     @Override
     @Transactional
-    public void deleteWarehouseCompany(String id)
+    @PreAuthorize("hasPermission(#id, 'WarehouseCompany', 'GET')")
+    public void deleteWarehouseCompany(Long id)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Deleting act with id: {}", id);
-        if (id == null || !NumberUtils.isNumber(id)) {
-            throw new IllegalParametersException("Id is null");
-        }
+
         try {
-            Long companyId = Long.valueOf(id);
-            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
+            Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(id);
             if (result != null) {
                 result.get().setStatus(!result.get().getStatus());//so can recovery it, merely change status to opposite
                 warehouseCompanyDAO.update(result.get());

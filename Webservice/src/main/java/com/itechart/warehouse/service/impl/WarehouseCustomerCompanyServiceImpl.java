@@ -182,7 +182,7 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
             dto.setId(id);
 
                 WarehouseCustomerCompany company = mapToCustomer(dto);
-                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(String.valueOf(companyId));
+                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(companyId);
                 company.setWarehouseCompany(companyOfCustomer);
 
             updatedCompany = customerDAO.update(company);

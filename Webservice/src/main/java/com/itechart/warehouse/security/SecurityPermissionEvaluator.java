@@ -37,6 +37,8 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
                 return evaluateWarehousePermission(authentication, targetId, permission);
             case "WarehouseCompany":
                 return evaluateWarehouseCompanyPermission(authentication, targetId, permission);
+            case "Cell":
+                return evaluateCellPermission(authentication, targetId, permission);
             case "Invoice":
                 return evaluateInvoicePermission(authentication, targetId, permission);
             case "TransportCompany":
@@ -48,6 +50,11 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
             default:
                 throw new IllegalArgumentException("No such target");
         }
+    }
+
+    private boolean evaluateCellPermission(Authentication authentication, Serializable targetId, Object permission){
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessCell(userDetails, (Long) targetId);
     }
 
     private boolean evaluateGoodsPermission(Authentication authentication, Serializable targetId, Object permission) {
@@ -66,11 +73,13 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
     }
 
     private boolean evaluateWarehousePermission(Authentication authentication, Serializable targetId, Object permission) {
-        return true;
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessWarehouse(userDetails, (Long) targetId);
     }
 
     private boolean evaluateWarehouseCompanyPermission(Authentication authentication, Serializable targetId, Object permission) {
-        return true;
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessWarehouseCompany(userDetails, (Long) targetId);
     }
 
     private boolean evaluateInvoicePermission(Authentication authentication, Serializable targetId, Object permission) {

@@ -52,7 +52,7 @@ public class StorageController {
     }
 
     @RequestMapping(value = "/getCellById/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<StorageCell>> findWarehousesById(@PathVariable String id){
+    public ResponseEntity<List<StorageCell>> findCellById(@PathVariable Long id){
         logger.info("GET on /cell with id #{}", id);
 
         List<StorageCell> storageCellList = new ArrayList<>();
@@ -70,7 +70,7 @@ public class StorageController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<StorageSpace>> readStorageSpace(@PathVariable String id){
+    public ResponseEntity<List<StorageSpace>> readStorageSpace(@PathVariable Long id){
         logger.info("GET on /warehouse: find all StorageSpace for {}", id);
 
         List<StorageSpace> storageSpaces;
@@ -89,7 +89,7 @@ public class StorageController {
     }
 
     @RequestMapping(value = "/getAllTypeOfSpace", method = RequestMethod.GET)
-    public ResponseEntity<List<StorageSpaceType>> readStorageSpace(){
+    public ResponseEntity<List<StorageSpaceType>> readAllStorageSpaceType(){
         logger.info("GET on /TypeOfSpace: find all type");
 
         List<StorageSpaceType> storageSpaceTypes;
