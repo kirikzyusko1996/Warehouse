@@ -20,7 +20,7 @@
             <column name="goods_quantity" value="10"/>
             <column name="id_goods_quantity_unit" value="1"/>
             <column name="goods_entry_count" value="20"/>
-            <column name="id_goods_entry_count_unit" value="2"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value="some description"/>
         </insert>
         <insert tableName="invoice">
@@ -52,9 +52,9 @@
             <column name="transport_name" value="Skoda"/>
             <column name="id_driver" value="4"/>
             <column name="goods_quantity" value="20"/>
-            <column name="id_goods_quantity_unit" value="8"/>
+            <column name="id_goods_quantity_unit" value="3"/>
             <column name="goods_entry_count" value="400"/>
-            <column name="id_goods_entry_count_unit" value="5"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value="description"/>
         </insert>
         <insert tableName="invoice">
@@ -69,9 +69,9 @@
             <column name="transport_name" value="Mercedes"/>
             <column name="id_driver" value="1"/>
             <column name="goods_quantity" value="10"/>
-            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="id_goods_quantity_unit" value="4"/>
             <column name="goods_entry_count" value="20"/>
-            <column name="id_goods_entry_count_unit" value="2"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value=""/>
         </insert>
         <insert tableName="invoice">
@@ -86,9 +86,9 @@
             <column name="transport_name" value="Mercedes"/>
             <column name="id_driver" value="1"/>
             <column name="goods_quantity" value="10"/>
-            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="id_goods_quantity_unit" value="5"/>
             <column name="goods_entry_count" value="20"/>
-            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value="some description"/>
         </insert>
         <insert tableName="invoice">
@@ -103,9 +103,9 @@
             <column name="transport_name" value="Chevrolet"/>
             <column name="id_driver" value="2"/>
             <column name="goods_quantity" value="100"/>
-            <column name="id_goods_quantity_unit" value="3"/>
+            <column name="id_goods_quantity_unit" value="6"/>
             <column name="goods_entry_count" value="20"/>
-            <column name="id_goods_entry_count_unit" value="5"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value=""/>
         </insert>
         <insert tableName="invoice">
@@ -120,7 +120,7 @@
             <column name="transport_name" value="Volvo"/>
             <column name="id_driver" value="6"/>
             <column name="goods_quantity" value="10"/>
-            <column name="id_goods_quantity_unit" value="5"/>
+            <column name="id_goods_quantity_unit" value="7"/>
             <column name="goods_entry_count" value="200"/>
             <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value=""/>
@@ -137,9 +137,9 @@
             <column name="transport_name" value="Jaguar"/>
             <column name="id_driver" value="1"/>
             <column name="goods_quantity" value="15"/>
-            <column name="id_goods_quantity_unit" value="2"/>
+            <column name="id_goods_quantity_unit" value="1"/>
             <column name="goods_entry_count" value="200"/>
-            <column name="id_goods_entry_count_unit" value="9"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value=""/>
         </insert>
         <insert tableName="invoice">
@@ -154,9 +154,9 @@
             <column name="transport_name" value="Mercedes"/>
             <column name="id_driver" value="1"/>
             <column name="goods_quantity" value="10"/>
-            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="id_goods_quantity_unit" value="3"/>
             <column name="goods_entry_count" value="20"/>
-            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value="some description"/>
         </insert>
         <insert tableName="invoice">
@@ -171,9 +171,9 @@
             <column name="transport_name" value="Volve"/>
             <column name="id_driver" value="5"/>
             <column name="goods_quantity" value="10"/>
-            <column name="id_goods_quantity_unit" value="1"/>
+            <column name="id_goods_quantity_unit" value="4"/>
             <column name="goods_entry_count" value="20"/>
-            <column name="id_goods_entry_count_unit" value="6"/>
+            <column name="id_goods_entry_count_unit" value="1"/>
             <column name="batch_description" value="some description"/>
         </insert>
     </changeSet>

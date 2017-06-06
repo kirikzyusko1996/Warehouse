@@ -2,6 +2,7 @@ import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.*;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.maven.artifact.versioning.Restriction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -30,10 +31,10 @@ public class GoodsDAOTest {
     private ActType actType;
     private GoodsStatus goodsStatus;
     private GoodsStatusName goodsStatusName;
-    private Unit unit;
+    private PriceUnit unit;
 
     private GoodsDAO goodsDAO;
-    private UnitDAO unitDAO;
+    private PriceUnitDAO priceUnitDAO;
     private ActDAO actDAO;
     private ActTypeDAO actTypeDAO;
     private GoodsStatusDAO goodsStatusDAO;
@@ -45,8 +46,8 @@ public class GoodsDAOTest {
     }
 
     @Autowired
-    public void setUnitDAO(UnitDAO unitDAO) {
-        this.unitDAO = unitDAO;
+    public void setUnitDAO(PriceUnitDAO priceUnitDAO) {
+        this.priceUnitDAO = priceUnitDAO;
     }
 
     @Autowired
@@ -69,7 +70,7 @@ public class GoodsDAOTest {
         this.goodsStatusNameDAO = goodsStatusNameDAO;
     }
 
-//    public GoodsDAOTest() {
+    //    public GoodsDAOTest() {
 //        unit = new Unit();
 //        unit.setName("кг");
 //
@@ -219,7 +220,17 @@ public class GoodsDAOTest {
     @Ignore
     public void testGetGoodsByIdMethod() throws GenericDAOException {
         Goods goods = goodsDAO.getById(1L);
-        assertEquals(goods.getName(),"Молоко");
+        assertEquals(goods.getName(), "Молоко");
+
+    }
+
+    @Test
+    @Transactional
+    public void testGetPriceUnitByName() throws GenericDAOException {
+        DetachedCriteria criteria = DetachedCriteria.forClass(PriceUnit.class);
+        criteria.add(Restrictions.eq("name", "долл"));
+        List<PriceUnit> units = priceUnitDAO.findAll(criteria, -1, 1);
+        assertTrue(CollectionUtils.isNotEmpty(units));
 
     }
 

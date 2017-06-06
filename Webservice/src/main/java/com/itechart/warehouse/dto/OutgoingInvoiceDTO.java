@@ -45,7 +45,7 @@ public class OutgoingInvoiceDTO {
         this.manager = manager;
     }
 
-    public void setGoodsQuantityUnit(Unit goodsQuantityUnit){
+    public void setGoodsQuantityUnit(QuantityUnit goodsQuantityUnit){
         this.goodsQuantityUnit = goodsQuantityUnit.getName();
     }
 
@@ -53,7 +53,7 @@ public class OutgoingInvoiceDTO {
         this.goodsQuantityUnit = goodsQuantityUnit;
     }
 
-    public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit){
+    public void setGoodsEntryCountUnit(PriceUnit goodsEntryCountUnit){
         this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
     }
 

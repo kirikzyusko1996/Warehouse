@@ -21,8 +21,8 @@ public class Invoice {
     private WarehouseCustomerCompany supplierCompany;
     private WarehouseCustomerCompany receiverCompany;
     private Driver driver;
-    private Unit goodsQuantityUnit;
-    private Unit goodsEntryCountUnit;
+    private QuantityUnit goodsQuantityUnit;
+    private PriceUnit goodsEntryCountUnit;
     private List<Goods> incomingGoods;
     private List<Goods> outgoingGoods;
     private InvoiceStatus currentStatus;
@@ -172,21 +172,21 @@ public class Invoice {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_goods_quantity_unit")
-    public Unit getGoodsQuantityUnit() {
+    public QuantityUnit getGoodsQuantityUnit() {
         return goodsQuantityUnit;
     }
 
-    public void setGoodsQuantityUnit(Unit goodsQuantityUnit) {
+    public void setGoodsQuantityUnit(QuantityUnit goodsQuantityUnit) {
         this.goodsQuantityUnit = goodsQuantityUnit;
     }
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_goods_entry_count_unit")
-    public Unit getGoodsEntryCountUnit() {
+    public PriceUnit getGoodsEntryCountUnit() {
         return goodsEntryCountUnit;
     }
 
-    public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit) {
+    public void setGoodsEntryCountUnit(PriceUnit goodsEntryCountUnit) {
         this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 

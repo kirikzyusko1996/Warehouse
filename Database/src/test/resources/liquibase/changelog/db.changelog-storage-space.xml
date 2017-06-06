@@ -6,149 +6,149 @@
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="1"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="2"/>
             <column name="id_warehouse" value="1"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="3"/>
             <column name="id_warehouse" value="1"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="4"/>
             <column name="id_warehouse" value="2"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="5"/>
             <column name="id_warehouse" value="3"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="3"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="4"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="4"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="4"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="5"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="2"/>
             <column name="id_warehouse" value="5"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="2"/>
             <column name="id_warehouse" value="5"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="6"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="6"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="6"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="4"/>
             <column name="id_warehouse" value="7"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="4"/>
             <column name="id_warehouse" value="7"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="4"/>
             <column name="id_warehouse" value="7"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="3"/>
             <column name="id_warehouse" value="8"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="3"/>
             <column name="id_warehouse" value="8"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="3"/>
             <column name="id_warehouse" value="8"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="3"/>
             <column name="id_warehouse" value="8"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="9"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="2"/>
             <column name="id_warehouse" value="9"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="2"/>
             <column name="id_warehouse" value="10"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="3"/>
             <column name="id_warehouse" value="10"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="10"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space" value="41"/>
             <column name="id_storage_space_type" value="1"/>
             <column name="id_warehouse" value="11"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_space">
             <column name="id_storage_space" value="42"/>
             <column name="id_storage_space_type" value="2"/>
             <column name="id_warehouse" value="12"/>
-            <column name="status" valueBoolean="1"/>
+            <column name="status" valueBoolean="true"/>
         </insert>
 
     </changeSet>

@@ -310,8 +310,32 @@
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="16">
-        <createTable tableName="unit">
-            <column autoIncrement="true" name="id_unit" type="SMALLINT UNSIGNED">
+        <!--<createTable tableName="unit">-->
+            <!--<column autoIncrement="true" name="id_unit" type="SMALLINT UNSIGNED">-->
+                <!--<constraints primaryKey="true"/>-->
+            <!--</column>-->
+            <!--<column name="name" type="VARCHAR(50)">-->
+                <!--<constraints nullable="false"/>-->
+            <!--</column>-->
+        <!--</createTable>-->
+        <createTable tableName="quantity_unit">
+            <column autoIncrement="true" name="id_quantity_unit" type="SMALLINT UNSIGNED">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="weight_unit">
+            <column autoIncrement="true" name="id_weight_unit" type="SMALLINT UNSIGNED">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="price_unit">
+            <column autoIncrement="true" name="id_price_unit" type="SMALLINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="VARCHAR(50)">

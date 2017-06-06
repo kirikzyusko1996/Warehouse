@@ -41,7 +41,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceStatusNameDAO invoiceStatusNameDAO;
     private GoodsStatusDAO goodsStatusDAO;
     private GoodsStatusNameDAO goodsStatusNameDAO;
-    private UnitDAO unitDAO;
+    private QuantityUnitDAO quantityUnitDAO;
+    private PriceUnitDAO priceUnitDAO;
     private StorageSpaceTypeDAO storageDAO;
     private WarehouseCustomerCompanyDAO customerDAO;
     private WarehouseDAO warehouseDAO;
@@ -51,6 +52,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     private WarehouseCustomerCompanyService customerService;
     private TransportCompanyService transportService;
     private UserService userService;
+
+    @Autowired
+    public void setQuantityUnitDAO(QuantityUnitDAO quantityUnitDAO) {
+        this.quantityUnitDAO = quantityUnitDAO;
+    }
+    @Autowired
+    public void setPriceUnitDAO(PriceUnitDAO priceUnitDAO) {
+        this.priceUnitDAO = priceUnitDAO;
+    }
 
     @Autowired
     public void setInvoiceDAO(InvoiceDAO invoiceDao) {
@@ -75,11 +85,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Autowired
     public void setGoodsStatusNameDAO(GoodsStatusNameDAO dao) {
         this.goodsStatusNameDAO = dao;
-    }
-
-    @Autowired
-    public void setUnitDAO(UnitDAO dao) {
-        this.unitDAO = dao;
     }
 
     @Autowired
@@ -620,14 +625,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         return statuses.get(0);
     }
 
-    private Unit retrieveUnitByName(String unitName) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
+    private QuantityUnit retrieveQuantityUnitByName(String unitName) throws GenericDAOException {
+        DetachedCriteria criteria = DetachedCriteria.forClass(QuantityUnit.class);
         criteria.add(Restrictions.eq("name", unitName));
 
-        List<Unit> units = unitDAO.findAll(criteria, -1, -1);
+        List<QuantityUnit> units = quantityUnitDAO.findAll(criteria, -1, -1);
         return units.get(0);
     }
 
+    private PriceUnit retrievePriceUnitByName(String unitName) throws GenericDAOException {
+        DetachedCriteria criteria = DetachedCriteria.forClass(PriceUnit.class);
+        criteria.add(Restrictions.eq("name", unitName));
+
+        List<PriceUnit> units = priceUnitDAO.findAll(criteria, -1, -1);
+        return units.get(0);
+    }
     private List<InvoiceStatus> parseIncomingInvoices(List<InvoiceStatus> invoices) {
         List<InvoiceStatus> incomingInvoices = new ArrayList<>();
         for (InvoiceStatus invoice : invoices) {
@@ -861,9 +873,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private Invoice fillInvoiceWithUnitsInfo(Invoice invoice, String quantityUnitName, String entryCountUnitName)
             throws GenericDAOException {
-        Unit goodsQuantityUnit = retrieveUnitByName(quantityUnitName);
+        QuantityUnit goodsQuantityUnit = retrieveQuantityUnitByName(quantityUnitName);
         invoice.setGoodsQuantityUnit(goodsQuantityUnit);
-        Unit goodsEntryCountUnit = retrieveUnitByName(entryCountUnitName);
+        PriceUnit goodsEntryCountUnit = retrievePriceUnitByName(entryCountUnitName);
         invoice.setGoodsEntryCountUnit(goodsEntryCountUnit);
 
         return invoice;

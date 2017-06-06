@@ -2,9 +2,7 @@ package com.itechart.warehouse.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.StorageSpaceType;
-import com.itechart.warehouse.entity.Unit;
+import com.itechart.warehouse.entity.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
@@ -39,11 +37,11 @@ public class GoodsDTO {
     @NotNull(message = "Storage type can not be empty")
     private StorageSpaceType storageType;
     @NotNull(message = "Quantity unit can not be empty")
-    private Unit quantityUnit;
+    private QuantityUnit quantityUnit;
     @NotNull(message = "weight unit can not be empty")
-    private Unit weightUnit;
+    private WeightUnit weightUnit;
     @NotNull(message = "Price unit can not be empty")
-    private Unit priceUnit;
+    private PriceUnit priceUnit;
     private Long warehouseId;
     private List<StorageCellDTO> cells;
     private GoodsStatusDTO currentStatus;

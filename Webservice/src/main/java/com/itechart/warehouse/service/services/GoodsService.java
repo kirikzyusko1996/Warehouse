@@ -79,7 +79,11 @@ public interface GoodsService {
 
     List<GoodsStatusName> getStatusNames() throws DataAccessException;
 
-    List<Unit> getUnits() throws DataAccessException;
+    List<QuantityUnit> getQuantityUnits() throws DataAccessException;
+
+    List<WeightUnit> getWeightUnits() throws DataAccessException;
+
+    List<PriceUnit> getPriceUnits() throws DataAccessException;
 
     List<StorageSpaceType> getStorageSpaceTypes() throws DataAccessException;
 

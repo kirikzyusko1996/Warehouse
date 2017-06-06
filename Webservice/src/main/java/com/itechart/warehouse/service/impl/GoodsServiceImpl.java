@@ -41,13 +41,30 @@ public class GoodsServiceImpl implements GoodsService {
     private GoodsDAO goodsDAO;
     private GoodsStatusDAO goodsStatusDAO;
     private GoodsStatusNameDAO goodsStatusNameDAO;
-    private UnitDAO unitDAO;
+    private QuantityUnitDAO quantityUnitDAO;
+    private WeightUnitDAO weightUnitDAO;
+    private PriceUnitDAO priceUnitDAO;
     private StorageSpaceTypeDAO storageSpaceTypeDAO;
     private StorageCellDAO storageCellDAO;
     private WarehouseService warehouseService;
     private InvoiceService invoiceService;
     private UserService userService;
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    public void setQuantityUnitDAO(QuantityUnitDAO quantityUnitDAO) {
+        this.quantityUnitDAO = quantityUnitDAO;
+    }
+
+    @Autowired
+    public void setWeightUnitDAO(WeightUnitDAO weightUnitDAO) {
+        this.weightUnitDAO = weightUnitDAO;
+    }
+
+    @Autowired
+    public void setPriceUnitDAO(PriceUnitDAO priceUnitDAO) {
+        this.priceUnitDAO = priceUnitDAO;
+    }
 
     @Autowired
     @Lazy
@@ -80,11 +97,6 @@ public class GoodsServiceImpl implements GoodsService {
     @Autowired
     public void setGoodsStatusNameDAO(GoodsStatusNameDAO goodsStatusNameDAO) {
         this.goodsStatusNameDAO = goodsStatusNameDAO;
-    }
-
-    @Autowired
-    public void setUnitDAO(UnitDAO unitDAO) {
-        this.unitDAO = unitDAO;
     }
 
     @Autowired
@@ -373,7 +385,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getQuantityUnit())) {
                 builder.addRestriction("goods.quantityUnit = :goodsQuantityUnit");
-                queryParameters.put("goodsQuantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnit()));
+                queryParameters.put("goodsQuantityUnit", findQuantityUnitByName(goodsSearchDTO.getQuantityUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -382,7 +394,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getWeightUnit())) {
                 builder.addRestriction("goods.weightUnit = :goodsWeightUnit");
-                queryParameters.put("goodsWeightUnit", findUnitByName(goodsSearchDTO.getWeightUnit()));
+                queryParameters.put("goodsWeightUnit", findWeightUnitByName(goodsSearchDTO.getWeightUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -391,7 +403,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getPriceUnit())) {
                 builder.addRestriction("goods.priceUnit = :goodsPriceUnit");
-                queryParameters.put("goodsPriceUnit", findUnitByName(goodsSearchDTO.getPriceUnit()));
+                queryParameters.put("goodsPriceUnit", findPriceUnitByName(goodsSearchDTO.getPriceUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -565,7 +577,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getQuantityUnit())) {
                 builder.addRestriction("goods.quantityUnit = :goodsQuantityUnit");
-                queryParameters.put("goodsQuantityUnit", findUnitByName(goodsSearchDTO.getQuantityUnit()));
+                queryParameters.put("goodsQuantityUnit", findQuantityUnitByName(goodsSearchDTO.getQuantityUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -574,7 +586,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getWeightUnit())) {
                 builder.addRestriction("goods.weightUnit = :goodsWeightUnit");
-                queryParameters.put("goodsWeightUnit", findUnitByName(goodsSearchDTO.getWeightUnit()));
+                queryParameters.put("goodsWeightUnit", findWeightUnitByName(goodsSearchDTO.getWeightUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -583,7 +595,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             if (StringUtils.isNotBlank(goodsSearchDTO.getPriceUnit())) {
                 builder.addRestriction("goods.priceUnit = :goodsPriceUnit");
-                queryParameters.put("goodsPriceUnit", findUnitByName(goodsSearchDTO.getPriceUnit()));
+                queryParameters.put("goodsPriceUnit", findPriceUnitByName(goodsSearchDTO.getPriceUnit()));
             }
         } catch (GenericDAOException e) {
             logger.error("Error during search for unit: {}", e.getMessage());
@@ -735,15 +747,15 @@ public class GoodsServiceImpl implements GoodsService {
                 else throw new IllegalParametersException("Field price can not be empty");
                 if (goodsDTO.getPriceUnit() != null) {
                     if (goodsDTO.getPriceUnit().getName() != null)
-                        goodsToUpdate.setPriceUnit(findUnitByName(goodsDTO.getPriceUnit().getName()));
+                        goodsToUpdate.setPriceUnit(findPriceUnitByName(goodsDTO.getPriceUnit().getName()));
                 } else throw new IllegalParametersException("Price unit can not be empty");
                 if (goodsDTO.getQuantityUnit() != null) {
                     if (goodsDTO.getQuantityUnit().getName() != null)
-                        goodsToUpdate.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnit().getName()));
+                        goodsToUpdate.setQuantityUnit(findQuantityUnitByName(goodsDTO.getQuantityUnit().getName()));
                 } else throw new IllegalParametersException("Quantity unit can not be empty");
                 if (goodsDTO.getWeightUnit() != null) {
                     if (goodsDTO.getWeightUnit().getName() != null)
-                        goodsToUpdate.setWeightUnit(findUnitByName(goodsDTO.getWeightUnit().getName()));
+                        goodsToUpdate.setWeightUnit(findWeightUnitByName(goodsDTO.getWeightUnit().getName()));
                 } else throw new IllegalParametersException("Weight unit can not be empty");
                 if (goodsDTO.getStorageType() != null) {
                     if (goodsDTO.getStorageType().getName() != null)
@@ -804,15 +816,15 @@ public class GoodsServiceImpl implements GoodsService {
 
             if (goodsDTO.getPriceUnit() != null) {
                 if (goodsDTO.getPriceUnit().getName() != null)
-                    goods.setPriceUnit(findUnitByName(goodsDTO.getPriceUnit().getName()));
+                    goods.setPriceUnit(findPriceUnitByName(goodsDTO.getPriceUnit().getName()));
             } else throw new IllegalParametersException("Price unit can not be empty");
             if (goodsDTO.getQuantityUnit() != null) {
                 if (goodsDTO.getQuantityUnit().getName() != null)
-                    goods.setQuantityUnit(findUnitByName(goodsDTO.getQuantityUnit().getName()));
+                    goods.setQuantityUnit(findQuantityUnitByName(goodsDTO.getQuantityUnit().getName()));
             } else throw new IllegalParametersException("Quantity unit can not be empty");
             if (goodsDTO.getWeightUnit() != null) {
                 if (goodsDTO.getWeightUnit().getName() != null)
-                    goods.setWeightUnit(findUnitByName(goodsDTO.getWeightUnit().getName()));
+                    goods.setWeightUnit(findWeightUnitByName(goodsDTO.getWeightUnit().getName()));
             } else throw new IllegalParametersException("Weight unit can not be empty");
             if (goodsDTO.getStorageType() != null) {
                 if (goodsDTO.getStorageType().getName() != null)
@@ -827,15 +839,6 @@ public class GoodsServiceImpl implements GoodsService {
                 GoodsStatusDTO goodsStatus = new GoodsStatusDTO();
                 goodsStatus.setName(GoodsStatusEnum.REGISTERED.toString());
                 setGoodsStatus(savedGoods.getId(), goodsStatus);
-
-                GoodsStatus goodsStatus = new GoodsStatus();
-                goodsStatus.setGoods(savedGoods);
-                goodsStatus.setGoodsStatusName(findGoodsStatusNameByName(GoodsStatusEnum.REGISTERED.toString()));
-                goodsStatus.setUser(userService.findUserById(UserDetailsProvider.getUserDetails().getUserId()));
-                goodsStatus.setDate(new Timestamp(new Date().getTime()));
-                savedGoods.setCurrentStatus(goodsStatus);//todo check if works
-
-                goodsStatusDAO.insert(goodsStatus);
             }
             return savedGoods;
         } catch (GenericDAOException e) {
@@ -1127,11 +1130,35 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Unit> getUnits() throws DataAccessException {
+    public List<QuantityUnit> getQuantityUnits() throws DataAccessException {
         logger.info("Getting units list");
-        DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
+        DetachedCriteria criteria = DetachedCriteria.forClass(QuantityUnit.class);
         try {
-            return unitDAO.findAll(criteria, -1, -1);
+            return quantityUnitDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during units list retrieval: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    public List<WeightUnit> getWeightUnits() throws DataAccessException {
+        logger.info("Getting units list");
+        DetachedCriteria criteria = DetachedCriteria.forClass(WeightUnit.class);
+        try {
+            return weightUnitDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during units list retrieval: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
+
+    @Override
+    public List<PriceUnit> getPriceUnits() throws DataAccessException {
+        logger.info("Getting units list");
+        DetachedCriteria criteria = DetachedCriteria.forClass(PriceUnit.class);
+        try {
+            return priceUnitDAO.findAll(criteria, -1, -1);
         } catch (GenericDAOException e) {
             logger.error("Error during units list retrieval: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -1316,17 +1343,37 @@ public class GoodsServiceImpl implements GoodsService {
         return statusDTOs;
     }
 
-    private Unit findUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
+    private QuantityUnit findQuantityUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for unit with name: {}", unitName);
         if (unitName == null) throw new IllegalParametersException("Unit name is null");
-        DetachedCriteria criteria = DetachedCriteria.forClass(Unit.class);
+        DetachedCriteria criteria = DetachedCriteria.forClass(QuantityUnit.class);
         criteria.add(Restrictions.eq("name", unitName));
-        List<Unit> fetchedUnits = unitDAO.findAll(criteria, -1, 1);
+        List<QuantityUnit> fetchedUnits = quantityUnitDAO.findAll(criteria, -1, 1);
         if (!fetchedUnits.isEmpty())
             return fetchedUnits.get(0);
-        else throw new IllegalParametersException("Invalid unit name: " + unitName);
+        else throw new IllegalParametersException("Invalid quantity unit name: " + unitName);
+    }
+    private WeightUnit findWeightUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for unit with name: {}", unitName);
+        if (unitName == null) throw new IllegalParametersException("Unit name is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(WeightUnit.class);
+        criteria.add(Restrictions.eq("name", unitName));
+        List<WeightUnit> fetchedUnits = weightUnitDAO.findAll(criteria, -1, 1);
+        if (!fetchedUnits.isEmpty())
+            return fetchedUnits.get(0);
+        else throw new IllegalParametersException("Invalid weight unit name: " + unitName);
     }
 
+    private PriceUnit findPriceUnitByName(String unitName) throws GenericDAOException, IllegalParametersException {
+        logger.info("Searching for unit with name: {}", unitName);
+        if (unitName == null) throw new IllegalParametersException("Unit name is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(PriceUnit.class);
+        criteria.add(Restrictions.eq("name", unitName));
+        List<PriceUnit> fetchedUnits = priceUnitDAO.findAll(criteria, -1, 1);
+        if (!fetchedUnits.isEmpty())
+            return fetchedUnits.get(0);
+        else throw new IllegalParametersException("Invalid price unit name: " + unitName);
+    }
     private StorageSpaceType findStorageTypeByName(String spaceTypeName) throws GenericDAOException, IllegalParametersException {
         logger.info("Searching for storage space type with name: {}", spaceTypeName);
         if (spaceTypeName == null) throw new IllegalParametersException("Storage space type name is null");

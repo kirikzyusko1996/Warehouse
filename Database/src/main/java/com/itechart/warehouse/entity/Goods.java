@@ -20,9 +20,9 @@ public class Goods implements Serializable {
     private BigDecimal price;
     @JsonIgnore
     private StorageSpaceType storageType;
-    private Unit quantityUnit;
-    private Unit weightUnit;
-    private Unit priceUnit;
+    private QuantityUnit quantityUnit;
+    private WeightUnit weightUnit;
+    private PriceUnit priceUnit;
     @JsonIgnore
     private Invoice incomingInvoice;
     @JsonIgnore
@@ -174,31 +174,31 @@ public class Goods implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_quantity_unit")
-    public Unit getQuantityUnit() {
+    public QuantityUnit getQuantityUnit() {
         return quantityUnit;
     }
 
-    public void setQuantityUnit(Unit quantityUnit) {
+    public void setQuantityUnit(QuantityUnit quantityUnit) {
         this.quantityUnit = quantityUnit;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_weight_unit")
-    public Unit getWeightUnit() {
+    public WeightUnit getWeightUnit() {
         return weightUnit;
     }
 
-    public void setWeightUnit(Unit weightUnit) {
+    public void setWeightUnit(WeightUnit weightUnit) {
         this.weightUnit = weightUnit;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_price_unit")
-    public Unit getPriceUnit() {
+    public PriceUnit getPriceUnit() {
         return priceUnit;
     }
 
-    public void setPriceUnit(Unit priceUnit) {
+    public void setPriceUnit(PriceUnit priceUnit) {
         this.priceUnit = priceUnit;
     }
 

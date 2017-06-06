@@ -46,7 +46,7 @@ public class IncomingInvoiceDTO {
         this.dispatcher = dispatcher;
     }
 
-    public void setGoodsQuantityUnit(Unit goodsQuantityUnit){
+    public void setGoodsQuantityUnit(QuantityUnit goodsQuantityUnit){
         this.goodsQuantityUnit = goodsQuantityUnit.getName();
     }
 
@@ -54,7 +54,7 @@ public class IncomingInvoiceDTO {
         this.goodsQuantityUnit = goodsQuantityUnit;
     }
 
-    public void setGoodsEntryCountUnit(Unit goodsEntryCountUnit){
+    public void setGoodsEntryCountUnit(PriceUnit goodsEntryCountUnit){
         this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
     }
 

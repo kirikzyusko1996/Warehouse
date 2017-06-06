@@ -16,8 +16,8 @@
             <column name="email" value="zyusko.kirill@mail.ru"/>
             <column name="login" value="kirikzyusko1996"/>
             <column name="password" value="baobab"/>
-            <column name="id_warehouse_company" value="1"/>
-            <column name="id_warehouse" value="1"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="2"/>
@@ -32,8 +32,8 @@
             <column name="email" value="aleks.gilimovich@gmail.com"/>
             <column name="login" value="alexander"/>
             <column name="password" value="alexander"/>
-            <column name="id_warehouse_company" value="2"/>
-            <column name="id_warehouse" value="2"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="3"/>
@@ -48,8 +48,8 @@
             <column name="email" value="a.maleiko@yandex.by"/>
             <column name="login" value="alexi"/>
             <column name="password" value="alexi"/>
-            <column name="id_warehouse_company" value="2"/>
-            <column name="id_warehouse" value="3"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="4"/>
@@ -64,8 +64,8 @@
             <column name="email" value="vlad.bondar@tut.by"/>
             <column name="login" value="vlad.bondar"/>
             <column name="password" value="bondar.vlad"/>
-            <column name="id_warehouse_company" value="4"/>
-            <column name="id_warehouse" value="4"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="5"/>
@@ -80,8 +80,8 @@
             <column name="email" value="anna.pinchuk@onliner.by"/>
             <column name="login" value="anna.pinchuk"/>
             <column name="password" value="pinchuk.anna"/>
-            <column name="id_warehouse_company" value="5"/>
-            <column name="id_warehouse" value="5"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="6"/>
@@ -96,8 +96,8 @@
             <column name="email" value=""/>
             <column name="login" value=""/>
             <column name="password" value=""/>
-            <column name="id_warehouse_company" value="5"/>
-            <column name="id_warehouse" value="6"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="7"/>
@@ -112,8 +112,8 @@
             <column name="email" value=""/>
             <column name="login" value=""/>
             <column name="password" value=""/>
-            <column name="id_warehouse_company" value="1"/>
-            <column name="id_warehouse" value="7"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="8"/>
@@ -128,8 +128,8 @@
             <column name="email" value=""/>
             <column name="login" value=""/>
             <column name="password" value=""/>
-            <column name="id_warehouse_company" value="7"/>
-            <column name="id_warehouse" value="8"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="9"/>
@@ -144,8 +144,8 @@
             <column name="email" value="stal129@tut.by"/>
             <column name="login" value="1"/>
             <column name="password" value="1"/>
-            <column name="id_warehouse_company" value="9"/>
-            <column name="id_warehouse" value="9"/>
+            <column name="id_warehouse_company" value="10"/>
+            <column name="id_warehouse" value="10"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="10"/>

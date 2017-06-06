@@ -1,5 +1,8 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.controller.error.RequestHandlingError;
+import com.itechart.warehouse.controller.error.ValidationError;
+import com.itechart.warehouse.controller.error.ValidationErrorBuilder;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
@@ -8,9 +11,6 @@ import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
 import com.itechart.warehouse.entity.*;
-import com.itechart.warehouse.controller.error.RequestHandlingError;
-import com.itechart.warehouse.controller.error.ValidationError;
-import com.itechart.warehouse.controller.error.ValidationErrorBuilder;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -113,6 +113,7 @@ public class GoodsController {
         response.addHeader("Access-Control-Expose-Headers", "X-total-count");
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
+
     @RequestMapping(value = "/", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<GoodsDTO>> getAllGoods(@RequestParam(defaultValue = "0") int page,
@@ -162,11 +163,27 @@ public class GoodsController {
         return new ResponseEntity<>(storageSpaceTypes, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/units", method = RequestMethod.GET,
+    @RequestMapping(value = "/quant_units", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Unit>> getUnitsNames() throws DataAccessException {
-        logger.info("GET on /units");
-        List<Unit> units = goodsService.getUnits();
+    public ResponseEntity<List<QuantityUnit>> getQuantityUnitsNames() throws DataAccessException {
+        logger.info("GET on /quant_units");
+        List<QuantityUnit> units = goodsService.getQuantityUnits();
+        return new ResponseEntity<>(units, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/price_units", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<PriceUnit>> getPriceUnitsNames() throws DataAccessException {
+        logger.info("GET on /price_units");
+        List<PriceUnit> units = goodsService.getPriceUnits();
+        return new ResponseEntity<>(units, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/weight_units", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<WeightUnit>> getWeightUnitsNames() throws DataAccessException {
+        logger.info("GET on /price_units");
+        List<WeightUnit> units = goodsService.getWeightUnits();
         return new ResponseEntity<>(units, HttpStatus.OK);
     }
 
