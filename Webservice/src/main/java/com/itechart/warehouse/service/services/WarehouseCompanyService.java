@@ -25,7 +25,7 @@ public interface WarehouseCompanyService {
 
     WarehouseCompany findWarehouseCompanyById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    User saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException;
+    User saveWarehouseCompany(WarehouseCompany warehouseCompany, String email) throws DataAccessException;
 
     WarehouseCompany updateWarehouseCompany(Long id, WarehouseCompany company)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

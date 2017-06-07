@@ -8,6 +8,7 @@ import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.entity.WarehouseCompanyStatus;
+import com.itechart.warehouse.mail.EmailSenderService;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -41,11 +42,18 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
     private WarehouseCompanyStatusDAO statusDAO;
     private UserService userService;
     private Logger logger = LoggerFactory.getLogger(WarehouseCompanyServiceImpl.class);
+    private EmailSenderService emailSenderService;
 
     @Lazy
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Autowired
+    @Lazy
+    public void setEmailSenderService(EmailSenderService emailSenderService) {
+        this.emailSenderService = emailSenderService;
     }
 
     @Autowired
@@ -148,15 +156,18 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#warehouseCompany.idWarehouseCompany, 'WarehouseCompany', 'POST')")
-    public User saveWarehouseCompany(WarehouseCompany warehouseCompany) throws DataAccessException {
+    //@PreAuthorize("hasPermission(#warehouseCompany.idWarehouseCompany, 'WarehouseCompany', 'POST')")
+    public User saveWarehouseCompany(WarehouseCompany warehouseCompany, String email) throws DataAccessException {
         logger.info("Saving WarehouseCompany: {}", warehouseCompany);
         WarehouseCompany updatedWarehouseCompany = null;
         User user = null;
         try {
             updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
             user = userService.createSupervisor(updatedWarehouseCompany.getIdWarehouseCompany());
-            //todo: make a sending message to email
+            user.setEmail(email);
+            if(!emailSenderService.sendMessageAboutRegistration(user)) {
+                return null;
+            }
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

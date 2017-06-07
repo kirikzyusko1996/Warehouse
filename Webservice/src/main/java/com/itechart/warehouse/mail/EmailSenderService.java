@@ -14,6 +14,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -122,6 +123,31 @@ public class EmailSenderService {
         return result;
     }
 
+    public boolean sendMessageAboutRegistration(User receiver){
+        logger.info("Sending email about registration to user: {}", receiver);
+        Assert.notNull(receiver, "Receiver is null");
+        Assert.notNull(receiver.getEmail(), "Receiver email address is null");
+        MimeMessagePreparator preparator = new MimeMessagePreparator() {
+            public void prepare(MimeMessage mimeMessage) throws Exception {
+                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                message.setTo(receiver.getEmail());
+                message.setFrom(environment.getProperty("spring.email.address"));
+                String imageName = null;
+                Template template = new Template();
+                template.setType(TemplateEnum.REGISTRATION);
+                final String htmlContent = templateService.getMessageFromTemplate(template, receiver, imageName);
+                message.setText(htmlContent, true);
+            }
+        };
+        try {
+            mailSender.send(preparator);
+        } catch (MailException e) {
+            logger.error(e.getMessage());
+            System.err.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
 
     //todo check access
 //    @PreAuthorize("")

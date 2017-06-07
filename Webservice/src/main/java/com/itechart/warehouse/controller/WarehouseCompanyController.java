@@ -111,13 +111,16 @@ public class WarehouseCompanyController {
         return new ResponseEntity<>(company, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<User> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany){
+    @RequestMapping(value = "/save/{email:.+}", method = RequestMethod.POST)
+    public ResponseEntity<User> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany,
+                                            @PathVariable String email){
         logger.info("POST on /company: save new company");
         User user = null;
         try{
-            user = warehouseCompanyService.saveWarehouseCompany(warehouseCompany);
-            System.out.println(user);
+            user = warehouseCompanyService.saveWarehouseCompany(warehouseCompany, email);
+            if(user == null) {
+                return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);//email can't sending
+            }
         } catch (DataAccessException e){
             logger.error("Error while saving new company", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);

@@ -35,6 +35,8 @@ public class TemplateService {
                 return getBirthdayEmailText(template, receiver, imageName);
             case EMAIL_SENDING_FAILED:
                 return getEmailFailedNotificationText((EmailFailedNotificationTemplate) template);
+            case REGISTRATION:
+                return getEmailRegistrationText(template, receiver);
             default:
                 return null;
         }
@@ -42,6 +44,16 @@ public class TemplateService {
 
     }
 
+    private String getEmailRegistrationText(Template template, User receiver) {
+        logger.info("Forming registration email html using template: {}",  template);
+        Assert.notNull(template, "Template is null");
+        Assert.notNull(template.getType(), "Template type is null");
+        final Context ctx = new Context();
+
+        ctx.setVariable("login", receiver.getLogin());
+        ctx.setVariable("password", receiver.getPassword());
+        return templateEngine.process(template.getType().getPath(), ctx);
+    }
 
     private String getBirthdayEmailText(Template template, User receiver, String imageName) {
         logger.info("Forming birthday email html to send to {}, from template: {}", receiver, template);
