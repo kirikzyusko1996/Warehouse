@@ -54,7 +54,7 @@ public class StorageCellServiceImpl implements StorageCellService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#storageCellDTO.idStorageCell, 'Cell', 'GET')")
+    @PreAuthorize("hasPermission(#storageCellDTO.idStorageSpace, 'Space', 'GET')")
     public StorageCell createStorageCell(StorageCellDTO storageCellDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Creating storage cell from space from DTO: {}", storageCellDTO);
         if (storageCellDTO == null) throw new IllegalParametersException("storage cell DTO is null");

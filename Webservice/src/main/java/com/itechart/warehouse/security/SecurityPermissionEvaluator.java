@@ -39,6 +39,8 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
                 return evaluateWarehouseCompanyPermission(authentication, targetId, permission);
             case "Cell":
                 return evaluateCellPermission(authentication, targetId, permission);
+            case "Space":
+                return evaluateSpacePermission(authentication, targetId, permission);
             case "Invoice":
                 return evaluateInvoicePermission(authentication, targetId, permission);
             case "TransportCompany":
@@ -50,6 +52,11 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
             default:
                 throw new IllegalArgumentException("No such target");
         }
+    }
+
+    private boolean evaluateSpacePermission(Authentication authentication, Serializable targetId, Object permission){
+        WarehouseCompanyUserDetails userDetails = (WarehouseCompanyUserDetails) authentication.getPrincipal();
+        return resolver.resolvePermissionToAccessSpace(userDetails, (Long) targetId);
     }
 
     private boolean evaluateCellPermission(Authentication authentication, Serializable targetId, Object permission){

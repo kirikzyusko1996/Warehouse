@@ -1,6 +1,7 @@
 package com.itechart.warehouse.security;
 
 import com.itechart.warehouse.constants.UserRoleEnum;
+import com.itechart.warehouse.entity.StorageCell;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
@@ -33,6 +34,12 @@ public class PermissionResolverService {
     private WarehouseCompanyService warehouseCompanyService;
     private WarehouseService warehouseService;
     private StorageCellService storageCellService;
+    private StorageSpaceService storageSpaceService;
+
+    @Autowired
+    public void setStorageSpaceService(StorageSpaceService storageSpaceService) {
+        this.storageSpaceService = storageSpaceService;
+    }
 
     @Autowired
     public void setStorageCellService(StorageCellService storageCellService) {
@@ -261,6 +268,28 @@ public class PermissionResolverService {
             }
             return false;
         } catch (DataAccessException|IllegalParametersException e) {
+            logger.error("Exception during evaluation: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean resolvePermissionToAccessSpace(WarehouseCompanyUserDetails userDetails, Long id_space) {
+        logger.info("Evaluating access permission to space with id {} for user {}", id_space, userDetails);
+        if (userDetails == null || id_space == null) {
+            return false;
+        }
+        /*if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
+            return true;
+        }*/
+        try {
+            if (userDetails.getCompany() != null) {
+                WarehouseCompany warehouseCompany = storageSpaceService.findWarehouseCompanyBySpace(id_space);
+                if(warehouseCompany != null){
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(warehouseCompany.getIdWarehouseCompany());
+                }
+            }
+            return false;
+        } catch (DataAccessException e) {
             logger.error("Exception during evaluation: {}", e.getMessage());
             return false;
         }

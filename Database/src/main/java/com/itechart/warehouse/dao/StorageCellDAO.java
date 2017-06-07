@@ -6,6 +6,8 @@ import com.itechart.warehouse.entity.WarehouseCompany;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
+
 /**
  * Created by Alexey on 19.04.2017.
  */
@@ -25,6 +27,11 @@ public class StorageCellDAO extends DAO<StorageCell> {
         Query<WarehouseCompany> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("storageCellId", id_cell);
         query.setMaxResults(1);
-        return query.getSingleResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException ex) {
+            logger.info("Entity not found!");
+            return null;
+        }
     }
 }

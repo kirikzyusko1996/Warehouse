@@ -181,4 +181,19 @@ public class StorageSpaceServiceImpl implements StorageSpaceService {
             throw new DataAccessException(e.getCause());
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WarehouseCompany findWarehouseCompanyBySpace(Long id_space) throws DataAccessException {
+        logger.info("Find warehouse company by id of cell: {}", id_space);
+
+        WarehouseCompany warehouseCompany = null;
+        try {
+            warehouseCompany = storageSpaceDAO.findWarehouseCompanyBySpace(id_space);
+        } catch (GenericDAOException e) {
+            logger.error("Error during searching for warehouse: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return warehouseCompany;
+    }
 }

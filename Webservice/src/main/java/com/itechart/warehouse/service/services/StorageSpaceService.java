@@ -19,4 +19,5 @@ public interface StorageSpaceService {
     void deleteStorageSpace(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
     List<StorageSpace> findStorageByWarehouseId(Long id_warehouse) throws DataAccessException, IllegalParametersException;
     List<StorageSpaceType> findAllStorageSpaceType() throws DataAccessException;
+    WarehouseCompany findWarehouseCompanyBySpace(Long id_space) throws DataAccessException;
 }
