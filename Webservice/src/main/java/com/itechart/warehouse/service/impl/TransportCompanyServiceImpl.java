@@ -33,7 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class TransportCompanyServiceImpl implements TransportCompanyService{
+public class TransportCompanyServiceImpl implements TransportCompanyService {
     private final static Logger logger = LoggerFactory.getLogger(TransportCompanyServiceImpl.class);
     private TransportCompanyDAO transportDAO;
     private WarehouseCompanyService companyService;
@@ -44,7 +44,9 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
     }
 
     @Autowired
-    public void setCompanyService(WarehouseCompanyService service){this.companyService = service;}
+    public void setCompanyService(WarehouseCompanyService service) {
+        this.companyService = service;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -88,26 +90,15 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
     @Override
     @Transactional(readOnly = true)
     public TransportCompany findTransportCompanyById(Long id)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find transport dto by id #{}", id);
 
-        TransportCompany company = null;
         try {
-            if (transportDAO.isExistsEntity(id)) {
-                Optional<TransportCompany> optional = transportDAO.findById(id);
-                if (optional.isPresent()){
-                    company = optional.get();
-                }
-            } else {
-                logger.error("Transport dto with id {} not found", id);
-                throw new ResourceNotFoundException("transport dto not found");
-            }
+            return retrieveCompanyById(id);
         } catch (GenericDAOException e) {
             logger.error("Error while finding transport dto by id: ", e);
             throw new DataAccessException(e);
         }
-
-        return company;
     }
 
     @Override
@@ -171,8 +162,10 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
         try {
             TransportCompany transportCompany = mapToCompany(dto);
             transportCompany.setWarehouseCompany(warehouseCompany);
-
             savedCompany = transportDAO.insert(transportCompany);
+
+            ElasticSearchTransportCompany elasticCompany = new ElasticSearchTransportCompany();
+            elasticCompany.save(savedCompany);
         } catch (GenericDAOException e) {
             logger.error("Error while saving transport dto: ", e);
             throw new DataAccessException(e);
@@ -185,18 +178,22 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
     @Transactional
     @PreAuthorize("hasPermission(#id, 'TransportCompany', 'UPDATE')")
     public TransportCompany updateTransportCompany(Long id, TransportCompanyDTO dto, Long warehouseCompanyId)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Update transport dto: {}", dto);
 
         TransportCompany updatedCompany;
         try {
+            TransportCompany companyToUpdate = retrieveCompanyById(id);
+
             dto.setId(id);
-
-                TransportCompany company = mapToCompany(dto);
-                WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(warehouseCompanyId);
-                company.setWarehouseCompany(companyOfTransportCompany);
-
+            TransportCompany company = mapToCompany(dto);
+            WarehouseCompany companyOfTransportCompany = companyService.findWarehouseCompanyById(warehouseCompanyId);
+            company.setWarehouseCompany(companyOfTransportCompany);
             updatedCompany = transportDAO.update(company);
+
+
+//            ElasticSearchTransportCompany elasticCompany = new ElasticSearchTransportCompany();
+//            elasticCompany.edit(companyToUpdate, updatedCompany);
         } catch (GenericDAOException e) {
             logger.error("Error while updating customer dto: ", e);
             throw new DataAccessException(e);
@@ -209,7 +206,7 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
     @Transactional
     @PreAuthorize("hasPermission(#id, 'TransportCompany', 'DELETE')")
     public void deleteTransportCompany(Long id)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Delete transport dto by id #{}", id);
 
         try {
@@ -270,5 +267,14 @@ public class TransportCompanyServiceImpl implements TransportCompanyService{
         dto.setName(company.getName());
 
         return dto;
+    }
+
+    private TransportCompany retrieveCompanyById(Long id) throws GenericDAOException, ResourceNotFoundException {
+        Optional<TransportCompany> optional = transportDAO.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            throw new ResourceNotFoundException("Transport company not found");
+        }
     }
 }

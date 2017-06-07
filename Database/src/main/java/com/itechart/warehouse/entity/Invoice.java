@@ -13,7 +13,6 @@ public class Invoice {
     private Date issueDate;
     private String transportNumber;
     private String transportName;
-    private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
     private String description;
     private TransportCompany transportCompany;
@@ -21,8 +20,6 @@ public class Invoice {
     private WarehouseCustomerCompany supplierCompany;
     private WarehouseCustomerCompany receiverCompany;
     private Driver driver;
-    private QuantityUnit goodsQuantityUnit;
-    private PriceUnit goodsEntryCountUnit;
     private List<Goods> incomingGoods;
     private List<Goods> outgoingGoods;
     private InvoiceStatus currentStatus;
@@ -103,15 +100,6 @@ public class Invoice {
         this.transportName = transportName;
     }
 
-    @Column(name = "goods_quantity")
-    public BigDecimal getGoodsQuantity() {
-        return goodsQuantity;
-    }
-
-    public void setGoodsQuantity(BigDecimal goodsQuantity) {
-        this.goodsQuantity = goodsQuantity;
-    }
-
     @Column(name = "goods_entry_count")
     public Integer getGoodsEntryCount() {
         return goodsEntryCount;
@@ -171,26 +159,6 @@ public class Invoice {
     }
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_goods_quantity_unit")
-    public QuantityUnit getGoodsQuantityUnit() {
-        return goodsQuantityUnit;
-    }
-
-    public void setGoodsQuantityUnit(QuantityUnit goodsQuantityUnit) {
-        this.goodsQuantityUnit = goodsQuantityUnit;
-    }
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_goods_entry_count_unit")
-    public PriceUnit getGoodsEntryCountUnit() {
-        return goodsEntryCountUnit;
-    }
-
-    public void setGoodsEntryCountUnit(PriceUnit goodsEntryCountUnit) {
-        this.goodsEntryCountUnit = goodsEntryCountUnit;
-    }
-
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_current_status")
     public InvoiceStatus getCurrentStatus() {
         return currentStatus;
@@ -223,8 +191,6 @@ public class Invoice {
             return false;
         if (transportName != null ? !transportName.equals(invoice.transportName) : invoice.transportName != null)
             return false;
-        if (goodsQuantity != null ? !goodsQuantity.equals(invoice.goodsQuantity) : invoice.goodsQuantity != null)
-            return false;
         if (goodsEntryCount != null ? !goodsEntryCount.equals(invoice.goodsEntryCount) : invoice.goodsEntryCount != null)
             return false;
         if (description != null ? !description.equals(invoice.description) : invoice.description != null) return false;
@@ -237,10 +203,6 @@ public class Invoice {
         if (receiverCompany != null ? !receiverCompany.equals(invoice.receiverCompany) : invoice.receiverCompany != null)
             return false;
         if (driver != null ? !driver.equals(invoice.driver) : invoice.driver != null) return false;
-        if (goodsQuantityUnit != null ? !goodsQuantityUnit.equals(invoice.goodsQuantityUnit) : invoice.goodsQuantityUnit != null)
-            return false;
-        if (goodsEntryCountUnit != null ? !goodsEntryCountUnit.equals(invoice.goodsEntryCountUnit) : invoice.goodsEntryCountUnit != null)
-            return false;
         if (incomingGoods != null ? !incomingGoods.equals(invoice.incomingGoods) : invoice.incomingGoods != null)
             return false;
         return outgoingGoods != null ? outgoingGoods.equals(invoice.outgoingGoods) : invoice.outgoingGoods == null;
@@ -254,7 +216,6 @@ public class Invoice {
         result = 31 * result + (issueDate != null ? issueDate.hashCode() : 0);
         result = 31 * result + (transportNumber != null ? transportNumber.hashCode() : 0);
         result = 31 * result + (transportName != null ? transportName.hashCode() : 0);
-        result = 31 * result + (goodsQuantity != null ? goodsQuantity.hashCode() : 0);
         result = 31 * result + (goodsEntryCount != null ? goodsEntryCount.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (transportCompany != null ? transportCompany.hashCode() : 0);
@@ -262,8 +223,6 @@ public class Invoice {
         result = 31 * result + (supplierCompany != null ? supplierCompany.hashCode() : 0);
         result = 31 * result + (receiverCompany != null ? receiverCompany.hashCode() : 0);
         result = 31 * result + (driver != null ? driver.hashCode() : 0);
-        result = 31 * result + (goodsQuantityUnit != null ? goodsQuantityUnit.hashCode() : 0);
-        result = 31 * result + (goodsEntryCountUnit != null ? goodsEntryCountUnit.hashCode() : 0);
         result = 31 * result + (incomingGoods != null ? incomingGoods.hashCode() : 0);
         result = 31 * result + (outgoingGoods != null ? outgoingGoods.hashCode() : 0);
         return result;

@@ -24,10 +24,7 @@ public class IncomingInvoiceDTO {
     private String transportName;
     private DriverDTO driver;
     private String description;
-    private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
-    private String goodsQuantityUnit;
-    private String goodsEntryCountUnit;
     private String dispatcher;
     private List<GoodsDTO> goods;
     private String status;
@@ -44,21 +41,5 @@ public class IncomingInvoiceDTO {
 
     public void setDispatcher(String dispatcher) {
         this.dispatcher = dispatcher;
-    }
-
-    public void setGoodsQuantityUnit(QuantityUnit goodsQuantityUnit){
-        this.goodsQuantityUnit = goodsQuantityUnit.getName();
-    }
-
-    public void setGoodsQuantityUnit(String goodsQuantityUnit){
-        this.goodsQuantityUnit = goodsQuantityUnit;
-    }
-
-    public void setGoodsEntryCountUnit(PriceUnit goodsEntryCountUnit){
-        this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
-    }
-
-    public void setGoodsEntryCountUnit(String goodsEntryCountUnit){
-        this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 }

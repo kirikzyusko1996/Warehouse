@@ -23,10 +23,7 @@ public class OutgoingInvoiceDTO {
     private String transportName;
     private DriverDTO driver;
     private String description;
-    private BigDecimal goodsQuantity;
     private Integer goodsEntryCount;
-    private String goodsQuantityUnit;
-    private String goodsEntryCountUnit;
     private String manager;
     private List<GoodsDTO> goods;
     private String status;
@@ -43,22 +40,6 @@ public class OutgoingInvoiceDTO {
 
     public void setManager(String manager) {
         this.manager = manager;
-    }
-
-    public void setGoodsQuantityUnit(QuantityUnit goodsQuantityUnit){
-        this.goodsQuantityUnit = goodsQuantityUnit.getName();
-    }
-
-    public void setGoodsQuantityUnit(String goodsQuantityUnit){
-        this.goodsQuantityUnit = goodsQuantityUnit;
-    }
-
-    public void setGoodsEntryCountUnit(PriceUnit goodsEntryCountUnit){
-        this.goodsEntryCountUnit = goodsEntryCountUnit.getName();
-    }
-
-    public void setGoodsEntryCountUnit(String goodsEntryCountUnit){
-        this.goodsEntryCountUnit = goodsEntryCountUnit;
     }
 }
 

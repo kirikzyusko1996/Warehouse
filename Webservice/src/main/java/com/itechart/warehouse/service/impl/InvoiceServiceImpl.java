@@ -708,16 +708,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setTransportNumber(invoice.getTransportNumber());
         dto.setTransportName(invoice.getTransportName());
         dto.setDescription(invoice.getDescription());
-        dto.setGoodsQuantity(invoice.getGoodsQuantity());
         dto.setGoodsEntryCount(invoice.getGoodsEntryCount());
 
         if (invoice.getDriver() != null) {
             DriverDTO driver = mapToDto(invoice.getDriver());
             dto.setDriver(driver);
         }
-
-        dto.setGoodsEntryCountUnit(invoice.getGoodsEntryCountUnit());
-        dto.setGoodsQuantityUnit(invoice.getGoodsQuantityUnit());
 
         dto.setDispatcher(invoiceStatus.getUser());
         InvoiceStatusEnum status = InvoiceStatusEnum.getStatus(invoiceStatus.getStatusName().getName());
@@ -743,16 +739,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         dto.setTransportNumber(invoice.getTransportNumber());
         dto.setTransportName(invoice.getTransportName());
         dto.setDescription(invoice.getDescription());
-        dto.setGoodsQuantity(invoice.getGoodsQuantity());
         dto.setGoodsEntryCount(invoice.getGoodsEntryCount());
 
         if (invoice.getDriver() != null) {
             DriverDTO driver = mapToDto(invoice.getDriver());
             dto.setDriver(driver);
         }
-
-        dto.setGoodsEntryCountUnit(invoice.getGoodsEntryCountUnit());
-        dto.setGoodsQuantityUnit(invoice.getGoodsQuantityUnit());
 
         dto.setManager(invoiceStatus.getUser());
         InvoiceStatusEnum status = InvoiceStatusEnum.getStatus(invoiceStatus.getStatusName().getName());
@@ -775,7 +767,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setTransportNumber(dto.getTransportNumber());
         invoice.setTransportName(dto.getTransportName());
         invoice.setDescription(dto.getDescription());
-        invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
         WarehouseCustomerCompany supplierCompany = customerService.findCustomerById(dto.getSupplierCompany().getId());
@@ -784,8 +775,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
-
-        invoice = fillInvoiceWithUnitsInfo(invoice, dto.getGoodsQuantityUnit(), dto.getGoodsEntryCountUnit());
 
         if (dto.getDriver() != null) {
             invoice = fillInvoiceWithDriverInfo(invoice, dto.getDriver());
@@ -805,7 +794,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setTransportNumber(dto.getTransportNumber());
         invoice.setTransportName(dto.getTransportName());
         invoice.setDescription(dto.getDescription());
-        invoice.setGoodsQuantity(dto.getGoodsQuantity());
         invoice.setGoodsEntryCount(dto.getGoodsEntryCount());
 
         WarehouseCustomerCompany receiverCompany = customerService.findCustomerById(dto.getReceiverCompany().getId());
@@ -814,8 +802,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setTransportCompany(transportCompany);
 
         invoice.setWarehouse(warehouse);
-
-        invoice = fillInvoiceWithUnitsInfo(invoice, dto.getGoodsQuantityUnit(), dto.getGoodsEntryCountUnit());
 
         if (dto.getDriver() != null) {
             invoice = fillInvoiceWithDriverInfo(invoice, dto.getDriver());
@@ -871,16 +857,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceStatus;
     }
 
-    private Invoice fillInvoiceWithUnitsInfo(Invoice invoice, String quantityUnitName, String entryCountUnitName)
-            throws GenericDAOException {
-        QuantityUnit goodsQuantityUnit = retrieveQuantityUnitByName(quantityUnitName);
-        invoice.setGoodsQuantityUnit(goodsQuantityUnit);
-        PriceUnit goodsEntryCountUnit = retrievePriceUnitByName(entryCountUnitName);
-        invoice.setGoodsEntryCountUnit(goodsEntryCountUnit);
-
-        return invoice;
-    }
-
     private Invoice fillInvoiceWithDriverInfo(Invoice invoice, DriverDTO driverDTO) throws GenericDAOException {
         Driver driverForInvoice;
         String driverId = String.valueOf(driverDTO.getId());
@@ -934,7 +910,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private void processGoodsSeparation(Goods goodsToChange, GoodsDTO goodsChangeParamsDto, Invoice invoice, User user)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
         Goods goodsForInvoice = reduceGoodsQuantity(goodsToChange, goodsChangeParamsDto);
+        logger.info(goodsForInvoice.toString());
         Goods savedGoods = saveGoodsForOutgoingInvoice(goodsForInvoice, goodsChangeParamsDto, invoice);
+        logger.info(savedGoods.toString());
         setGoodsStatusForOutgoingInvoice(savedGoods, user);
     }
 

@@ -69,12 +69,6 @@
     <changeSet author="ulad_bondar" id="85">
         <addForeignKeyConstraint baseColumnNames="id_receiver_company" baseTableName="invoice" constraintName="invoice_ibfk_5" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_customer_company" referencedTableName="warehouse_customer_company"/>
     </changeSet>
-    <changeSet author="ulad_bondar" id="86">
-        <addForeignKeyConstraint baseColumnNames="id_goods_quantity_unit" baseTableName="invoice" constraintName="invoice_ibfk_6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_quantity_unit" referencedTableName="quantity_unit"/>
-    </changeSet>
-    <changeSet author="ulad_bondar" id="87">
-        <addForeignKeyConstraint baseColumnNames="id_goods_entry_count_unit" baseTableName="invoice" constraintName="invoice_ibfk_7" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_price_unit" referencedTableName="price_unit"/>
-    </changeSet>
     <changeSet author="ulad_bondar" id="88">
         <addForeignKeyConstraint baseColumnNames="id_status_name" baseTableName="invoice_status" constraintName="invoice_status_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice_status_name" referencedTableName="invoice_status_name"/>
     </changeSet>
