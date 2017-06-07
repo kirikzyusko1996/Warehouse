@@ -48,11 +48,25 @@ public class WarehouseCompanyController {
         this.userService = userService;
     }
 
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    //todo: make authentification?
+    public ResponseEntity<List<WarehouseCompany>> readAllCompanies(){
+        logger.info("GET on /company: find all companies");
+        List<WarehouseCompany> companies;
+        try{
+            companies = warehouseCompanyService.findAllWarehouseCompany();
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving all companies", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(companies, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCompany>> readCompanies(){
         logger.info("GET on /company: find all companies");
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        User user = userDetails.getUser();//warning
+        User user = userDetails.getUser();
         List<WarehouseCompany> companies;
         try{
             boolean isAdmin = userService.hasRole(user.getId(), ROLE_ADMIN);
