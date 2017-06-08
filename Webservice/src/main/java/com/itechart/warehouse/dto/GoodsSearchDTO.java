@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Data transfer object containing criteria for searching goodsIdList.
+ * Data transfer object containing criteria for searching goods.
  */
 @Setter
 @Getter
@@ -38,19 +38,4 @@ public class GoodsSearchDTO {
     private Long outgoingInvoiceId;
     private Boolean actApplicable;
     private String actType;
-
-    public void addStatusSearchDTO(GoodsStatusSearchDTO statusSearchDTO) {
-        if (statuses != null)
-            statuses.add(statusSearchDTO);
-        else throw new AssertionError();
-    }
-
-    public void removeStatusSearchDTO(GoodsStatusSearchDTO statusSearchDTO) {
-        if (statuses != null)
-            statuses.remove(statusSearchDTO);
-        else throw new AssertionError();
-
-    }
-
-
 }

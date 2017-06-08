@@ -32,7 +32,7 @@ public class UserDAO extends DAO<User> {
     }
 
 
-    public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException {
+    public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException{
         logger.info("Get users count for warehouse company with id: {}", warehouseCompanyId);
         String queryHql = "SELECT count(DISTINCT user.id)" +
                 " FROM User user" +

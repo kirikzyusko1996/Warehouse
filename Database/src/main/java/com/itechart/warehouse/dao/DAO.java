@@ -17,7 +17,7 @@ public abstract class DAO<T> {
 
     public DAO(Class<T> entityClass) {
         this.entityClass = entityClass;
-        this.logger = LoggerFactory.getLogger(entityClass);
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Autowired
@@ -81,7 +81,6 @@ public abstract class DAO<T> {
         if (entity == null) return;
         try {
             hibernateTemplate.delete(entity);
-//            hibernateTemplate.flush();
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new GenericDAOException(e);

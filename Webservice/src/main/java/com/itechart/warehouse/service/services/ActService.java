@@ -39,7 +39,7 @@ public interface ActService {
 
     Warehouse findWarehouseOwnedBy(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException;
 
-    Act createAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    Act saveAct(ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

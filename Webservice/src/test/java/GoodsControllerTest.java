@@ -1,7 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.warehouse.constants.GoodsStatusEnum;
-import com.itechart.warehouse.constants.StorageTypeEnum;
-import com.itechart.warehouse.constants.UnitEnum;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
@@ -21,8 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

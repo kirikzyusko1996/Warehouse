@@ -1,5 +1,6 @@
 package com.itechart.warehouse.service.services;
 
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
@@ -18,8 +19,6 @@ import java.util.List;
  * and setting status.
  */
 public interface GoodsService {
-
-    List<Goods> findAllGoods(int firstResult, int maxResults) throws DataAccessException;
 
     Goods findGoodsById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
@@ -45,31 +44,23 @@ public interface GoodsService {
 
     List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    List<Goods> findGoodsForWarehouseByStatus(Long warehouseId, String statusName, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
-
     List<GoodsStatusDTO> findStatusesOfGoods(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
-    GoodsStatus findGoodsCurrentStatus(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
-
     Warehouse findWarehouseOwnedBy(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
-
-    WarehouseCompany findWarehouseCompanyOwnedBy(Long goodsId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     Goods updateGoods(Long id, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     Goods createGoods(Long invoiceId, GoodsDTO goodsDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<GoodsDTO> splitGoodsForAct(String actType, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
+    List<Goods> updateAndGetGoodsForAct(String actType, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
 
-    boolean isActApplicable(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    boolean isUpdatable(List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDtoList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    List<Goods> createGoodsBatch(Long invoiceId, List<GoodsDTO> goodsDTOList) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteGoods(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    boolean isGoodsExists(Long id) throws DataAccessException, IllegalParametersException;
-
-    GoodsStatus setGoodsStatus(Long goodsId, GoodsStatusDTO goodsStatusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    GoodsStatus setGoodsStatus(Long goodsId, GoodsStatusEnum status) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void putGoodsInCells(Long goodsId, List<StorageCellDTO> storageCells) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

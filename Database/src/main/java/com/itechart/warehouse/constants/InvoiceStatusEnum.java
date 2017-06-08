@@ -1,8 +1,5 @@
 package com.itechart.warehouse.constants;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Statuses of invoices.
  */

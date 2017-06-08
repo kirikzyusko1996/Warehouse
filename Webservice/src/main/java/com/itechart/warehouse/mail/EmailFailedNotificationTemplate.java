@@ -12,6 +12,6 @@ import lombok.ToString;
 @ToString
 public class EmailFailedNotificationTemplate extends Template {
     private EmailSendingResult result;
-    private String emailAdress;
+    private String emailAddress;
 
 }

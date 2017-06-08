@@ -1,19 +1,21 @@
 package com.itechart.warehouse.dao;
 
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.GoodsStatus;
 import com.itechart.warehouse.entity.GoodsStatusName;
+import com.itechart.warehouse.query.GoodsSearchCriteria;
+import com.itechart.warehouse.query.GoodsSearchQueryBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Implementation of goodsIdList DAO.
@@ -24,10 +26,35 @@ public class GoodsDAO extends DAO<Goods> {
         super(Goods.class);
     }
 
+    private static final String PARAMETER_WAREHOUSE_ID = "warehouseId";
+
+    public List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchCriteria goodsSearchCriteria, int firstResult, int maxResults) throws GenericDAOException {
+        GoodsSearchQueryBuilder builder = new GoodsSearchQueryBuilder(warehouseId, goodsSearchCriteria);
+        builder.buildListQuery();
+        return findByQuery(builder.getQuery(), builder.getParameters(), firstResult, maxResults);
+    }
+
+    public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchCriteria goodsSearchCriteria) throws GenericDAOException {
+        GoodsSearchQueryBuilder builder = new GoodsSearchQueryBuilder(warehouseId, goodsSearchCriteria);
+        builder.buildCountQuery();
+        return getCountByQuery(builder.getQuery(), builder.getParameters());
+    }
+
+
+    public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws GenericDAOException {
+        Assert.notNull(invoiceId, "Invoice id is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
+        criteria.createAlias("incomingInvoice", "invoice");
+        criteria.add(Restrictions.eq("invoice.id", invoiceId));
+        criteria.add(Restrictions.isNull("deleted"));
+        criteria.addOrder(Order.desc("id"));
+        return super.findAll(criteria, firstResult, maxResults);
+    }
+
     @SuppressWarnings("unchecked")
     public Goods getById(Long id) throws GenericDAOException {
-        logger.info("Find goods entity  with id: {}", id);
-        if (id == null) return null;
+        logger.info("Find goods, id: {}", id);
+        Assert.notNull(id, "Id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.add(Restrictions.eq("id", id));
         criteria.add(Restrictions.isNull("deleted"));
@@ -42,7 +69,7 @@ public class GoodsDAO extends DAO<Goods> {
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
                 " ORDER BY goods.id DESC";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
         return query.list();
@@ -55,10 +82,10 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
                 " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
-                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL AND statusName.name = 'STORED'" +
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL AND statusName.name = " + getStatusName(GoodsStatusEnum.STORED) +
                 " ORDER BY goods.id DESC";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
         return query.list();
@@ -73,19 +100,13 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
                 " WHERE warehouse.idWarehouse = :warehouseId" +
                 " AND goods.deleted IS NULL" +
-                " AND statusName.name <> 'MOVED_OUT'" +
-                " AND statusName.name <> 'STOLEN'" +
-                " AND statusName.name <> 'CHECKED'" +
-                " AND statusName.name <> 'RELEASE_ALLOWED'" +
-                " AND statusName.name <> 'SEIZED'" +
-                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'" +
-                " AND statusName.name <> 'RECYCLED'" +
-                " AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY' " +
-                " AND statusName.name <> 'LOST_BY_TRANSPORT_COMPANY' " +
+                " AND (statusName.name = " + getStatusName(GoodsStatusEnum.REGISTERED) +
+                " OR statusName.name = " + getStatusName(GoodsStatusEnum.STORED) +
+                " OR statusName.name = " + getStatusName(GoodsStatusEnum.WITHDRAWN) + ")" +
                 " AND statusName.name IS NOT NULL" +
                 " ORDER BY goods.id DESC";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
         return query.list();
@@ -102,7 +123,7 @@ public class GoodsDAO extends DAO<Goods> {
 
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("statusName", statusName);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
         return query.list();
@@ -110,8 +131,11 @@ public class GoodsDAO extends DAO<Goods> {
 
 
     public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find list of {} goods starting from {} by query: {} with parameters", maxResults, firstResult, query, parameters);
-        if (query == null || parameters == null) throw new AssertionError();
+        logger.info("Find goods, first result: {}, max results: {},  query: {}, parameters: {}", firstResult, maxResults, query, parameters);
+        if (query == null || parameters == null) {
+            throw new AssertionError();
+        }
+
         Query<Goods> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             queryHQL.setParameter(entry.getKey(), entry.getValue());
@@ -122,7 +146,7 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
     public long getCountByQuery(String query, Map<String, Object> parameters) throws GenericDAOException {
-        logger.info("Get count of goods by query: {} with parameters", query, parameters);
+        logger.info("Get count of goods, query: {}, parameters", query, parameters);
         if (query == null || parameters == null) throw new AssertionError();
         Query<Long> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
@@ -138,7 +162,7 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         return query.getSingleResult();
     }
 
@@ -149,9 +173,9 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
                 " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
-                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL AND statusName.name = 'STORED'";
+                " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL AND statusName.name = " + getStatusName(GoodsStatusEnum.STORED);
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         return query.getSingleResult();
     }
 
@@ -164,18 +188,17 @@ public class GoodsDAO extends DAO<Goods> {
                 " INNER JOIN GoodsStatusName statusName ON status.goodsStatusName = statusName" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
                 " AND goods.deleted IS NULL" +
-                " AND statusName.name <> 'MOVED_OUT'" +
-                " AND statusName.name <> 'STOLEN'" +
-                " AND statusName.name <> 'CHECKED'" +
-                " AND statusName.name <> 'RELEASE_ALLOWED'" +
-                " AND statusName.name <> 'SEIZED'" +
-                " AND statusName.name <> 'TRANSPORT_COMPANY_MISMATCH'" +
-                " AND statusName.name <> 'RECYCLED'" +
-                " AND statusName.name <> 'LOST_BY_WAREHOUSE_COMPANY' " +
-                " AND statusName.name <> 'LOST_BY_TRANSPORT_COMPANY' " +
+                " AND (statusName.name = " + getStatusName(GoodsStatusEnum.REGISTERED) +
+                " OR statusName.name = " + getStatusName(GoodsStatusEnum.STORED) +
+                " OR statusName.name = " + getStatusName(GoodsStatusEnum.WITHDRAWN) + ")" +
                 " AND statusName.name IS NOT NULL";
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
-        query.setParameter("warehouseId", warehouseId);
+        query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         return query.getSingleResult();
+    }
+
+    private String getStatusName(GoodsStatusEnum status) {
+        Assert.notNull(status, "Status is null");
+        return "'" + status.toString() + "'";
     }
 }
