@@ -41,10 +41,21 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
 
-    public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws GenericDAOException {
+    public List<Goods> findGoodsForIncomingInvoice(Long invoiceId, int firstResult, int maxResults) throws GenericDAOException {
         Assert.notNull(invoiceId, "Invoice id is null");
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.createAlias("incomingInvoice", "invoice");
+        criteria.add(Restrictions.eq("invoice.id", invoiceId));
+        criteria.add(Restrictions.isNull("deleted"));
+        criteria.addOrder(Order.desc("id"));
+        return super.findAll(criteria, firstResult, maxResults);
+    }
+
+
+    public List<Goods> findGoodsForOutgoingInvoice(Long invoiceId, int firstResult, int maxResults) throws GenericDAOException {
+        Assert.notNull(invoiceId, "Invoice id is null");
+        DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
+        criteria.createAlias("outgoingInvoice", "invoice");
         criteria.add(Restrictions.eq("invoice.id", invoiceId));
         criteria.add(Restrictions.isNull("deleted"));
         criteria.addOrder(Order.desc("id"));

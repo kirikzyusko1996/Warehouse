@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,7 +164,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 Invoice invoice = invoiceStatus.getInvoice();
 
                 //todo specify page, count
-                List<Goods> goodsForInvoice = goodsService.findGoodsForInvoice(invoice.getId(), -1, -1);
+                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
 
                 IncomingInvoiceDTO dto = convertToIncomingDTO(invoiceStatus, goodsForInvoice);
                 invoiceDTOs.add(dto);
@@ -194,7 +193,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 Invoice invoice = invoiceStatus.getInvoice();
 
                 //todo specify page, count
-                List<Goods> goodsForInvoice = goodsService.findGoodsForInvoice(invoice.getId(), -1, -1);
+                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
 
                 OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoiceStatus, goodsForInvoice);
                 invoiceDTOs.add(dto);
@@ -225,7 +224,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             List<Invoice> incomingInvoices = parseIncoming(invoices);
 
             for (Invoice invoice : incomingInvoices) {
-                List<Goods> goodsForInvoice = goodsService.findGoodsForInvoice(invoice.getId(), -1, -1);
+                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
 
                 IncomingInvoiceDTO dto = convertToIncomingDTO(invoice.getCurrentStatus(), goodsForInvoice);
                 invoiceDTOs.add(dto);
@@ -256,7 +255,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             List<Invoice> incomingInvoices = parseOutgoing(invoices);
 
             for (Invoice invoice : incomingInvoices) {
-                List<Goods> goodsForInvoice = goodsService.findGoodsForInvoice(invoice.getId(), -1, -1);
+                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
 
                 OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoice.getCurrentStatus(), goodsForInvoice);
                 invoiceDTOs.add(dto);
@@ -323,7 +322,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Optional<Invoice> optional = invoiceDAO.findById(id);
         if (optional.isPresent()) {
             Invoice invoice = optional.get();
-            List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+            List<Goods> goodsList = goodsService.findGoodsForIncomingInvoice(id, -1, -1);
 
             return convertToIncomingDTO(invoice.getCurrentStatus(), goodsList);
         } else {
@@ -339,7 +338,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         logger.info("Find outgoing invoice by id #{}", id);
 
         InvoiceStatus invoiceStatus = invoiceStatusDAO.findStatusForInvoice(id);
-        List<Goods> goodsList = goodsService.findGoodsForInvoice(id, -1, -1);
+        List<Goods> goodsList = goodsService.findGoodsForIncomingInvoice(id, -1, -1);
 
         return convertToOutgoingDTO(invoiceStatus, goodsList);
     }

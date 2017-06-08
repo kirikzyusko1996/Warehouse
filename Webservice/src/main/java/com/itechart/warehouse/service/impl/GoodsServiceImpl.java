@@ -262,14 +262,29 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goods> findGoodsForInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public List<Goods> findGoodsForIncomingInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find goods, invoice id: {}, first result: {}, max results: {}", invoiceId, firstResult, maxResults);
         if (invoiceId == null) {
             throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
         }
 
         try {
-            return goodsDAO.findGoodsForInvoice(invoiceId, firstResult, maxResults);
+            return goodsDAO.findGoodsForIncomingInvoice(invoiceId, firstResult, maxResults);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Goods> findGoodsForOutgoingInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Find goods, invoice id: {}, first result: {}, max results: {}", invoiceId, firstResult, maxResults);
+        if (invoiceId == null) {
+            throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
+        }
+
+        try {
+            return goodsDAO.findGoodsForOutgoingInvoice(invoiceId, firstResult, maxResults);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -283,7 +298,7 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
         }
 
-        List<Goods> goods = findGoodsForInvoice(invoiceId, -1, -1);
+        List<Goods> goods = findGoodsForIncomingInvoice(invoiceId, -1, -1);
         return mapGoodsListToDTOs(goods);
     }
 
