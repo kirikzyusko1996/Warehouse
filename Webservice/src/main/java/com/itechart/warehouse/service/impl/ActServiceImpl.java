@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -135,7 +136,8 @@ public class ActServiceImpl implements ActService {
     @Override
     @Transactional(readOnly = true)
     public List<ActType> getActTypes() throws DataAccessException {
-        logger.info("Get act types list");
+        logger.info("Get act types");
+
         DetachedCriteria criteria = DetachedCriteria.forClass(ActType.class);
         try {
             return actTypeDAO.findAll(criteria, -1, -1);
@@ -152,12 +154,11 @@ public class ActServiceImpl implements ActService {
             throw new IllegalParametersException("Goods id is null");
         }
         try {
-            return mapActsToDTOs(actDAO.findByGoodsId(goodsId));
+            return mapActListToDTOList(actDAO.findByGoodsId(goodsId));
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -167,11 +168,11 @@ public class ActServiceImpl implements ActService {
         if (warehouseId == null) {
             throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
+
         try {
-            return mapActsToDTOs(actDAO.findActsByWarehouseId(warehouseId, firstResult, maxResults));
+            return mapActListToDTOList(actDAO.findActsByWarehouseId(warehouseId, firstResult, maxResults));
         } catch (GenericDAOException e) {
-            logger.error("Error during search for acts: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
@@ -182,6 +183,7 @@ public class ActServiceImpl implements ActService {
         if (warehouseId == null) {
             throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
+
         try {
             return actDAO.getActsCount(warehouseId);
         } catch (GenericDAOException e) {
@@ -200,6 +202,7 @@ public class ActServiceImpl implements ActService {
         if (warehouseId == null) {
             throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
+
         try {
             DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
             if (StringUtils.isNotBlank(actSearchDTO.getType())) {
@@ -228,7 +231,8 @@ public class ActServiceImpl implements ActService {
             DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
             criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
             criteriaWithSubquery.addOrder(Order.desc("date"));
-            return mapActsToDTOs(actDAO.findAll(criteriaWithSubquery, firstResult, maxResults));
+
+            return mapActListToDTOList(actDAO.findAll(criteriaWithSubquery, firstResult, maxResults));
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -279,12 +283,16 @@ public class ActServiceImpl implements ActService {
     @Transactional(readOnly = true)
     public WarehouseCompany findWarehouseCompanyOwnedBy(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find warehouse company - act owner, act id: {}", actId);
-        if (actId == null) throw new IllegalParametersException("Act id is null");
+        if (actId == null) {
+            throw new IllegalParametersException("Act id is null");
+        }
 
         Act act = findActById(actId);
+        //todo redo
         if (act == null) {
             throw new ResourceNotFoundException("Act with id" + actId + " was not found");
         }
+
         if (act.getWarehouse() != null) {
             return act.getWarehouse().getWarehouseCompany();
         } else {
@@ -299,10 +307,13 @@ public class ActServiceImpl implements ActService {
         if (actId == null) {
             throw new IllegalParametersException("Act id is null");
         }
+
         Act act = findActById(actId);
+
         if (act == null) {
             throw new ResourceNotFoundException("Act with id" + actId + " was not found");
         }
+
         return act.getWarehouse();
     }
 
@@ -311,14 +322,17 @@ public class ActServiceImpl implements ActService {
         if (actTypeName == null) {
             throw new IllegalParametersException("Act type name is null");
         }
+
         DetachedCriteria criteria = DetachedCriteria.forClass(ActType.class);
         criteria.add(Restrictions.eq("name", actTypeName));
         List<ActType> fetchedStatusName;
+
         try {
             fetchedStatusName = actTypeDAO.findAll(criteria, -1, 1);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
+
         if (!fetchedStatusName.isEmpty()) {
             return fetchedStatusName.get(0);
         } else {
@@ -374,7 +388,7 @@ public class ActServiceImpl implements ActService {
     }
 
     private void setActToGoods(List<Goods> goodsList, Act act) {
-        goodsList.stream().filter(goods -> goods != null).forEach(goods ->
+        goodsList.stream().filter(Objects::nonNull).forEach(goods ->
                 goods.addAct(act)
         );
     }
@@ -415,6 +429,7 @@ public class ActServiceImpl implements ActService {
         if (id == null) {
             throw new IllegalParametersException(ERROR_ID_IS_NULL);
         }
+
         try {
             Act act = actDAO.getById(id);
             if (act != null) {
@@ -430,7 +445,10 @@ public class ActServiceImpl implements ActService {
     @Override
     public boolean isActExists(Long id) throws DataAccessException, IllegalParametersException {
         logger.info("Check if act exists, id {}", id);
-        if (id == null) throw new IllegalParametersException(ERROR_ID_IS_NULL);
+        if (id == null) {
+            throw new IllegalParametersException(ERROR_ID_IS_NULL);
+        }
+
         try {
             return actDAO.isExistsEntity(id);
         } catch (GenericDAOException e) {
@@ -440,31 +458,67 @@ public class ActServiceImpl implements ActService {
 
     private ActDTO mapActToDTO(Act act) {
         Assert.notNull(act, "Act is null");
-        ActDTO dto = ActDTO.buildActDTO(act);
+
+        ActDTO dto = new ActDTO();
+
+        dto.setId(act.getId());
+        dto.setDate(act.getDate());
+        dto.setNote(act.getNote());
+
+        if (act.getActType() != null) {
+            dto.setType(act.getActType().getName());
+        }
+
         UserDTO userDTO = new UserDTO();
         userDTO.setId(act.getUser().getId());
         userDTO.setLastName(act.getUser().getLastName());
         userDTO.setFirstName(act.getUser().getFirstName());
         userDTO.setPatronymic(act.getUser().getPatronymic());
-        Hibernate.initialize(act.getGoods());
         dto.setUser(userDTO);
+
+
         List<GoodsDTO> goodsDTOs = new ArrayList<>();
+        Hibernate.initialize(act.getGoods());//todo remove
+
         if (CollectionUtils.isNotEmpty(act.getGoods())) {
-            goodsDTOs.addAll(act.getGoods().stream().map(GoodsDTO::buildGoodsDTO).collect(Collectors.toList()));
+            goodsDTOs.addAll(act.getGoods().stream().map(goods -> mapGoodsToDTO(goods)).collect(Collectors.toList()));
         }
         dto.setGoodsList(goodsDTOs);
-        Hibernate.initialize(act.getWarehouse());
-        if (act.getWarehouse() != null)
+
+
+        Hibernate.initialize(act.getWarehouse());//todo remove
+
+        if (act.getWarehouse() != null) {
             dto.setWarehouseId(act.getWarehouse().getIdWarehouse());
+        }
         return dto;
     }
 
-    private List<ActDTO> mapActsToDTOs(List<Act> acts) {
-        Assert.notNull(acts, "Acts list is null");
-        List<ActDTO> actDTOs = new ArrayList<>();
+    private GoodsDTO mapGoodsToDTO(Goods goods) {
+        Assert.notNull(goods, "Goods is null");
+        GoodsDTO dto = new GoodsDTO();
+
+        dto.setId(goods.getId());
+        dto.setName(goods.getName());
+        dto.setQuantity(goods.getQuantity());
+        dto.setWeight(goods.getWeight());
+        dto.setPrice(goods.getPrice());
+        dto.setStorageType(goods.getStorageType());
+        dto.setWeightUnit(goods.getWeightUnit());
+        dto.setQuantityUnit(goods.getQuantityUnit());
+        dto.setPriceUnit(goods.getPriceUnit());
+
+        return dto;
+    }
+
+    private List<ActDTO> mapActListToDTOList(List<Act> acts) {
+        Assert.notNull(acts, "Act list is null");
+
+        List<ActDTO> actDTOList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(acts)) {
-            actDTOs.addAll(acts.stream().map(this::mapActToDTO).collect(Collectors.toList()));
+            actDTOList.addAll(acts.stream().map(this::mapActToDTO).collect(Collectors.toList()));
         }
-        return actDTOs;
+
+        return actDTOList;
     }
 }

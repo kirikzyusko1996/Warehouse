@@ -44,6 +44,9 @@ import java.util.Optional;
  */
 @Service
 public class UserServiceImpl implements UserService {
+    private static final String ERROR_USER_ID_IS_NULL = "User id is null";
+    private static final String ERROR_USER_DTO_IS_NULL = "User DTO is null";
+
     private UserDAO userDAO;
     private RoleDAO roleDAO;
     private WarehouseService warehouseService;
@@ -84,14 +87,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<User> findAllUsers(int firstResult, int maxResults) throws DataAccessException {
-        logger.info("Find {} users starting from index {}", maxResults, firstResult);
+        logger.info("Find users, first result {}, max results: {}", firstResult, maxResults);
+
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.addOrder(Order.asc("id"));
         try {
             return userDAO.findAll(criteria, firstResult, maxResults);
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for user: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
@@ -101,16 +104,18 @@ public class UserServiceImpl implements UserService {
 //    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'User', 'GET')")
     public UserDTO findUserDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user DTO, id: {}", id);
-        if (id == null)
+        if (id == null) {
             throw new IllegalParametersException("Id is null");
+        }
         try {
             UserDTO user = mapUserToDTO(userDAO.findUserById(id));
-            if (user != null)
+            if (user != null) {
                 return user;
-            else throw new ResourceNotFoundException("User with such id was not found");
+            } else {
+                throw new ResourceNotFoundException("User with id " + id + " was not found");
+            }
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
@@ -118,35 +123,42 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user, id: {}", id);
-        if (id == null)
+        if (id == null) {
             throw new IllegalParametersException("Id is null");
+        }
+
         try {
             User user = userDAO.findUserById(id);
-            if (user != null)
+            if (user != null) {
                 return user;
-            else throw new ResourceNotFoundException("User with such id was not found");
+            } else {
+                throw new ResourceNotFoundException("User with id " + id + " was not found");
+            }
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserByLogin(String login) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find user by login name: {}", login);
-        if (login == null) throw new IllegalParametersException("Login is null");
+        logger.info("Find user, login: {}", login);
+        if (login == null) {
+            throw new IllegalParametersException("Login is null");
+        }
+
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", login));
         criteria.add(Restrictions.isNull("deleted"));
         try {
             List<User> users = userDAO.findAll(criteria, -1, -1);
-            if (CollectionUtils.isNotEmpty(users))
+            if (CollectionUtils.isNotEmpty(users)) {
                 return users.get(0);
-            else return null;
+            } else {
+                return null;
+            }
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
@@ -154,34 +166,38 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#companyId, 'WarehouseCompany', 'GET')")
     public List<UserDTO> findUsersForCompany(Long companyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} users starting from index {} by company id: {}", maxResults, firstResult, companyId);
-        if (companyId == null) throw new IllegalParametersException("Company id is null");
+        logger.info("Find users, first result: {}, max results: {}, company id: {}", firstResult, maxResults, companyId);
+        if (companyId == null) {
+            throw new IllegalParametersException("Company id is null");
+        }
         try {
-            return mapUserListToDTO(userDAO.findUsersByWarehouseCompanyId(companyId, firstResult, maxResults));
+            return mapUserListToDTOList(userDAO.findUsersByWarehouseCompanyId(companyId, firstResult, maxResults));
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getUsersCount(Long companyId) throws DataAccessException, IllegalParametersException {
-        logger.info("Get users count for company with id: {}", companyId);
-        if (companyId == null) throw new IllegalParametersException("Company id is null");
+        logger.info("Get users count, company id: {}", companyId);
+        if (companyId == null) {
+            throw new IllegalParametersException("Company id is null");
+        }
         try {
             return userDAO.getUsersCount(companyId);
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public Warehouse findWarehouseOwnedBy(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find warehouse for user with id: {}", userId);
-        if (userId == null) throw new IllegalParametersException("User id is null");
+        logger.info("Find warehouse for user, user id: {}", userId);
+        if (userId == null) {
+            throw new IllegalParametersException(ERROR_USER_ID_IS_NULL);
+        }
         UserDTO user = findUserDTOById(userId);
         return user.getWarehouse();
     }
@@ -189,8 +205,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public WarehouseCompany findWarehouseCompanyOwnedBy(Long userId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find warehouse company for user with id: {}", userId);
-        if (userId == null) throw new IllegalParametersException("User id is null");
+        logger.info("Find warehouse company for user, user id: {}", userId);
+        if (userId == null) {
+            throw new IllegalParametersException(ERROR_USER_ID_IS_NULL);
+        }
         UserDTO user = findUserDTOById(userId);
         return user.getWarehouseCompany();
     }
@@ -198,55 +216,62 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<User> findUsersForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
-        logger.info("Find {} users starting from index {} by warehouse id: {}", maxResults, firstResult, warehouseId);
-        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        logger.info("Find users, first result: {}, max results: {}, warehouse id: {}", firstResult, maxResults, warehouseId);
+        if (warehouseId == null) {
+            throw new IllegalParametersException("Warehouse id is null");
+        }
         try {
             return userDAO.findUsersByWarehouseId(warehouseId, firstResult, maxResults);
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> findUserByBirthday(DateTime date) throws IllegalParametersException, DataAccessException {
-        logger.info("Find users with birthday: {}", date);
-        if (date == null) throw new IllegalParametersException("Date is null");
+        logger.info("Find users with birthday, date: {}", date);
+        if (date == null) {
+            throw new IllegalParametersException("Date is null");
+        }
         try {
             return userDAO.findUsersByBirthDay(date);
         } catch (GenericDAOException e) {
-            logger.error("Error during search for user: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
-    @Transactional(readOnly = true)
     private boolean isLoginOccupied(String loginName) throws IllegalParametersException, DataAccessException {
-        logger.info("Searching for user with login {}", loginName);
-        if (loginName == null) throw new IllegalParametersException("Login is null");
+        logger.info("Check if login is occupied, login {}", loginName);
+        if (loginName == null) {
+            throw new IllegalParametersException("Login is null");
+        }
         DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
         criteria.add(Restrictions.eq("login", loginName));
         criteria.add(Restrictions.isNull("deleted"));
         try {
             List<User> users = userDAO.findAll(criteria, -1, -1);
-            if (CollectionUtils.isNotEmpty(users))
+            if (CollectionUtils.isNotEmpty(users)) {
                 return true;
-            else return false;
+            } else {
+                return false;
+            }
         } catch (GenericDAOException e) {
-            logger.error("Error during searching for users: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#companyId, 'WarehouseCompany', 'CREATE')")
-    public User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
-        logger.info("Saving user using DTO: {}", userDTO);
-        if (userDTO == null) throw new IllegalParametersException("User DTO is null");
+    public User saveUser(Long companyId, UserDTO userDTO) throws DataAccessException, ResourceNotFoundException, IllegalParametersException {
+        logger.info("Save user, DTO: {}", userDTO);
+        if (userDTO == null) {
+            throw new IllegalParametersException(ERROR_USER_DTO_IS_NULL);
+        }
+
         try {
-            User user = userDTO.buildUserEntity();
+            User user = createUser(userDTO);
             if (StringUtils.isBlank(user.getPassword())) {
                 throw new IllegalParametersException("Field password can not be empty");
             }
@@ -272,47 +297,52 @@ public class UserServiceImpl implements UserService {
             if (userDTO.getRoles() != null) {
                 for (RoleDTO role : userDTO.getRoles()) {
                     if (role.getRole().equals(UserRoleEnum.ROLE_ADMIN.toString())) {
-                        if (UserDetailsProvider.getUserDetails().getUser() != null)
-                            if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString()))
+                        if (UserDetailsProvider.getUserDetails().getUser() != null) {
+                            if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
                                 roles.add(findRoleByName(role.getRole()));
-                    } else
+                            }
+                        }
+                    } else {
                         roles.add(findRoleByName(role.getRole()));
+                    }
                     user.setRoles(roles);
                 }
             } else throw new IllegalParametersException("At least one role has to be selected");
             return userDAO.insert(user);
         } catch (GenericDAOException e) {
-            logger.error("Error during saving user: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
+    private User createUser(UserDTO userDTO) {
+        Assert.notNull(userDTO, ERROR_USER_DTO_IS_NULL);
 
-//    private Warehouse findWarehouseById(Long warehouseId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException {
-//        logger.info("Searching for warehouse with id: {}", warehouseId);
-//        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
-//        Optional<Warehouse> result = warehouseDAO.findById(warehouseId);
-//        if (result.isPresent()) {
-//            return result.get();
-//        } else throw new ResourceNotFoundException("Warehouse with such id was not found");
-//
-//    }
+        User user = new User();
 
-//    private WarehouseCompany findWarehouseCompanyById(Long companyId) throws IllegalParametersException, GenericDAOException, ResourceNotFoundException {
-//        logger.info("Searching for company with id: {}", companyId);
-//        if (companyId == null) throw new IllegalParametersException("Company id is null");
-//        Optional<WarehouseCompany> result = warehouseCompanyDAO.findById(companyId);
-//        if (result.isPresent()) {
-//            return result.get();
-//        } else throw new ResourceNotFoundException("Warehouse company with such id was not found");
-//
-//    }
+        user.setFirstName(user.getFirstName());
+        user.setLastName(user.getLastName());
+        user.setPatronymic(user.getPatronymic());
+        user.setDateOfBirth(user.getDateOfBirth());
+        user.setCity(user.getCity());
+        user.setStreet(user.getStreet());
+        user.setHouse(user.getHouse());
+        user.setApartment(user.getApartment());
+        user.setEmail(user.getEmail());
+        user.setLogin(user.getLogin());
+        user.setPassword(user.getPassword());
+
+        return user;
+    }
+
 
     @Override
     @Transactional
     public User createSupervisor(Long warehouseId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Create supervisor for warehouse with id: {}", warehouseId);
-        if (warehouseId == null) throw new IllegalParametersException("Warehouse id is null");
+        logger.info("Create supervisor, warehouse id: {}", warehouseId);
+        if (warehouseId == null) {
+            throw new IllegalParametersException("Warehouse id is null");
+        }
+
         try {
             Warehouse warehouse = warehouseService.findWarehouseById(warehouseId);
             if (warehouse != null) {
@@ -329,34 +359,45 @@ public class UserServiceImpl implements UserService {
 
                 Role role = findRoleByName(UserRoleEnum.ROLE_ADMIN.toString());
                 List<Role> roles = new ArrayList<>();
-                if (role != null)
+                if (role != null) {
                     roles.add(findRoleByName(role.getRole()));
+                }
                 user.setRoles(roles);
                 return userDAO.insert(user);
-            } else throw new ResourceNotFoundException("Company with such id was not found");
+            } else throw new ResourceNotFoundException("Company with id " + warehouseId + "was not found");
         } catch (GenericDAOException e) {
-            logger.error("Error during saving user: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     private Role findRoleByName(String roleName) throws GenericDAOException, IllegalParametersException {
-        logger.info("Searching for role with name: {}", roleName);
-        if (roleName == null) throw new IllegalParametersException("Role name is null");
+        logger.info("Find role, name: {}", roleName);
+        if (roleName == null) {
+            throw new IllegalParametersException("Role name is null");
+        }
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
         criteria.add(Restrictions.eq("role", roleName));
         List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, 1);
-        if (!fetchedRoles.isEmpty())
+        if (!fetchedRoles.isEmpty()) {
             return fetchedRoles.get(0);
-        else throw new IllegalParametersException("Invalid role name: " + roleName);
+        } else {
+            throw new IllegalParametersException("Invalid role name: " + roleName);
+        }
     }
 
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'WarehouseCompany', 'UPDATE')")
     public User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Updating user with id: {} from DTO: {}", id, userDTO);
-        if (id == null || userDTO == null) throw new IllegalParametersException("User DTO or id is null");
+        logger.info("Update user, id: {}, DTO: {}", id, userDTO);
+        if (id == null) {
+            throw new IllegalParametersException("Id is null");
+        }
+        if (userDTO == null) {
+            throw new IllegalParametersException(ERROR_USER_DTO_IS_NULL);
+        }
+
         try {
             User user = userDAO.findUserById(id);
             if (user != null) {
@@ -367,9 +408,11 @@ public class UserServiceImpl implements UserService {
                     }
                 }
                 user.setFirstName(userDTO.getFirstName());
-                if (StringUtils.isNotBlank(userDTO.getLastName()))
+                if (StringUtils.isNotBlank(userDTO.getLastName())) {
                     user.setLastName(userDTO.getLastName());
-                else throw new IllegalParametersException("Field last name can not be empty");
+                } else {
+                    throw new IllegalParametersException("Field last name can not be empty");
+                }
                 user.setPatronymic(userDTO.getPatronymic());
                 user.setDateOfBirth(userDTO.getDateOfBirth());
                 user.setCity((userDTO.getCity()));
@@ -378,15 +421,18 @@ public class UserServiceImpl implements UserService {
                 user.setApartment(userDTO.getApartment());
                 user.setEmail(userDTO.getEmail());
                 if (StringUtils.isNotBlank(userDTO.getLogin())) {
-                    if (!user.getLogin().equals(userDTO.getLogin()))
-                        if (!isLoginOccupied(userDTO.getLogin()))
+                    if (!user.getLogin().equals(userDTO.getLogin())) {
+                        if (!isLoginOccupied(userDTO.getLogin())) {
                             user.setLogin(userDTO.getLogin());
-                        else throw new IllegalParametersException("Login name is occupied");
-
+                        } else {
+                            throw new IllegalParametersException("Login name is occupied");
+                        }
+                    }
 
                 }
-                if (StringUtils.isNotBlank(userDTO.getPassword()))
+                if (StringUtils.isNotBlank(userDTO.getPassword())) {
                     user.setPassword(userDTO.getPassword());
+                }
                 //todo uncomment
 //                if (StringUtils.isNotBlank(userDTO.getPassword())) {
 //                    user.setPassword(encoder.encode(userDTO.getPassword()));
@@ -398,20 +444,23 @@ public class UserServiceImpl implements UserService {
                 if (roles != null) {
                     for (RoleDTO role : roles) {
                         if (role.getRole().equals(UserRoleEnum.ROLE_ADMIN.toString())) {
-                            if (UserDetailsProvider.getUserDetails().getUser() != null)
-                                if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString()))
+                            if (UserDetailsProvider.getUserDetails().getUser() != null) {
+                                if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
                                     newRoles.add(findRoleByName(role.getRole()));
-                        } else newRoles.add(findRoleByName(role.getRole()));
+                                }
+                            }
+                        } else {
+                            newRoles.add(findRoleByName(role.getRole()));
+                        }
                     }
                     user.setRoles(newRoles);
                 } else {
                     throw new IllegalParametersException("At least one role has to be selected");
                 }
                 return userDAO.update(user);
-            } else throw new ResourceNotFoundException("User with such id was not found");
+            } else throw new ResourceNotFoundException("User with id " + id + " was not found");
         } catch (GenericDAOException e) {
-            logger.error("Error during updating user: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
@@ -419,78 +468,109 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'WarehouseCompany', 'DELETE')")
     public void deleteUser(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Deleting user with id: {}", id);
-        if (id == null) throw new IllegalParametersException("Id is null");
+        logger.info("Delete user, id: {}", id);
+        if (id == null) {
+            throw new IllegalParametersException("Id is null");
+        }
+
         try {
             Optional<User> result = userDAO.findById(id);
             if (result.isPresent()) {
                 User user = result.get();
                 user.setDeleted(new Date(DateTime.now().toDate().getTime()));
-            } else throw new ResourceNotFoundException("User with such id was not found");
+            } else {
+                throw new ResourceNotFoundException("User with id " + id + " was not found");
+            }
         } catch (GenericDAOException e) {
-            logger.error("Error during deleting user: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean isUserExists(Long id) throws DataAccessException, IllegalParametersException {
-        //todo
-        logger.info("Checking if user with id {} exists", id);
-        if (id == null) throw new IllegalParametersException("Id is null");
+        logger.info("Check if user exists, id {} exists", id);
+        if (id == null) {
+            throw new IllegalParametersException("Id is null");
+        }
+
         try {
             return userDAO.isExistsEntity(id);
         } catch (GenericDAOException e) {
-            logger.error("Error while determine if user exists: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean hasRole(Long userId, UserRoleEnum role) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Checking if user with id {} has role {}", userId, role);
-        if (userId == null || role == null) throw new IllegalParametersException("User id or role is null");
+        logger.info("Check if user has role, id {}, role {}", userId, role);
+        if (userId == null) {
+            throw new IllegalParametersException(ERROR_USER_ID_IS_NULL);
+        }
+        if (role == null) {
+            throw new IllegalParametersException("Role is null");
+        }
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
         criteria.add(Restrictions.eq("role", role.toString()));
         try {
             List<Role> fetchedRoles = roleDAO.findAll(criteria, -1, -1);
-            if (fetchedRoles.isEmpty())
+            if (fetchedRoles.isEmpty()) {
                 throw new ResourceNotFoundException("Role " + role.toString() + " was not found");
+            }
             Role foundRole = fetchedRoles.get(0);
-            UserDTO user = findUserDTOById(userId);
-            if (user == null)
+            User user = findUserById(userId);
+            if (user == null) {
                 throw new ResourceNotFoundException("User with such id was not found");
+            }
             return user.getRoles().contains(foundRole);
         } catch (GenericDAOException e) {
-            logger.error("Error during access to database: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<RoleDTO> getRoles() throws DataAccessException {
-        logger.info("Getting roles list");
+        logger.info("Get roles");
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Role.class);
         try {
             List<Role> roleList = roleDAO.findAll(criteria, -1, -1);
-            return mapRoleListToDTO(roleList);
+            return mapRoleListToDTOList(roleList);
         } catch (GenericDAOException e) {
-            logger.error("Error during roles list retrieval: {}", e.getMessage());
-            throw new DataAccessException(e.getCause());
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     private UserDTO mapUserToDTO(User user) {
         Assert.notNull(user, "User is null");
-        UserDTO userDTO = UserDTO.buildUserDTO(user);
-        userDTO.setRoles(mapRoleListToDTO(user.getRoles()));
+
+        UserDTO userDTO = new UserDTO();
+
+        userDTO.setId(user.getId());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
+        userDTO.setPatronymic(user.getPatronymic());
+        userDTO.setDateOfBirth(user.getDateOfBirth());
+        userDTO.setCity(user.getCity());
+        userDTO.setStreet(user.getStreet());
+        userDTO.setHouse(user.getHouse());
+        userDTO.setApartment(user.getApartment());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setLogin(user.getLogin());
+        userDTO.setPassword(user.getPassword());
+        userDTO.setWarehouse(user.getWarehouse());
+        userDTO.setWarehouseCompany(user.getWarehouseCompany());
+
+        userDTO.setRoles(mapRoleListToDTOList(user.getRoles()));
+
         return userDTO;
     }
 
-    private List<UserDTO> mapUserListToDTO(List<User> userList) {
+
+    private List<UserDTO> mapUserListToDTOList(List<User> userList) {
         Assert.notNull(userList, "User list is null");
         List<UserDTO> dtoList = new ArrayList<>();
         for (User user : userList) {
@@ -501,10 +581,15 @@ public class UserServiceImpl implements UserService {
 
     private RoleDTO mapRoleToDTO(Role role) {
         Assert.notNull(role, "Role is null");
-        return RoleDTO.buildRoleDTO(role);
+
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setIdRole(role.getIdRole());
+        roleDTO.setRole(role.getRole());
+
+        return roleDTO;
     }
 
-    private List<RoleDTO> mapRoleListToDTO(List<Role> roleList) {
+    private List<RoleDTO> mapRoleListToDTOList(List<Role> roleList) {
         Assert.notNull(roleList, "Role list is null");
         List<RoleDTO> dtoList = new ArrayList<>();
         for (Role role : roleList) {

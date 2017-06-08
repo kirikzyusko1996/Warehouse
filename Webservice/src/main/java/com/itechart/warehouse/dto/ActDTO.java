@@ -2,13 +2,11 @@ package com.itechart.warehouse.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.Act;
-import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.User;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.util.Assert;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -18,7 +16,8 @@ import java.util.List;
  */
 @Setter
 @Getter
-@lombok.ToString(exclude = "goodsList")
+@ToString(exclude = "goodsList")
+@EqualsAndHashCode(exclude = "goodsList")
 public class ActDTO {
     private List<GoodsDTO> goodsList;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
@@ -30,16 +29,4 @@ public class ActDTO {
     @NotBlank (message = "Note is blank")
     private String note;
     private Long warehouseId;
-
-    public static ActDTO buildActDTO(Act act) {
-        Assert.notNull(act, "Act is null");
-        ActDTO actDTO = new ActDTO();
-        actDTO.setId(act.getId());
-        if (act.getActType() != null)
-            actDTO.setType(act.getActType().getName());
-        actDTO.setDate(act.getDate());
-        actDTO.setNote(act.getNote());
-//        actDTO.setUser(UserDTO.buildUserDTO(act.getUser()));
-        return actDTO;
-    }
 }

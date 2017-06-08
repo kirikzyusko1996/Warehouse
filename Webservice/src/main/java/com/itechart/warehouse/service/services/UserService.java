@@ -38,7 +38,7 @@ public interface UserService {
 
     List<User> findUserByBirthday(DateTime date) throws IllegalParametersException, DataAccessException;
 
-    User createUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    User saveUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     User createSupervisor(Long warehouseId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

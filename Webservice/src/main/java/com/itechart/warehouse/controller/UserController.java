@@ -41,8 +41,13 @@ import java.util.List;
 @RequestMapping(value = "/user")
 @Validated
 public class UserController {
-    private UserService userService;
+    private static final String HEADER_X_TOTAL_COUNT = "X-total-count";
+    private static final String HEADER_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    private static final String EXCEPTION_MESSAGE = "Exception during request handling: {}";
+    private static final String EXCEPTION_MESSAGE_COULD_NOT_RETRIEVE = "Could not retrieve authenticated user information";
     private Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    private UserService userService;
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -52,8 +57,8 @@ public class UserController {
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<UserDTO>> getUsers(@RequestParam(defaultValue = "-1") int page,
-                                               @RequestParam(defaultValue = "0") int count,
-                                               HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
+                                                  @RequestParam(defaultValue = "0") int count,
+                                                  HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<UserDTO> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
@@ -61,9 +66,9 @@ public class UserController {
         if (company != null) {
             users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
             long userCount = userService.getUsersCount(company.getIdWarehouseCompany());
-            response.addHeader("X-total-count", String.valueOf(userCount));
-            response.addHeader("Access-Control-Expose-Headers", "X-total-count");
-        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+            response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(userCount));
+            response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
+        } else throw new RequestHandlingException(EXCEPTION_MESSAGE_COULD_NOT_RETRIEVE);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -76,7 +81,7 @@ public class UserController {
         UserDTO user = null;
         if (company != null) {
             user = userService.findUserDTOById(id);
-        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+        } else throw new RequestHandlingException(EXCEPTION_MESSAGE_COULD_NOT_RETRIEVE);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -96,13 +101,13 @@ public class UserController {
         WarehouseCompany company = UserDetailsProvider.getUserDetails().getCompany();
         if (company != null) {
             Long companyId = company.getIdWarehouseCompany();
-            User user = userService.createUser(companyId, userDTO);
+            User user = userService.saveUser(companyId, userDTO);
             if (user != null) {
                 IdResponse idResponse = new IdResponse();
                 idResponse.setId(user.getId());
                 return new ResponseEntity<>(idResponse, HttpStatus.CREATED);
             } else throw new RequestHandlingException("User was not stored");
-        } else throw new RequestHandlingException("Could not retrieve authenticated user information");
+        } else throw new RequestHandlingException(EXCEPTION_MESSAGE_COULD_NOT_RETRIEVE);
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT,
@@ -126,7 +131,7 @@ public class UserController {
 
     @RequestMapping(value = "/is_occupied", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<StatusResponse> isLoginOccupied(@RequestParam String loginName) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
+    public ResponseEntity<StatusResponse> isLoginOccupied(@RequestParam String loginName) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Handling request for checking if loginName {} is occupied", loginName);
         StatusResponse resp = new StatusResponse();
         if (userService.findUserByLogin(loginName) != null) {
@@ -153,7 +158,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(IllegalParametersException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError(e.getMessage());
         return illegalParametersError;
@@ -164,7 +169,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(HttpMessageNotReadableException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError("Message is syntactically incorrect");
         return illegalParametersError;
@@ -175,7 +180,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(ResourceNotFoundException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError resourceNotFoundError = new RequestHandlingError();
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
@@ -186,7 +191,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;
@@ -197,7 +202,7 @@ public class UserController {
     public
     @ResponseBody
     RequestHandlingError handleException(AccessDeniedException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;

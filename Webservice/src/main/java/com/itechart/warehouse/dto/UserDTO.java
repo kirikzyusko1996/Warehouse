@@ -3,14 +3,14 @@ package com.itechart.warehouse.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itechart.warehouse.deserializer.TrimmingJsonDeserializer;
-import com.itechart.warehouse.entity.*;
-import com.itechart.warehouse.service.exception.IllegalParametersException;
+import com.itechart.warehouse.entity.Warehouse;
+import com.itechart.warehouse.entity.WarehouseCompany;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.util.Assert;
 
 import java.sql.Date;
 import java.util.List;
@@ -20,7 +20,8 @@ import java.util.List;
  */
 @Setter
 @Getter
-@lombok.ToString(exclude = {"roles", "warehouse", "warehouseCompany"})
+@ToString(exclude = {"roles", "warehouse", "warehouseCompany"})
+@EqualsAndHashCode(exclude = {"roles", "warehouse", "warehouseCompany"})
 public class UserDTO {
     private Long id;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
@@ -50,40 +51,4 @@ public class UserDTO {
     private List<RoleDTO> roles;
     private Warehouse warehouse;
     private WarehouseCompany warehouseCompany;
-
-    public User buildUserEntity() {
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setPatronymic(patronymic);
-        user.setDateOfBirth(dateOfBirth);
-        user.setCity(city);
-        user.setStreet(street);
-        user.setHouse(house);
-        user.setApartment(apartment);
-        user.setEmail(email);
-        user.setLogin(login);
-        user.setPassword(password);
-        return user;
-    }
-
-    public static UserDTO buildUserDTO(User user) {
-        Assert.notNull(user, "User is null");
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setFirstName(user.getFirstName());
-        userDTO.setLastName(user.getLastName());
-        userDTO.setPatronymic(user.getPatronymic());
-        userDTO.setDateOfBirth(user.getDateOfBirth());
-        userDTO.setCity(user.getCity());
-        userDTO.setStreet(user.getStreet());
-        userDTO.setHouse(user.getHouse());
-        userDTO.setApartment(user.getApartment());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setLogin(user.getLogin());
-        userDTO.setPassword(user.getPassword());
-        userDTO.setWarehouse(user.getWarehouse());
-        userDTO.setWarehouseCompany(user.getWarehouseCompany());
-        return userDTO;
-    }
 }

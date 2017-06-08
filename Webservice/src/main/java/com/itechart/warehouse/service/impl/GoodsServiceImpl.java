@@ -154,7 +154,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goods = goodsDAO.getById(id);
             if (goods != null) {
-                return mapGoodsToDTOs(goods);
+                return mapGoodsToDTO(goods);
             } else {
                 throw new ResourceNotFoundException("Goods with id " + id + " was not found");
             }
@@ -174,7 +174,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         try {
             List<Goods> goodsList = goodsDAO.findByWarehouseId(warehouseId, firstResult, maxResults);
-            return mapGoodsListToDTOs(goodsList);
+            return mapGoodsListToDTOList(goodsList);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -191,7 +191,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         try {
             List<Goods> goodsList = goodsDAO.findStoredGoodsByWarehouseId(warehouseId, firstResult, maxResults);
-            return mapGoodsListToDTOs(goodsList);
+            return mapGoodsListToDTOList(goodsList);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -207,7 +207,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         try {
             List<Goods> goodsList = goodsDAO.findApplicableToActGoodsByWarehouseId(warehouseId, firstResult, maxResults);
-            return mapGoodsListToDTOs(goodsList);
+            return mapGoodsListToDTOList(goodsList);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -299,7 +299,7 @@ public class GoodsServiceImpl implements GoodsService {
         }
 
         List<Goods> goods = findGoodsForIncomingInvoice(invoiceId, -1, -1);
-        return mapGoodsListToDTOs(goods);
+        return mapGoodsListToDTOList(goods);
     }
 
     @Override
@@ -317,7 +317,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             GoodsSearchCriteria criteria = convertGoodsSearchDTOToCriteria(goodsSearchDTO);
             List<Goods> goodsList = goodsDAO.findGoodsForWarehouseByCriteria(warehouseId, criteria, firstResult, maxResults);
-            return mapGoodsListToDTOs(goodsList);
+            return mapGoodsListToDTOList(goodsList);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -355,7 +355,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         try {
             List<GoodsStatus> statuses = goodsStatusDAO.findByGoodsId(goodsId);
-            return mapGoodsStatusesToDTOs(statuses);
+            return mapGoodsStatusListToDTOList(statuses);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -867,27 +867,60 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
 
-    private List<GoodsDTO> mapGoodsListToDTOs(List<Goods> goodsList) {
-        List<GoodsDTO> dtos = new ArrayList<>();
+    private List<GoodsDTO> mapGoodsListToDTOList(List<Goods> goodsList) {
+        Assert.notNull(goodsList, "Goods list is null");
+
+        List<GoodsDTO> dtoList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(goodsList)) {
-            dtos.addAll(goodsList.stream().map(this::mapGoodsToDTOs).collect(Collectors.toList()));
+            dtoList.addAll(goodsList.stream().map(this::mapGoodsToDTO).collect(Collectors.toList()));
         }
-        return dtos;
+        return dtoList;
     }
 
-    private GoodsDTO mapGoodsToDTOs(Goods goods) {
+    private GoodsDTO mapGoodsToDTO(Goods goods) {
         Assert.notNull(goods, ERROR_GOODS_IS_NULL);
-        GoodsDTO dto = GoodsDTO.buildGoodsDTO(goods);
-        List<StorageCellDTO> cellDTOs = new ArrayList<>();
-        for (StorageCell cell : goods.getCells()) {
-            StorageCellDTO cellDTO = new StorageCellDTO();
-            cellDTO.setIdGoods(goods.getId());
-            cellDTO.setIdStorageCell(cell.getIdStorageCell());
-            cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
-            cellDTO.setNumber(cell.getNumber());
-            cellDTOs.add(cellDTO);
+
+        GoodsDTO dto = new GoodsDTO();
+
+        dto.setId(goods.getId());
+        dto.setName(goods.getName());
+        dto.setQuantity(goods.getQuantity());
+        dto.setWeight(goods.getWeight());
+        dto.setPrice(goods.getPrice());
+        dto.setStorageType(goods.getStorageType());
+        dto.setWeightUnit(goods.getWeightUnit());
+        dto.setQuantityUnit(goods.getQuantityUnit());
+        dto.setPriceUnit(goods.getPriceUnit());
+
+        if (goods.getCurrentStatus() != null) {
+            dto.setCurrentStatus(mapGoodsStatusToDTO(goods.getCurrentStatus()));
         }
-        dto.setCells(cellDTOs);
+
+        if (goods.getRegisteredStatus() != null) {
+            dto.setRegisteredStatus(mapGoodsStatusToDTO(goods.getRegisteredStatus()));
+        }
+
+        if (goods.getMovedOutStatus() != null) {
+            dto.setMovedOutStatus(mapGoodsStatusToDTO(goods.getMovedOutStatus()));
+        }
+
+        if (goods.getWarehouse() != null) {
+            dto.setWarehouseId(goods.getWarehouse().getIdWarehouse());
+        }
+
+        List<StorageCellDTO> cellDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(goods.getCells())) {
+            for (StorageCell cell : goods.getCells()) {
+                StorageCellDTO cellDTO = new StorageCellDTO();
+                cellDTO.setIdGoods(goods.getId());
+                cellDTO.setIdStorageCell(cell.getIdStorageCell());
+                cellDTO.setIdStorageSpace(cell.getStorageSpace().getIdStorageSpace());
+                cellDTO.setNumber(cell.getNumber());
+                cellDTOList.add(cellDTO);
+            }
+        }
+        dto.setCells(cellDTOList);
+
         return dto;
     }
 
@@ -895,17 +928,27 @@ public class GoodsServiceImpl implements GoodsService {
     private GoodsStatusDTO mapGoodsStatusToDTO(GoodsStatus status) {
         Assert.notNull(status, "Status is null");
 
-        GoodsStatusDTO dto = GoodsStatusDTO.buildStatusDTO(status);
+        GoodsStatusDTO dto = new GoodsStatusDTO();
+
+        dto.setId(status.getId());
+        dto.setDate(status.getDate());
+        dto.setNote(status.getNote());
+
+        if (status.getGoodsStatusName() != null) {
+            dto.setName(status.getGoodsStatusName().getName());
+        }
+
         User user = new User();
         user.setId(status.getUser().getId());
         user.setLastName(status.getUser().getLastName());
         user.setFirstName(status.getUser().getFirstName());
         user.setPatronymic(status.getUser().getPatronymic());
         dto.setUser(user);
+
         return dto;
     }
 
-    private List<GoodsStatusDTO> mapGoodsStatusesToDTOs(List<GoodsStatus> statuses) {
+    private List<GoodsStatusDTO> mapGoodsStatusListToDTOList(List<GoodsStatus> statuses) {
         Assert.notNull(statuses, "Statuses is null");
         List<GoodsStatusDTO> statusDTOs = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(statuses)) {

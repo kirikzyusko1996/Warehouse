@@ -1,7 +1,6 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.dto.UserDTO;
-import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
