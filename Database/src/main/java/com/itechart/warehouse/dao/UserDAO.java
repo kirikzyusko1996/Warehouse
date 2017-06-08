@@ -18,64 +18,78 @@ public class UserDAO extends DAO<User> {
     }
 
     public List<User> findUsersByWarehouseCompanyId(Long warehouseCompanyId, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find {} users starting from {} by warehouse company id: {}", maxResults, firstResult, warehouseCompanyId);
+        logger.info("Find users, first result: {}, max results: {}, warehouse company id: {}", firstResult, maxResults, warehouseCompanyId);
+
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " INNER JOIN WarehouseCompany company ON company = user.warehouseCompany" +
                 " WHERE company.idWarehouseCompany = :warehouseCompanyId AND user.deleted IS NULL" +
                 " ORDER BY user.id";
+
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseCompanyId", warehouseCompanyId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
+
         return query.list();
     }
 
 
-    public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException{
-        logger.info("Get users count for warehouse company with id: {}", warehouseCompanyId);
+    public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException {
+        logger.info("Get users count,warehouse company id: {}", warehouseCompanyId);
+
         String queryHql = "SELECT count(DISTINCT user.id)" +
                 " FROM User user" +
                 " INNER JOIN WarehouseCompany company ON company = user.warehouseCompany" +
                 " WHERE company.idWarehouseCompany = :warehouseCompanyId AND user.deleted IS NULL";
+
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseCompanyId", warehouseCompanyId);
+
         return query.getSingleResult();
     }
 
     public List<User> findUsersByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find {} users starting from {} by warehouse id: {}", maxResults, firstResult, warehouseId);
+        logger.info("Find users, first result: {}, max results: {}, warehouse id: {}", firstResult, maxResults, warehouseId);
+
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " INNER JOIN Warehouse warehouse ON warehouse = user.warehouse" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND user.deleted IS NULL" +
                 " ORDER BY user.id";
+
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
+
         return query.list();
     }
 
 
     public List<User> findUsersByBirthDay(DateTime date) throws GenericDAOException {
-        logger.info("Find users by birthday: {}", date);
+        logger.info("Find users with birthday, date: {}", date);
+
         String queryHql = "SELECT user" +
                 " FROM User user" +
                 " WHERE MONTH(user.dateOfBirth) = :month AND DAY(user.dateOfBirth) = :day AND user.deleted IS NULL" +
                 " ORDER BY user.id";
+
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("month", date.getMonthOfYear());
         query.setParameter("day", date.getDayOfMonth());
+
         return query.list();
     }
 
 
     public User findUserById(Long id) throws GenericDAOException {
-        logger.info("Find user by id: {}", id);
+        logger.info("Find user, id: {}", id);
+
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
                 " WHERE user.id = :id AND user.deleted IS NULL";
+
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("id", id);
         try {

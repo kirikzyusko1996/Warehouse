@@ -510,11 +510,44 @@ public class GoodsServiceImpl implements GoodsService {
             goodsInAct.setPrice(goodsInActDTO.getPrice());
             initialGoods.setPrice(initialGoods.getPrice().subtract(goodsInActDTO.getPrice()));
         } else {
-            throw new IllegalParametersException("Weight covered by act can not be greater than initial value");
+            throw new IllegalParametersException("Price covered by act can not be greater than initial value");
         }
 
         return goodsDAO.insert(goodsInAct);
     }
+
+    private Goods createGoodsForInvoice(Goods initialGoods, GoodsDTO goodsInInvoiceDTO) throws GenericDAOException, IllegalParametersException {
+        Assert.notNull(goodsInInvoiceDTO, ERROR_GOODS_DTO_IS_NULL);
+
+        Goods goodsInInvoice = new Goods(initialGoods);
+        goodsInInvoice.setStatuses(new ArrayList<>());//emptying statuses for affected by act goods
+        goodsInInvoice.setCells(new ArrayList<>());//emptying cells for affected by act goods
+        initialGoods.setActs(new ArrayList<>());//emptying acts for not affected by act goods
+
+        if (goodsInInvoiceDTO.getQuantity().compareTo(initialGoods.getQuantity()) <= 0) {
+            goodsInInvoice.setQuantity(goodsInInvoiceDTO.getQuantity());
+            initialGoods.setQuantity(initialGoods.getQuantity().subtract(goodsInInvoiceDTO.getQuantity()));
+        } else {
+            throw new IllegalParametersException("Quantity in invoice can not be greater than initial value");
+        }
+
+        if (goodsInInvoiceDTO.getWeight().compareTo(initialGoods.getWeight()) <= 0) {
+            goodsInInvoice.setWeight(goodsInInvoiceDTO.getWeight());
+            initialGoods.setWeight(initialGoods.getWeight().subtract(goodsInInvoiceDTO.getWeight()));
+        } else {
+            throw new IllegalParametersException("Weight in invoice can not be greater than initial value");
+        }
+
+        if (goodsInInvoiceDTO.getPrice().compareTo(initialGoods.getPrice()) <= 0) {
+            goodsInInvoice.setPrice(goodsInInvoiceDTO.getPrice());
+            initialGoods.setPrice(initialGoods.getPrice().subtract(goodsInInvoiceDTO.getPrice()));
+        } else {
+            throw new IllegalParametersException("Price in invoice can not be greater than initial value");
+        }
+
+        return goodsDAO.insert(goodsInInvoice);
+    }
+
 
     private String getGoodsStatusNameForAct(String actTypeName) {
         Assert.notNull(actTypeName, "Act type name is null");
@@ -735,7 +768,43 @@ public class GoodsServiceImpl implements GoodsService {
         } else {
             throw new ResourceNotFoundException("Invoice with id " + invoiceId + " was not found");
         }
+    }
 
+    @Override
+    @Transactional
+    public List<Goods> updateAndGetGoodsForOutgoingInvoice(Long invoiceId, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
+        logger.info("Update and get goods for invoice, invoice id {}, list of goods: {}", invoiceId, goodsList);
+        if (invoiceId == null) {
+            throw new IllegalParametersException("Invoice id is null");
+        }
+        if (goodsList == null) {
+            throw new IllegalParametersException("Goods list is null");
+        }
+
+        List<Goods> goodsInInvoiceList = new ArrayList<>();
+        try {
+            for (GoodsDTO goodsDTO : goodsList) {
+                if (goodsDTO != null) {
+                    Goods initialGoods = findGoodsById(goodsDTO.getId());
+
+                    if (goodsDTO.getQuantity().compareTo(initialGoods.getQuantity()) == 0) {
+                        //if all amount is affected by act
+                        goodsInInvoiceList.add(initialGoods);
+                        setGoodsStatus(initialGoods.getId(), GoodsStatusEnum.WITHDRAWN);
+                        removeGoodsFromStorage(initialGoods.getId());
+                    } else {
+                        Goods goodsInAct = createGoodsForInvoice(initialGoods, goodsDTO);
+                        if (goodsInAct != null) {
+                            setGoodsStatus(goodsInAct.getId(), GoodsStatusEnum.WITHDRAWN);
+                            goodsInInvoiceList.add(goodsInAct);
+                        }
+                    }
+                }
+            }
+            return goodsInInvoiceList;
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
     }
 
     @Override

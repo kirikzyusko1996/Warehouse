@@ -1,14 +1,11 @@
 package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.controller.error.RequestHandlingError;
-import com.itechart.warehouse.controller.response.StatusEnum;
-import com.itechart.warehouse.controller.response.StatusResponse;
 import com.itechart.warehouse.mail.EmailSenderService;
 import com.itechart.warehouse.mail.EmailSendingResult;
 import com.itechart.warehouse.mail.Template;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
-import com.itechart.warehouse.service.exception.RequestHandlingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +16,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.itechart.warehouse.util.Host.origins;
-
 /**
  * REST controller for handling requests to send email.
  */
-@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/email")
 public class EmailController {
@@ -39,12 +33,11 @@ public class EmailController {
     @RequestMapping(value = "", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EmailSendingResult> getActs(@RequestBody Template template,
-                                                  @RequestParam(required = false) final MultipartFile image) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+                                                      @RequestParam(required = false) final MultipartFile image) throws IllegalParametersException {
         logger.info("Handling request for sending email according to template: {}", template);
         EmailSendingResult result = emailSenderService.sendEmail(template, image);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
 
 
     @ExceptionHandler(DataAccessException.class)

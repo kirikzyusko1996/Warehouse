@@ -17,7 +17,6 @@ import java.util.List;
  * Provides basic operations with acts such as searching, creation, updating, deleting.
  */
 public interface ActService {
-    List<Act> findAllActs(int firstResult, int maxResults) throws DataAccessException;
 
     Act findActById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
@@ -44,7 +43,5 @@ public interface ActService {
     Act updateAct(Long id, ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void deleteAct(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
-
-    boolean isActExists(Long id) throws DataAccessException, IllegalParametersException;
 
 }

@@ -83,18 +83,6 @@ public class ActServiceImpl implements ActService {
         this.userService = userService;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Act> findAllActs(int firstResult, int maxResults) throws DataAccessException {
-        logger.info("Find acts, first result: {}, max results {}", firstResult, maxResults);
-        DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
-        criteria.addOrder(Order.desc("date"));
-        try {
-            return actDAO.findAll(criteria, firstResult, maxResults);
-        } catch (GenericDAOException e) {
-            throw new DataAccessException(e.getMessage(), e);
-        }
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -437,20 +425,6 @@ public class ActServiceImpl implements ActService {
             } else {
                 throw new ResourceNotFoundException("Act with id " + id + " was not found");
             }
-        } catch (GenericDAOException e) {
-            throw new DataAccessException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public boolean isActExists(Long id) throws DataAccessException, IllegalParametersException {
-        logger.info("Check if act exists, id {}", id);
-        if (id == null) {
-            throw new IllegalParametersException(ERROR_ID_IS_NULL);
-        }
-
-        try {
-            return actDAO.isExistsEntity(id);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }

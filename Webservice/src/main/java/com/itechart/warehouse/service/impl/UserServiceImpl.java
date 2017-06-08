@@ -46,6 +46,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private static final String ERROR_USER_ID_IS_NULL = "User id is null";
     private static final String ERROR_USER_DTO_IS_NULL = "User DTO is null";
+    private static final String ERROR_ID_IS_NULL = "Id is null";
 
     private UserDAO userDAO;
     private RoleDAO roleDAO;
@@ -105,12 +106,13 @@ public class UserServiceImpl implements UserService {
     public UserDTO findUserDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user DTO, id: {}", id);
         if (id == null) {
-            throw new IllegalParametersException("Id is null");
+            throw new IllegalParametersException(ERROR_ID_IS_NULL);
         }
+
         try {
-            UserDTO user = mapUserToDTO(userDAO.findUserById(id));
+            User user = userDAO.findUserById(id);
             if (user != null) {
-                return user;
+                return mapUserToDTO(user);
             } else {
                 throw new ResourceNotFoundException("User with id " + id + " was not found");
             }
@@ -124,7 +126,7 @@ public class UserServiceImpl implements UserService {
     public User findUserById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user, id: {}", id);
         if (id == null) {
-            throw new IllegalParametersException("Id is null");
+            throw new IllegalParametersException(ERROR_ID_IS_NULL);
         }
 
         try {
@@ -251,11 +253,7 @@ public class UserServiceImpl implements UserService {
         criteria.add(Restrictions.isNull("deleted"));
         try {
             List<User> users = userDAO.findAll(criteria, -1, -1);
-            if (CollectionUtils.isNotEmpty(users)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (CollectionUtils.isNotEmpty(users));
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -281,11 +279,9 @@ public class UserServiceImpl implements UserService {
             if (StringUtils.isBlank(user.getLastName())) {
                 throw new IllegalParametersException("Field last name can not be empty");
             }
-            if (userDTO.getWarehouse() != null) {
-                if (userDTO.getWarehouse().getIdWarehouse() != null) {
-                    Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse());
-                    user.setWarehouse(warehouse);
-                }
+            if (userDTO.getWarehouse() != null && userDTO.getWarehouse().getIdWarehouse() != null) {
+                Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse());
+                user.setWarehouse(warehouse);
             }
             //todo uncomment
 //            if (StringUtils.isNotBlank(user.getPassword())) {
@@ -297,10 +293,8 @@ public class UserServiceImpl implements UserService {
             if (userDTO.getRoles() != null) {
                 for (RoleDTO role : userDTO.getRoles()) {
                     if (role.getRole().equals(UserRoleEnum.ROLE_ADMIN.toString())) {
-                        if (UserDetailsProvider.getUserDetails().getUser() != null) {
-                            if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
-                                roles.add(findRoleByName(role.getRole()));
-                            }
+                        if (UserDetailsProvider.getUserDetails().getUser() != null && UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
+                            roles.add(findRoleByName(role.getRole()));
                         }
                     } else {
                         roles.add(findRoleByName(role.getRole()));
@@ -392,7 +386,7 @@ public class UserServiceImpl implements UserService {
     public User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Update user, id: {}, DTO: {}", id, userDTO);
         if (id == null) {
-            throw new IllegalParametersException("Id is null");
+            throw new IllegalParametersException(ERROR_ID_IS_NULL);
         }
         if (userDTO == null) {
             throw new IllegalParametersException(ERROR_USER_DTO_IS_NULL);
@@ -401,11 +395,9 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userDAO.findUserById(id);
             if (user != null) {
-                if (userDTO.getWarehouse() != null) {
-                    if (userDTO.getWarehouse().getIdWarehouse() != null) {
-                        Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse());
-                        user.setWarehouse(warehouse);
-                    }
+                if (userDTO.getWarehouse() != null && userDTO.getWarehouse().getIdWarehouse() != null) {
+                    Warehouse warehouse = warehouseService.findWarehouseById(userDTO.getWarehouse().getIdWarehouse());
+                    user.setWarehouse(warehouse);
                 }
                 user.setFirstName(userDTO.getFirstName());
                 if (StringUtils.isNotBlank(userDTO.getLastName())) {
@@ -420,13 +412,11 @@ public class UserServiceImpl implements UserService {
                 user.setHouse(userDTO.getHouse());
                 user.setApartment(userDTO.getApartment());
                 user.setEmail(userDTO.getEmail());
-                if (StringUtils.isNotBlank(userDTO.getLogin())) {
-                    if (!user.getLogin().equals(userDTO.getLogin())) {
-                        if (!isLoginOccupied(userDTO.getLogin())) {
-                            user.setLogin(userDTO.getLogin());
-                        } else {
-                            throw new IllegalParametersException("Login name is occupied");
-                        }
+                if (StringUtils.isNotBlank(userDTO.getLogin()) && !user.getLogin().equals(userDTO.getLogin())) {
+                    if (!isLoginOccupied(userDTO.getLogin())) {
+                        user.setLogin(userDTO.getLogin());
+                    } else {
+                        throw new IllegalParametersException("Login name is occupied");
                     }
 
                 }
@@ -439,15 +429,13 @@ public class UserServiceImpl implements UserService {
 //                }
 
                 List<RoleDTO> roles = userDTO.getRoles();
-                List<Role> newRoles = new ArrayList<Role>();
+                List<Role> newRoles = new ArrayList<>();
 
                 if (roles != null) {
                     for (RoleDTO role : roles) {
                         if (role.getRole().equals(UserRoleEnum.ROLE_ADMIN.toString())) {
-                            if (UserDetailsProvider.getUserDetails().getUser() != null) {
-                                if (UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
-                                    newRoles.add(findRoleByName(role.getRole()));
-                                }
+                            if (UserDetailsProvider.getUserDetails().getUser() != null && UserDetailsProvider.getUserDetails().getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
+                                newRoles.add(findRoleByName(role.getRole()));
                             }
                         } else {
                             newRoles.add(findRoleByName(role.getRole()));
@@ -470,7 +458,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Delete user, id: {}", id);
         if (id == null) {
-            throw new IllegalParametersException("Id is null");
+            throw new IllegalParametersException(ERROR_ID_IS_NULL);
         }
 
         try {
@@ -491,7 +479,7 @@ public class UserServiceImpl implements UserService {
     public boolean isUserExists(Long id) throws DataAccessException, IllegalParametersException {
         logger.info("Check if user exists, id {} exists", id);
         if (id == null) {
-            throw new IllegalParametersException("Id is null");
+            throw new IllegalParametersException(ERROR_ID_IS_NULL);
         }
 
         try {
@@ -522,7 +510,7 @@ public class UserServiceImpl implements UserService {
             Role foundRole = fetchedRoles.get(0);
             User user = findUserById(userId);
             if (user == null) {
-                throw new ResourceNotFoundException("User with such id was not found");
+                throw new ResourceNotFoundException("User with id " + userId + " was not found");
             }
             return user.getRoles().contains(foundRole);
         } catch (GenericDAOException e) {
