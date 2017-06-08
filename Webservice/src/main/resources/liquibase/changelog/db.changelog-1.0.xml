@@ -432,6 +432,12 @@
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
+            <column name="x" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="y" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
             <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>

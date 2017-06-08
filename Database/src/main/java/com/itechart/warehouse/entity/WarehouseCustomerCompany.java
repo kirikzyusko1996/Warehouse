@@ -9,6 +9,8 @@ import javax.persistence.*;
 public class WarehouseCustomerCompany{
     private Long id;
     private String name;
+    private Float x;
+    private Float y;
     @JsonIgnore
     private WarehouseCompany warehouseCompany;
 
@@ -32,6 +34,24 @@ public class WarehouseCustomerCompany{
         this.name = name;
     }
 
+    @Column(name = "x")
+    public Float getX() {
+        return x;
+    }
+
+    public void setX(Float x) {
+        this.x = x;
+    }
+
+    @Column(name = "y")
+    public Float getY() {
+        return y;
+    }
+
+    public void setY(Float y) {
+        this.y = y;
+    }
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_warehouse_company")
     public WarehouseCompany getWarehouseCompany() {
@@ -50,14 +70,17 @@ public class WarehouseCustomerCompany{
         WarehouseCustomerCompany that = (WarehouseCustomerCompany) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (x != null ? !x.equals(that.x) : that.x != null) return false;
+        if (y != null ? !y.equals(that.y) : that.y != null) return false;
         return name != null ? name.equals(that.name) : that.name == null;
-
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (x != null ? x.hashCode() : 0);
+        result = 31 * result + (y != null ? y.hashCode() : 0);
         return result;
     }
 }

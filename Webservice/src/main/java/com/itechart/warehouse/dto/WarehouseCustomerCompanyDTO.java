@@ -9,5 +9,7 @@ import lombok.Setter;
 public class WarehouseCustomerCompanyDTO {
     private Long id;
     private String name;
+    private Float x;
+    private Float y;
     private Long warehouseCompanyId;
 }
