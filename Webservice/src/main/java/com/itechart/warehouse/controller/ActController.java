@@ -31,16 +31,18 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.itechart.warehouse.util.Host.origins;
-
 /**
  * REST controller for handling requests to goods service.
  */
-@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/act")
 @Validated
 public class ActController {
+
+    private static final String HEADER_X_TOTAL_COUNT = "X-total-count";
+    private static final String HEADER_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    private static final String EXCEPTION_MESSAGE = "Exception during request handling: {}";
+
     private ActService actService;
     private Logger logger = LoggerFactory.getLogger(ActController.class);
 
@@ -54,12 +56,12 @@ public class ActController {
     public ResponseEntity<List<ActDTO>> getActs(@PathVariable Long warehouseId,
                                                 @RequestParam(defaultValue = "-1") int page,
                                                 @RequestParam(defaultValue = "0") int count,
-                                                HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+                                                HttpServletResponse response) throws DataAccessException, IllegalParametersException {
         logger.info("GET on list/{}, page: {}, count: {}", warehouseId, page, count);
         List<ActDTO> acts = actService.findActsForWarehouse(warehouseId, (page - 1) * count, count);
         long actsCount = actService.getActsCount(warehouseId);
-        response.addHeader("X-total-count", String.valueOf(actsCount));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(actsCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }
 
@@ -94,7 +96,7 @@ public class ActController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IdResponse> saveAct(@Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, ResourceNotFoundException {
         logger.info("Handling request for saving new act using DTO: {}", actDTO);
-        Act savedAct = actService.createAct(actDTO);
+        Act savedAct = actService.saveAct(actDTO);
         if (savedAct != null)
             return new ResponseEntity<>(new IdResponse(savedAct.getId()), HttpStatus.CREATED);
         else throw new RequestHandlingException("Act was not stored");
@@ -125,12 +127,12 @@ public class ActController {
                                                  @RequestParam(defaultValue = "-1") int page,
                                                  @RequestParam(defaultValue = "0") int count,
                                                  @RequestBody ActSearchDTO actSearchDTO,
-                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException, RequestHandlingException {
+                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException {
         logger.info("Handling request for searching list of acts by field: {}, page: {}, count: {}", actSearchDTO, page, count);
         List<ActDTO> acts = actService.findActsForWarehouseByCriteria(warehouseId, actSearchDTO, (page - 1) * count, count);
         long c = actService.getCountOfActsForWarehouseByCriteria(warehouseId, actSearchDTO);
-        response.addHeader("X-total-count", String.valueOf(c));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(c));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(acts, HttpStatus.OK);
     }
 
@@ -162,7 +164,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(IllegalParametersException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError(e.getMessage());
         return illegalParametersError;
@@ -173,7 +175,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(HttpMessageNotReadableException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError("Message is syntactically incorrect");
         return illegalParametersError;
@@ -184,7 +186,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(ResourceNotFoundException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError resourceNotFoundError = new RequestHandlingError();
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
@@ -195,7 +197,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;
@@ -206,7 +208,7 @@ public class ActController {
     public
     @ResponseBody
     RequestHandlingError handleException(AccessDeniedException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e.getMessage());
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;

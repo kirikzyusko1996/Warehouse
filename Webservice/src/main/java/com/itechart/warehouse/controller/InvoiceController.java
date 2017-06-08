@@ -223,7 +223,7 @@ public class InvoiceController {
 
         List<Goods> goodsList;
         try {
-            goodsList = goodsService.findGoodsForInvoice(invoiceId, page, count);
+            goodsList = goodsService.findGoodsForIncomingInvoice(invoiceId, page, count);
         } catch (DataAccessException e) {
             logger.error("Error while retrieving all goods for specified invoice", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);

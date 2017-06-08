@@ -1,12 +1,12 @@
 package com.itechart.warehouse.controller;
 
+import com.itechart.warehouse.constants.GoodsStatusEnum;
 import com.itechart.warehouse.controller.error.RequestHandlingError;
 import com.itechart.warehouse.controller.error.ValidationError;
 import com.itechart.warehouse.controller.error.ValidationErrorBuilder;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
-import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.GoodsDTO;
 import com.itechart.warehouse.dto.GoodsSearchDTO;
 import com.itechart.warehouse.dto.GoodsStatusDTO;
@@ -34,18 +34,21 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.itechart.warehouse.util.Host.origins;
-
 /**
  * REST controller for handling requests to goods service.
  */
-@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/goods")
 @Validated
 public class GoodsController {
-    private GoodsService goodsService;
+
+    private static final String HEADER_X_TOTAL_COUNT = "X-total-count";
+    private static final String HEADER_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    private static final String EXCEPTION_MESSAGE = "Exception during request handling: {}";
+
     private Logger logger = LoggerFactory.getLogger(GoodsController.class);
+
+    private GoodsService goodsService;
 
     @Autowired
     public void setGoodsService(GoodsService goodsService) {
@@ -61,8 +64,8 @@ public class GoodsController {
         logger.info("GET on /{}/list, page: {}, count: {}", warehouseId, page, count);
         List<GoodsDTO> goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
         long goodsCount = goodsService.getGoodsCount(warehouseId);
-        response.addHeader("X-total-count", String.valueOf(goodsCount));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
@@ -95,8 +98,8 @@ public class GoodsController {
         logger.info("GET on /{}/stored, page: {}, count: {}", warehouseId, page, count);
         List<GoodsDTO> goods = goodsService.findStoredGoodsForWarehouse(warehouseId, (page - 1) * count, count);
         long goodsCount = goodsService.getStoredGoodsCount(warehouseId);
-        response.addHeader("X-total-count", String.valueOf(goodsCount));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
@@ -109,8 +112,8 @@ public class GoodsController {
         logger.info("GET on /{}/act_applicable, page: {}, count: {}", warehouseId, page, count);
         List<GoodsDTO> goods = goodsService.findActApplicableGoods(warehouseId, (page - 1) * count, count);
         long goodsCount = goodsService.getActApplicableGoodsCount(warehouseId);
-        response.addHeader("X-total-count", String.valueOf(goodsCount));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
@@ -224,11 +227,11 @@ public class GoodsController {
                                                     @RequestParam(defaultValue = "0") int count,
                                                     @PathVariable Long warehouseId,
                                                     @RequestBody GoodsSearchDTO searchDTO,
-                                                    HttpServletResponse response) throws DataAccessException, IllegalParametersException, GenericDAOException {
+                                                    HttpServletResponse response) throws DataAccessException, IllegalParametersException {
         logger.info("GET on /search/{}, request body: {}", warehouseId, searchDTO);
         List<GoodsDTO> goods = goodsService.findGoodsForWarehouseByCriteria(warehouseId, searchDTO, (page - 1) * count, count);
-        response.addHeader("X-total-count", String.valueOf(goodsService.getGoodsSearchResultCount(warehouseId, searchDTO)));
-        response.addHeader("Access-Control-Expose-Headers", "X-total-count");
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsService.getGoodsSearchResultCount(warehouseId, searchDTO)));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
@@ -237,7 +240,7 @@ public class GoodsController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> setGoodsStatus(@PathVariable(value = "id") Long id, @RequestBody GoodsStatusDTO statusDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("POST on /status/{}, request body: {}", id, statusDTO);
-        goodsService.setGoodsStatus(id, statusDTO);
+        goodsService.setGoodsStatus(id, GoodsStatusEnum.valueOf(statusDTO.getName()));
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.CREATED);
     }
 
@@ -265,6 +268,7 @@ public class GoodsController {
     public
     @ResponseBody
     ValidationError handleException(MethodArgumentNotValidException e) {
+        logger.error("Exception during request handling: {}", e);
         return createValidationError(e);
     }
 
@@ -277,6 +281,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(DataAccessException e) {
+        logger.error(EXCEPTION_MESSAGE, e);
         RequestHandlingError dataAccessError = new RequestHandlingError();
         dataAccessError.setError(e.getMessage());
         return dataAccessError;
@@ -287,7 +292,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(IllegalParametersException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e);
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError(e.getMessage());
         return illegalParametersError;
@@ -298,7 +303,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(HttpMessageNotReadableException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e);
         RequestHandlingError illegalParametersError = new RequestHandlingError();
         illegalParametersError.setError("Message is syntactically incorrect");
         return illegalParametersError;
@@ -309,7 +314,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(ResourceNotFoundException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e);
         RequestHandlingError resourceNotFoundError = new RequestHandlingError();
         resourceNotFoundError.setError(e.getMessage());
         return resourceNotFoundError;
@@ -320,7 +325,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(RequestHandlingException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e);
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;
@@ -331,7 +336,7 @@ public class GoodsController {
     public
     @ResponseBody
     RequestHandlingError handleException(AccessDeniedException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
+        logger.error(EXCEPTION_MESSAGE, e);
         RequestHandlingError requestHandlingError = new RequestHandlingError();
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;

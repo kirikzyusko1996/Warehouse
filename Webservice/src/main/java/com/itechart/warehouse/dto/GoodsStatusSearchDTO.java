@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.sql.Timestamp;
 
 /**
- * Data transfer object for searching goods status entity.
+ * Data transfer object for searching goods .
  */
 @Setter
 @Getter
