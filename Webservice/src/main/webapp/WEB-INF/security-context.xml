@@ -84,9 +84,10 @@
         </beans:property>
     </beans:bean>
 
-
+    <http pattern="/web/company/all" security="none"/>
     <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web"
           entry-point-ref="userDigestEntryPoint">
+        <!--<intercept-url pattern='/web/company/all' />-->
         <intercept-url pattern='/web/login/**' access="hasAnyRole('ROLE_ADMIN',
                                                                   'ROLE_SUPERVISOR',
                                                                   'ROLE_DISPATCHER',

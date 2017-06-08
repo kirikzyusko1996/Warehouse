@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,7 +50,7 @@ public class WarehouseCompanyController {
     }
 
     @RequestMapping(value = "/all", method = RequestMethod.GET)
-    //todo: make authentification?
+
     public ResponseEntity<List<WarehouseCompany>> readAllCompanies(){
         logger.info("GET on /company: find all companies");
         List<WarehouseCompany> companies;
