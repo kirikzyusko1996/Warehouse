@@ -3,12 +3,18 @@ package com.itechart.warehouse.dao;
 
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Act;
+import com.itechart.warehouse.entity.Warehouse;
+import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.query.ActSearchCriteria;
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.criterion.*;
 import org.hibernate.query.Query;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -16,13 +22,88 @@ import java.util.List;
  */
 @Repository
 public class ActDAO extends DAO<Act> {
+
+    private static final String ERROR_WAREHOUSE_ID_IS_NULL = "Warehouse id is null";
+    private static final String DELETED = "deleted";
+
     public ActDAO() {
         super(Act.class);
+    }
+
+    public List<Act> findActsForWarehouseByCriteria(Long warehouseId, ActSearchCriteria searchCriteria, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find acts, first result: {}, max results: {}, warehouse id: {}, criteria: {}", firstResult, maxResults, warehouseId, searchCriteria);
+        Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
+        Assert.notNull(searchCriteria, "Search criteria id is null");
+
+
+        DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
+        if (searchCriteria.getType() != null) {
+            criteria.add(Restrictions.eq("actType", searchCriteria.getType()));
+        }
+        if (searchCriteria.getFromDate() != null) {
+            criteria.add(Restrictions.ge("date", searchCriteria.getFromDate()));
+        }
+        if (searchCriteria.getToDate() != null) {
+            criteria.add(Restrictions.le("date", new Timestamp(new DateTime(searchCriteria.getToDate()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate().getTime())));
+        }
+        criteria.createAlias("user", "user");
+        if (StringUtils.isNotBlank(searchCriteria.getCreatorLastName())) {
+            criteria.add(Restrictions.like("user.lastName", "%" + searchCriteria.getCreatorLastName() + "%"));
+        }
+        if (StringUtils.isNotBlank(searchCriteria.getCreatorFirstName())) {
+            criteria.add(Restrictions.like("user.firstName", "%" + searchCriteria.getCreatorFirstName() + "%"));
+        }
+        if (StringUtils.isNotBlank(searchCriteria.getCreatorPatronymic())) {
+            criteria.add(Restrictions.like("user.patronymic", "%" + searchCriteria.getCreatorPatronymic() + "%"));
+        }
+        criteria
+                .createCriteria("warehouse").add(Restrictions.eq("idWarehouse", warehouseId));
+        criteria.add(Restrictions.isNull(DELETED));
+        criteria.setProjection(Projections.distinct(Projections.id()));
+        DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
+        criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
+        criteriaWithSubquery.addOrder(Order.desc("date"));
+
+        return findAll(criteriaWithSubquery, firstResult, maxResults);
+    }
+
+    public long getCountOfActsForWarehouseByCriteria(Long warehouseId, ActSearchCriteria searchCriteria) throws GenericDAOException {
+        logger.info("Find acts, warehouse id: {}, criteria: {}", warehouseId, searchCriteria);
+        Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
+        Assert.notNull(searchCriteria, "Search criteria id is null");
+
+        DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
+        if (searchCriteria.getType() != null) {
+            criteria.add(Restrictions.eq("actType", searchCriteria.getType()));
+        }
+        if (searchCriteria.getFromDate() != null) {
+            criteria.add(Restrictions.ge("date", searchCriteria.getFromDate()));
+        }
+        if (searchCriteria.getToDate() != null) {
+            criteria.add(Restrictions.le("date", new Timestamp(new DateTime(searchCriteria.getToDate()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate().getTime())));
+        }
+        criteria.createAlias("user", "user");
+        if (StringUtils.isNotBlank(searchCriteria.getCreatorLastName())) {
+            criteria.add(Restrictions.like("user.lastName", "%" + searchCriteria.getCreatorLastName() + "%"));
+        }
+        if (StringUtils.isNotBlank(searchCriteria.getCreatorFirstName())) {
+            criteria.add(Restrictions.like("user.firstName", "%" + searchCriteria.getCreatorFirstName() + "%"));
+        }
+        if (StringUtils.isNotBlank(searchCriteria.getCreatorPatronymic())) {
+            criteria.add(Restrictions.like("user.patronymic", "%" + searchCriteria.getCreatorPatronymic() + "%"));
+        }
+        criteria
+                .createCriteria("warehouse").add(Restrictions.eq("idWarehouse", warehouseId));
+        criteria.add(Restrictions.isNull(DELETED));
+        criteria.setProjection(Projections.distinct(Projections.id()));
+        criteria.setProjection(Projections.rowCount());
+        return getCount(criteria);
     }
 
 
     public long getCount(DetachedCriteria criteria) {
         logger.info("Find count of acts");
+
         hibernateTemplate.findByCriteria(criteria);
         List<Long> list = (List<Long>) hibernateTemplate.findByCriteria(criteria);
         if (CollectionUtils.isNotEmpty(list))
@@ -33,18 +114,18 @@ public class ActDAO extends DAO<Act> {
     @SuppressWarnings("unchecked")
     public Act getById(Long id) throws GenericDAOException {
         logger.info("Find act, id: {}", id);
-        if (id == null) {
-            return null;
-        }
+        Assert.notNull(id, "Id is null");
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
         criteria.add(Restrictions.eq("id", id));
-        criteria.add(Restrictions.isNull("deleted"));
+        criteria.add(Restrictions.isNull(DELETED));
         List<Act> foundActs = (List<Act>) hibernateTemplate.findByCriteria(criteria);
         return CollectionUtils.isNotEmpty(foundActs) ? foundActs.get(0) : null;
     }
 
     public List<Act> findActsByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find acts, first result: {}, max results: {}, warehouse id: {}", firstResult, maxResults, warehouseId);
+        Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
 
         String queryHql = "SELECT DISTINCT act" +
                 " FROM Act act" +
@@ -63,6 +144,7 @@ public class ActDAO extends DAO<Act> {
 
     public List<Act> findByGoodsId(Long goodsId) throws GenericDAOException {
         logger.info("Find acts for goods, goods id: {}", goodsId);
+        Assert.notNull(goodsId, "Goods id is null");
 
         String queryHql = "SELECT DISTINCT act FROM Act act" +
                 " INNER JOIN act.goods goods" +
@@ -76,7 +158,8 @@ public class ActDAO extends DAO<Act> {
     }
 
     public long getActsCount(Long warehouseId) throws GenericDAOException {
-        logger.info("Get goods count, warehouse company id: {}", warehouseId);
+        logger.info("Get goods count, warehouse id: {}", warehouseId);
+        Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
 
         String queryHql = "SELECT  count(DISTINCT act)" +
                 " FROM Act act" +
@@ -95,4 +178,34 @@ public class ActDAO extends DAO<Act> {
         return ((List<Long>) hibernateTemplate.findByCriteria(criteria)).get(0);
     }
 
+    public WarehouseCompany findWarehouseCompanyOfAct(Long actId) throws GenericDAOException {
+        logger.info("Find warehouse company,act id: {}", actId);
+        Assert.notNull(actId, "Act id is null");
+
+        String queryHql = "SELECT  warehouseCompany" +
+                " FROM WarehouseCompany warehouseCompany" +
+                " INNER JOIN Warehouse warehouse ON warehouse.warehouseCompany = warehouseCompany" +
+                " INNER JOIN Act act ON act.warehouse = warehouse" +
+                " WHERE act.id = :actId AND act.deleted IS NULL";
+
+        Query<WarehouseCompany> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("actId", actId);
+
+        return query.getSingleResult();
+    }
+
+    public Warehouse findWarehouseOfAct(Long actId) throws GenericDAOException {
+        logger.info("Find warehouse,act id: {}", actId);
+        Assert.notNull(actId, "Act id is null");
+
+        String queryHql = "SELECT  warehouse" +
+                " FROM Warehouse warehouse" +
+                " INNER JOIN Act act ON act.warehouse = warehouse" +
+                " WHERE act.id = :actId AND act.deleted IS NULL";
+
+        Query<Warehouse> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("actId", actId);
+
+        return query.getSingleResult();
+    }
 }

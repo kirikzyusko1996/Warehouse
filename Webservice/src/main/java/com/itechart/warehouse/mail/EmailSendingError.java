@@ -13,8 +13,7 @@ import org.springframework.mail.MailException;
  */
 @Setter
 @Getter
-
-public class EmailSendingError {
+class EmailSendingError {
     @JsonIgnore
     private MailException exception;
     @JsonIgnore
@@ -23,7 +22,7 @@ public class EmailSendingError {
     private DateTime time;
 
 
-    public EmailSendingError(MailException exception, User receiver, DateTime time) {
+    EmailSendingError(MailException exception, User receiver, DateTime time) {
         this.exception = exception;
         this.receiver = receiver;
         this.time = time;

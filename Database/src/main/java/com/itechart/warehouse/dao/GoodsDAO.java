@@ -29,12 +29,20 @@ public class GoodsDAO extends DAO<Goods> {
     private static final String PARAMETER_WAREHOUSE_ID = "warehouseId";
 
     public List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchCriteria goodsSearchCriteria, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find goods, first result: {}, max results: {}, warehouse id: {}, criteria: {}", firstResult, maxResults, warehouseId, goodsSearchCriteria);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+        Assert.notNull(goodsSearchCriteria, "Search criteria id is null");
+
         GoodsSearchQueryBuilder builder = new GoodsSearchQueryBuilder(warehouseId, goodsSearchCriteria);
         builder.buildListQuery();
         return findByQuery(builder.getQuery(), builder.getParameters(), firstResult, maxResults);
     }
 
     public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchCriteria goodsSearchCriteria) throws GenericDAOException {
+        logger.info("Find goods count, warehouse id: {}, criteria: {}", warehouseId, goodsSearchCriteria);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+        Assert.notNull(goodsSearchCriteria, "Search criteria id is null");
+
         GoodsSearchQueryBuilder builder = new GoodsSearchQueryBuilder(warehouseId, goodsSearchCriteria);
         builder.buildCountQuery();
         return getCountByQuery(builder.getQuery(), builder.getParameters());
@@ -42,7 +50,9 @@ public class GoodsDAO extends DAO<Goods> {
 
 
     public List<Goods> findGoodsForIncomingInvoice(Long invoiceId, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find goods, first result: {}, max results: {}, incoming invoice id: {}", firstResult, maxResults, invoiceId);
         Assert.notNull(invoiceId, "Invoice id is null");
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.createAlias("incomingInvoice", "invoice");
         criteria.add(Restrictions.eq("invoice.id", invoiceId));
@@ -53,7 +63,9 @@ public class GoodsDAO extends DAO<Goods> {
 
 
     public List<Goods> findGoodsForOutgoingInvoice(Long invoiceId, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find goods, first result: {}, max results: {}, outgoing invoice id: {}", firstResult, maxResults, invoiceId);
         Assert.notNull(invoiceId, "Invoice id is null");
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.createAlias("outgoingInvoice", "invoice");
         criteria.add(Restrictions.eq("invoice.id", invoiceId));
@@ -66,6 +78,7 @@ public class GoodsDAO extends DAO<Goods> {
     public Goods getById(Long id) throws GenericDAOException {
         logger.info("Find goods, id: {}", id);
         Assert.notNull(id, "Id is null");
+
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.add(Restrictions.eq("id", id));
         criteria.add(Restrictions.isNull("deleted"));
@@ -75,6 +88,8 @@ public class GoodsDAO extends DAO<Goods> {
 
     public List<Goods> findByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find goods, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+
         String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " WHERE warehouse.idWarehouse = :warehouseId AND goods.deleted IS NULL" +
@@ -88,6 +103,7 @@ public class GoodsDAO extends DAO<Goods> {
 
     public List<Goods> findStoredGoodsByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find stored goods, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
+        Assert.notNull(warehouseId, "Warehouse id is null");
 
         String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
@@ -104,6 +120,7 @@ public class GoodsDAO extends DAO<Goods> {
 
     public List<Goods> findApplicableToActGoodsByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find goods applicable to act, warehouse id: {}, first result {}, max results: {}", warehouseId, firstResult, maxResults);
+        Assert.notNull(warehouseId, "Warehouse id is null");
 
         String queryHql = "SELECT DISTINCT goods FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
@@ -125,7 +142,9 @@ public class GoodsDAO extends DAO<Goods> {
 
 
     public List<Goods> findByWarehouseIdAndCurrentStatus(Long warehouseId, GoodsStatusName statusName, int firstResult, int maxResults) throws GenericDAOException {
-        logger.info("Find list of {} goods starting from {} by warehouse id: {} and status: {}", maxResults, firstResult, warehouseId, statusName);
+        logger.info("Find goods, first result: {}, max results: {}, warehouse id: {}, status: {}", firstResult, maxResults, warehouseId, statusName);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+
         String queryHql = "SELECT goods FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
                 " INNER JOIN GoodsStatus status ON goods.currentStatus = status" +
@@ -143,9 +162,8 @@ public class GoodsDAO extends DAO<Goods> {
 
     public List<Goods> findByQuery(String query, Map<String, Object> parameters, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find goods, first result: {}, max results: {},  query: {}, parameters: {}", firstResult, maxResults, query, parameters);
-        if (query == null || parameters == null) {
-            throw new AssertionError();
-        }
+        Assert.notNull(query, "Query id is null");
+        Assert.notNull(parameters, "Parameters is null");
 
         Query<Goods> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
@@ -157,7 +175,10 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
     public long getCountByQuery(String query, Map<String, Object> parameters) throws GenericDAOException {
-        logger.info("Get count of goods, query: {}, parameters", query, parameters);
+        logger.info("Get count of goods, query: {}, parameters: {}", query, parameters);
+        Assert.notNull(query, "Query id is null");
+        Assert.notNull(parameters, "Parameters is null");
+
         if (query == null || parameters == null) throw new AssertionError();
         Query<Long> queryHQL = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(query);
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
@@ -168,6 +189,8 @@ public class GoodsDAO extends DAO<Goods> {
 
     public long getGoodsCount(Long warehouseId) throws GenericDAOException {
         logger.info("Get goods count, warehouse id: {}", warehouseId);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+
         String queryHql = "SELECT  count(DISTINCT goods)" +
                 " FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
@@ -179,6 +202,8 @@ public class GoodsDAO extends DAO<Goods> {
 
     public long getStoredGoodsCount(Long warehouseId) throws GenericDAOException {
         logger.info("Get stored goods count, warehouse id: {}", warehouseId);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+
         String queryHql = "SELECT  count(DISTINCT goods)" +
                 " FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +
@@ -192,6 +217,8 @@ public class GoodsDAO extends DAO<Goods> {
 
     public long getApplicableToActGoodsCount(Long warehouseId) throws GenericDAOException {
         logger.info("Get goods applicable to act count, warehouse id: {}", warehouseId);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+
         String queryHql = "SELECT  count(DISTINCT goods)" +
                 " FROM Goods goods" +
                 " INNER JOIN Warehouse warehouse ON goods.warehouse = warehouse" +

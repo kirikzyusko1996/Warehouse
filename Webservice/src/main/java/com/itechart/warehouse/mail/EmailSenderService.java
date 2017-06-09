@@ -14,7 +14,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -30,7 +29,14 @@ import javax.mail.internet.MimeMessage;
 @Service
 @PropertySource("classpath:application.properties")
 public class EmailSenderService {
+
+    private static final String ERROR_TEMPLATE_IS_NULL = "Template is null";
+    private static final String ERROR_EXCEPTION_DURING_SENDING = "Exception during email sending: {}";
+    private static final String ENCODING_UTF_8 = "UTF-8";
+    private static final String SPRING_EMAIL_ADDRESS = "spring.email.address";
+
     private Logger logger = LoggerFactory.getLogger(EmailSenderService.class);
+
     private JavaMailSender mailSender;
     private UserService userService;
     private Environment environment;
@@ -59,19 +65,15 @@ public class EmailSenderService {
 
     public EmailSendingResult sendEmail(Template template, MultipartFile image) throws IllegalParametersException {
         logger.info("Sending email using template: {} ", template);
-        if (template == null) throw new IllegalParametersException("Template is null");
+        if (template == null) {
+            throw new IllegalParametersException(ERROR_TEMPLATE_IS_NULL);
+        }
         EmailSendingResult result = new EmailSendingResult(template);
         if (template.getReceiverIds() != null) {
             for (Long id : template.getReceiverIds()) {
                 try {
                     User receiver = userService.findUserById(id);
-                    try {
-                        sendEmail(template, receiver, image);
-                        result.addSuccess(receiver);
-                    } catch (MailException e) {
-                        logger.error("Exception during email sending: {}", e.getMessage());
-                        result.addError(new EmailSendingError(e, receiver, new DateTime()));
-                    }
+                    send(template, receiver, image, result);
                 } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
                     logger.error("Exception during retrieval user from the database: {}", e.getMessage());
                 }
@@ -82,19 +84,13 @@ public class EmailSenderService {
 
     public EmailSendingResult sendEmail(Template template) throws IllegalParametersException {
         logger.info("Sending email using template: {} ", template);
-        if (template == null) throw new IllegalParametersException("Template is null");
+        if (template == null) throw new IllegalParametersException(ERROR_TEMPLATE_IS_NULL);
         EmailSendingResult result = new EmailSendingResult(template);
         if (template.getReceiverIds() != null) {
             for (Long id : template.getReceiverIds()) {
                 try {
                     User receiver = userService.findUserById(id);
-                    try {
-                        sendEmail(template, receiver, null);
-                        result.addSuccess(receiver);
-                    } catch (MailException e) {
-                        logger.error("Exception during email sending: {}", e.getMessage());
-                        result.addError(new EmailSendingError(e, receiver, new DateTime()));
-                    }
+                    send(template, receiver, null, result);
                 } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
                     logger.error("Exception during retrieval user from the database: {}", e.getMessage());
                 }
@@ -103,8 +99,15 @@ public class EmailSenderService {
         return result;
     }
 
-
-
+    private void send(Template template, User receiver, MultipartFile image, EmailSendingResult result) {
+        try {
+            sendEmail(template, receiver, null);
+            result.addSuccess(receiver);
+        } catch (MailException e) {
+            logger.error(ERROR_EXCEPTION_DURING_SENDING, e.getMessage());
+            result.addError(new EmailSendingError(e, receiver, new DateTime()));
+        }
+    }
 
     public EmailSendingResult sendEmail(EmailSendingResult result) throws IllegalParametersException {
         logger.info("Retrying sending email after previous result: {} ", result);
@@ -116,22 +119,22 @@ public class EmailSenderService {
                     sendEmail(result.getTemplate(), receiver, null);
                     result.removeError(error);
                 } catch (MailException e) {
-                    logger.error("Exception during email sending: {}", e.getMessage());
+                    logger.error(ERROR_EXCEPTION_DURING_SENDING, e.getMessage());
                 }
             }
         }
         return result;
     }
 
-    public boolean sendMessageAboutRegistration(User receiver){
+    public boolean sendMessageAboutRegistration(User receiver) {
         logger.info("Sending email about registration to user: {}", receiver);
         Assert.notNull(receiver, "Receiver is null");
         Assert.notNull(receiver.getEmail(), "Receiver email address is null");
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
             public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, ENCODING_UTF_8);
                 message.setTo(receiver.getEmail());
-                message.setFrom(environment.getProperty("spring.email.address"));
+                message.setFrom(environment.getProperty(SPRING_EMAIL_ADDRESS));
                 String imageName = null;
                 Template template = new Template();
                 template.setType(TemplateEnum.REGISTRATION);
@@ -142,8 +145,7 @@ public class EmailSenderService {
         try {
             mailSender.send(preparator);
         } catch (MailException e) {
-            logger.error(e.getMessage());
-            System.err.println(e.getMessage());
+            logger.error("Error sending email: {}", e);
             return false;
         }
         return true;
@@ -157,9 +159,9 @@ public class EmailSenderService {
         Assert.notNull(receiver.getEmail(), "Receiver email address is null");
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
             public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, ENCODING_UTF_8);
                 message.setTo(receiver.getEmail());
-                message.setFrom(environment.getProperty("spring.email.address"));
+                message.setFrom(environment.getProperty(SPRING_EMAIL_ADDRESS));
                 String imageName = null;
                 if (image != null && !image.isEmpty()) {
                     imageName = image.getName();
@@ -183,12 +185,12 @@ public class EmailSenderService {
     public void sendEmail(String emailAddress, Template template) {
         logger.info("Sending email to address: {} using template:", emailAddress, template);
         Assert.notNull(emailAddress, "Email address is null");
-        Assert.notNull(template, "Template is null");
+        Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
             public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, ENCODING_UTF_8);
                 message.setTo(emailAddress);
-                message.setFrom(environment.getProperty("spring.email.address"));
+                message.setFrom(environment.getProperty(SPRING_EMAIL_ADDRESS));
                 String imageName = null;
 //                if (image != null && !image.isEmpty()) {
 //                    imageName = image.getName();

@@ -24,7 +24,7 @@ public class PriceUnitDAO extends DAO<PriceUnit> {
         return super.findAll(criteria, -1, -1);
     }
 
-    public PriceUnit findPriceUnitByName(String unitName) {
+    public PriceUnit findPriceUnitByName(String unitName) throws GenericDAOException {
         logger.info("Find unit, name: {}", unitName);
         Assert.notNull(unitName, "Unit name is null");
 

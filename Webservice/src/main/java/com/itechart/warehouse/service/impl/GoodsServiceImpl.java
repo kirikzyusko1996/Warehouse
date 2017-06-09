@@ -63,7 +63,6 @@ public class GoodsServiceImpl implements GoodsService {
     private InvoiceService invoiceService;
     private UserService userService;
 
-
     @Autowired
     public void setQuantityUnitDAO(QuantityUnitDAO quantityUnitDAO) {
         this.quantityUnitDAO = quantityUnitDAO;
@@ -121,7 +120,6 @@ public class GoodsServiceImpl implements GoodsService {
     public void setStorageCellDAO(StorageCellDAO storageCellDAO) {
         this.storageCellDAO = storageCellDAO;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -323,7 +321,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public long getGoodsSearchResultCount(Long warehouseId, GoodsSearchDTO goodsSearchDTO) throws DataAccessException, IllegalParametersException {
@@ -343,7 +340,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public List<GoodsStatusDTO> findStatusesOfGoods(Long goodsId) throws
@@ -361,7 +357,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public Warehouse findWarehouseOwnedBy(Long goodsId) throws
@@ -375,7 +370,6 @@ public class GoodsServiceImpl implements GoodsService {
         Goods goods = findGoodsById(goodsId);
         return goods.getWarehouse();
     }
-
 
     @Override
     @Transactional
@@ -454,7 +448,7 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Act type is null");
         }
         if (goodsList == null) {
-            throw new IllegalParametersException("Goods list is null");
+            throw new IllegalParametersException(ERROR_GOODS_IS_NULL);
         }
 
         String statusName = getGoodsStatusNameForAct(actType);
@@ -579,7 +573,7 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
         }
         if (goodsDTOList == null) {
-            throw new IllegalParametersException("Goods list is null");
+            throw new IllegalParametersException(ERROR_GOODS_IS_NULL);
         }
 
         List<Goods> goodsList = new ArrayList<>();
@@ -666,20 +660,30 @@ public class GoodsServiceImpl implements GoodsService {
 
     private GoodsStatus buildGoodsStatus(String statusName) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         Assert.notNull(statusName, "Status name is null");
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        if (userDetails != null && userDetails.getUserId() != null) {
-            Long userId = userDetails.getUserId();
-            GoodsStatus goodsStatus = new GoodsStatus();
-            goodsStatus.setDate(new Timestamp(new Date().getTime()));
 
-            User user = userService.findUserById(userId);
+        User user = getAuthenticatedUser();
+        if (user != null) {
+            GoodsStatus goodsStatus = new GoodsStatus();
             goodsStatus.setUser(user);
+            goodsStatus.setDate(new Timestamp(new Date().getTime()));
             goodsStatus.setGoodsStatusName(goodsStatusNameDAO.findGoodsStatusNameByName(statusName));
             return goodsStatus;
         } else {
-            throw new ResourceNotFoundException("Authenticated user details were not found");
+            throw new ResourceNotFoundException("Authenticated user was not found");
+        }
+
+    }
+
+    private User getAuthenticatedUser() throws ResourceNotFoundException, DataAccessException, IllegalParametersException {
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if (userDetails != null) {
+            Long userId = userDetails.getUserId();
+            return userService.findUserById(userId);
+        } else {
+            throw new ResourceNotFoundException("Authenticated user was not found");
         }
     }
+
 
     @Override
     @Transactional
@@ -714,7 +718,6 @@ public class GoodsServiceImpl implements GoodsService {
             throw new DataAccessException(e.getMessage(), e);
         }
     }
-
 
     @Override
     @Transactional
@@ -775,10 +778,10 @@ public class GoodsServiceImpl implements GoodsService {
     public List<Goods> updateAndGetGoodsForOutgoingInvoice(Long invoiceId, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
         logger.info("Update and get goods for invoice, invoice id {}, list of goods: {}", invoiceId, goodsList);
         if (invoiceId == null) {
-            throw new IllegalParametersException("Invoice id is null");
+            throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
         }
         if (goodsList == null) {
-            throw new IllegalParametersException("Goods list is null");
+            throw new IllegalParametersException(ERROR_GOODS_IS_NULL);
         }
 
         List<Goods> goodsInInvoiceList = new ArrayList<>();
@@ -937,7 +940,7 @@ public class GoodsServiceImpl implements GoodsService {
 
 
     private List<GoodsDTO> mapGoodsListToDTOList(List<Goods> goodsList) {
-        Assert.notNull(goodsList, "Goods list is null");
+        Assert.notNull(goodsList, ERROR_GOODS_IS_NULL);
 
         List<GoodsDTO> dtoList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(goodsList)) {
@@ -1100,7 +1103,7 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    private GoodsSearchCriteria convertGoodsSearchDTOToCriteria(GoodsSearchDTO dto) {
+    private GoodsSearchCriteria convertGoodsSearchDTOToCriteria(GoodsSearchDTO dto) throws GenericDAOException {
         Assert.notNull(dto, "Search DTO is null");
 
         GoodsSearchCriteria criteria = new GoodsSearchCriteria();
@@ -1160,7 +1163,7 @@ public class GoodsServiceImpl implements GoodsService {
         return criteria;
     }
 
-    private Goods updateRequiredFieldsFromDTO(Goods goodsToUpdate, GoodsDTO goodsDTO) throws IllegalParametersException {
+    private Goods updateRequiredFieldsFromDTO(Goods goodsToUpdate, GoodsDTO goodsDTO) throws IllegalParametersException, GenericDAOException {
         Assert.notNull(goodsToUpdate, ERROR_GOODS_IS_NULL);
         Assert.notNull(goodsDTO, ERROR_GOODS_DTO_IS_NULL);
         validateRequiredFields(goodsDTO);
@@ -1169,10 +1172,14 @@ public class GoodsServiceImpl implements GoodsService {
         goodsToUpdate.setQuantity(goodsDTO.getQuantity());
         goodsToUpdate.setWeight(goodsDTO.getWeight());
         goodsToUpdate.setPrice(goodsDTO.getPrice());
-        goodsToUpdate.setPriceUnit(priceUnitDAO.findPriceUnitByName(goodsDTO.getPriceUnit().getName()));
-        goodsToUpdate.setQuantityUnit(quantityUnitDAO.findQuantityUnitByName(goodsDTO.getQuantityUnit().getName()));
-        goodsToUpdate.setWeightUnit(weightUnitDAO.findWeightUnitByName(goodsDTO.getWeightUnit().getName()));
-        goodsToUpdate.setStorageType(storageSpaceTypeDAO.findStorageTypeByName(goodsDTO.getStorageType().getName()));
+        PriceUnit priceUnit = priceUnitDAO.findPriceUnitByName(goodsDTO.getPriceUnit().getName());
+        goodsToUpdate.setPriceUnit(priceUnit);
+        QuantityUnit quantityUnit = quantityUnitDAO.findQuantityUnitByName(goodsDTO.getQuantityUnit().getName());
+        goodsToUpdate.setQuantityUnit(quantityUnit);
+        WeightUnit weightUnit = weightUnitDAO.findWeightUnitByName(goodsDTO.getWeightUnit().getName());
+        goodsToUpdate.setWeightUnit(weightUnit);
+        StorageSpaceType storageSpaceType = storageSpaceTypeDAO.findStorageTypeByName(goodsDTO.getStorageType().getName());
+        goodsToUpdate.setStorageType(storageSpaceType);
 
         return goodsToUpdate;
     }
@@ -1192,7 +1199,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     private Goods updateInvoiceField(Goods goodsToUpdate, Long invoiceId) throws DataAccessException, ResourceNotFoundException {
         Assert.notNull(goodsToUpdate, ERROR_GOODS_IS_NULL);
-        Assert.notNull(invoiceId, "Invoice id is null");
+        Assert.notNull(invoiceId, ERROR_INVOICE_ID_IS_NULL);
 
         Invoice invoice = invoiceService.findInvoiceById(invoiceId);
         if (invoice != null) {

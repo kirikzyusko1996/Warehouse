@@ -22,61 +22,73 @@ import org.springframework.util.Assert;
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class RetrySendingJob extends QuartzJobBean {
+
+    private static final String ERROR_EXCEPTION_DURING_SENDING = "Exception during sending email: {}";
+
     private Logger logger = LoggerFactory.getLogger(RetrySendingJob.class);
+//    private Environment environment;
 
-    private Environment environment;
-
-    @Autowired
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
+//    @Autowired
+//    public void setEnvironment(Environment environment) {
+//        this.environment = environment;
+//    }
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         logger.info("Retrying sending: try {}", context.getRefireCount());
+
         EmailSendingResult result = (EmailSendingResult) context.getJobDetail().getJobDataMap().get("result");
         EmailSenderService emailSenderService = (EmailSenderService) context.getJobDetail().getJobDataMap().get("service");
         Assert.notNull(result, "Result is null");
         Assert.notNull(emailSenderService, "Email sender service is null");
         int count = context.getJobDetail().getJobDataMap().getInt("count");
+
         if (count < 5) {
             context.getJobDetail().getJobDataMap().put("count", ++count);
-
-            if (result.hasErrors())
-                try {
-                    emailSenderService.sendEmail(result);
-                    if (!result.hasErrors()) {
-                        try {
-                            context.getScheduler().deleteJob(context.getJobDetail().getKey());
-                        } catch (SchedulerException e) {
-                            logger.error("Exception during sending email: {}", e.getMessage());
-                        }
-                    }
-                } catch (IllegalParametersException e) {
-                    logger.error("Exception during sending email: {}", e.getMessage());
-                }
-        } else {
-            try {
-                emailSenderService.sendEmail(result);
-            } catch (IllegalParametersException e) {
-                logger.error("Exception during sending email: {}", e.getMessage());
-            }
             if (result.hasErrors()) {
-                EmailFailedNotificationTemplate template = new EmailFailedNotificationTemplate();
-                template.setType(TemplateEnum.EMAIL_SENDING_FAILED);
-                template.setSubject("Email sending failed");
-                template.setResult((EmailSendingResult) context.getJobDetail().getJobDataMap().get("result"));
-//                String emailAddress = environment.getProperty("spring.admin.email");
-                String emailAddress = "ai@tut.by";
-                if (emailAddress != null) {
-                    try {
-                        // TODO: 07.05.2017 admin email
-                        emailSenderService.sendEmail(emailAddress, template);
-                    } catch (MailException e) {
-                        logger.error("Exception during sending email: {}", e.getMessage());
-                    }
-                }
+                sendEmail(emailSenderService, result, context);
             }
+        } else {
+            sendEmail(emailSenderService, result, context);
+            if (result.hasErrors()) {
+                sendNotification(context, emailSenderService);
+            }
+        }
+    }
+
+    private void sendNotification(JobExecutionContext context, EmailSenderService emailSenderService) {
+        EmailFailedNotificationTemplate template = new EmailFailedNotificationTemplate();
+        template.setType(TemplateEnum.EMAIL_SENDING_FAILED);
+        template.setSubject("Email sending failed");
+        template.setResult((EmailSendingResult) context.getJobDetail().getJobDataMap().get("result"));
+//                String emailAddress = environment.getProperty("spring.admin.email");
+        String emailAddress = "ai@tut.by";
+        if (emailAddress != null) {
+            try {
+                // TODO: 07.05.2017 admin email
+                emailSenderService.sendEmail(emailAddress, template);
+            } catch (MailException e) {
+                logger.error(ERROR_EXCEPTION_DURING_SENDING, e.getMessage());
+            }
+        }
+    }
+
+    private void deleteJob(JobExecutionContext context) {
+        try {
+            context.getScheduler().deleteJob(context.getJobDetail().getKey());
+        } catch (SchedulerException e) {
+            logger.error(ERROR_EXCEPTION_DURING_SENDING, e.getMessage());
+        }
+    }
+
+    private void sendEmail(EmailSenderService emailSenderService, EmailSendingResult result, JobExecutionContext context) {
+        try {
+            emailSenderService.sendEmail(result);
+            if (!result.hasErrors()) {
+                deleteJob(context);
+            }
+        } catch (IllegalParametersException e) {
+            logger.error(ERROR_EXCEPTION_DURING_SENDING, e.getMessage());
         }
     }
 }

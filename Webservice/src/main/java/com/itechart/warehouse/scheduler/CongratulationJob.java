@@ -54,7 +54,7 @@ public class CongratulationJob {
     public void sendEmails() {
         logger.info("Executing task");
         try {
-            List<User> users = userService.findUserByBirthday(new DateTime().now());
+            List<User> users = userService.findUserByBirthday(DateTime.now());
             if (users != null) {
                 Template template = new Template();
                 template.setType(TemplateEnum.BIRTHDAY);
@@ -70,27 +70,7 @@ public class CongratulationJob {
                 template.setReceiverIds(userIdList);
                 EmailSendingResult result = emailSenderService.sendEmail(template);
                 if (result.hasErrors()) {
-                    try {
-                        JobDataMap data = new JobDataMap();
-                        data.put("result", result);
-                        data.put("service", emailSenderService);
-                        data.put("count", 1);
-                        JobDetail job = newJob(RetrySendingJob.class).setJobData(data)
-                                .withIdentity("retryJob", "group1")
-                                .build();
-                        Trigger trigger = newTrigger()
-                                .withIdentity("retryTrigger", "group1")
-                                .startAt(new DateTime().plusSeconds(1).toDate())//todo plus hours
-                                .withSchedule(simpleSchedule()
-
-                                        .withRepeatCount(5).withIntervalInSeconds(1))
-//                                        .withIntervalInHours(1))
-                                .build();
-                        retryScheduler.scheduleJob(job, trigger);
-                    } catch (SchedulerException e) {
-                        logger.error("Exception while trying to schedule job for retrying sending emails: {}", e.getMessage());
-                    }
-
+                    retry(result);
                 }
             }
         } catch (IllegalParametersException | DataAccessException e) {
@@ -98,6 +78,26 @@ public class CongratulationJob {
         }
     }
 
+    private void retry(EmailSendingResult result) {
+        try {
+            JobDataMap data = new JobDataMap();
+            data.put("result", result);
+            data.put("service", emailSenderService);
+            data.put("count", 1);
+            JobDetail job = newJob(RetrySendingJob.class).setJobData(data)
+                    .withIdentity("retryJob", "group1")
+                    .build();
+            Trigger trigger = newTrigger()
+                    .withIdentity("retryTrigger", "group1")
+                    .startAt(new DateTime().plusHours(1).toDate())
+                    .withSchedule(simpleSchedule()
+                            .withRepeatCount(5).withIntervalInHours(1))
+                    .build();
+            retryScheduler.scheduleJob(job, trigger);
+        } catch (SchedulerException e) {
+            logger.error("Exception while trying to schedule job for retrying sending emails: {}", e.getMessage());
+        }
+    }
 
 }
 

@@ -24,7 +24,7 @@ public class QuantityUnitDAO extends DAO<QuantityUnit> {
         return super.findAll(criteria, -1, -1);
     }
 
-    public QuantityUnit findQuantityUnitByName(String unitName) {
+    public QuantityUnit findQuantityUnitByName(String unitName) throws GenericDAOException {
         logger.info("Find unit, name: {}", unitName);
         Assert.notNull(unitName, "Unit name is null");
 

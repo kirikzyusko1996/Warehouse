@@ -24,7 +24,7 @@ public class WeightUnitDAO extends DAO<WeightUnit> {
         return super.findAll(criteria, -1, -1);
     }
 
-    public WeightUnit findWeightUnitByName(String unitName) {
+    public WeightUnit findWeightUnitByName(String unitName)throws GenericDAOException  {
         logger.info("Find unit, name: {}", unitName);
         Assert.notNull(unitName, "Unit name is null");
 

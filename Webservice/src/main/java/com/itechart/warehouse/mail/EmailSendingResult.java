@@ -1,11 +1,11 @@
 package com.itechart.warehouse.mail;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.itechart.warehouse.entity.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class EmailSendingResult {
     @JsonIgnore
     private List<User> successList = new ArrayList<>();
 
-    public EmailSendingResult(Template template) {
+    EmailSendingResult(Template template) {
         this.template = template;
     }
 
@@ -47,34 +47,15 @@ public class EmailSendingResult {
     @JsonValue
     public String getMessage() {
         StringBuilder message = new StringBuilder();
-        if (!successList.isEmpty()) {
+
+        if (CollectionUtils.isNotEmpty(successList)) {
             message.append("Emails successfully sent to users: {");
             for (User user : successList) {
-                message.append("{");
-                if (user.getId() != null) {
-                    message.append("id: ");
-                    message.append(user.getId());
-                }
-                if (user.getLastName() != null) {
-                    message.append(", last name: ");
-                    message.append(user.getLastName());
-                }
-                if (user.getFirstName() != null) {
-                    message.append(", first name: ");
-                    message.append(user.getFirstName());
-                }
-                if (user.getPatronymic() != null) {
-                    message.append(", patronymic: ");
-                    message.append(user.getPatronymic());
-                }
-                if (user.getEmail() != null) {
-                    message.append(", email: ");
-                    message.append(user.getEmail());
-                }
-                message.append("}\r\n");
+                appendUser(message, user);
             }
             message.append("\r\n");
         }
+
         if (hasErrors()) {
             message.append("Email sending failed:\r\n");
             for (EmailSendingError e : errors) {
@@ -84,6 +65,32 @@ public class EmailSendingResult {
             }
             return message.toString();
         }
+
         return message.toString();
+    }
+
+    private void appendUser(StringBuilder message, User user) {
+        message.append("{");
+        if (user.getId() != null) {
+            message.append("id: ");
+            message.append(user.getId());
+        }
+        if (user.getLastName() != null) {
+            message.append(", last name: ");
+            message.append(user.getLastName());
+        }
+        if (user.getFirstName() != null) {
+            message.append(", first name: ");
+            message.append(user.getFirstName());
+        }
+        if (user.getPatronymic() != null) {
+            message.append(", patronymic: ");
+            message.append(user.getPatronymic());
+        }
+        if (user.getEmail() != null) {
+            message.append(", email: ");
+            message.append(user.getEmail());
+        }
+        message.append("}\r\n");
     }
 }

@@ -5,7 +5,9 @@ import com.itechart.warehouse.entity.User;
 import org.hibernate.query.Query;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
+import javax.persistence.NoResultException;
 import java.util.List;
 
 /**
@@ -17,8 +19,27 @@ public class UserDAO extends DAO<User> {
         super(User.class);
     }
 
+
+    public User findUserByLogin(String login) throws GenericDAOException {
+        logger.info("Find user, login: {}", login);
+        Assert.notNull(login, "Login is null");
+
+        String queryHql = "SELECT user" +
+                " FROM User user" +
+                " WHERE user.login = :login AND user.deleted IS NULL";
+
+        Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("login", login);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public List<User> findUsersByWarehouseCompanyId(Long warehouseCompanyId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find users, first result: {}, max results: {}, warehouse company id: {}", firstResult, maxResults, warehouseCompanyId);
+        Assert.notNull(warehouseCompanyId, "Warehouse company id is null");
 
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
@@ -37,6 +58,7 @@ public class UserDAO extends DAO<User> {
 
     public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException {
         logger.info("Get users count,warehouse company id: {}", warehouseCompanyId);
+        Assert.notNull(warehouseCompanyId, "Warehouse company id is null");
 
         String queryHql = "SELECT count(DISTINCT user.id)" +
                 " FROM User user" +
@@ -51,6 +73,7 @@ public class UserDAO extends DAO<User> {
 
     public List<User> findUsersByWarehouseId(Long warehouseId, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find users, first result: {}, max results: {}, warehouse id: {}", firstResult, maxResults, warehouseId);
+        Assert.notNull(warehouseId, "Warehouse id is null");
 
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +
@@ -69,6 +92,7 @@ public class UserDAO extends DAO<User> {
 
     public List<User> findUsersByBirthDay(DateTime date) throws GenericDAOException {
         logger.info("Find users with birthday, date: {}", date);
+        Assert.notNull(date, "Date is null");
 
         String queryHql = "SELECT user" +
                 " FROM User user" +
@@ -85,6 +109,7 @@ public class UserDAO extends DAO<User> {
 
     public User findUserById(Long id) throws GenericDAOException {
         logger.info("Find user, id: {}", id);
+        Assert.notNull(id, "Id is null");
 
         String queryHql = "SELECT DISTINCT user" +
                 " FROM User user" +

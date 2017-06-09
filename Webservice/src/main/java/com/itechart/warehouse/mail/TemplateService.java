@@ -19,6 +19,10 @@ import java.sql.Date;
  */
 @Service
 public class TemplateService {
+
+    private static final String ERROR_TEMPLATE_IS_NULL = "Template is null";
+    private static final String ERROR_TEMPLATE_TYPE_IS_NULL = "Template type is null";
+
     private Logger logger = LoggerFactory.getLogger(TemplateService.class);
     private SpringTemplateEngine templateEngine;
 
@@ -28,8 +32,8 @@ public class TemplateService {
     }
 
     public String getMessageFromTemplate(Template template, User receiver, String imageName) {
-        Assert.notNull(template, "Template is null");
-        Assert.notNull(template.getType(), "Template type is null");
+        Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
+        Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
         switch (template.getType()) {
             case BIRTHDAY:
                 return getBirthdayEmailText(template, receiver, imageName);
@@ -45,9 +49,9 @@ public class TemplateService {
     }
 
     private String getEmailRegistrationText(Template template, User receiver) {
-        logger.info("Forming registration email html using template: {}",  template);
-        Assert.notNull(template, "Template is null");
-        Assert.notNull(template.getType(), "Template type is null");
+        logger.info("Forming registration email html using template: {}", template);
+        Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
+        Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
         final Context ctx = new Context();
 
         ctx.setVariable("login", receiver.getLogin());
@@ -57,9 +61,10 @@ public class TemplateService {
 
     private String getBirthdayEmailText(Template template, User receiver, String imageName) {
         logger.info("Forming birthday email html to send to {}, from template: {}", receiver, template);
-        Assert.notNull(template, "Template is null");
+        Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         Assert.notNull(receiver, "Receiver is null");
-        Assert.notNull(template.getType(), "Template type is null");
+        Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
+
         final Context ctx = new Context();
 
         StringBuilder reference = new StringBuilder();
@@ -91,9 +96,9 @@ public class TemplateService {
     }
 
     private String getEmailFailedNotificationText(EmailFailedNotificationTemplate template) {
-        logger.info("Forming notification email html using template: {}",  template);
-        Assert.notNull(template, "Template is null");
-        Assert.notNull(template.getType(), "Template type is null");
+        logger.info("Forming notification email html using template: {}", template);
+        Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
+        Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
         final Context ctx = new Context();
 
         ctx.setVariable("message", template.getResult().getMessage());

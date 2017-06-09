@@ -13,7 +13,7 @@ import java.sql.Timestamp;
  */
 @Setter
 @Getter
-@lombok.ToString(exclude = "goodsIdList")
+@lombok.ToString
 public class ActSearchDTO {
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String type;
@@ -27,5 +27,4 @@ public class ActSearchDTO {
     private String creatorFirstName;
     @JsonDeserialize(using = TrimmingJsonDeserializer.class)
     private String creatorPatronymic;
-
 }

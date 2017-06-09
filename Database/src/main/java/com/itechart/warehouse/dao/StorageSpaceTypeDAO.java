@@ -24,7 +24,7 @@ public class StorageSpaceTypeDAO extends DAO<StorageSpaceType> {
         return super.findAll(criteria, -1, -1);
     }
 
-    public StorageSpaceType findStorageTypeByName(String spaceTypeName) {
+    public StorageSpaceType findStorageTypeByName(String spaceTypeName) throws GenericDAOException  {
         logger.info("Find storage type, name: {}", spaceTypeName);
         Assert.notNull(spaceTypeName, "Storage type name is null");
 
