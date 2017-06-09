@@ -117,7 +117,6 @@ public class WarehouseServiceImpl implements WarehouseService {
         try {
             warehouses = warehouseDAO.findAll(criteria, -1, -1);
             for(Warehouse warehouse: warehouses) {
-                System.out.println("From cycle: "+warehouse);
                 if(warehouse.getName()!=null &&
                         warehouse.getName().toLowerCase().contains(searchWarehouse.getName().toLowerCase())) {
                     result.add(warehouse);

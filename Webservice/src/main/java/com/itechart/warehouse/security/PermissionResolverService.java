@@ -1,5 +1,6 @@
 package com.itechart.warehouse.security;
 
+import com.itechart.warehouse.constants.UserRoleEnum;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
@@ -229,9 +230,9 @@ public class PermissionResolverService {
         if (userDetails == null || warehouseCompanyId == null) {
             return false;
         }
-        /*if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
+        if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
             return true;
-        }*/
+        }
         try {
             if (userDetails.getCompany() != null) {
                 WarehouseCompany company = warehouseCompanyService.findWarehouseCompanyById(warehouseCompanyId);

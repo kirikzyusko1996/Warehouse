@@ -19,7 +19,7 @@ public interface WarehouseService {
     Warehouse findWarehouseOfCompanyById(Long id_warehouse) throws DataAccessException, IllegalParametersException;
         ////Warehouse findWarehouseByLogin(String login) throws DataAccessException;
 
-    List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long id_user)
+    List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long idWarehouseCompany)
             throws DataAccessException, IllegalParametersException;
 
     Warehouse saveWarehouse(Warehouse warehouse) throws DataAccessException;

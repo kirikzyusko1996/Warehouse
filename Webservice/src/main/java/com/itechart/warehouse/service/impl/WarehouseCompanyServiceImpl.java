@@ -68,12 +68,12 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WarehouseCompany> findAllWarehouseCompany() throws DataAccessException {
+    public List<WarehouseCompany> findAllWarehouseCompany(int page, int count) throws DataAccessException {
         logger.info("Find all warehouse companies");
         DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCompany.class);
         List<WarehouseCompany> warehouseCompanies = null;
         try {
-            warehouseCompanies = warehouseCompanyDAO.findAll(criteria, -1, -1);
+            warehouseCompanies = warehouseCompanyDAO.findAll(criteria, page, count);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse companies: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -84,7 +84,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
     @Override
     @Transactional(readOnly = true)
     public List<WarehouseCompany> findWarehouseCompany(Long id_user) throws DataAccessException, IllegalParametersException {
-        if(id_user == null) {
+        if (id_user == null) {
             throw new IllegalParametersException("Invalid id param");
         }
         logger.info("Find all warehouse companies");
@@ -140,8 +140,30 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<WarehouseCompany> searchWarehouseCompany(WarehouseCompany searchWarehouse)
+            throws DataAccessException, IllegalParametersException {
+        logger.info("Find warehouse companies with name: {}", searchWarehouse.getName());
+        if (searchWarehouse == null) {
+            throw new IllegalParametersException("Invalid param");
+        }
+        List<WarehouseCompany> warehouseCompanies = null;
+        List<WarehouseCompany> result = new ArrayList<>();
+
+        warehouseCompanies = findAllWarehouseCompany(-1, -1);
+        for (WarehouseCompany warehouseCompany : warehouseCompanies) {
+            if (warehouseCompany.getName() != null &&
+                    warehouseCompany.getName().toLowerCase().contains(searchWarehouse.getName().toLowerCase())) {
+                result.add(warehouseCompany);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public WarehouseCompany findWarehouseCompanyById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find warehouse by id: {}", id);
+        logger.info("Find warehouse company by id: {}", id);
 
         WarehouseCompany warehouseCompany = null;
         try {
@@ -165,7 +187,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
             updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
             user = userService.createSupervisor(updatedWarehouseCompany.getIdWarehouseCompany());
             user.setEmail(email);
-            if(!emailSenderService.sendMessageAboutRegistration(user)) {
+            if (!emailSenderService.sendMessageAboutRegistration(user)) {
                 return null;
             }
         } catch (GenericDAOException e) {
@@ -208,7 +230,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
      * and merely change status, this method can call twice:
      * when you "delete" entity and "restore" entity,
      * so this method just change status to opposite
-     * */
+     */
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#id, 'WarehouseCompany', 'GET')")

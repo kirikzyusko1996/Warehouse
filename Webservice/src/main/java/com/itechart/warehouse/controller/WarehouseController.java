@@ -1,10 +1,6 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
-import com.itechart.warehouse.entity.WarehouseCompany;
-import com.itechart.warehouse.security.UserDetailsProvider;
-import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -21,10 +17,9 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.itechart.warehouse.util.Host.origins;
-
 /**
  * Created by Lenovo on 01.05.2017.
+ * Controller for request of warehouse
  */
 
 @RestController
@@ -102,7 +97,6 @@ public class WarehouseController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<?> saveWarehouse(@Valid @RequestBody Warehouse warehouse){
         logger.info("POST on /warehouse: save new warehouse");
-        // todo security check
         try{
             warehouseService.saveWarehouse(warehouse);
         } catch (DataAccessException e){
@@ -116,7 +110,6 @@ public class WarehouseController {
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody Warehouse warehouse){
         logger.info("PUT on /warehouse/{}: update warehouse", id);
-        // todo security check
         try{
             warehouseService.updateWarehouse(id, warehouse);
         } catch (DataAccessException e){
@@ -136,7 +129,6 @@ public class WarehouseController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteWarehouse(@PathVariable Long id){
         logger.info("DELETE on /company/{}: delete company", id);
-        // todo security check
         try {
             warehouseService.deleteWarehouse(id);
         } catch (DataAccessException e){

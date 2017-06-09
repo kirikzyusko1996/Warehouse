@@ -16,9 +16,12 @@ import java.util.Set;
 public interface WarehouseCompanyService {
     WarehouseCompany getWarehouseCompanyById(Long id_warehouse) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
+    List<WarehouseCompany> searchWarehouseCompany(WarehouseCompany searchWarehouseCompany)
+            throws DataAccessException, IllegalParametersException;
+
     List<WarehouseCompany> findWarehouseCompany(Long id_user) throws DataAccessException, IllegalParametersException;
 
-    List<WarehouseCompany> findAllWarehouseCompany() throws DataAccessException;
+    List<WarehouseCompany> findAllWarehouseCompany(int page, int count) throws DataAccessException;
 
     Set<WarehouseCompany> findAllThatUsedForPeriod(Date startDate, Date dueDate)
             throws DataAccessException, IllegalParametersException;
