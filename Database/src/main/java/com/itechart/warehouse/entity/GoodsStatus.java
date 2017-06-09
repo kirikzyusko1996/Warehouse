@@ -1,12 +1,15 @@
 package com.itechart.warehouse.entity;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "goods_status")
+@ToString(exclude = {"goodsStatusName", "user", "goods"})
+@EqualsAndHashCode(exclude = {"goodsStatusName", "user", "goods"})
 public class GoodsStatus {
     private Long id;
     private Timestamp date;
@@ -73,40 +76,5 @@ public class GoodsStatus {
 
     public void setNote(String note) {
         this.note = note;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        GoodsStatus that = (GoodsStatus) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null)
-            return false;
-        if (date != null ? !date.equals(that.date) : that.date != null) return false;
-        if (note != null ? !note.equals(that.note) : that.note != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (date != null ? date.hashCode() : 0);
-        result = 31 * result + (note != null ? note.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("idGoodsStatus", id)
-                .append("date", date)
-                .append("note", note)
-                .append("goodsStatusName", goodsStatusName)
-                .append("user", user)
-                .append("goodsIdList", goods)
-                .toString();
     }
 }

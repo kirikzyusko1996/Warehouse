@@ -27,6 +27,7 @@ public class GoodsDAO extends DAO<Goods> {
     }
 
     private static final String PARAMETER_WAREHOUSE_ID = "warehouseId";
+    private static final String DELETED = "deleted";
 
     public List<Goods> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchCriteria goodsSearchCriteria, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find goods, first result: {}, max results: {}, warehouse id: {}, criteria: {}", firstResult, maxResults, warehouseId, goodsSearchCriteria);
@@ -56,7 +57,7 @@ public class GoodsDAO extends DAO<Goods> {
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.createAlias("incomingInvoice", "invoice");
         criteria.add(Restrictions.eq("invoice.id", invoiceId));
-        criteria.add(Restrictions.isNull("deleted"));
+        criteria.add(Restrictions.isNull(DELETED));
         criteria.addOrder(Order.desc("id"));
         return super.findAll(criteria, firstResult, maxResults);
     }
@@ -69,7 +70,7 @@ public class GoodsDAO extends DAO<Goods> {
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.createAlias("outgoingInvoice", "invoice");
         criteria.add(Restrictions.eq("invoice.id", invoiceId));
-        criteria.add(Restrictions.isNull("deleted"));
+        criteria.add(Restrictions.isNull(DELETED));
         criteria.addOrder(Order.desc("id"));
         return super.findAll(criteria, firstResult, maxResults);
     }
@@ -81,7 +82,7 @@ public class GoodsDAO extends DAO<Goods> {
 
         DetachedCriteria criteria = DetachedCriteria.forClass(Goods.class);
         criteria.add(Restrictions.eq("id", id));
-        criteria.add(Restrictions.isNull("deleted"));
+        criteria.add(Restrictions.isNull(DELETED));
         List<Goods> foundGoods = (List<Goods>) hibernateTemplate.findByCriteria(criteria);
         return CollectionUtils.isNotEmpty(foundGoods) ? foundGoods.get(0) : null;
     }

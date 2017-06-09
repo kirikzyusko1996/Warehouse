@@ -1,7 +1,5 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.entity.Role;
-import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.security.UserDetailsProvider;
@@ -16,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
-import static com.itechart.warehouse.util.Host.origins;
 
 /**
  * Created by Lenovo on 01.05.2017.

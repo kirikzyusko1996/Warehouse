@@ -555,7 +555,7 @@ public class UserServiceImpl implements UserService {
 
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setIdRole(role.getIdRole());
-        roleDTO.setRole(role.getRole());
+        roleDTO.setRole(role.getName());
 
         return roleDTO;
     }

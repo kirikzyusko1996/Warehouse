@@ -1,8 +1,5 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.controller.error.RequestHandlingError;
-import com.itechart.warehouse.controller.error.ValidationError;
-import com.itechart.warehouse.controller.error.ValidationErrorBuilder;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.controller.response.StatusEnum;
 import com.itechart.warehouse.controller.response.StatusResponse;
@@ -21,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +35,6 @@ public class ActController {
 
     private static final String HEADER_X_TOTAL_COUNT = "X-total-count";
     private static final String HEADER_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
-    private static final String EXCEPTION_MESSAGE = "Exception during request handling: {}";
 
     private ActService actService;
     private Logger logger = LoggerFactory.getLogger(ActController.class);
@@ -134,83 +127,5 @@ public class ActController {
         response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(c));
         response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(acts, HttpStatus.OK);
-    }
-
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public
-    @ResponseBody
-    ValidationError handleException(MethodArgumentNotValidException e) {
-        return createValidationError(e);
-    }
-
-    private ValidationError createValidationError(MethodArgumentNotValidException e) {
-        return ValidationErrorBuilder.fromBindingErrors(e.getBindingResult());
-    }
-
-    @ExceptionHandler(DataAccessException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(DataAccessException e) {
-        RequestHandlingError dataAccessError = new RequestHandlingError();
-        dataAccessError.setError(e.getMessage());
-        return dataAccessError;
-    }
-
-    @ExceptionHandler(IllegalParametersException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(IllegalParametersException e) {
-        logger.error(EXCEPTION_MESSAGE, e.getMessage());
-        RequestHandlingError illegalParametersError = new RequestHandlingError();
-        illegalParametersError.setError(e.getMessage());
-        return illegalParametersError;
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(HttpMessageNotReadableException e) {
-        logger.error(EXCEPTION_MESSAGE, e.getMessage());
-        RequestHandlingError illegalParametersError = new RequestHandlingError();
-        illegalParametersError.setError("Message is syntactically incorrect");
-        return illegalParametersError;
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(ResourceNotFoundException e) {
-        logger.error(EXCEPTION_MESSAGE, e.getMessage());
-        RequestHandlingError resourceNotFoundError = new RequestHandlingError();
-        resourceNotFoundError.setError(e.getMessage());
-        return resourceNotFoundError;
-    }
-
-    @ExceptionHandler(RequestHandlingException.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(RequestHandlingException e) {
-        logger.error(EXCEPTION_MESSAGE, e.getMessage());
-        RequestHandlingError requestHandlingError = new RequestHandlingError();
-        requestHandlingError.setError(e.getMessage());
-        return requestHandlingError;
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(AccessDeniedException e) {
-        logger.error(EXCEPTION_MESSAGE, e.getMessage());
-        RequestHandlingError requestHandlingError = new RequestHandlingError();
-        requestHandlingError.setError(e.getMessage());
-        return requestHandlingError;
     }
 }

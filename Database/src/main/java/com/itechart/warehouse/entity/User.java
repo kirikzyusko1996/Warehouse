@@ -1,9 +1,8 @@
 package com.itechart.warehouse.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -12,6 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "user")
+@ToString(exclude = {"warehouseCompany", "warehouse", "roles", "acts", "goodsStatusList", "invoiceStatusList"})
+@EqualsAndHashCode(exclude = {"warehouseCompany", "warehouse", "roles", "acts", "goodsStatusList", "invoiceStatusList"})
 public class User {
     private Long id;
     private String firstName;
@@ -78,14 +79,6 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
-    }
-
-    public void addRole(Role role) {
-        roles.add(role);
-    }
-
-    public void removeRole(Role role) {
-        roles.remove(role);
     }
 
     @Id
@@ -218,67 +211,11 @@ public class User {
         this.warehouse = warehouse;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        if (id != null ? !id.equals(user.id) : user.id != null) return false;
-        if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
-        if (patronymic != null ? !patronymic.equals(user.patronymic) : user.patronymic != null) return false;
-        if (dateOfBirth != null ? !dateOfBirth.equals(user.dateOfBirth) : user.dateOfBirth != null) return false;
-        if (city != null ? !city.equals(user.city) : user.city != null) return false;
-        if (street != null ? !street.equals(user.street) : user.street != null) return false;
-        if (house != null ? !house.equals(user.house) : user.house != null) return false;
-        if (apartment != null ? !apartment.equals(user.apartment) : user.apartment != null) return false;
-        if (email != null ? !email.equals(user.email) : user.email != null) return false;
-        if (login != null ? !login.equals(user.login) : user.login != null) return false;
-        if (password != null ? !password.equals(user.password) : user.password != null) return false;
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + (patronymic != null ? patronymic.hashCode() : 0);
-        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
-        result = 31 * result + (city != null ? city.hashCode() : 0);
-        result = 31 * result + (street != null ? street.hashCode() : 0);
-        result = 31 * result + (house != null ? house.hashCode() : 0);
-        result = 31 * result + (apartment != null ? apartment.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (login != null ? login.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("idUser", id)
-                .append("firstName", firstName)
-                .append("lastName", lastName)
-                .append("patronymic", patronymic)
-                .append("dateOfBirth", dateOfBirth)
-                .append("city", city)
-                .append("street", street)
-                .append("house", house)
-                .append("apartment", apartment)
-                .append("mail", email)
-                .append("login", login)
-                .append("password", password)
-                .toString();
-    }
 
     public boolean hasRole(String role) {
         boolean has = false;
         for (Role r : this.roles) {
-            if (r.getRole().equals(role)) {
+            if (r.getName().equals(role)) {
                 has = true;
                 break;
             }

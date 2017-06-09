@@ -62,10 +62,12 @@ public class WarehouseCompanyUserDetails implements UserDetails {
 
 
     private List<GrantedAuthority> getGrantedAuthorities(List<Role> roles) {
-        if (roles == null) return null;
         List<GrantedAuthority> authorities = new ArrayList<>();
+        if (roles == null) {
+            return authorities;
+        }
         for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getRole()));
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
         }
         return authorities;
     }

@@ -1,7 +1,5 @@
 package com.itechart.warehouse.security;
 
-import com.itechart.warehouse.constants.UserRoleEnum;
-import com.itechart.warehouse.entity.StorageCell;
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.entity.WarehouseCompany;
@@ -15,15 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
-
 /**
  * Service for resolving permission for user.
  */
 
 @Service
 public class PermissionResolverService {
-    Logger logger = LoggerFactory.getLogger(PermissionResolverService.class);
+
+    private static final String ERROR_EXCEPTION_DURING_EVALUATION = "Exception during evaluation: {}";
+
+    private Logger logger = LoggerFactory.getLogger(PermissionResolverService.class);
 
     private GoodsService goodsService;
     private ActService actService;
@@ -100,15 +99,13 @@ public class PermissionResolverService {
 //                        return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
 //            } else {
             Warehouse warehouse = goodsService.findWarehouseOwnedBy(goodsId);
-            if (warehouse != null) {
-                if (userDetails.getWarehouse() != null)
-                    if (userDetails.getWarehouse().getIdWarehouse() != null)
-                        return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
+            if (warehouse != null && userDetails.getWarehouse() != null && userDetails.getWarehouse().getIdWarehouse() != null) {
+                return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
             }
 //            }
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -120,21 +117,20 @@ public class PermissionResolverService {
         try {
             if (userDetails.getUser().getWarehouseCompany() != null) {
                 WarehouseCompany company = actService.findWarehouseCompanyOwnedBy(actId);
-                if (company == null) return false;
-                if (userDetails.getCompany() != null)
-                    if (userDetails.getCompany().getIdWarehouseCompany() != null)
-                        return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
+                if (company == null) {
+                    return false;
+                }
+                if (userDetails.getCompany() != null && userDetails.getCompany().getIdWarehouseCompany() != null)
+                    return userDetails.getCompany().getIdWarehouseCompany().equals(company.getIdWarehouseCompany());
             } else {
                 Warehouse warehouse = actService.findWarehouseOwnedBy(actId);
-                if (warehouse != null) {
-                    if (userDetails.getWarehouse() != null)
-                        if (userDetails.getWarehouse().getIdWarehouse() != null)
-                            return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
+                if (warehouse != null && userDetails.getWarehouse() != null && userDetails.getWarehouse().getIdWarehouse() != null) {
+                    return userDetails.getWarehouse().getIdWarehouse().equals(warehouse.getIdWarehouse());
                 }
             }
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -146,20 +142,19 @@ public class PermissionResolverService {
         try {
             if (userDetails.getUser() != null) {
                 User user = userService.findUserById(userId);
-                if (user != null) {
-                    if (userDetails.getUser().getWarehouseCompany() != null) {
-                        if (user.getWarehouseCompany() != null)
-                            return userDetails.getCompany().getIdWarehouseCompany().equals(user.getWarehouseCompany().getIdWarehouseCompany());
-                        else {
-                            if (user.getWarehouse() != null)
-                                return userDetails.getWarehouse().getIdWarehouse().equals(user.getWarehouse().getIdWarehouse());
+                if (user != null && userDetails.getUser().getWarehouseCompany() != null) {
+                    if (user.getWarehouseCompany() != null) {
+                        return userDetails.getCompany().getIdWarehouseCompany().equals(user.getWarehouseCompany().getIdWarehouseCompany());
+                    } else {
+                        if (user.getWarehouse() != null) {
+                            return userDetails.getWarehouse().getIdWarehouse().equals(user.getWarehouse().getIdWarehouse());
                         }
                     }
                 }
             }
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -181,8 +176,8 @@ public class PermissionResolverService {
             }
 
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -202,8 +197,8 @@ public class PermissionResolverService {
             }
 
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -223,8 +218,8 @@ public class PermissionResolverService {
             }
 
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -245,8 +240,8 @@ public class PermissionResolverService {
                 }
             }
             return false;
-        } catch (DataAccessException|IllegalParametersException|ResourceNotFoundException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -262,13 +257,13 @@ public class PermissionResolverService {
         try {
             if (userDetails.getCompany() != null) {
                 Warehouse warehouse = warehouseService.findWarehouseById(id_warehouse);
-                if(warehouse != null){
+                if (warehouse != null) {
                     return userDetails.getCompany().getIdWarehouseCompany().equals(warehouse.getWarehouseCompany().getIdWarehouseCompany());
                 }
             }
             return false;
-        } catch (DataAccessException|IllegalParametersException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+        } catch (DataAccessException | IllegalParametersException e) {
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -284,13 +279,13 @@ public class PermissionResolverService {
         try {
             if (userDetails.getCompany() != null) {
                 WarehouseCompany warehouseCompany = storageSpaceService.findWarehouseCompanyBySpace(id_space);
-                if(warehouseCompany != null){
+                if (warehouseCompany != null) {
                     return userDetails.getCompany().getIdWarehouseCompany().equals(warehouseCompany.getIdWarehouseCompany());
                 }
             }
             return false;
         } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }
@@ -306,13 +301,13 @@ public class PermissionResolverService {
         try {
             if (userDetails.getCompany() != null) {
                 WarehouseCompany warehouseCompany = storageCellService.findWarehouseCompanyByCell(id_cell);
-                if(warehouseCompany != null){
+                if (warehouseCompany != null) {
                     return userDetails.getCompany().getIdWarehouseCompany().equals(warehouseCompany.getIdWarehouseCompany());
                 }
             }
             return false;
         } catch (DataAccessException e) {
-            logger.error("Exception during evaluation: {}", e.getMessage());
+            logger.error(ERROR_EXCEPTION_DURING_EVALUATION, e.getMessage());
             return false;
         }
     }

@@ -235,47 +235,5 @@ public class InvoiceController {
         return new ResponseEntity<>(goodsList, HttpStatus.OK);
     }
 
-    @ExceptionHandler(DataAccessException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(DataAccessException e) {
-        RequestHandlingError dataAccessError = new RequestHandlingError();
-        dataAccessError.setError(e.getMessage());
-        return dataAccessError;
-    }
-
-    @ExceptionHandler(IllegalParametersException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(IllegalParametersException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
-        RequestHandlingError illegalParametersError = new RequestHandlingError();
-        illegalParametersError.setError(e.getMessage());
-        return illegalParametersError;
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(ResourceNotFoundException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
-        RequestHandlingError resourceNotFoundError = new RequestHandlingError();
-        resourceNotFoundError.setError(e.getMessage());
-        return resourceNotFoundError;
-    }
-
-    @ExceptionHandler(RequestHandlingException.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(RequestHandlingException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
-        RequestHandlingError requestHandlingError = new RequestHandlingError();
-        requestHandlingError.setError(e.getMessage());
-        return requestHandlingError;
-    }
 }
 

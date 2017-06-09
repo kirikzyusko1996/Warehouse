@@ -16,6 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 
 public class WarehouseCompanyUserDetailsService implements UserDetailsService {
+
+    private static final String ERROR_EXCEPTION_DURING_USER_RETRIEVAL = "Exception during retrieving user details from the database";
+
     private Logger logger = LoggerFactory.getLogger(WarehouseCompanyUserDetailsService.class);
 
     private UserService userService;
@@ -26,17 +29,12 @@ public class WarehouseCompanyUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         logger.info("Loading user by login name: {}", username);
         try {
             return new WarehouseCompanyUserDetails(userService.findUserByLogin(username));
-        } catch (DataAccessException e) {
-            throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
-        } catch (IllegalParametersException e) {
-            throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
-        } catch (ResourceNotFoundException e) {
-            throw new UsernameNotFoundException("Exception during retrieving user details from the database", e);
+        } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
+            throw new UsernameNotFoundException(ERROR_EXCEPTION_DURING_USER_RETRIEVAL, e);
         }
-
     }
 }

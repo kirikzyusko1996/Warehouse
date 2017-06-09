@@ -1,10 +1,10 @@
 package com.itechart.warehouse.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -12,7 +12,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "goods")
-public class Goods implements Serializable {
+@ToString(exclude = {"incomingInvoice", "outgoingInvoice", "acts", "statuses", "cells", "warehouse", "currentStatus", "registeredStatus", "movedOutStatus"})
+@EqualsAndHashCode(exclude = {"incomingInvoice", "outgoingInvoice", "acts", "statuses", "cells", "warehouse", "currentStatus", "registeredStatus", "movedOutStatus"})
+public class Goods {
     private Long id;
     private String name;
     private BigDecimal quantity;
@@ -267,46 +269,5 @@ public class Goods implements Serializable {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Goods goods = (Goods) o;
-
-        if (id != null ? !id.equals(goods.id) : goods.id != null) return false;
-        if (name != null ? !name.equals(goods.name) : goods.name != null) return false;
-        if (quantity != null ? !quantity.equals(goods.quantity) : goods.quantity != null) return false;
-        if (weight != null ? !weight.equals(goods.weight) : goods.weight != null) return false;
-        if (price != null ? !price.equals(goods.price) : goods.price != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (quantity != null ? quantity.hashCode() : 0);
-        result = 31 * result + (weight != null ? weight.hashCode() : 0);
-        result = 31 * result + (price != null ? price.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("idGoods", id)
-                .append("name", name)
-                .append("quantity", quantity)
-                .append("weight", weight)
-                .append("price", price)
-                .append("storageType", storageType)
-                .append("quantityUnit", quantityUnit)
-                .append("weightUnit", weightUnit)
-                .append("priceUnit", priceUnit)
-                .toString();
     }
 }

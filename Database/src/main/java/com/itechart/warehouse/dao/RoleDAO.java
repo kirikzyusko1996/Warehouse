@@ -29,7 +29,7 @@ public class RoleDAO extends DAO<Role> {
         logger.info("Find role, name: {}", roleName);
         Assert.notNull(roleName, "Role name is null");
 
-        String queryHql = "SELECT role FROM Role role WHERE role.role = :name";
+        String queryHql = "SELECT role FROM Role role WHERE role.name = :name";
         Query<Role> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("name", roleName);
 

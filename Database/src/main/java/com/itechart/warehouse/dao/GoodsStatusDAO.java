@@ -2,7 +2,6 @@ package com.itechart.warehouse.dao;
 
 
 import com.itechart.warehouse.dao.exception.GenericDAOException;
-import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.entity.GoodsStatus;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;

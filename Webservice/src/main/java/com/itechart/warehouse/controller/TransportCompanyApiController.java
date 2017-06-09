@@ -1,13 +1,11 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.controller.error.RequestHandlingError;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
-import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.InvoiceService;
 import com.itechart.warehouse.service.services.WarehouseCompanyService;
@@ -26,7 +24,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api")
 public class TransportCompanyApiController {
-    private final static Logger logger = LoggerFactory.getLogger(TransportCompanyApiController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransportCompanyApiController.class);
     private InvoiceService invoiceService;
     private WarehouseCompanyService warehouseCompanyService;
 
@@ -42,7 +40,7 @@ public class TransportCompanyApiController {
 
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<Void> saveIncomingInvoice(@Valid @RequestBody IncomingInvoiceDTO invoice) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("POST on /api: save new incoming invoice: {}", invoice);
         WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
         invoiceService.saveIncomingInvoice(principal, invoice);
@@ -50,53 +48,9 @@ public class TransportCompanyApiController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> saveIncomingInvoice(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public ResponseEntity<WarehouseCompany> saveIncomingInvoice(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /api/{id}: get info about warehouseCompany from system");
         WarehouseCompany company = warehouseCompanyService.findWarehouseCompanyById(id);
         return new ResponseEntity<>(company, HttpStatus.OK);
-    }
-
-
-    @ExceptionHandler(DataAccessException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(DataAccessException e) {
-        RequestHandlingError dataAccessError = new RequestHandlingError();
-        dataAccessError.setError(e.getMessage());
-        return dataAccessError;
-    }
-
-    @ExceptionHandler(IllegalParametersException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(IllegalParametersException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
-        RequestHandlingError illegalParametersError = new RequestHandlingError();
-        illegalParametersError.setError(e.getMessage());
-        return illegalParametersError;
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(ResourceNotFoundException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
-        RequestHandlingError resourceNotFoundError = new RequestHandlingError();
-        resourceNotFoundError.setError(e.getMessage());
-        return resourceNotFoundError;
-    }
-
-    @ExceptionHandler(RequestHandlingException.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public
-    @ResponseBody
-    RequestHandlingError handleException(RequestHandlingException e) {
-        logger.error("Exception during request handling: {}", e.getMessage());
-        RequestHandlingError requestHandlingError = new RequestHandlingError();
-        requestHandlingError.setError(e.getMessage());
-        return requestHandlingError;
     }
 }
