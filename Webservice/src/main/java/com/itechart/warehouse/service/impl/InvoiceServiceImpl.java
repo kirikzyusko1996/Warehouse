@@ -274,7 +274,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Invoice savedInvoice;
         try {
-            User currentUser = userService.findUserById(principal.getUserId());
+            User currentUser = principal.getUser();
             Warehouse currentWarehouse = currentUser.getWarehouse();
 
             Invoice invoice = convertToIncomingInvoice(dto, currentWarehouse);
@@ -304,7 +304,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Invoice savedInvoice;
         try {
-            User currentUser = userService.findUserById(principal.getUserId());
+            User currentUser = principal.getUser();
             Warehouse currentWarehouse = currentUser.getWarehouse();
 
             Invoice invoice = convertToOutgoingInvoice(dto, currentWarehouse);
@@ -315,7 +315,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             invoice.setCurrentStatus(invoiceStatus);
 
-            processGoodsForOutgoingInvoice(dto.getGoods(), savedInvoice, principal.getUser());
+            List<GoodsDTO> goodsList = dto.getGoods();
+            goodsService.updateAndGetGoodsForOutgoingInvoice(savedInvoice, goodsList);
 
         } catch (GenericDAOException e) {
             logger.error("Error while saving outgoing invoice: ", e);
@@ -597,7 +598,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         dto.setManager(invoiceStatus.getUser());
         InvoiceStatusEnum status = InvoiceStatusEnum.getStatus(invoiceStatus.getStatusName().getName());
-        dto.setStatus(status.getName());
+        dto.setStatus(status.toString());
         dto.setRegistrationDate(invoiceStatus.getDate());
 
         dto = fillOutgoingInvoiceWithGoodsInfo(dto, goodsList);

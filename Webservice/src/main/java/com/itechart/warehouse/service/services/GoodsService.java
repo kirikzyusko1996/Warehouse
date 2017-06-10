@@ -70,7 +70,7 @@ public interface GoodsService {
 
     void setOutgoingInvoice(List<Long> goodsIds, Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<Goods> updateAndGetGoodsForOutgoingInvoice(Long invoiceId, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
+    List<Goods> updateAndGetGoodsForOutgoingInvoice(Invoice invoice, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
 
     List<GoodsStatusName> getStatusNames() throws DataAccessException;
 
