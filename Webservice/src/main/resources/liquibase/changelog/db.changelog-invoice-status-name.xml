@@ -6,7 +6,7 @@
     <changeSet author="ulad_bondar" id="invoice-status-name">
         <insert tableName="invoice_status_name">
             <column name="id_invoice_status_name" value="1"/>
-            <column name="name" value="REGISTERED"/>
+            <column name="name" value="REGISTERED_INCOMING"/>
         </insert>
         <insert tableName="invoice_status_name">
             <column name="id_invoice_status_name" value="2"/>
@@ -23,6 +23,10 @@
         <insert tableName="invoice_status_name">
             <column name="id_invoice_status_name" value="5"/>
             <column name="name" value="MOVED_OUT"/>
+        </insert>
+        <insert tableName="invoice_status_name">
+            <column name="id_invoice_status_name" value="6"/>
+            <column name="name" value="REGISTERED_OUTGOING"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
