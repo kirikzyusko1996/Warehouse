@@ -56,8 +56,6 @@ public class WarehouseController {
     public ResponseEntity<List<Warehouse>> findWarehousesByCompanyId(@RequestParam(defaultValue = "0") Long id,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "-1") int count){
-        System.out.println("ID: "+id);
-        System.out.println("PAGE: "+page+" Count: "+count);
         logger.info("GET on /warehouse: find warehouses");
 
         List<Warehouse> warehouses;
@@ -70,15 +68,13 @@ public class WarehouseController {
             logger.error("Invalid params specified while reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        System.out.println(warehouses);
+
         return new ResponseEntity<>(warehouses, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<List<Warehouse>> searchWarehouses(@RequestBody Warehouse warehouse){
         logger.info("GET on /warehouse: search warehouse by criteria name={}", warehouse.getName());
-
-        System.out.println(warehouse.getWarehouseCompany().getIdWarehouseCompany());
 
         List<Warehouse> warehouses;
         try{
@@ -90,13 +86,14 @@ public class WarehouseController {
             logger.error("Invalid params specified while reading warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        System.out.println(warehouse+" "+warehouses);
+
         return new ResponseEntity<>(warehouses, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<?> saveWarehouse(@Valid @RequestBody Warehouse warehouse){
         logger.info("POST on /warehouse: save new warehouse");
+
         try{
             warehouseService.saveWarehouse(warehouse);
         } catch (DataAccessException e){
@@ -110,6 +107,7 @@ public class WarehouseController {
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody Warehouse warehouse){
         logger.info("PUT on /warehouse/{}: update warehouse", id);
+
         try{
             warehouseService.updateWarehouse(id, warehouse);
         } catch (DataAccessException e){
@@ -129,6 +127,7 @@ public class WarehouseController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteWarehouse(@PathVariable Long id){
         logger.info("DELETE on /company/{}: delete company", id);
+
         try {
             warehouseService.deleteWarehouse(id);
         } catch (DataAccessException e){
@@ -141,6 +140,7 @@ public class WarehouseController {
             logger.error("Transport company with specified id not found while deleting Warehouse", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

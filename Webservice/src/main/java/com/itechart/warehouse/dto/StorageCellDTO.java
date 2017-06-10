@@ -7,8 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Created by Lenovo on 07.05.2017.
+ * Data Transfer Object for storage Cell
  */
+
 @Setter
 @Getter
 @lombok.ToString

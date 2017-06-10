@@ -13,11 +13,14 @@ import java.util.List;
 public interface WarehouseService {
     List<Warehouse> findAllWarehouse() throws DataAccessException;
 
-    List<Warehouse> findWarehousesByCompanyId(Long id, int page, int count) throws DataAccessException, IllegalParametersException;
+    List<Warehouse> findWarehousesByCompanyId(Long id, int page, int count)
+            throws DataAccessException, IllegalParametersException;
 
-    Warehouse findWarehouseById(Long id) throws DataAccessException, IllegalParametersException;
-    Warehouse findWarehouseOfCompanyById(Long id_warehouse) throws DataAccessException, IllegalParametersException;
-        ////Warehouse findWarehouseByLogin(String login) throws DataAccessException;
+    Warehouse findWarehouseById(Long id)
+            throws DataAccessException, IllegalParametersException;
+
+    Warehouse findWarehouseOfCompanyById(Long id_warehouse)
+            throws DataAccessException, IllegalParametersException;
 
     List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long idWarehouseCompany)
             throws DataAccessException, IllegalParametersException;

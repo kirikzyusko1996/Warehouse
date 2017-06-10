@@ -9,8 +9,10 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 
 /**
+ * DAO layer for Storage space
  * Created by Alexey on 19.04.2017.
  */
+
 @Repository
 public class StorageSpaceDAO  extends DAO<StorageSpace>{
     public StorageSpaceDAO() {

@@ -1,21 +1,14 @@
 package com.itechart.warehouse.service.impl;
 
-import com.itechart.warehouse.dao.GoodsDAO;
 import com.itechart.warehouse.dao.StorageCellDAO;
 import com.itechart.warehouse.dao.StorageSpaceDAO;
-import com.itechart.warehouse.dao.UserDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
-import com.itechart.warehouse.dto.SchemeDTO;
 import com.itechart.warehouse.dto.StorageCellDTO;
 import com.itechart.warehouse.entity.*;
-import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.StorageCellService;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,24 +16,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
+ * Service layer for cell from storage
  * Created by Lenovo on 07.05.2017.
  */
+
 @Service
 public class StorageCellServiceImpl implements StorageCellService {
     private StorageCellDAO storageCellDAO;
     private StorageSpaceDAO storageSpaceDAO;
-    private GoodsDAO goodsDAO;
     private Logger logger = LoggerFactory.getLogger(StorageCellServiceImpl.class);
-
-    @Autowired
-    public void setGoodsDAO(GoodsDAO goodsDAO) {
-        this.goodsDAO = goodsDAO;
-    }
 
     @Autowired
     public void setStorageCellDAO(StorageCellDAO storageCellDAO) {
@@ -60,7 +47,7 @@ public class StorageCellServiceImpl implements StorageCellService {
         if (storageCellDTO == null) throw new IllegalParametersException("storage cell DTO is null");
         try {
             StorageCell storageCell = new StorageCell();
-            storageCell.setGoods(null);//TODO: maybe here will be an exception
+            storageCell.setGoods(null);
             storageCell.setNumber(storageCellDTO.getNumber());
             storageCell.setStorageSpace(storageSpaceDAO.findById(storageCellDTO.getIdStorageSpace()).get());
             storageCell.setStatus(storageCellDTO.getStatus());
@@ -82,7 +69,9 @@ public class StorageCellServiceImpl implements StorageCellService {
     @PreAuthorize("hasPermission(#storageCellDTO.idStorageCell, 'Cell', 'GET')")
     public StorageCell updateStorageCell(StorageCellDTO storageCellDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Updating storage cell with id {} from DTO: {}", storageCellDTO.getIdStorageSpace(), storageCellDTO);
-        if (storageCellDTO == null || storageCellDTO.getIdStorageCell() == null) throw new IllegalParametersException("Id or act DTO is null");
+        if (storageCellDTO == null || storageCellDTO.getIdStorageCell() == null) {
+            throw new IllegalParametersException("Id or act DTO is null");
+        }
         try {
             Optional<StorageCell> storageCellResult = storageCellDAO.findById(storageCellDTO.getIdStorageCell());
             if (storageCellResult.isPresent()) {
@@ -118,12 +107,14 @@ public class StorageCellServiceImpl implements StorageCellService {
      * */
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#id, 'Cell', 'GET')")
-    public void deleteStorageCell(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Deleting storage cell with id: {}", id);
-        if (id == null) throw new IllegalParametersException("Id is null");
+    @PreAuthorize("hasPermission(#idCell, 'Cell', 'DELETE')")
+    public void deleteStorageCell(Long idCell) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Deleting storage cell with id: {}", idCell);
+        if (idCell == null) {
+            throw new IllegalParametersException("Id is null");
+        }
         try {
-            Optional<StorageCell> result = storageCellDAO.findById(id);
+            Optional<StorageCell> result = storageCellDAO.findById(idCell);
             if (result.isPresent()) {
                 result.get().setStatus(!result.get().getStatus());//so can recovery it, merely change status to opposite
                 storageCellDAO.update(result.get());
@@ -136,15 +127,14 @@ public class StorageCellServiceImpl implements StorageCellService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id, 'Cell', 'GET')")
-    public StorageCell findStorageCellById(Long id) throws DataAccessException, IllegalParametersException {
-        logger.info("Find StorageCell by id: {}", id);
+    @PreAuthorize("hasPermission(#idCell, 'Cell', 'GET')")
+    public StorageCell findStorageCellById(Long idCell) throws DataAccessException, IllegalParametersException {
+        logger.info("Find StorageCell by id: {}", idCell);
 
-        StorageCell storageCell = null;
+        StorageCell storageCell;
         try {
-            Optional<StorageCell> result = storageCellDAO.findById(id);
+            Optional<StorageCell> result = storageCellDAO.findById(idCell);
             storageCell = result.get();
-            System.out.println(storageCell);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
             throw new DataAccessException(e.getCause());
@@ -154,12 +144,12 @@ public class StorageCellServiceImpl implements StorageCellService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseCompany findWarehouseCompanyByCell(Long id_cell) throws DataAccessException {
-        logger.info("Find warehouse company by id of cell: {}", id_cell);
+    public WarehouseCompany findWarehouseCompanyByCell(Long idCell) throws DataAccessException {
+        logger.info("Find warehouse company by id of cell: {}", idCell);
 
-        WarehouseCompany warehouseCompany = null;
+        WarehouseCompany warehouseCompany;
         try {
-            warehouseCompany = storageCellDAO.findWarehouseCompanyByCell(id_cell);
+            warehouseCompany = storageCellDAO.findWarehouseCompanyByCell(idCell);
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

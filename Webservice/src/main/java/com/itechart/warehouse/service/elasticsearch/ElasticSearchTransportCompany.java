@@ -25,8 +25,6 @@ import java.util.Map;
 
 import static com.itechart.warehouse.util.Host.host;
 import static com.itechart.warehouse.util.Host.port;
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 /**
  * Created by Lenovo on 19.05.2017.
@@ -39,7 +37,6 @@ public class ElasticSearchTransportCompany {
     private static TransportClient client;
     private static Logger logger = LoggerFactory.getLogger(ElasticSearchTransportCompany.class);
     private static final String TYPE_COMPANY = "company";
-    private static final String TYPE_DRIVER = "driver";
     private static final String FIELD = "name";
 
     static {
@@ -66,7 +63,7 @@ public class ElasticSearchTransportCompany {
      */
     public String save(TransportCompany transportCompany) {
         logger.info("Saving transport company with id: {}", transportCompany.getId());
-        String index = transportCompany.getWarehouseCompany().getIdWarehouseCompany().toString();//todo or id, if nounique
+        String index = transportCompany.getWarehouseCompany().getIdWarehouseCompany().toString();
         if(!isExist(index)) {
             createIndex(index);
         }
@@ -81,26 +78,26 @@ public class ElasticSearchTransportCompany {
      **/
     public String delete(TransportCompany transportCompany) {
         String index = transportCompany.getWarehouseCompany().getIdWarehouseCompany().toString();
-        String id_elastic = findForCRUD(transportCompany);
-        if(id_elastic.equals("")) {
-            return "NOT_FOUND";//todo remake with exception
+        String idElastic = findForCRUD(transportCompany);
+        if(idElastic.equals("")) {
+            return "NOT_FOUND";
         }
         DeleteResponse response = client.prepareDelete(
-                index, TYPE_COMPANY, id_elastic).get();
+                index, TYPE_COMPANY, idElastic).get();
         return response.status().toString();
     }
 
     /**
      * @return String - id of inserted record (transport company)
      */
-    public String edit(TransportCompany _old, TransportCompany _new) {
-        delete(_old);
-        return save(_new);
+    public String edit(TransportCompany oldRecord, TransportCompany newRecord) {
+        delete(oldRecord);
+        return save(newRecord);
     }
 
     public List<SimilarityWrapper<TransportCompany>> search(TransportCompany transportCompany) {
         List<SimilarityWrapper<TransportCompany>> similarityWrapperList = fuzzyMatchSearch(transportCompany);
-        if(similarityWrapperList.size()!=0) {
+        if(!similarityWrapperList.isEmpty()) {
             logger.info("fuzzy match result");
             return similarityWrapperList;
         }
@@ -118,7 +115,7 @@ public class ElasticSearchTransportCompany {
                         "    \"multi_match\": {\n" +
                         "      \"fields\":  [ \""+FIELD+"\"],\n" +
                         "      \"query\":     \""
-                                +transportCompany.getName()+//todo injection?
+                                +transportCompany.getName()+
                         "\",\n" +
                         "      \"fuzziness\": \"AUTO\"\n" +
                         "    }\n" +
@@ -141,7 +138,7 @@ public class ElasticSearchTransportCompany {
                         "    \"query_string\": {\n" +
                         "      \"fields\":  [ \""+FIELD+"\"],\n" +
                         "      \"query\":     \"*"
-                        +transportCompany.getName().toLowerCase()+//todo injection?
+                        +transportCompany.getName().toLowerCase()+
                         "*\"\n" +
                         "    }\n" +
                         "  }\n" +
@@ -151,26 +148,16 @@ public class ElasticSearchTransportCompany {
                 //because name not unique-field between company and driver
                 .get()
                 .getResponse();
-        System.out.println("{\n" +
-                "  \"query\": {\n" +
-                "    \"query_string\": {\n" +
-                "      \"fields\":  [ \""+FIELD+"\"],\n" +
-                "      \"query\":     \"*"
-                +transportCompany.getName().toLowerCase()+//todo injection?
-                "*\"\n" +
-                "    }\n" +
-                "  }\n" +
-                "}");
 
         return parseTransportCompanyData(sr.getHits().getHits());
     }
 
-    private List<SimilarityWrapper<TransportCompany>> parseTransportCompanyData(SearchHit searchHits[]){
+    private List<SimilarityWrapper<TransportCompany>> parseTransportCompanyData(SearchHit []searchHits){
         List<SimilarityWrapper<TransportCompany>> list = new ArrayList<>();
         for(SearchHit searchHit : searchHits){
             SimilarityWrapper<TransportCompany> similarityWrapper = new SimilarityWrapper<>();
             Map map = searchHit.getSource();
-            TransportCompany tr = new TransportCompany();//it's parse data, but worst
+            TransportCompany tr = new TransportCompany();
             tr.setId(Long.valueOf((Integer)map.get("id")));
             tr.setName((String) map.get("name"));
             tr.setTrusted((Boolean) map.get("trusted"));
@@ -194,7 +181,7 @@ public class ElasticSearchTransportCompany {
                 .setQuery(queryBuilder)// Query
                 .setFrom(0).setSize(5)
                 .get();
-        SearchHit hits[] = response.getHits().getHits();
+        SearchHit []hits = response.getHits().getHits();
         if(hits.length!=0) {
             return hits[0].getId();
         }

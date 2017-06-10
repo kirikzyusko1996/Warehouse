@@ -69,7 +69,7 @@ public class WarehouseCompanyController {
             logger.error("user with specified id not found while reading company", e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        System.out.println(warehouseCompany+" "+warehouseCompanies);
+
         return new ResponseEntity<>(warehouseCompanies, HttpStatus.OK);
     }
 
@@ -89,7 +89,6 @@ public class WarehouseCompanyController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCompany>> getCompanies(@RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "-1") int count){
-        System.out.println("!!!"+page+" "+count);
         logger.info("GET on /company: find all companies");
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         User user = userDetails.getUser();

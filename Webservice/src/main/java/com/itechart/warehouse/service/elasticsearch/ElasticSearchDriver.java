@@ -1,7 +1,6 @@
 package com.itechart.warehouse.service.elasticsearch;
 
 import com.itechart.warehouse.entity.Driver;
-import com.itechart.warehouse.entity.TransportCompany;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -33,6 +32,7 @@ import static com.itechart.warehouse.util.Host.port;
  * Class, which represent myself DAO-layer
  * for working with elastic search framework to Driver-entity
  */
+
 public class ElasticSearchDriver {
     private static TransportClient client;
     private static Logger logger = LoggerFactory.getLogger(ElasticSearchDriver.class);
@@ -61,9 +61,9 @@ public class ElasticSearchDriver {
     /**
      * @return String - id of inserted record (driver)
      **/
-    public String save(Driver driver, Long id_company) {
-        logger.info("Saving driver with id: {}, for company with id: {}", driver.getId(), id_company);
-        String index = id_company.toString();
+    public String save(Driver driver, Long idCompany) {
+        logger.info("Saving driver with id: {}, for company with id: {}", driver.getId(), idCompany);
+        String index = idCompany.toString();
         if(!isExist(index)) {
             createIndex(index);
         }
@@ -78,49 +78,48 @@ public class ElasticSearchDriver {
     /**
      * @return String - status of commited operation
      **/
-    public String delete(Driver driver, Long id_company) {
-        String index = id_company.toString();
-        String id_elastic = findForCRUD(driver, id_company);
-        if(id_elastic.equals("")) {
-            return "NOT_FOUND";//todo remake with exception
+    public String delete(Driver driver, Long idCompany) {
+        String index = idCompany.toString();
+        String idElastic = findForCRUD(driver, idCompany);
+        if(idElastic.equals("")) {
+            return "NOT_FOUND";
         }
         DeleteResponse response = client.prepareDelete(
-                index, TYPE, id_elastic).get();
+                index, TYPE, idElastic).get();
         return response.status().toString();
     }
 
     /**
      * @return String - id of inserted record (transport company)
      */
-    public String edit(Driver _old, Driver _new, Long id_company) {
-        delete(_old, id_company);
-        return save(_new, id_company);
+    public String edit(Driver oldRecord, Driver newRecord, Long idCompany) {
+        delete(oldRecord, idCompany);
+        return save(newRecord, idCompany);
     }
 
     /**
      * Dispatcher method
      * */
-    public List<SimilarityWrapper<Driver>> search(Driver driver, Long id_company) {
-        List<SimilarityWrapper<Driver>> similarityWrapperList = fuzzyMatchSearch(driver, id_company);
-        if(similarityWrapperList.size()!=0) {
+    public List<SimilarityWrapper<Driver>> search(Driver driver, Long idCompany) {
+        List<SimilarityWrapper<Driver>> similarityWrapperList = fuzzyMatchSearch(driver, idCompany);
+        if(!similarityWrapperList.isEmpty()) {
             logger.info("fuzzy match result");
             return similarityWrapperList;
-        }
-        else {
+        } else {
             logger.info("sub match result");
-            return subMatchSearch(driver, id_company);
+            return subMatchSearch(driver, idCompany);
         }
     }
 
-    private List<SimilarityWrapper<Driver>> fuzzyMatchSearch(Driver driver, Long id_company){
-        String index = id_company.toString();
+    private List<SimilarityWrapper<Driver>> fuzzyMatchSearch(Driver driver, Long idCompany){
+        String index = idCompany.toString();
         SearchResponse sr = new SearchTemplateRequestBuilder(client)
                 .setScript("{\n" +
                         "  \"query\": {\n" +
                         "    \"multi_match\": {\n" +
                         "      \"fields\":  [ \""+FIELD+"\"],\n" +
                         "      \"query\":     \""
-                        +driver.getFullName()+//todo injection?
+                        +driver.getFullName()+
                         "\",\n" +
                         "      \"fuzziness\": \"AUTO\"\n" +
                         "    }\n" +
@@ -135,15 +134,15 @@ public class ElasticSearchDriver {
         return parseDriverData(sr.getHits().getHits());
     }
 
-    private List<SimilarityWrapper<Driver>> subMatchSearch(Driver driver, Long id_company){
-        String index = id_company.toString();
+    private List<SimilarityWrapper<Driver>> subMatchSearch(Driver driver, Long idCompany){
+        String index = idCompany.toString();
         SearchResponse sr = new SearchTemplateRequestBuilder(client)
                 .setScript("{\n" +
                         "  \"query\": {\n" +
                         "    \"query_string\": {\n" +
                         "      \"fields\":  [ \""+FIELD+"\"],\n" +
                         "      \"query\":     \"*"
-                        +driver.getFullName()+//todo injection?
+                        +driver.getFullName()+
                         "*\"\n" +
                         "    }\n" +
                         "  }\n" +
@@ -162,7 +161,7 @@ public class ElasticSearchDriver {
         for(SearchHit searchHit : searchHits){
             SimilarityWrapper<Driver> similarityWrapper = new SimilarityWrapper<>();
             Map map = searchHit.getSource();
-            Driver driver = new Driver();//it's parse data, but worst
+            Driver driver = new Driver();
             driver.setId(Long.valueOf((Integer)map.get("id")));
             driver.setFullName((String) map.get("fullName"));
             driver.setPassportNumber((String) map.get("passportNumber"));
@@ -176,11 +175,11 @@ public class ElasticSearchDriver {
         return list;
     }
 
-    private String findForCRUD(Driver driver, Long id_company){
-        QueryBuilder queryBuilder = QueryBuilders.matchQuery(
+    private String findForCRUD(Driver driver, Long idCompany){
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery (
                 FIELD, driver.getFullName()
         );
-        String index = id_company.toString();
+        String index = idCompany.toString();
         if(!isExist(index)) {
             return "";
         }
@@ -189,11 +188,10 @@ public class ElasticSearchDriver {
                 .setQuery(queryBuilder)// Query
                 .setFrom(0).setSize(5)
                 .get();
-        SearchHit hits[] = response.getHits().getHits();
-        if(hits.length!=0) {
+        SearchHit []hits = response.getHits().getHits();
+        if(hits.length != 0) {
             return hits[0].getId();
-        }
-        else {
+        } else {
             return "";
         }
     }

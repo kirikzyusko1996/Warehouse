@@ -9,8 +9,9 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * Created by Lenovo on 14.05.2017.
+ * Data Transfer Object which union space and their cells
  */
+
 @Setter
 @Getter
 @lombok.ToString

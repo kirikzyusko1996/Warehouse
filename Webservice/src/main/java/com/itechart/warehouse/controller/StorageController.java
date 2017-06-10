@@ -70,7 +70,6 @@ public class StorageController {
         List<StorageSpace> storageSpaces;
         try{
             storageSpaces = storageSpaceService.findStorageByWarehouseId(id);
-            System.out.println("!!!!!!!!!!"+storageSpaces);
         } catch (DataAccessException e){
             logger.error("Error while retrieving warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -101,7 +100,6 @@ public class StorageController {
     public ResponseEntity<?> saveStorageCell(@RequestBody StorageCellDTO storageCellDTO){
         logger.info("POST on /Storage: save new storageCell");
         try{
-            System.out.println(storageCellDTO);
             storageCellService.createStorageCell(storageCellDTO);
         } catch (DataAccessException e){
             logger.error("Error while saving new storageCell", e);
@@ -141,7 +139,6 @@ public class StorageController {
     public ResponseEntity<?> deleteStorageCell(@PathVariable Long id){
         logger.info("DELETE on /Cell: disable storageCell");
         try {
-            System.out.println(id);
             storageCellService.deleteStorageCell(id);
         } catch (DataAccessException e){
             logger.error("Error while updating new storageCell", e);
@@ -162,7 +159,6 @@ public class StorageController {
     public ResponseEntity<?> saveStorage(@RequestBody StorageSpaceDTO storageSpace){
         logger.info("POST on /Storage: save new Storage");
         try{
-            System.out.println(storageSpace);
             storageSpaceService.createStorageSpace(storageSpace);
         } catch (DataAccessException e){
             logger.error("Error while saving new storageSpace", e);

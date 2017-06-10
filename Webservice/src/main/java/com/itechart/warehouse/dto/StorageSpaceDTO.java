@@ -7,6 +7,7 @@ import lombok.Setter;
 /**
  * Data transfer object for storage_space table, which contains only id .
  */
+
 @Setter
 @Getter
 @lombok.ToString
