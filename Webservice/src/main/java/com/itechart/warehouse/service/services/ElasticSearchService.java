@@ -15,5 +15,6 @@ import java.util.List;
 public interface ElasticSearchService {
     List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany);
 
-    List<SimilarityWrapper<Driver>> searchDriver(Driver driver) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    List<SimilarityWrapper<Driver>> searchDriver(Driver driver)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 }

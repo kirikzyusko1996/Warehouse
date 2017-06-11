@@ -17,21 +17,15 @@ import java.util.List;
 public interface InvoiceService {
     List<Invoice> findAllInvoices() throws DataAccessException;
 
-    List<IncomingInvoiceDTO> findAllIncomingInvoices(int page, int count)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    List<IncomingInvoiceDTO> findAllIncomingInvoices(int page, int count, WarehouseCompanyUserDetails principal) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
 
-    List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
-
-    List<IncomingInvoiceDTO> findAllIncomingInvoicesForWarehouse(int page, int count, Long idWarehouse) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
-
-    List<OutgoingInvoiceDTO> findAllOutgoingInvoicesForWarehouse(int page, int count, Long idWarehouse) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
+    List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count, WarehouseCompanyUserDetails principal) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     Invoice findInvoiceById(Long id) throws DataAccessException;
 
     Invoice findInvoiceByNumber(String number) throws DataAccessException;
 
-    IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException;
+    IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long companyId) throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException;
 
     OutgoingInvoiceDTO findOutgoingInvoiceForCompanyById(Long id, Long idWarehouseCompany) throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

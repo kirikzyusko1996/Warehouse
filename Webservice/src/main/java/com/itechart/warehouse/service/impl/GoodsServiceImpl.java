@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -510,7 +512,7 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsDAO.insert(goodsInAct);
     }
 
-    private Goods createGoodsForInvoice(Goods initialGoods, GoodsDTO goodsInInvoiceDTO) throws GenericDAOException, IllegalParametersException {
+    private Goods createGoodsForInvoice(Goods initialGoods, GoodsDTO goodsInInvoiceDTO, Invoice invoice) throws GenericDAOException, IllegalParametersException {
         Assert.notNull(goodsInInvoiceDTO, ERROR_GOODS_DTO_IS_NULL);
 
         Goods goodsInInvoice = new Goods(initialGoods);
@@ -521,22 +523,24 @@ public class GoodsServiceImpl implements GoodsService {
         if (goodsInInvoiceDTO.getQuantity().compareTo(initialGoods.getQuantity()) <= 0) {
             goodsInInvoice.setQuantity(goodsInInvoiceDTO.getQuantity());
             initialGoods.setQuantity(initialGoods.getQuantity().subtract(goodsInInvoiceDTO.getQuantity()));
+
+            goodsInInvoice.setOutgoingInvoice(invoice);
+
+            if (goodsInInvoiceDTO.getWeight().compareTo(initialGoods.getWeight()) <= 0) {
+                goodsInInvoice.setWeight(goodsInInvoiceDTO.getWeight());
+                initialGoods.setWeight(initialGoods.getWeight().subtract(goodsInInvoiceDTO.getWeight()));
+            } else {
+                throw new IllegalParametersException("Weight in invoice can not be greater than initial value");
+            }
+
+            if (goodsInInvoiceDTO.getPrice().compareTo(initialGoods.getPrice()) <= 0) {
+                goodsInInvoice.setPrice(goodsInInvoiceDTO.getPrice());
+                initialGoods.setPrice(initialGoods.getPrice().subtract(goodsInInvoiceDTO.getPrice()));
+            } else {
+                throw new IllegalParametersException("Price in invoice can not be greater than initial value");
+            }
         } else {
             throw new IllegalParametersException("Quantity in invoice can not be greater than initial value");
-        }
-
-        if (goodsInInvoiceDTO.getWeight().compareTo(initialGoods.getWeight()) <= 0) {
-            goodsInInvoice.setWeight(goodsInInvoiceDTO.getWeight());
-            initialGoods.setWeight(initialGoods.getWeight().subtract(goodsInInvoiceDTO.getWeight()));
-        } else {
-            throw new IllegalParametersException("Weight in invoice can not be greater than initial value");
-        }
-
-        if (goodsInInvoiceDTO.getPrice().compareTo(initialGoods.getPrice()) <= 0) {
-            goodsInInvoice.setPrice(goodsInInvoiceDTO.getPrice());
-            initialGoods.setPrice(initialGoods.getPrice().subtract(goodsInInvoiceDTO.getPrice()));
-        } else {
-            throw new IllegalParametersException("Price in invoice can not be greater than initial value");
         }
 
         return goodsDAO.insert(goodsInInvoice);
@@ -775,9 +779,9 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional
-    public List<Goods> updateAndGetGoodsForOutgoingInvoice(Long invoiceId, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
-        logger.info("Update and get goods for invoice, invoice id {}, list of goods: {}", invoiceId, goodsList);
-        if (invoiceId == null) {
+    public List<Goods> updateAndGetGoodsForOutgoingInvoice(Invoice invoice, List<GoodsDTO> goodsList) throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
+        logger.info("Update and get goods for invoice, invoice id {}, list of goods: {}", invoice, goodsList);
+        if (invoice == null) {
             throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
         }
         if (goodsList == null) {
@@ -792,11 +796,12 @@ public class GoodsServiceImpl implements GoodsService {
 
                     if (goodsDTO.getQuantity().compareTo(initialGoods.getQuantity()) == 0) {
                         //if all amount is affected by act
+                        initialGoods.setOutgoingInvoice(invoice);
                         goodsInInvoiceList.add(initialGoods);
                         setGoodsStatus(initialGoods.getId(), GoodsStatusEnum.WITHDRAWN);
                         removeGoodsFromStorage(initialGoods.getId());
                     } else {
-                        Goods goodsInAct = createGoodsForInvoice(initialGoods, goodsDTO);
+                        Goods goodsInAct = createGoodsForInvoice(initialGoods, goodsDTO, invoice);
                         if (goodsInAct != null) {
                             setGoodsStatus(goodsInAct.getId(), GoodsStatusEnum.WITHDRAWN);
                             goodsInInvoiceList.add(goodsInAct);

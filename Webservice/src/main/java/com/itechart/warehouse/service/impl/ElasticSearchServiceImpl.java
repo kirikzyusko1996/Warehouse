@@ -1,6 +1,7 @@
 package com.itechart.warehouse.service.impl;
 
 import com.itechart.warehouse.dao.DriverDAO;
+import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Driver;
 import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.service.elasticsearch.ElasticSearchDriver;
@@ -22,11 +23,13 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
+ * Service Layer for working with elastic search framework
  * Created by Lenovo on 25.05.2017.
  */
+
 @Service
-public class ElasticSearchServiceImpl implements ElasticSearchService{
-    private final static Logger logger = LoggerFactory.getLogger(ElasticSearchServiceImpl.class);
+public class ElasticSearchServiceImpl implements ElasticSearchService {
+    private final Logger logger = LoggerFactory.getLogger(ElasticSearchServiceImpl.class);
     private ElasticSearchTransportCompany elasticSearchTransportCompany = new ElasticSearchTransportCompany();
     private ElasticSearchDriver elasticSearchDriver = new ElasticSearchDriver();
     private DriverDAO driverDAO;
@@ -43,7 +46,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService{
     }
 
     @PostConstruct
-    public void initElasticSearchTransportCompany() throws Exception {
+    public void initElasticSearchTransportCompany() throws DataAccessException {
         logger.info("Start init action for es and transport company");
         List<TransportCompany> list = transportCompanyService.findAllTransportCompanies(-1, -1);
         for(TransportCompany tr : list){
@@ -54,28 +57,28 @@ public class ElasticSearchServiceImpl implements ElasticSearchService{
     }
 
     @PostConstruct
-    public void initElasticSearchDriver() throws Exception {
+    public void initElasticSearchDriver()  throws DataAccessException, GenericDAOException,
+            IllegalParametersException, ResourceNotFoundException {
         logger.info("Start init action for es and driver");
         DetachedCriteria detachedCriteria = DetachedCriteria.forClass(Driver.class);
         List<Driver> list = driverDAO.findAll(detachedCriteria, -1, -1);
         for(Driver dr : list){
-            Long id_company = transportCompanyService.findWarehouseCompanyByTransportId(dr.getId()).getIdWarehouseCompany();
-            elasticSearchDriver.delete(dr, id_company);
-            elasticSearchDriver.save(dr, id_company);
+            Long idCompany = transportCompanyService.findWarehouseCompanyByTransportId(dr.getId()).getIdWarehouseCompany();
+            elasticSearchDriver.delete(dr, idCompany);
+            elasticSearchDriver.save(dr, idCompany);
         }
-        System.out.println(list);
         logger.info("Complete init for driver (elastic search)");
     }
 
     @Override
     public List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany){
-        return elasticSearchTransportCompany.search(transportCompany);//todo если надо, то здесь можно нагрузить бизнес-логику и возвращать нормальный список
+        return elasticSearchTransportCompany.search(transportCompany);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SimilarityWrapper<Driver>> searchDriver(Driver driver)throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        Long id_company = transportCompanyService.findWarehouseCompanyByTransportId(driver.getId()).getIdWarehouseCompany();
-        return elasticSearchDriver.search(driver, id_company);//todo если надо, то здесь можно нагрузить бизнес-логику и возвращать нормальный список
+        Long idCompany = transportCompanyService.findWarehouseCompanyByTransportId(driver.getId()).getIdWarehouseCompany();
+        return elasticSearchDriver.search(driver, idCompany);
     }
 }

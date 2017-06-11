@@ -53,10 +53,9 @@ public class InvoiceController {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /invoice/incoming: find all registered incoming invoices");
 
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        if (userDetails != null) {
-            Warehouse warehouse = userDetails.getWarehouse();
-            List<IncomingInvoiceDTO> invoices = invoiceService.findAllIncomingInvoicesForWarehouse(page, count, warehouse.getIdWarehouse());
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        if (principal != null) {
+            List<IncomingInvoiceDTO> invoices = invoiceService.findAllIncomingInvoices(page, count, principal);
             return new ResponseEntity<>(invoices, HttpStatus.OK);
         } else {
             logger.error("Failed to retrieve authenticated user while retrieving incoming invoices");
@@ -70,10 +69,9 @@ public class InvoiceController {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("GET on /invoice/outgoing: find all registered outgoing invoices");
 
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        if (userDetails != null) {
-            Warehouse warehouse = userDetails.getWarehouse();
-            List<OutgoingInvoiceDTO> invoices = invoiceService.findAllOutgoingInvoicesForWarehouse(page, count, warehouse.getIdWarehouse());
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        if (principal != null) {
+            List<OutgoingInvoiceDTO> invoices = invoiceService.findAllOutgoingInvoices(page, count, principal);
             return new ResponseEntity<>(invoices, HttpStatus.OK);
         } else {
             logger.error("Failed to retrieve authenticated user while retrieving outgoing invoices");

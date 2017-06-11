@@ -25,6 +25,7 @@ import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
 
 /**
  * Created by Lenovo on 01.05.2017.
+ * Controller for request of company
  */
 
 @RestController
@@ -45,13 +46,39 @@ public class WarehouseCompanyController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public ResponseEntity<List<WarehouseCompany>> searchWarehouseCompany(@RequestBody WarehouseCompany warehouseCompany){
+        logger.info("GET on /search: search WarehouseCompany by criteria name={}", warehouseCompany.getName());
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        User user = userDetails.getUser();
 
+        List<WarehouseCompany> warehouseCompanies;
+        try {
+            boolean isAdmin = userService.hasRole(user.getId(), ROLE_ADMIN);
+            if(!isAdmin) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            warehouseCompanies = warehouseCompanyService.searchWarehouseCompany(warehouseCompany);
+        } catch (DataAccessException e) {
+            logger.error("Error reading warehouse company", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalParametersException e) {
+            logger.error("Invalid params specified while reading warehouse company", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (ResourceNotFoundException e) {
+            logger.error("user with specified id not found while reading company", e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(warehouseCompanies, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCompany>> readAllCompanies(){
         logger.info("GET on /company: find all companies");
         List<WarehouseCompany> companies;
         try{
-            companies = warehouseCompanyService.findAllWarehouseCompany();
+            companies = warehouseCompanyService.findAllWarehouseCompany(-1, -1);
         } catch (DataAccessException e){
             logger.error("Error while retrieving all companies", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -60,7 +87,8 @@ public class WarehouseCompanyController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<List<WarehouseCompany>> readCompanies(){
+    public ResponseEntity<List<WarehouseCompany>> getCompanies(@RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "-1") int count){
         logger.info("GET on /company: find all companies");
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         User user = userDetails.getUser();
@@ -68,7 +96,7 @@ public class WarehouseCompanyController {
         try{
             boolean isAdmin = userService.hasRole(user.getId(), ROLE_ADMIN);
             if(isAdmin) {
-                companies = warehouseCompanyService.findAllWarehouseCompany();
+                companies = warehouseCompanyService.findAllWarehouseCompany(page, count);
             } else {
                 companies = warehouseCompanyService.findWarehouseCompany(userDetails.getUser().getId());
             }
@@ -89,8 +117,6 @@ public class WarehouseCompanyController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<List<WarehouseCompany>> getCompanyById(@PathVariable Long id){
         logger.info("GET on /company: by id {}", id);
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        User user = userDetails.getUser();//warning
         List<WarehouseCompany> company = new ArrayList<>();
         try{
             company.add(warehouseCompanyService.getWarehouseCompanyById(id));
@@ -112,7 +138,7 @@ public class WarehouseCompanyController {
     public ResponseEntity<User> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany,
                                             @PathVariable String email){
         logger.info("POST on /company: save new company");
-        User user = null;
+        User user;
         try{
             user = warehouseCompanyService.saveWarehouseCompany(warehouseCompany, email);
             if(user == null) {
@@ -129,7 +155,6 @@ public class WarehouseCompanyController {
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCompany(@PathVariable Long id, @Valid @RequestBody WarehouseCompany company){
         logger.info("PUT on /company/{}: update company", id);
-        // todo security check
         try{
             warehouseCompanyService.updateWarehouseCompany(id, company);
         } catch (DataAccessException e){
@@ -149,7 +174,6 @@ public class WarehouseCompanyController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteCompany(@PathVariable Long id){
         logger.info("DELETE on /company/{}: delete company", id);
-        // todo security check
         try {
             warehouseCompanyService.deleteWarehouseCompany(id);
         } catch (DataAccessException e){

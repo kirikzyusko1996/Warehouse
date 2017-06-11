@@ -2,7 +2,10 @@ package com.itechart.warehouse.service.elasticsearch;
 
 /**
  * Created by Lenovo on 19.05.2017.
+ * Wrapper class, which contains information
+ * about similarity (in percentage-float) and object
  */
+
 public class SimilarityWrapper <T> {
     private T ojbect;
     private Float similarity;

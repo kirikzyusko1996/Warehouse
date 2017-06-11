@@ -9,8 +9,10 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 
 /**
+ * DAO layer for Storage Cell
  * Created by Alexey on 19.04.2017.
  */
+
 @Repository
 public class StorageCellDAO extends DAO<StorageCell> {
     public StorageCellDAO() {

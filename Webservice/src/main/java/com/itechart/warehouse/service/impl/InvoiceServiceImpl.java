@@ -40,26 +40,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceStatusNameDAO invoiceStatusNameDAO;
     private GoodsStatusDAO goodsStatusDAO;
     private GoodsStatusNameDAO goodsStatusNameDAO;
-    private QuantityUnitDAO quantityUnitDAO;
-    private PriceUnitDAO priceUnitDAO;
-    private StorageSpaceTypeDAO storageDAO;
-    private WarehouseCustomerCompanyDAO customerDAO;
     private WarehouseDAO warehouseDAO;
-    private TransportCompanyDAO transportDAO;
     private DriverDAO driverDAO;
     private GoodsService goodsService;
     private WarehouseCustomerCompanyService customerService;
     private TransportCompanyService transportService;
     private UserService userService;
-
-    @Autowired
-    public void setQuantityUnitDAO(QuantityUnitDAO quantityUnitDAO) {
-        this.quantityUnitDAO = quantityUnitDAO;
-    }
-    @Autowired
-    public void setPriceUnitDAO(PriceUnitDAO priceUnitDAO) {
-        this.priceUnitDAO = priceUnitDAO;
-    }
 
     @Autowired
     public void setInvoiceDAO(InvoiceDAO invoiceDao) {
@@ -87,23 +73,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Autowired
-    public void setStorageDAO(StorageSpaceTypeDAO dao) {
-        this.storageDAO = dao;
-    }
-
-    @Autowired
-    public void setCustomerDAO(WarehouseCustomerCompanyDAO dao) {
-        this.customerDAO = dao;
-    }
-
-    @Autowired
     public void setWarehouseDAO(WarehouseDAO dao) {
         this.warehouseDAO = dao;
-    }
-
-    @Autowired
-    public void setTransportDAO(TransportCompanyDAO dao) {
-        this.transportDAO = dao;
     }
 
     @Autowired
@@ -151,79 +122,15 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<IncomingInvoiceDTO> findAllIncomingInvoices(int page, int count)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find all incoming invoices");
-
-        List<IncomingInvoiceDTO> invoiceDTOs = new ArrayList<>();
-        try {
-            List<InvoiceStatus> invoices = retrieveAllInvoicesStatuses();
-            List<InvoiceStatus> incomingInvoices = parseIncomingInvoices(invoices);
-
-            for (InvoiceStatus invoiceStatus : incomingInvoices) {
-                Invoice invoice = invoiceStatus.getInvoice();
-
-                //todo specify page, count
-                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
-
-                IncomingInvoiceDTO dto = convertToIncomingDTO(invoiceStatus, goodsForInvoice);
-                invoiceDTOs.add(dto);
-            }
-
-        } catch (GenericDAOException e) {
-            logger.error("Error while finding all incoming invoices: ", e);
-            throw new DataAccessException(e);
-        }
-
-        return invoiceDTOs;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Find all outgoing invoices");
-
-        List<OutgoingInvoiceDTO> invoiceDTOs = new ArrayList<>();
-        try {
-            List<InvoiceStatus> invoices = retrieveAllInvoicesStatuses();
-            List<InvoiceStatus> incomingInvoices = parseOutgoingInvoices(invoices);
-
-            for (InvoiceStatus invoiceStatus : incomingInvoices) {
-                Invoice invoice = invoiceStatus.getInvoice();
-
-                //todo specify page, count
-                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
-
-                OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoiceStatus, goodsForInvoice);
-                invoiceDTOs.add(dto);
-            }
-
-        } catch (GenericDAOException e) {
-            logger.error("Error while finding all outgoing invoices: ", e);
-            throw new DataAccessException(e);
-        }
-
-        return invoiceDTOs;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
-    public List<IncomingInvoiceDTO> findAllIncomingInvoicesForWarehouse(int page, int count, Long warehouseId)
+    @PreAuthorize("hasPermission(#principal.user.warehouseCompany.idWarehouseCompany, 'Warehouse', 'GET')")
+    public List<IncomingInvoiceDTO> findAllIncomingInvoices(int page, int count, WarehouseCompanyUserDetails principal)
             throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
         logger.info("Find all incoming invoices");
 
-        if (warehouseId == null) {
-            throw new IllegalParametersException("Warehouse id is null");
-        }
-
         List<IncomingInvoiceDTO> invoiceDTOs = new ArrayList<>();
         try {
-            List<Invoice> invoices = invoiceDAO.findInvoicesByWarehouseId(warehouseId, page, count);
-            List<Invoice> incomingInvoices = parseIncoming(invoices);
-
-            for (Invoice invoice : incomingInvoices) {
+            List<Invoice> invoices = findIncomingInvoicesForUser(principal, page, count);
+            for (Invoice invoice : invoices) {
                 List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
 
                 IncomingInvoiceDTO dto = convertToIncomingDTO(invoice.getCurrentStatus(), goodsForInvoice);
@@ -240,22 +147,16 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
-    public List<OutgoingInvoiceDTO> findAllOutgoingInvoicesForWarehouse(int page, int count, Long warehouseId)
+    @PreAuthorize("hasPermission(#principal.user.warehouseCompany.idWarehouseCompany, 'Warehouse', 'GET')")
+    public List<OutgoingInvoiceDTO> findAllOutgoingInvoices(int page, int count, WarehouseCompanyUserDetails principal)
             throws IllegalParametersException, ResourceNotFoundException, DataAccessException {
         logger.info("Find all outgoing invoices");
 
-        if (warehouseId == null) {
-            throw new IllegalParametersException("Warehouse id is null");
-        }
-
         List<OutgoingInvoiceDTO> invoiceDTOs = new ArrayList<>();
         try {
-            List<Invoice> invoices = invoiceDAO.findInvoicesByWarehouseId(warehouseId, page, count);
-            List<Invoice> incomingInvoices = parseOutgoing(invoices);
-
-            for (Invoice invoice : incomingInvoices) {
-                List<Goods> goodsForInvoice = goodsService.findGoodsForIncomingInvoice(invoice.getId(), -1, -1);
+            List<Invoice> invoices = findOutgoingInvoicesForUser(principal, page, count);
+            for (Invoice invoice : invoices) {
+                List<Goods> goodsForInvoice = goodsService.findGoodsForOutgoingInvoice(invoice.getId(), -1, -1);
 
                 OutgoingInvoiceDTO dto = convertToOutgoingDTO(invoice.getCurrentStatus(), goodsForInvoice);
                 invoiceDTOs.add(dto);
@@ -337,10 +238,15 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find outgoing invoice by id #{}", id);
 
-        InvoiceStatus invoiceStatus = invoiceStatusDAO.findStatusForInvoice(id);
-        List<Goods> goodsList = goodsService.findGoodsForIncomingInvoice(id, -1, -1);
+        Optional<Invoice> optional = invoiceDAO.findById(id);
+        if (optional.isPresent()) {
+            Invoice invoice = optional.get();
+            List<Goods> goodsList = goodsService.findGoodsForOutgoingInvoice(id, -1, -1);
 
-        return convertToOutgoingDTO(invoiceStatus, goodsList);
+            return convertToOutgoingDTO(invoice.getCurrentStatus(), goodsList);
+        } else {
+            throw new ResourceNotFoundException("Invoice not found");
+        }
     }
 
     @Override
@@ -368,7 +274,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Invoice savedInvoice;
         try {
-            User currentUser = userService.findUserById(principal.getUserId());
+            User currentUser = principal.getUser();
             Warehouse currentWarehouse = currentUser.getWarehouse();
 
             Invoice invoice = convertToIncomingInvoice(dto, currentWarehouse);
@@ -398,7 +304,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Invoice savedInvoice;
         try {
-            User currentUser = userService.findUserById(principal.getUserId());
+            User currentUser = principal.getUser();
             Warehouse currentWarehouse = currentUser.getWarehouse();
 
             Invoice invoice = convertToOutgoingInvoice(dto, currentWarehouse);
@@ -409,7 +315,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             invoice.setCurrentStatus(invoiceStatus);
 
-            processGoodsForOutgoingInvoice(dto.getGoods(), savedInvoice, principal.getUser());
+            List<GoodsDTO> goodsList = dto.getGoods();
+            goodsService.updateAndGetGoodsForOutgoingInvoice(savedInvoice, goodsList);
 
         } catch (GenericDAOException e) {
             logger.error("Error while saving outgoing invoice: ", e);
@@ -504,6 +411,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice.setCurrentStatus(createdStatusInvoice);
                 invoiceDAO.update(invoice);
 
+                updateGoodsStatuses(invoice);
+
             } else {
                 logger.error("Invoice with id {} not found", invoiceId);
                 throw new ResourceNotFoundException("Invoice not found");
@@ -582,22 +491,43 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice.getWarehouse();
     }
 
+    private List<Invoice> findIncomingInvoicesForUser(WarehouseCompanyUserDetails principal, int page, int count)
+            throws GenericDAOException {
+        List<Invoice> invoices = new ArrayList<>();
+        User user = principal.getUser();
+        Long companyId = principal.getCompany().getIdWarehouseCompany();
+        if (user.hasRole("ROLE_CONTROLLER")) {
+            String status = "REGISTERED_INCOMING";
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+        }
+        if (user.hasRole("ROLE_MANAGER")) {
+            String status = "CHECKED";
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+        }
+
+        return invoices;
+    }
+
+    private List<Invoice> findOutgoingInvoicesForUser(WarehouseCompanyUserDetails principal, int page, int count)
+            throws GenericDAOException {
+        List<Invoice> invoices = new ArrayList<>();
+        User user = principal.getUser();
+        Long companyId = principal.getCompany().getIdWarehouseCompany();
+        if (user.hasRole("ROLE_CONTROLLER")) {
+            String status = "REGISTERED_OUTGOING";
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+        }
+        if (user.hasRole("ROLE_DISPATCHER")) {
+            String status = "RELEASE_ALLOWED";
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+        }
+
+        return invoices;
+    }
+
     private List<Invoice> retrieveAllInvoices() throws GenericDAOException {
         DetachedCriteria criteria = DetachedCriteria.forClass(Invoice.class);
         return invoiceDAO.findAll(criteria, -1, -1);
-    }
-
-    private List<InvoiceStatus> retrieveAllInvoicesStatuses() throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(InvoiceStatus.class);
-        return invoiceStatusDAO.findAll(criteria, -1, -1);
-    }
-
-    private StorageSpaceType retrieveStorageSpaceTypeByName(String storageTypeName) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(StorageSpaceType.class);
-        criteria.add(Restrictions.eq("name", storageTypeName));
-
-        List<StorageSpaceType> types = storageDAO.findAll(criteria, -1, -1);
-        return types.get(0);
     }
 
     private InvoiceStatusName retrieveInvoiceStatusByName(String statusName) throws GenericDAOException {
@@ -606,91 +536,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         List<InvoiceStatusName> names = invoiceStatusNameDAO.findAll(criteria, -1, -1);
         return names.get(0);
-    }
-
-    private GoodsStatusName retrieveGoodsStatusByName(String statusName) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
-        criteria.add(Restrictions.eq("name", statusName));
-
-        List<GoodsStatusName> names = goodsStatusNameDAO.findAll(criteria, -1, -1);
-        return names.get(0);
-    }
-
-    private InvoiceStatus retrieveStatusByInvoiceId(Long invoiceId) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(InvoiceStatus.class);
-        criteria.add(Restrictions.eq("id_invoice", invoiceId));
-
-        List<InvoiceStatus> statuses = invoiceStatusDAO.findAll(criteria, -1, -1);
-        return statuses.get(0);
-    }
-
-    private QuantityUnit retrieveQuantityUnitByName(String unitName) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(QuantityUnit.class);
-        criteria.add(Restrictions.eq("name", unitName));
-
-        List<QuantityUnit> units = quantityUnitDAO.findAll(criteria, -1, -1);
-        return units.get(0);
-    }
-
-    private PriceUnit retrievePriceUnitByName(String unitName) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(PriceUnit.class);
-        criteria.add(Restrictions.eq("name", unitName));
-
-        List<PriceUnit> units = priceUnitDAO.findAll(criteria, -1, -1);
-        return units.get(0);
-    }
-    private List<InvoiceStatus> parseIncomingInvoices(List<InvoiceStatus> invoices) {
-        List<InvoiceStatus> incomingInvoices = new ArrayList<>();
-        for (InvoiceStatus invoice : invoices) {
-            String statusName = invoice.getStatusName().getName();
-            if (statusName.equals(InvoiceStatusEnum.REGISTERED.toString())
-                    || statusName.equals(InvoiceStatusEnum.CHECKED.toString())
-                    || statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
-                incomingInvoices.add(invoice);
-            }
-        }
-
-        return incomingInvoices;
-    }
-
-    private List<InvoiceStatus> parseOutgoingInvoices(List<InvoiceStatus> invoices) {
-        List<InvoiceStatus> outgoingInvoices = new ArrayList<>();
-        for (InvoiceStatus invoice : invoices) {
-            String statusName = invoice.getStatusName().getName();
-            if (statusName.equals(InvoiceStatusEnum.RELEASE_ALLOWED.toString())
-                    || statusName.equals(InvoiceStatusEnum.MOVED_OUT.toString())) {
-                outgoingInvoices.add(invoice);
-            }
-        }
-
-        return outgoingInvoices;
-    }
-
-    private List<Invoice> parseIncoming(List<Invoice> invoices) {
-        List<Invoice> incomingInvoices = new ArrayList<>();
-        for (Invoice invoice : invoices) {
-            String statusName = invoice.getCurrentStatus().getStatusName().getName();
-            if (statusName.equals(InvoiceStatusEnum.REGISTERED.toString())
-                    || statusName.equals(InvoiceStatusEnum.CHECKED.toString())
-                    || statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
-                incomingInvoices.add(invoice);
-            }
-        }
-
-        return incomingInvoices;
-    }
-
-    private List<Invoice> parseOutgoing(List<Invoice> invoices) {
-        List<Invoice> outgoingInvoices = new ArrayList<>();
-        for (Invoice invoice : invoices) {
-            String statusName = invoice.getCurrentStatus().getStatusName().getName();
-            if (statusName.equals(InvoiceStatusEnum.RELEASE_ALLOWED.toString())
-                    || statusName.equals(InvoiceStatusEnum.MOVED_OUT.toString())) {
-                outgoingInvoices.add(invoice);
-            }
-        }
-
-        return outgoingInvoices;
     }
 
     private IncomingInvoiceDTO convertToIncomingDTO(InvoiceStatus invoiceStatus, List<Goods> goodsList) {
@@ -747,7 +592,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         dto.setManager(invoiceStatus.getUser());
         InvoiceStatusEnum status = InvoiceStatusEnum.getStatus(invoiceStatus.getStatusName().getName());
-        dto.setStatus(status.getName());
+        dto.setStatus(status.toString());
         dto.setRegistrationDate(invoiceStatus.getDate());
 
         dto = fillOutgoingInvoiceWithGoodsInfo(dto, goodsList);
@@ -813,7 +658,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
 
-        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(InvoiceStatusEnum.REGISTERED.toString());
+        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(InvoiceStatusEnum.REGISTERED_INCOMING.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 
         return invoiceStatus;
@@ -823,7 +668,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws GenericDAOException {
         InvoiceStatus invoiceStatus = fillStatusWithInfo(invoice, user);
 
-        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(InvoiceStatusEnum.MOVED_OUT.toString());
+        InvoiceStatusName invoiceStatusName = retrieveInvoiceStatusByName(InvoiceStatusEnum.REGISTERED_OUTGOING.toString());
         invoiceStatus.setStatusName(invoiceStatusName);
 
         return invoiceStatus;
@@ -888,84 +733,36 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private void processGoodsForOutgoingInvoice(List<GoodsDTO> goodsList, Invoice invoice, User user)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
-        for (GoodsDTO goodsToChange : goodsList) {
-            Goods initGoods = goodsService.findGoodsById(goodsToChange.getId());
-            BigDecimal leftQuantity = initGoods.getQuantity().subtract(goodsToChange.getQuantity());
-            if (leftQuantity.compareTo(BigDecimal.ZERO) == 1) {
-                processGoodsSeparation(initGoods, goodsToChange, invoice, user);
-                logger.info("goods separation");
-            } else if (leftQuantity.compareTo(BigDecimal.ZERO) == 0) {
-                setGoodsStatusForOutgoingInvoice(initGoods, user);
-                processGoodsRemoving(goodsList, invoice);
-                logger.info("goods removing");
-            } else {
-                throw new IllegalParametersException("Quantity of goods can't be more than available");
-            }
+    private void updateGoodsStatuses(Invoice invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        String statusName = invoice.getCurrentStatus().getStatusName().getName();
+        List<Goods> goodsList;
+        if (isIncoming(statusName)){
+            goodsList = invoice.getIncomingGoods();
+        } else {
+            goodsList = invoice.getOutgoingGoods();
+        }
+
+        GoodsStatusEnum goodsStatus = parseGoodsStatusByInvoiceStatus(statusName);
+        for (Goods goods : goodsList) {
+            goodsService.setGoodsStatus(goods.getId(), goodsStatus);
         }
     }
 
-    private void processGoodsSeparation(Goods goodsToChange, GoodsDTO goodsChangeParamsDto, Invoice invoice, User user)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
-        Goods goodsForInvoice = reduceGoodsQuantity(goodsToChange, goodsChangeParamsDto);
-        logger.info(goodsForInvoice.toString());
-        Goods savedGoods = saveGoodsForOutgoingInvoice(goodsForInvoice, goodsChangeParamsDto, invoice);
-        logger.info(savedGoods.toString());
-        setGoodsStatusForOutgoingInvoice(savedGoods, user);
+    private GoodsStatusEnum parseGoodsStatusByInvoiceStatus(String statusName) {
+        GoodsStatusEnum goodsStatus;
+        if (statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
+            goodsStatus = GoodsStatusEnum.STORED;
+        } else {
+            goodsStatus = GoodsStatusEnum.valueOf(statusName);
+        }
+
+        return goodsStatus;
     }
 
-    private void processGoodsRemoving(List<GoodsDTO> goodsList, Invoice invoice)
-            throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        List<Long> goodsListIds = parseIdFromGoods(goodsList);
-        goodsService.setOutgoingInvoice(goodsListIds, invoice.getId());
-    }
-
-    private Goods reduceGoodsQuantity(Goods goodsToChange, GoodsDTO goodsChangeParamsDto)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        BigDecimal leftQuantity = goodsToChange.getQuantity().subtract(goodsChangeParamsDto.getQuantity());
-        goodsToChange.setQuantity(leftQuantity);
-        GoodsDTO dto = goodsService.mapToDto(goodsToChange);
-        return goodsService.updateGoods(goodsToChange.getId(), dto);
-    }
-
-    private Goods saveGoodsForOutgoingInvoice(Goods leftGoods, GoodsDTO goodsChangeParamsDto, Invoice invoice)
-            throws GenericDAOException {
-        Goods goodsForInvoice = new Goods();
-        goodsForInvoice.setName(leftGoods.getName());
-        goodsForInvoice.setWeight(leftGoods.getWeight());
-        goodsForInvoice.setPrice(leftGoods.getPrice());
-        goodsForInvoice.setStorageType(leftGoods.getStorageType());
-        goodsForInvoice.setQuantityUnit(leftGoods.getQuantityUnit());
-        goodsForInvoice.setWeightUnit(leftGoods.getWeightUnit());
-        goodsForInvoice.setPriceUnit(leftGoods.getPriceUnit());
-        goodsForInvoice.setIncomingInvoice(leftGoods.getIncomingInvoice());
-        // todo maybe statusName history and acts
-
-        goodsForInvoice.setQuantity(goodsChangeParamsDto.getQuantity());
-        goodsForInvoice.setOutgoingInvoice(invoice);
-
-        return goodsService.saveGoodsForOutgoingInvoice(goodsForInvoice);
-    }
-
-    private Goods updateGoodsForOutgoingInvoice(Goods goodsToChange, Invoice invoice)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        goodsToChange.setOutgoingInvoice(invoice);
-        GoodsDTO dto = goodsService.mapToDto(goodsToChange);
-        return goodsService.updateGoods(goodsToChange.getId(), dto);
-    }
-
-    private void setGoodsStatusForOutgoingInvoice(Goods savedGoods, User user) throws GenericDAOException {
-        GoodsStatus status = new GoodsStatus();
-        status.setGoods(savedGoods);
-
-        GoodsStatusName statusName = retrieveGoodsStatusByName(GoodsStatusEnum.MOVED_OUT.toString());
-        status.setGoodsStatusName(statusName);
-        Timestamp now = new Timestamp(new Date().getTime());
-        status.setDate(now);
-        status.setUser(user);
-
-        goodsStatusDAO.insert(status);
+    private boolean isIncoming(String statusName) {
+        return statusName.equals(InvoiceStatusEnum.CHECKED.toString()) ||
+                statusName.equals(InvoiceStatusEnum.COMPLETED.toString());
     }
 
     private List<GoodsDTO> mapToDTOs(List<Goods> goodsList) {
@@ -986,15 +783,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         return goodsInvoiceDTOs;
-    }
-
-    private List<Long> parseIdFromGoods(List<GoodsDTO> goodsDTOs) {
-        List<Long> ids = new ArrayList<>();
-        for (GoodsDTO dto : goodsDTOs) {
-            ids.add(dto.getId());
-        }
-
-        return ids;
     }
 
     private Driver mapToDriver(DriverDTO dto) {

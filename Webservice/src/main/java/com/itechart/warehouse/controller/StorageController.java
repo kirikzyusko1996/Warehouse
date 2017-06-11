@@ -1,19 +1,15 @@
 package com.itechart.warehouse.controller;
 
-import com.itechart.warehouse.dao.StorageSpaceTypeDAO;
 import com.itechart.warehouse.dto.StorageCellDTO;
 import com.itechart.warehouse.dto.StorageSpaceDTO;
 import com.itechart.warehouse.entity.StorageCell;
 import com.itechart.warehouse.entity.StorageSpace;
 import com.itechart.warehouse.entity.StorageSpaceType;
-import com.itechart.warehouse.entity.Warehouse;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.StorageCellService;
 import com.itechart.warehouse.service.services.StorageSpaceService;
-import com.itechart.warehouse.service.services.WarehouseService;
-import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.itechart.warehouse.util.Host.origins;
-
 /**
+ * Controller for request of storage
  * Created by Lenovo on 14.05.2017.
  */
 
@@ -76,7 +70,6 @@ public class StorageController {
         List<StorageSpace> storageSpaces;
         try{
             storageSpaces = storageSpaceService.findStorageByWarehouseId(id);
-            System.out.println("!!!!!!!!!!"+storageSpaces);
         } catch (DataAccessException e){
             logger.error("Error while retrieving warehouse", e);
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -106,9 +99,7 @@ public class StorageController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> saveStorageCell(@RequestBody StorageCellDTO storageCellDTO){
         logger.info("POST on /Storage: save new storageCell");
-        // todo security check
         try{
-            System.out.println(storageCellDTO);
             storageCellService.createStorageCell(storageCellDTO);
         } catch (DataAccessException e){
             logger.error("Error while saving new storageCell", e);
@@ -128,9 +119,7 @@ public class StorageController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> updateStorageCell(@PathVariable String id, @RequestBody StorageCellDTO storageCellDTO){
         logger.info("PUT on /Storage: save new storageCell");
-        // todo security check
         try{
-            System.out.println(storageCellDTO);
             storageCellService.updateStorageCell(storageCellDTO);
         } catch (DataAccessException e){
             logger.error("Error while updating new storageCell", e);
@@ -149,9 +138,7 @@ public class StorageController {
     @RequestMapping(value = "/cell/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteStorageCell(@PathVariable Long id){
         logger.info("DELETE on /Cell: disable storageCell");
-        // todo security check
         try {
-            System.out.println(id);
             storageCellService.deleteStorageCell(id);
         } catch (DataAccessException e){
             logger.error("Error while updating new storageCell", e);
@@ -171,9 +158,7 @@ public class StorageController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> saveStorage(@RequestBody StorageSpaceDTO storageSpace){
         logger.info("POST on /Storage: save new Storage");
-        // todo security check
         try{
-            System.out.println(storageSpace);
             storageSpaceService.createStorageSpace(storageSpace);
         } catch (DataAccessException e){
             logger.error("Error while saving new storageSpace", e);
@@ -193,7 +178,6 @@ public class StorageController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> updateStorage(@PathVariable String id, @RequestBody StorageSpaceDTO storageSpace){
         logger.info("PUT on /Storage: save new Storage");
-        // todo security check
         try{
             storageSpaceService.updateStorageSpace(storageSpace);
         } catch (DataAccessException e){
@@ -213,9 +197,7 @@ public class StorageController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteStorage(@PathVariable Long id){
         logger.info("DELETE on /Storage: disable storageCell");
-        // todo security check
         try {
-            System.out.println(id);
             storageSpaceService.deleteStorageSpace(id);
         } catch (DataAccessException e){
             logger.error("Error while updating new storageCell", e);

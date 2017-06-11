@@ -11,21 +11,30 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Interface for service of warehouse company
  * Created by Lenovo on 25.04.2017.
  */
+
 public interface WarehouseCompanyService {
-    WarehouseCompany getWarehouseCompanyById(Long id_warehouse) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    WarehouseCompany getWarehouseCompanyById(Long id_warehouse)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<WarehouseCompany> findWarehouseCompany(Long id_user) throws DataAccessException, IllegalParametersException;
+    List<WarehouseCompany> searchWarehouseCompany(WarehouseCompany searchWarehouseCompany)
+            throws DataAccessException, IllegalParametersException;
 
-    List<WarehouseCompany> findAllWarehouseCompany() throws DataAccessException;
+    List<WarehouseCompany> findWarehouseCompany(Long id_user)
+            throws DataAccessException, IllegalParametersException;
+
+    List<WarehouseCompany> findAllWarehouseCompany(int page, int count) throws DataAccessException;
 
     Set<WarehouseCompany> findAllThatUsedForPeriod(Date startDate, Date dueDate)
             throws DataAccessException, IllegalParametersException;
 
-    WarehouseCompany findWarehouseCompanyById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    WarehouseCompany findWarehouseCompanyById(Long id)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    User saveWarehouseCompany(WarehouseCompany warehouseCompany, String email) throws DataAccessException;
+    User saveWarehouseCompany(WarehouseCompany warehouseCompany, String email)
+            throws DataAccessException;
 
     WarehouseCompany updateWarehouseCompany(Long id, WarehouseCompany company)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

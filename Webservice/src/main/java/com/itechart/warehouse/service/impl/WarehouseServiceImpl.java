@@ -9,7 +9,6 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.WarehouseService;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     public List<Warehouse> findAllWarehouse() throws DataAccessException {
         logger.info("Find all warehouse");
         DetachedCriteria criteria = DetachedCriteria.forClass(Warehouse.class);
-        List<Warehouse> warehouses = null;
+        List<Warehouse> warehouses;
         try {
             warehouses = warehouseDAO.findAll(criteria, -1, -1);
         } catch (GenericDAOException e) {
@@ -60,13 +59,13 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id, 'WarehouseCompany', 'GET')")
-    public List<Warehouse> findWarehousesByCompanyId(Long id, int page, int count) throws DataAccessException, IllegalParametersException {
-        logger.info("Find warehouses by id company: {}", id);
+    @PreAuthorize("hasPermission(#idCompany, 'WarehouseCompany', 'GET')")
+    public List<Warehouse> findWarehousesByCompanyId(Long idCompany, int page, int count) throws DataAccessException, IllegalParametersException {
+        logger.info("Find warehouses by id company: {}", idCompany);
 
-        List<Warehouse> warehouses = null;
+        List<Warehouse> warehouses;
         DetachedCriteria criteria = DetachedCriteria.forClass(Warehouse.class);
-        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", id));
+        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", idCompany));
 
         try {
             warehouses = warehouseDAO.findAll(criteria, page, count);
@@ -79,19 +78,19 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id_warehouse, 'Warehouse', 'GET')")
-    public Warehouse findWarehouseOfCompanyById(Long id_warehouse) throws DataAccessException, IllegalParametersException {
-        return findWarehouseById(id_warehouse);
+    @PreAuthorize("hasPermission(#idWarehouse, 'Warehouse', 'GET')")
+    public Warehouse findWarehouseOfCompanyById(Long idWarehouse) throws DataAccessException, IllegalParametersException {
+        return findWarehouseById(idWarehouse);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Warehouse findWarehouseById(Long id_warehouse) throws DataAccessException, IllegalParametersException {
-        logger.info("Find warehouse by id: {}", id_warehouse);
+    public Warehouse findWarehouseById(Long idWarehouse) throws DataAccessException, IllegalParametersException {
+        logger.info("Find warehouse by id: {}", idWarehouse);
 
-        Warehouse warehouse = null;
+        Warehouse warehouse;
         try {
-            Optional<Warehouse> result = warehouseDAO.findById(id_warehouse);
+            Optional<Warehouse> result = warehouseDAO.findById(idWarehouse);
             warehouse = result.get();
         } catch (GenericDAOException e) {
             logger.error("Error during searching for warehouse: {}", e.getMessage());
@@ -102,22 +101,21 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id_company, 'WarehouseCompany', 'GET')")
-    public List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long id_company)
+    @PreAuthorize("hasPermission(#idCompany, 'WarehouseCompany', 'GET')")
+    public List<Warehouse> searchWarehouse(Warehouse searchWarehouse, Long idCompany)
             throws DataAccessException, IllegalParametersException {
-        logger.info("Find warehouses with criteria by id company: {}", id_company);
-        if (id_company == null) {
+        logger.info("Find warehouses with criteria by id company: {}", idCompany);
+        if (idCompany == null) {
             throw new IllegalParametersException("Invalid id param");
         }
-        List<Warehouse> warehouses = null;
+        List<Warehouse> warehouses;
         List<Warehouse> result = new ArrayList<>();
         DetachedCriteria criteria = DetachedCriteria.forClass(Warehouse.class);
-        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", Long.valueOf(id_company)));
+        criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", idCompany));
 
         try {
             warehouses = warehouseDAO.findAll(criteria, -1, -1);
             for(Warehouse warehouse: warehouses) {
-                System.out.println("From cycle: "+warehouse);
                 if(warehouse.getName()!=null &&
                         warehouse.getName().toLowerCase().contains(searchWarehouse.getName().toLowerCase())) {
                     result.add(warehouse);
@@ -140,7 +138,6 @@ public class WarehouseServiceImpl implements WarehouseService {
         try {
             Optional<WarehouseCompany> optional = warehouseCompanyDAO.findById(warehouse.getWarehouseCompany().getIdWarehouseCompany());
             warehouse.setWarehouseCompany(optional.get());
-            System.out.println("nEW OBJECT: "+warehouse);
             savedWarehouse = warehouseDAO.insert(warehouse);
         } catch (GenericDAOException e) {
             logger.error("Error while saving Warehouse: ", e);
@@ -182,19 +179,19 @@ public class WarehouseServiceImpl implements WarehouseService {
      * */
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#id_warehouse, 'Warehouse', 'DELETE')") //todo: StackOverFlow
-    public void deleteWarehouse(Long id_warehouse)
+    @PreAuthorize("hasPermission(#idWarehouse, 'Warehouse', 'DELETE')")
+    public void deleteWarehouse(Long idWarehouse)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException{
-        logger.info("Delete Warehouse by id #{}", id_warehouse);
+        logger.info("Delete Warehouse by id #{}", idWarehouse);
 
         try {
-            Optional<Warehouse> optional = warehouseDAO.findById(id_warehouse);
+            Optional<Warehouse> optional = warehouseDAO.findById(idWarehouse);
             if (optional.isPresent()) {
                 Warehouse company = optional.get();
                 company.setStatus(!company.getStatus());//merely change status to opposite
                 warehouseDAO.update(company);
             } else {
-                logger.error("Warehouse with id {} not found", id_warehouse);
+                logger.error("Warehouse with id {} not found", idWarehouse);
                 throw new ResourceNotFoundException("Warehouse not found");
             }
         } catch (GenericDAOException e) {

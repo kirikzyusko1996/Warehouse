@@ -4,7 +4,8 @@ package com.itechart.warehouse.constants;
  * Statuses of invoices.
  */
 public enum InvoiceStatusEnum {
-    REGISTERED("Зарегистрирован"),
+    REGISTERED_INCOMING("Зарегистрирован"),
+    REGISTERED_OUTGOING("Зарегистрирован"),
     CHECKED("Проверка завершена"),
     COMPLETED("Оформление завершено"),
     RELEASE_ALLOWED("Выпуск разрешен"),

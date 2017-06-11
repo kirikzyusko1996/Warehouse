@@ -10,8 +10,10 @@ import org.springframework.util.Assert;
 import java.util.List;
 
 /**
+ * DAO layer for storage space type
  * Created by Alexey on 19.04.2017.
  */
+
 @Repository
 public class StorageSpaceTypeDAO extends DAO<StorageSpaceType> {
     public StorageSpaceTypeDAO() {
