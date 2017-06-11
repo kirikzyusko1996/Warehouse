@@ -106,7 +106,7 @@ public class FinanceController {
     }
 
     @RequestMapping(value = "/newPrice", method = RequestMethod.POST)
-    public ResponseEntity<Void> updateUser(@Valid @RequestBody PriceListDTO priceDTO) {
+    public ResponseEntity<Void> updatePrice(@Valid @RequestBody PriceListDTO priceDTO) {
         logger.info("Handling request for creating/updating price: {}", priceDTO);
         try {
             financeService.newPrice(priceDTO);

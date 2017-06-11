@@ -49,8 +49,11 @@ public class UserDAO extends DAO<User> {
 
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseCompanyId", warehouseCompanyId);
-        query.setFirstResult(firstResult);
-        query.setMaxResults(maxResults);
+
+        if (firstResult != -1 && maxResults != -1) {
+            query.setFirstResult(firstResult);
+            query.setMaxResults(maxResults);
+        }
 
         return query.list();
     }

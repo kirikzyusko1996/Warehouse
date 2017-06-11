@@ -54,7 +54,7 @@
 
 
     <beans:bean id="corsConfig" class="org.springframework.web.cors.CorsConfiguration">
-        <beans:property name="allowedOrigins" value="http://localhost:4200"/>
+        <beans:property name="allowedOrigins" value="*"/>
         <beans:property name="maxAge" value="3600"/>
         <beans:property name="allowCredentials" value="true"/>
         <beans:property name="allowedHeaders">
@@ -62,6 +62,7 @@
                 <beans:value>Authorization</beans:value>
                 <beans:value>Cache-Control</beans:value>
                 <beans:value>Content-Type</beans:value>
+                <!--<beans:value>Accept</beans:value>-->
             </beans:list>
         </beans:property>
         <beans:property name="allowedMethods">
@@ -95,17 +96,18 @@
                                                                   'ROLE_MANAGER',
                                                                   'ROLE_OWNER')"/>
         <intercept-url pattern='/web/company/**' access="hasRole('ROLE_ADMIN')"/>
-        <intercept-url pattern='/web/warehouse/**' access="hasRole('ROLE_SUPERVISOR')"/>
-        <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/warehouse/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER','ROLE_SUPERVISOR')"/>
+        <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
         <intercept-url pattern='/web/invoice/**'
                        access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
-        <intercept-url pattern='/web/user/**' access="hasRole('ROLE_SUPERVISOR')"/>
-        <intercept-url pattern='/web/tr-company/**' access="hasRole('ROLE_DISPATCHER')"/>
-        <intercept-url pattern='/web/customer/**' access="hasRole('ROLE_DISPATCHER')"/>
-        <intercept-url pattern='/web/finance/**' access="hasRole('ROLE_ADMIN')"/>
-        <intercept-url pattern='/web/report/**' access="hasRole('ROLE_OWNER')"/>
-        <intercept-url pattern='/web/act/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_OWNER')"/>
-        <intercept-url pattern='/web/settings/**' access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern='/web/user/**' access="hasAnyRole('ROLE_SUPERVISOR','ROLE_OWNER')"/>
+        <intercept-url pattern='/web/tr-company/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/customer/**' access="hasAnyRole('ROLE_DISPATCHER', 'ROLE_OWNER')"/>
+        <intercept-url pattern='/web/finance/**' access="hasAnyRole('ROLE_ADMIN','ROLE_OWNER')"/>
+        <intercept-url pattern='/web/report/**' access="hasAnyRole('ROLE_OWNER','ROLE_ADMIN')"/>
+        <intercept-url pattern='/web/act/**' access="hasAnyRole('ROLE_MANAGER','ROLE_CONTROLLER','ROLE_OWNER')"/>
+        <intercept-url pattern='/web/settings/**' access="hasAnyRole('ROLE_SUPERVISOR','ROLE_MANAGER','ROLE_DISPATCHER','ROLE_OWNER','ROLE_ADMIN','ROLE_CONTROLLER')"/>
+        <intercept-url pattern='/web/email/**' access="hasRole('ROLE_SUPERVISOR')"/>
         <http-basic/>
         <!--<custom-filter ref="userDigestFilter" after="BASIC_AUTH_FILTER"/>-->
         <cors configuration-source-ref="corsSource"/>

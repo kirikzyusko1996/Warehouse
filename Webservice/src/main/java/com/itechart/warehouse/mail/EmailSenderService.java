@@ -64,7 +64,7 @@ public class EmailSenderService {
 
 
     public EmailSendingResult sendEmail(Template template, MultipartFile image) throws IllegalParametersException {
-        logger.info("Sending email using template: {} ", template);
+        logger.info("Send email, template: {} ", template);
         if (template == null) {
             throw new IllegalParametersException(ERROR_TEMPLATE_IS_NULL);
         }
@@ -83,8 +83,10 @@ public class EmailSenderService {
     }
 
     public EmailSendingResult sendEmail(Template template) throws IllegalParametersException {
-        logger.info("Sending email using template: {} ", template);
-        if (template == null) throw new IllegalParametersException(ERROR_TEMPLATE_IS_NULL);
+        logger.info("Send email, template: {} ", template);
+        if (template == null) {
+            throw new IllegalParametersException(ERROR_TEMPLATE_IS_NULL);
+        }
         EmailSendingResult result = new EmailSendingResult(template);
         if (template.getReceiverIds() != null) {
             for (Long id : template.getReceiverIds()) {
@@ -110,7 +112,7 @@ public class EmailSenderService {
     }
 
     public EmailSendingResult sendEmail(EmailSendingResult result) throws IllegalParametersException {
-        logger.info("Retrying sending email after previous result: {} ", result);
+        logger.info("Retry sending email,  previous result: {} ", result);
         if (result == null) throw new IllegalParametersException("Result is null");
         if (result.getErrors() != null) {
             for (EmailSendingError error : result.getErrors()) {
@@ -127,7 +129,7 @@ public class EmailSenderService {
     }
 
     public boolean sendMessageAboutRegistration(User receiver) {
-        logger.info("Sending email about registration to user: {}", receiver);
+        logger.info("Sending email about registration, receiver: {}", receiver);
         Assert.notNull(receiver, "Receiver is null");
         Assert.notNull(receiver.getEmail(), "Receiver email address is null");
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
@@ -154,7 +156,7 @@ public class EmailSenderService {
     //todo check access
 //    @PreAuthorize("")
     private void sendEmail(Template template, User receiver, MultipartFile image) {
-        logger.info("Sending email to user: {}", receiver);
+        logger.info("Send email, receiver: {}", receiver);
         Assert.notNull(receiver, "Receiver is null");
         Assert.notNull(receiver.getEmail(), "Receiver email address is null");
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
@@ -183,7 +185,7 @@ public class EmailSenderService {
 
 
     public void sendEmail(String emailAddress, Template template) {
-        logger.info("Sending email to address: {} using template:", emailAddress, template);
+        logger.info("Send email, address: {}, template:", emailAddress, template);
         Assert.notNull(emailAddress, "Email address is null");
         Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         MimeMessagePreparator preparator = new MimeMessagePreparator() {

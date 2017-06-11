@@ -21,4 +21,5 @@ public class Template {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date date;
     private String backgroundColor;
+    private String body;
 }

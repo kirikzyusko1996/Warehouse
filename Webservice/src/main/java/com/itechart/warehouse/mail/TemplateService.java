@@ -13,6 +13,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service for creating email messages filled with data.
@@ -32,6 +34,7 @@ public class TemplateService {
     }
 
     public String getMessageFromTemplate(Template template, User receiver, String imageName) {
+        logger.info("Get email text, receiver: {}, template: {}", receiver, template);
         Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
         switch (template.getType()) {
@@ -44,12 +47,29 @@ public class TemplateService {
             default:
                 return null;
         }
+    }
 
+    public List<Template> getTemplates() {
+        List<Template> templates = new ArrayList<>();
+        for (TemplateEnum templateType : TemplateEnum.values()) {
+            Template template = new Template();
+            template.setType(templateType);
+            template.setBody(getRawTemplateText(templateType));
+            templates.add(template);
+        }
+        return templates;
+    }
 
+    private String getRawTemplateText(TemplateEnum template) {
+        final Context ctx = new Context();
+        ctx.setVariable("name", "[Имя Отчество]");
+        ctx.setVariable("age", "[Возраст]");
+        ctx.setVariable("company", "[Компания]");
+
+        return templateEngine.process(template.getPath(), ctx);
     }
 
     private String getEmailRegistrationText(Template template, User receiver) {
-        logger.info("Forming registration email html using template: {}", template);
         Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
         final Context ctx = new Context();
@@ -60,7 +80,6 @@ public class TemplateService {
     }
 
     private String getBirthdayEmailText(Template template, User receiver, String imageName) {
-        logger.info("Forming birthday email html to send to {}, from template: {}", receiver, template);
         Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         Assert.notNull(receiver, "Receiver is null");
         Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
@@ -96,7 +115,6 @@ public class TemplateService {
     }
 
     private String getEmailFailedNotificationText(EmailFailedNotificationTemplate template) {
-        logger.info("Forming notification email html using template: {}", template);
         Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
         Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
         final Context ctx = new Context();

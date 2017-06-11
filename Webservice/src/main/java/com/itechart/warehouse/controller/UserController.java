@@ -50,14 +50,18 @@ public class UserController {
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<UserDTO>> getUsers(@RequestParam(defaultValue = "-1") int page,
-                                                  @RequestParam(defaultValue = "0") int count,
+                                                  @RequestParam(defaultValue = "-1") int count,
                                                   HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
         logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
         List<UserDTO> users = null;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
-            users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+            if (page == -1 && count == -1) {
+                users = userService.findUsersForCompany(company.getIdWarehouseCompany(), -1, -1);
+            } else {
+                users = userService.findUsersForCompany(company.getIdWarehouseCompany(), (page - 1) * count, count);
+            }
             long userCount = userService.getUsersCount(company.getIdWarehouseCompany());
             response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(userCount));
             response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);

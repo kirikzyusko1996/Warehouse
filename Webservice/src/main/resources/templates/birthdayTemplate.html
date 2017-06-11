@@ -10,7 +10,7 @@
 <div th:unless="${name != null}">Здравствуйте!</div>
 
 
-<div th:if="${age != null}">Поздраляем Вас с <span th:text="${age}">45</span> летием.</div>
+<div th:if="${age != null}">Поздраляем Вас с <span th:text="${age}">45</span>-летием.</div>
 <div th:unless="${age != null}">Поздравляем Вас с днем рождения</div>
 <div>
     Пусть здоровье, взаимопонимание и успех сопутствуют Вам,
@@ -18,10 +18,10 @@
     Удачи и благополучия в семье и работе!
 </div>
 
-<img src="picture.png" th:src="|cid:${image}|"/>
-
+<img src="picture.png" th:src="|cid:${image}|" th:if="${image != null}"/>
+<span th:if="${image == null}">[Изображение]</span>
 <div th:if="${company != null}">
-    С уважением, коллектив <span th:text="${company}"> ООО "Рога и копота"</span>
+    С уважением, коллектив <span th:text="${company}"> ООО "Рога и копота"</span>.
 </div>
 
 <div th:unless="${company != null}">
