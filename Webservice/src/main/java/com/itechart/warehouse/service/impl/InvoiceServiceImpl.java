@@ -411,6 +411,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice.setCurrentStatus(createdStatusInvoice);
                 invoiceDAO.update(invoice);
 
+                updateGoodsStatuses(invoice);
+
             } else {
                 logger.error("Invoice with id {} not found", invoiceId);
                 throw new ResourceNotFoundException("Invoice not found");
@@ -533,14 +535,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         criteria.add(Restrictions.eq("name", statusName));
 
         List<InvoiceStatusName> names = invoiceStatusNameDAO.findAll(criteria, -1, -1);
-        return names.get(0);
-    }
-
-    private GoodsStatusName retrieveGoodsStatusByName(String statusName) throws GenericDAOException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(GoodsStatusName.class);
-        criteria.add(Restrictions.eq("name", statusName));
-
-        List<GoodsStatusName> names = goodsStatusNameDAO.findAll(criteria, -1, -1);
         return names.get(0);
     }
 
@@ -739,84 +733,36 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private void processGoodsForOutgoingInvoice(List<GoodsDTO> goodsList, Invoice invoice, User user)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
-        for (GoodsDTO goodsToChange : goodsList) {
-            Goods initGoods = goodsService.findGoodsById(goodsToChange.getId());
-            BigDecimal leftQuantity = initGoods.getQuantity().subtract(goodsToChange.getQuantity());
-            if (leftQuantity.compareTo(BigDecimal.ZERO) == 1) {
-                processGoodsSeparation(initGoods, goodsToChange, invoice, user);
-                logger.info("goods separation");
-            } else if (leftQuantity.compareTo(BigDecimal.ZERO) == 0) {
-                setGoodsStatusForOutgoingInvoice(initGoods, user);
-                processGoodsRemoving(goodsList, invoice);
-                logger.info("goods removing");
-            } else {
-                throw new IllegalParametersException("Quantity of goods can't be more than available");
-            }
+    private void updateGoodsStatuses(Invoice invoice)
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        String statusName = invoice.getCurrentStatus().getStatusName().getName();
+        List<Goods> goodsList;
+        if (isIncoming(statusName)){
+            goodsList = invoice.getIncomingGoods();
+        } else {
+            goodsList = invoice.getOutgoingGoods();
+        }
+
+        GoodsStatusEnum goodsStatus = parseGoodsStatusByInvoiceStatus(statusName);
+        for (Goods goods : goodsList) {
+            goodsService.setGoodsStatus(goods.getId(), goodsStatus);
         }
     }
 
-    private void processGoodsSeparation(Goods goodsToChange, GoodsDTO goodsChangeParamsDto, Invoice invoice, User user)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException, GenericDAOException {
-        Goods goodsForInvoice = reduceGoodsQuantity(goodsToChange, goodsChangeParamsDto);
-        logger.info(goodsForInvoice.toString());
-        Goods savedGoods = saveGoodsForOutgoingInvoice(goodsForInvoice, goodsChangeParamsDto, invoice);
-        logger.info(savedGoods.toString());
-        setGoodsStatusForOutgoingInvoice(savedGoods, user);
+    private GoodsStatusEnum parseGoodsStatusByInvoiceStatus(String statusName) {
+        GoodsStatusEnum goodsStatus;
+        if (statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
+            goodsStatus = GoodsStatusEnum.STORED;
+        } else {
+            goodsStatus = GoodsStatusEnum.valueOf(statusName);
+        }
+
+        return goodsStatus;
     }
 
-    private void processGoodsRemoving(List<GoodsDTO> goodsList, Invoice invoice)
-            throws GenericDAOException, DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        List<Long> goodsListIds = parseIdFromGoods(goodsList);
-        goodsService.setOutgoingInvoice(goodsListIds, invoice.getId());
-    }
-
-    private Goods reduceGoodsQuantity(Goods goodsToChange, GoodsDTO goodsChangeParamsDto)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        BigDecimal leftQuantity = goodsToChange.getQuantity().subtract(goodsChangeParamsDto.getQuantity());
-        goodsToChange.setQuantity(leftQuantity);
-        GoodsDTO dto = goodsService.mapToDto(goodsToChange);
-        return goodsService.updateGoods(goodsToChange.getId(), dto);
-    }
-
-    private Goods saveGoodsForOutgoingInvoice(Goods leftGoods, GoodsDTO goodsChangeParamsDto, Invoice invoice)
-            throws GenericDAOException {
-        Goods goodsForInvoice = new Goods();
-        goodsForInvoice.setName(leftGoods.getName());
-        goodsForInvoice.setWeight(leftGoods.getWeight());
-        goodsForInvoice.setPrice(leftGoods.getPrice());
-        goodsForInvoice.setStorageType(leftGoods.getStorageType());
-        goodsForInvoice.setQuantityUnit(leftGoods.getQuantityUnit());
-        goodsForInvoice.setWeightUnit(leftGoods.getWeightUnit());
-        goodsForInvoice.setPriceUnit(leftGoods.getPriceUnit());
-        goodsForInvoice.setIncomingInvoice(leftGoods.getIncomingInvoice());
-        // todo maybe statusName history and acts
-
-        goodsForInvoice.setQuantity(goodsChangeParamsDto.getQuantity());
-        goodsForInvoice.setOutgoingInvoice(invoice);
-
-        return goodsService.saveGoodsForOutgoingInvoice(goodsForInvoice);
-    }
-
-    private Goods updateGoodsForOutgoingInvoice(Goods goodsToChange, Invoice invoice)
-            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        goodsToChange.setOutgoingInvoice(invoice);
-        GoodsDTO dto = goodsService.mapToDto(goodsToChange);
-        return goodsService.updateGoods(goodsToChange.getId(), dto);
-    }
-
-    private void setGoodsStatusForOutgoingInvoice(Goods savedGoods, User user) throws GenericDAOException {
-        GoodsStatus status = new GoodsStatus();
-        status.setGoods(savedGoods);
-
-        GoodsStatusName statusName = retrieveGoodsStatusByName(GoodsStatusEnum.MOVED_OUT.toString());
-        status.setGoodsStatusName(statusName);
-        Timestamp now = new Timestamp(new Date().getTime());
-        status.setDate(now);
-        status.setUser(user);
-
-        goodsStatusDAO.insert(status);
+    private boolean isIncoming(String statusName) {
+        return statusName.equals(InvoiceStatusEnum.CHECKED.toString()) ||
+                statusName.equals(InvoiceStatusEnum.COMPLETED.toString());
     }
 
     private List<GoodsDTO> mapToDTOs(List<Goods> goodsList) {
@@ -837,15 +783,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         return goodsInvoiceDTOs;
-    }
-
-    private List<Long> parseIdFromGoods(List<GoodsDTO> goodsDTOs) {
-        List<Long> ids = new ArrayList<>();
-        for (GoodsDTO dto : goodsDTOs) {
-            ids.add(dto.getId());
-        }
-
-        return ids;
     }
 
     private Driver mapToDriver(DriverDTO dto) {

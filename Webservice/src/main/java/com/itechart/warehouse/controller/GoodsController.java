@@ -89,7 +89,7 @@ public class GoodsController {
                                                          @PathVariable Long warehouseId,
                                                          HttpServletResponse response, boolean emptyParam) throws DataAccessException, IllegalParametersException {
         logger.info("GET on /{}/stored, page: {}, count: {}", warehouseId, page, count);
-        List<GoodsDTO> goods = goodsService.findStoredGoodsForWarehouse(warehouseId, (page - 1) * count, count);
+        List<GoodsDTO> goods = goodsService.findStoredGoodsForWarehouse(warehouseId, page, count);
         long goodsCount = goodsService.getStoredGoodsCount(warehouseId);
         response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
         response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
