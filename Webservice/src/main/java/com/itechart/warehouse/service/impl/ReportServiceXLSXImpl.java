@@ -115,6 +115,10 @@ public class ReportServiceXLSXImpl implements ReportService {
             Goods goods;
             while(iterator.hasNext()){
                 goodsStatus = iterator.next();
+                List<StorageCell> storageCellList = goodsStatus.getGoods().getCells();
+                if(storageCellList == null || storageCellList.isEmpty()){
+                    continue;
+                }
                 if(goodsStatus.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse()
                         .equals(reportDTO.getIdWarehouse())){
                     user = goodsStatus.getUser();
@@ -239,6 +243,10 @@ public class ReportServiceXLSXImpl implements ReportService {
             act = iterator.next();
             goodsList = act.getGoods();
             for(Goods goods : goodsList){
+                List<StorageCell> storageCellList = goods.getCells();
+                if(storageCellList == null || storageCellList.isEmpty()){
+                    continue;
+                }
                 idWarehouse = goods.getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse();
                 if(mapWarehouseLoss.containsKey(idWarehouse)){
                     mapWarehouseLoss.put(idWarehouse, (mapWarehouseLoss.get(idWarehouse)).add(goods.getPrice()));
@@ -337,6 +345,10 @@ public class ReportServiceXLSXImpl implements ReportService {
         while(iterator.hasNext()){
             act = iterator.next();
             for(Goods goods : act.getGoods()) {
+                List<StorageCell> storageCellList = goods.getCells();
+                if(storageCellList == null || storageCellList.isEmpty()){
+                    continue;
+                }
                 if (goods.getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(reportDTO.getIdWarehouse())) {
                     if(mapPersonLoss.containsKey(act.getUser())){
                         mapPersonLoss.put(act.getUser(), mapPersonLoss.get(act.getUser()).add(goods.getPrice()));
