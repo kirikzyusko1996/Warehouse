@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.itechart.warehouse.constants.UserRoleEnum.ROLE_ADMIN;
+import static com.itechart.warehouse.util.Host.origins;
 
 /**
  * Created by Lenovo on 01.05.2017.

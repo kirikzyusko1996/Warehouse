@@ -85,10 +85,21 @@
         </beans:property>
     </beans:bean>
 
-    <http pattern="/web/company/all" security="none"/>
+    <!--<http pattern="/web/company/all" security="none"/>
+    <http pattern="/web/company/save/**" security="none" method="POST"/>-->
+
+    <!--<http pattern="/**" auto-config="true" use-expressions="true">
+        <intercept-url pattern="/web/company/all" access="permitAll" method="GET" />
+        <intercept-url pattern="/web/company/save/**" access="permitAll" method="POST" />
+    </http>-->
+
     <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web"
           entry-point-ref="userDigestEntryPoint">
         <!--<intercept-url pattern='/web/company/all' />-->
+
+        <intercept-url pattern="/web/company/all" access="permitAll" method="GET" />
+        <intercept-url pattern="/web/company/save/**" access="permitAll" method="POST" />
+
         <intercept-url pattern='/web/login/**' access="hasAnyRole('ROLE_ADMIN',
                                                                   'ROLE_SUPERVISOR',
                                                                   'ROLE_DISPATCHER',
