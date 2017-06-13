@@ -82,7 +82,7 @@ public interface GoodsService {
 
     List<StorageSpaceType> getStorageSpaceTypes() throws DataAccessException;
 
-    GoodsDTO mapToDto(Goods goods);
+    GoodsDTO mapGoodsToDTO(Goods goods);
 
     Goods saveGoodsForOutgoingInvoice(Goods goodsForInvoice) throws GenericDAOException;
 }

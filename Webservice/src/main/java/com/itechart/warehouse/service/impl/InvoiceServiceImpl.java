@@ -766,23 +766,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     private List<GoodsDTO> mapToDTOs(List<Goods> goodsList) {
-        List<GoodsDTO> goodsInvoiceDTOs = new ArrayList<>();
+        List<GoodsDTO> goodsDTOs = new ArrayList<>();
         for (Goods goods : goodsList) {
-            GoodsDTO goodsDTO = new GoodsDTO();
-            goodsDTO.setName(goods.getName());
-            goodsDTO.setQuantity(goods.getQuantity());
-            goodsDTO.setPrice(goods.getPrice());
-            goodsDTO.setWeight(goods.getWeight());
-
-            goodsDTO.setStorageType(goods.getStorageType());
-            goodsDTO.setPriceUnit(goods.getPriceUnit());
-            goodsDTO.setQuantityUnit(goods.getQuantityUnit());
-            goodsDTO.setWeightUnit(goods.getWeightUnit());
-
-            goodsInvoiceDTOs.add(goodsDTO);
+            goodsDTOs.add(goodsService.mapGoodsToDTO(goods));
         }
 
-        return goodsInvoiceDTOs;
+        return goodsDTOs;
     }
 
     private Driver mapToDriver(DriverDTO dto) {

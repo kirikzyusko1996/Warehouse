@@ -908,54 +908,8 @@ public class GoodsServiceImpl implements GoodsService {
         return true;
     }
 
-    private boolean isUpdatable(Goods goods) {
-        return (hasAnyStatus(goods,
-                GoodsStatusEnum.STORED,
-                GoodsStatusEnum.REGISTERED,
-                GoodsStatusEnum.WITHDRAWN));
-    }
-
-    private boolean isStorable(Goods goods) {
-        return (hasAnyStatus(goods,
-                GoodsStatusEnum.CHECKED,
-                GoodsStatusEnum.STORED,
-                GoodsStatusEnum.WITHDRAWN,
-                GoodsStatusEnum.RELEASE_ALLOWED));
-    }
-
-    private boolean isStored(Goods goods) {
-        return (hasStatus(goods, GoodsStatusEnum.STORED));
-    }
-
-
     @Override
-    public GoodsDTO mapToDto(Goods goods) {
-        GoodsDTO dto = new GoodsDTO();
-        dto.setId(goods.getId());
-        dto.setName(goods.getName());
-        dto.setQuantity(goods.getQuantity());
-        dto.setWeight(goods.getWeight());
-        dto.setPrice(goods.getPrice());
-        dto.setStorageType(goods.getStorageType());
-        dto.setQuantityUnit(goods.getQuantityUnit());
-        dto.setWeightUnit(goods.getWeightUnit());
-        dto.setPriceUnit(goods.getPriceUnit());
-
-        return dto;
-    }
-
-
-    private List<GoodsDTO> mapGoodsListToDTOList(List<Goods> goodsList) {
-        Assert.notNull(goodsList, ERROR_GOODS_IS_NULL);
-
-        List<GoodsDTO> dtoList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(goodsList)) {
-            dtoList.addAll(goodsList.stream().map(this::mapGoodsToDTO).collect(Collectors.toList()));
-        }
-        return dtoList;
-    }
-
-    private GoodsDTO mapGoodsToDTO(Goods goods) {
+    public GoodsDTO mapGoodsToDTO(Goods goods) {
         Assert.notNull(goods, ERROR_GOODS_IS_NULL);
 
         GoodsDTO dto = new GoodsDTO();
@@ -1000,6 +954,35 @@ public class GoodsServiceImpl implements GoodsService {
         dto.setCells(cellDTOList);
 
         return dto;
+    }
+
+    private boolean isUpdatable(Goods goods) {
+        return (hasAnyStatus(goods,
+                GoodsStatusEnum.STORED,
+                GoodsStatusEnum.REGISTERED,
+                GoodsStatusEnum.WITHDRAWN));
+    }
+
+    private boolean isStorable(Goods goods) {
+        return (hasAnyStatus(goods,
+                GoodsStatusEnum.CHECKED,
+                GoodsStatusEnum.STORED,
+                GoodsStatusEnum.WITHDRAWN,
+                GoodsStatusEnum.RELEASE_ALLOWED));
+    }
+
+    private boolean isStored(Goods goods) {
+        return (hasStatus(goods, GoodsStatusEnum.STORED));
+    }
+
+    private List<GoodsDTO> mapGoodsListToDTOList(List<Goods> goodsList) {
+        Assert.notNull(goodsList, ERROR_GOODS_IS_NULL);
+
+        List<GoodsDTO> dtoList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(goodsList)) {
+            dtoList.addAll(goodsList.stream().map(this::mapGoodsToDTO).collect(Collectors.toList()));
+        }
+        return dtoList;
     }
 
 
