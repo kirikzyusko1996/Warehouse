@@ -139,19 +139,33 @@ public class PermissionResolverService {
 
     public boolean resolvePermissionToAccessUser(WarehouseCompanyUserDetails userDetails, Long userId) {
         logger.info("Evaluating access permission to user with id {} for user {}", userId, userDetails);
-        if (userDetails == null || userId == null) return false;
+        if (userDetails == null || userId == null) {
+            return false;
+        }
         try {
-            if (userDetails.getUser() != null) {
+            User authenticatedUser = userDetails.getUser();
+            if (authenticatedUser != null) {
+
+                if (authenticatedUser.getId().equals(userId)) {
+                    return true;
+                }
+
                 User user = userService.findUserById(userId);
-                if (user != null && userDetails.getUser().getWarehouseCompany() != null) {
-                    if (user.getWarehouseCompany() != null) {
-                        return userDetails.getCompany().getIdWarehouseCompany().equals(user.getWarehouseCompany().getIdWarehouseCompany());
-                    } else {
-                        if (user.getWarehouse() != null) {
-                            return userDetails.getWarehouse().getIdWarehouse().equals(user.getWarehouse().getIdWarehouse());
+                if (authenticatedUser.hasRole(UserRoleEnum.ROLE_ADMIN.toString()) ||
+                        authenticatedUser.hasRole(UserRoleEnum.ROLE_OWNER.toString()) ||
+                        authenticatedUser.hasRole(UserRoleEnum.ROLE_SUPERVISOR.toString())) {
+
+                    if (user != null && authenticatedUser.getWarehouseCompany() != null) {
+                        if (user.getWarehouseCompany() != null) {
+                            return userDetails.getCompany().getIdWarehouseCompany().equals(user.getWarehouseCompany().getIdWarehouseCompany());
+                        } else {
+                            if (user.getWarehouse() != null) {
+                                return userDetails.getWarehouse().getIdWarehouse().equals(user.getWarehouse().getIdWarehouse());
+                            }
                         }
                     }
                 }
+
             }
             return false;
         } catch (DataAccessException | IllegalParametersException | ResourceNotFoundException e) {
@@ -230,7 +244,7 @@ public class PermissionResolverService {
         if (userDetails == null || warehouseCompanyId == null) {
             return false;
         }
-        if(userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())){
+        if (userDetails.getUser().hasRole(UserRoleEnum.ROLE_ADMIN.toString())) {
             return true;
         }
         try {

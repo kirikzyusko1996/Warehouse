@@ -87,8 +87,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    //todo secured version
-//    @PreAuthorize("hasAnyRole('ROLE_OWNER','ROLE_ADMIN','ROLE_SUPERVISOR') and hasPermission(#id, 'User', 'GET')")
+    @PreAuthorize("hasPermission(#id, 'User', 'GET')")
     public UserDTO findUserDTOById(Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find user DTO, id: {}", id);
         if (id == null) {
@@ -169,6 +168,37 @@ public class UserServiceImpl implements UserService {
 
         try {
             return userDAO.getUsersCount(companyId);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserDTO> findUsersForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find users, first result: {}, max results: {}, warehouse id: {}", firstResult, maxResults, warehouseId);
+        if (warehouseId == null) {
+            throw new IllegalParametersException("Warehouse id is null");
+        }
+
+        try {
+            List<User> users = userDAO.findUsersByWarehouseId(warehouseId, firstResult, maxResults);
+            return mapUserListToDTOList(users);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUsersCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get users count, warehouse id: {}", warehouseId);
+        if (warehouseId == null) {
+            throw new IllegalParametersException("Warehouse id is null");
+        }
+
+        try {
+            return userDAO.getUsersCountByWarehouseId(warehouseId);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }

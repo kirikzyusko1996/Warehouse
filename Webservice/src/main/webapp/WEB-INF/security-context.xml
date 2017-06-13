@@ -106,13 +106,16 @@
                                                                   'ROLE_MANAGER',
                                                                   'ROLE_OWNER')"/>
         <intercept-url pattern='/web/company/**' access="hasRole('ROLE_ADMIN')"/>
-        <intercept-url pattern='/web/warehouse/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER','ROLE_SUPERVISOR')"/>
-        <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/warehouse/**' access="isAuthenticated()" method="GET"/>
+        <!--<intercept-url pattern='/web/warehouse/**' access="hasAnyRole('ROLE_OWNER','ROLE_MANAGER','ROLE_SUPERVISOR')"/>-->
+        <intercept-url pattern='/web/goods/**' access="hasAnyRole('ROLE_OWNER','ROLE_SUPERVISOR','ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
         <intercept-url pattern='/web/invoice/**'
-                       access="hasAnyRole('ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
+                       access="hasAnyRole('ROLE_OWNER','ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/user/*' access="isAuthenticated()" method="GET"/>
+
         <intercept-url pattern='/web/user/**' access="hasAnyRole('ROLE_SUPERVISOR','ROLE_OWNER')"/>
-        <intercept-url pattern='/web/tr-company/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_MANAGER')"/>
-        <intercept-url pattern='/web/customer/**' access="hasAnyRole('ROLE_DISPATCHER', 'ROLE_OWNER')"/>
+        <intercept-url pattern='/web/tr-company/**' access="hasAnyRole('ROLE_OWNER','ROLE_DISPATCHER','ROLE_MANAGER')"/>
+        <intercept-url pattern='/web/customer/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_OWNER')"/>
         <intercept-url pattern='/web/finance/**' access="hasAnyRole('ROLE_ADMIN','ROLE_OWNER')"/>
         <intercept-url pattern='/web/report/**' access="hasAnyRole('ROLE_OWNER','ROLE_ADMIN')"/>
         <intercept-url pattern='/web/act/**' access="hasAnyRole('ROLE_MANAGER','ROLE_CONTROLLER','ROLE_OWNER')"/>

@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -718,6 +716,9 @@ public class GoodsServiceImpl implements GoodsService {
                     storageCell.setGoods(goods);
                 }
             }
+
+            setGoodsStatus(goodsId, GoodsStatusEnum.STORED);
+
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }

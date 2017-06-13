@@ -58,7 +58,6 @@ public class UserDAO extends DAO<User> {
         return query.list();
     }
 
-
     public long getUsersCount(Long warehouseCompanyId) throws GenericDAOException {
         logger.info("Get users count,warehouse company id: {}", warehouseCompanyId);
         Assert.notNull(warehouseCompanyId, "Warehouse company id is null");
@@ -86,10 +85,27 @@ public class UserDAO extends DAO<User> {
 
         Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter("warehouseId", warehouseId);
-        query.setFirstResult(firstResult);
-        query.setMaxResults(maxResults);
+        if (firstResult != -1 && maxResults != -1) {
+            query.setFirstResult(firstResult);
+            query.setMaxResults(maxResults);
+        }
 
         return query.list();
+    }
+
+    public long getUsersCountByWarehouseId(Long warehouseId) throws GenericDAOException {
+        logger.info("Get users count,warehouse id: {}", warehouseId);
+        Assert.notNull(warehouseId, "Warehouse id is null");
+
+        String queryHql = "SELECT count(DISTINCT user.id)" +
+                " FROM User user" +
+                " INNER JOIN Warehouse warehouse ON warehouse = user.warehouse" +
+                " WHERE warehouse.idWarehouse = :warehouseId AND user.deleted IS NULL";
+
+        Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseId", warehouseId);
+
+        return query.getSingleResult();
     }
 
 

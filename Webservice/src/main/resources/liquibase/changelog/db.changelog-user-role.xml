@@ -5,7 +5,7 @@
     <changeSet author="zyusko" id="user-role">
         <insert dbms="h2, mysql" tableName="user_role">
             <column name="id_user" value="1"/>
-            <column name="id_role" value="1"/>
+            <column name="id_role" value="2"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user_role">
             <column name="id_user" value="2"/>

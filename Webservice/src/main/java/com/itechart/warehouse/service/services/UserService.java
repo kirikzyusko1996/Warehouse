@@ -27,6 +27,10 @@ public interface UserService {
 
     long getUsersCount(Long companyId) throws DataAccessException, IllegalParametersException;
 
+    List<UserDTO> findUsersForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    long getUsersCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException;
+
     List<User> findUserByBirthday(DateTime date) throws IllegalParametersException, DataAccessException;
 
     User saveUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

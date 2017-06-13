@@ -52,8 +52,8 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getUsers(@RequestParam(defaultValue = "-1") int page,
                                                   @RequestParam(defaultValue = "-1") int count,
                                                   HttpServletResponse response) throws RequestHandlingException, DataAccessException, IllegalParametersException {
-        logger.info("Handling request for list of registered users, page: {}, count: {}", page, count);
-        List<UserDTO> users = null;
+        logger.info("GET on /, page: {}, count: {}", page, count);
+        List<UserDTO> users;
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
         if (company != null) {
@@ -69,13 +69,34 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/warehouse/{warehouseId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<UserDTO>> getUsersForWarehouse(@PathVariable Long warehouseId,
+                                                              @RequestParam(defaultValue = "-1") int page,
+                                                              @RequestParam(defaultValue = "-1") int count,
+                                                              HttpServletResponse response) throws DataAccessException, IllegalParametersException {
+        logger.info("GET on /warehouse/{}, page: {}, count: {}", warehouseId, page, count);
+        List<UserDTO> users;
+        if (page == -1 && count == -1) {
+            users = userService.findUsersForWarehouse(warehouseId, -1, -1);
+        } else {
+            users = userService.findUsersForWarehouse(warehouseId, (page - 1) * count, count);
+        }
+        long userCount = userService.getUsersCountForWarehouse(warehouseId);
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(userCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
-        logger.info("Handling request for user with id: {}", id);
+        logger.info("GET on /{}: {}", id);
         WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
         WarehouseCompany company = userDetails.getCompany();
-        UserDTO user = null;
+        UserDTO user;
         if (company != null) {
             user = userService.findUserDTOById(id);
         } else throw new RequestHandlingException(EXCEPTION_MESSAGE_COULD_NOT_RETRIEVE);
@@ -85,7 +106,7 @@ public class UserController {
     @RequestMapping(value = "/roles", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<RoleDTO>> getRoles() throws DataAccessException {
-        logger.info("Handling request for roles list");
+        logger.info("GET on /roles");
         List<RoleDTO> roles = userService.getRoles();
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
@@ -94,7 +115,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<IdResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, ResourceNotFoundException {
-        logger.info("Handling request for saving new user using DTO: {}", userDTO);
+        logger.info("POST on /save: {}", userDTO);
         WarehouseCompany company = UserDetailsProvider.getUserDetails().getCompany();
         if (company != null) {
             Long companyId = company.getIdWarehouseCompany();
@@ -112,7 +133,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> updateUser(@PathVariable(value = "id") Long id,
                                                      @Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for updating user with id: {} by DTO: {}", id, userDTO);
+        logger.info("POST on save/{}, DTO: {}", id, userDTO);
         userService.updateUser(id, userDTO);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
@@ -120,7 +141,7 @@ public class UserController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> deleteUser(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for deleting user with id: {}", id);
+        logger.info("DELETE on /delete/{}", id);
         userService.deleteUser(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
@@ -129,7 +150,7 @@ public class UserController {
     @RequestMapping(value = "/is_occupied", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> isLoginOccupied(@RequestParam String loginName) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for checking if loginName {} is occupied", loginName);
+        logger.info("GET on /is-occupied, login name: {}", loginName);
         StatusResponse resp = new StatusResponse();
         if (userService.findUserByLogin(loginName) != null) {
             resp.setStatus(StatusEnum.LOGIN_OCCUPIED);
