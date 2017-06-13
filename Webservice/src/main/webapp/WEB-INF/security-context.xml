@@ -93,8 +93,7 @@
         <intercept-url pattern="/web/company/save/**" access="permitAll" method="POST" />
     </http>-->
 
-    <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web"
-          entry-point-ref="userDigestEntryPoint">
+    <http pattern="/web/**" use-expressions="true" create-session="stateless" authentication-manager-ref="web">
         <!--<intercept-url pattern='/web/company/all' />-->
 
         <intercept-url pattern="/web/company/all" access="permitAll" method="GET" />

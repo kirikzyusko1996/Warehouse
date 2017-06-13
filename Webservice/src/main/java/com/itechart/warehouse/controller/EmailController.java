@@ -37,10 +37,9 @@ public class EmailController {
         this.emailSenderService = emailSenderService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EmailSendingResult> getActs(@RequestBody Template template,
-                                                      @RequestParam(required = false) final MultipartFile image) throws IllegalParametersException {
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+    public ResponseEntity<EmailSendingResult> getActs(@RequestPart("template") Template template,
+                                                      @RequestPart("image") final MultipartFile image) throws IllegalParametersException {
         logger.info("POST on /email, body: {}", template);
         EmailSendingResult result = emailSenderService.sendEmail(template, image);
         return new ResponseEntity<>(result, HttpStatus.OK);

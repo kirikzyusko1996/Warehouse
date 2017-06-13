@@ -97,8 +97,10 @@ public class GoodsDAO extends DAO<Goods> {
                 " ORDER BY goods.id DESC";
         Query<Goods> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
-        query.setFirstResult(firstResult);
-        query.setMaxResults(maxResults);
+        if (firstResult != -1 && maxResults != -1) {
+            query.setFirstResult(firstResult);
+            query.setMaxResults(maxResults);
+        }
         return query.list();
     }
 

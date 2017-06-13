@@ -19,7 +19,7 @@
 </div>
 
 <img src="picture.png" th:src="|cid:${image}|" th:if="${image != null}"/>
-<span th:if="${image == null}">[Изображение]</span>
+
 <div th:if="${company != null}">
     С уважением, коллектив <span th:text="${company}"> ООО "Рога и копота"</span>.
 </div>

@@ -51,11 +51,16 @@ public class GoodsController {
     @RequestMapping(value = "/{warehouseId}/list", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<GoodsDTO>> getGoods(@RequestParam(defaultValue = "-1") int page,
-                                                   @RequestParam(defaultValue = "0") int count,
+                                                   @RequestParam(defaultValue = "-1") int count,
                                                    @PathVariable Long warehouseId,
                                                    HttpServletResponse response) throws DataAccessException, IllegalParametersException {
         logger.info("GET on /{}/list, page: {}, count: {}", warehouseId, page, count);
-        List<GoodsDTO> goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
+        List<GoodsDTO> goods;
+        if (page == -1 && count == -1) {
+            goods = goodsService.findGoodsForWarehouse(warehouseId, -1, -1);
+        } else {
+            goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
+        }
         long goodsCount = goodsService.getGoodsCount(warehouseId);
         response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
         response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
