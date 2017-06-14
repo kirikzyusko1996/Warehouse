@@ -13,10 +13,7 @@ import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
-import com.itechart.warehouse.service.services.GoodsService;
-import com.itechart.warehouse.service.services.InvoiceService;
-import com.itechart.warehouse.service.services.UserService;
-import com.itechart.warehouse.service.services.WarehouseService;
+import com.itechart.warehouse.service.services.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -33,7 +30,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -58,7 +54,7 @@ public class GoodsServiceImpl implements GoodsService {
     private WeightUnitDAO weightUnitDAO;
     private PriceUnitDAO priceUnitDAO;
     private StorageSpaceTypeDAO storageSpaceTypeDAO;
-    private StorageCellDAO storageCellDAO;
+    private StorageCellService storageCellService;
     private WarehouseService warehouseService;
     private InvoiceService invoiceService;
     private UserService userService;
@@ -117,9 +113,10 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Autowired
-    public void setStorageCellDAO(StorageCellDAO storageCellDAO) {
-        this.storageCellDAO = storageCellDAO;
+    public void setStorageCellService(StorageCellService storageCellService) {
+        this.storageCellService = storageCellService;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -710,10 +707,18 @@ public class GoodsServiceImpl implements GoodsService {
                 return;
             }
 
+            for (StorageCell cell : goods.getCells()) {
+                if (!includeStorageCell(storageCells, cell)) {
+                    removeGoodsFromCell(cell.getIdStorageCell());
+                }
+            }
+
             for (StorageCellDTO cell : storageCells) {
-                StorageCell storageCell = findStorageCellById(cell.getIdStorageCell());
-                if (storageCell != null) {
-                    storageCell.setGoods(goods);
+                if (!includeStorageCell(goods.getCells(), cell)){
+                    StorageCell storageCell = findStorageCellById(cell.getIdStorageCell());
+                    if (storageCell != null) {
+                        storageCell.setGoods(goods);
+                    }
                 }
             }
 
@@ -722,6 +727,37 @@ public class GoodsServiceImpl implements GoodsService {
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
+    }
+
+    private boolean includeStorageCell(List<StorageCell> cells, StorageCellDTO cellDTO) {
+        Assert.notNull(cells, "Cells is null");
+        Assert.notNull(cellDTO, "Cell DTO is null");
+
+        for (StorageCell cell : cells) {
+            if (cellDTO.getIdStorageCell().equals(cell.getIdStorageCell())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean includeStorageCell(List<StorageCellDTO> cells, StorageCell cell) {
+        Assert.notNull(cells, "Cells is null");
+        Assert.notNull(cell, "Cell is null");
+
+        for (StorageCellDTO cellDTO : cells) {
+            if (cellDTO.getIdStorageCell().equals(cell.getIdStorageCell())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeGoodsFromCell(Long cellId) throws DataAccessException, IllegalParametersException {
+        Assert.notNull(cellId, "Cell id is null");
+
+        StorageCell storageCell = storageCellService.findStorageCellById(cellId);
+        storageCell.setGoods(null);
     }
 
     @Override
@@ -872,18 +908,13 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    private StorageCell findStorageCellById(Long storageCellId) throws GenericDAOException, IllegalParametersException {
+    private StorageCell findStorageCellById(Long storageCellId) throws IllegalParametersException, DataAccessException {
         logger.info("Find storage cell, id: {}", storageCellId);
         if (storageCellId == null) {
             throw new IllegalParametersException("Storage cell id is null");
         }
 
-        Optional<StorageCell> result = storageCellDAO.findById(storageCellId);
-        if (result.isPresent()) {
-            return result.get();
-        } else {
-            return null;
-        }
+        return storageCellService.findStorageCellById(storageCellId);
     }
 
     @Override
