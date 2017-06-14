@@ -103,7 +103,7 @@ public class EmailSenderService {
 
     private void send(Template template, User receiver, MultipartFile image, EmailSendingResult result) {
         try {
-            sendEmail(template, receiver, null);
+            sendEmail(template, receiver, image);
             result.addSuccess(receiver);
         } catch (MailException e) {
             logger.error(ERROR_EXCEPTION_DURING_SENDING, e.getMessage());
@@ -113,7 +113,9 @@ public class EmailSenderService {
 
     public EmailSendingResult sendEmail(EmailSendingResult result) throws IllegalParametersException {
         logger.info("Retry sending email,  previous result: {} ", result);
-        if (result == null) throw new IllegalParametersException("Result is null");
+        if (result == null) {
+            throw new IllegalParametersException("Result is null");
+        }
         if (result.getErrors() != null) {
             for (EmailSendingError error : result.getErrors()) {
                 User receiver = error.getReceiver();
@@ -168,13 +170,15 @@ public class EmailSenderService {
                 if (image != null && !image.isEmpty()) {
                     imageName = image.getName();
                     final InputStreamSource imageSource = new ByteArrayResource(image.getBytes());
-                    message.addInline(imageName, imageSource, image.getContentType());
-//                    message.addAttachment(imageName, imageSource, image.getContentType());
+//                    message.addInline(imageName, imageSource, image.getContentType());
+                    message.addAttachment(imageName, imageSource, image.getContentType());
                 }
-                if (template.getSubject() != null)
+                if (template.getSubject() != null) {
                     message.setSubject(template.getSubject());
-                if (template.getDate() != null)
+                }
+                if (template.getDate() != null) {
                     message.setSentDate(template.getDate());
+                }
                 final String htmlContent = templateService.getMessageFromTemplate(template, receiver, imageName);
                 message.setText(htmlContent, true);
             }
@@ -182,7 +186,6 @@ public class EmailSenderService {
         mailSender.send(preparator);
 
     }
-
 
     public void sendEmail(String emailAddress, Template template) {
         logger.info("Send email, address: {}, template:", emailAddress, template);
@@ -193,18 +196,13 @@ public class EmailSenderService {
                 MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, ENCODING_UTF_8);
                 message.setTo(emailAddress);
                 message.setFrom(environment.getProperty(SPRING_EMAIL_ADDRESS));
-                String imageName = null;
-//                if (image != null && !image.isEmpty()) {
-//                    imageName = image.getName();
-//                    final InputStreamSource imageSource = new ByteArrayResource(image.getBytes());
-//                    message.addInline(imageName, imageSource, image.getContentType());
-////                    message.addAttachment(imageName, imageSource, image.getContentType());
-//                }
-                if (template.getSubject() != null)
+                if (template.getSubject() != null) {
                     message.setSubject(template.getSubject());
-                if (template.getDate() != null)
+                }
+                if (template.getDate() != null) {
                     message.setSentDate(template.getDate());
-                final String htmlContent = templateService.getMessageFromTemplate(template, null, imageName);
+                }
+                final String htmlContent = templateService.getMessageFromTemplate(template, null, null);
                 message.setText(htmlContent, true);
             }
         };

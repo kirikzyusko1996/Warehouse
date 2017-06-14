@@ -30,7 +30,7 @@
             <column name="street" value="Космонавтов"/>
             <column name="house" value="34a"/>
             <column name="apartment" value="64"/>
-            <column name="email" value="aleks.gilimovich@gmail.com"/>
+            <column name="email" value="a.gilimovich1990@gmail.com"/>
             <column name="login" value="supervisor"/>
             <column name="password" value="supervisor"/>
             <column name="id_warehouse_company" value="10"/>

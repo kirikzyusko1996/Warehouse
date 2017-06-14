@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.io.IOException;
+
 /**
  * Handler for exceptions occurred in controllers.
  */
@@ -107,4 +109,17 @@ public class ControllerExceptionHandler {
         requestHandlingError.setError(e.getMessage());
         return requestHandlingError;
     }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public
+    @ResponseBody
+    RequestHandlingError handleException(IOException e) {
+        logger.error(EXCEPTION_MESSAGE, e);
+        RequestHandlingError illegalParametersError = new RequestHandlingError();
+        illegalParametersError.setError("Message is syntactically incorrect");
+        return illegalParametersError;
+    }
+
+
 }

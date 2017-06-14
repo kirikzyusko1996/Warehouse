@@ -1,10 +1,12 @@
 package com.itechart.warehouse.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.warehouse.mail.EmailSenderService;
 import com.itechart.warehouse.mail.EmailSendingResult;
 import com.itechart.warehouse.mail.Template;
 import com.itechart.warehouse.mail.TemplateService;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,8 +45,9 @@ public class EmailController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<EmailSendingResult> getActs(@RequestPart(value = "template") Template template,
-                                                      @RequestPart(value = "image", required = false) MultipartFile image) throws IllegalParametersException {
+                                                      @RequestPart(value = "image", required = false) MultipartFile image) throws IllegalParametersException, IOException {
         logger.info("POST on /email, body: {}", template);
+
         EmailSendingResult result = emailSenderService.sendEmail(template, image);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

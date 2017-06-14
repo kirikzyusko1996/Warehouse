@@ -2,6 +2,7 @@ package com.itechart.warehouse.mail;
 
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
 import org.slf4j.Logger;
@@ -44,6 +45,8 @@ public class TemplateService {
                 return getEmailFailedNotificationText((EmailFailedNotificationTemplate) template);
             case REGISTRATION:
                 return getEmailRegistrationText(template, receiver);
+            case DEFAULT:
+                return getSimpleEmailText(template, imageName);
             default:
                 return null;
         }
@@ -51,22 +54,37 @@ public class TemplateService {
 
     public List<Template> getTemplates() {
         List<Template> templates = new ArrayList<>();
-        for (TemplateEnum templateType : TemplateEnum.values()) {
-            Template template = new Template();
-            template.setType(templateType);
-            template.setBody(getRawTemplateText(templateType));
-            templates.add(template);
-        }
+
+        Template template = new Template();
+        template.setType(TemplateEnum.BIRTHDAY);
+        template.setBody(getRawTemplateText(TemplateEnum.BIRTHDAY));
+        templates.add(template);
+
         return templates;
     }
 
     private String getRawTemplateText(TemplateEnum template) {
+        if (StringUtils.isBlank(template.getPath())) {
+            return "";
+        }
         final Context ctx = new Context();
         ctx.setVariable("name", "[Имя Отчество]");
         ctx.setVariable("age", "[Возраст]");
         ctx.setVariable("company", "[Компания]");
 
         return templateEngine.process(template.getPath(), ctx);
+    }
+
+    private String getSimpleEmailText(Template template, String imageName) {
+        Assert.notNull(template, ERROR_TEMPLATE_IS_NULL);
+        Assert.notNull(template.getType(), ERROR_TEMPLATE_TYPE_IS_NULL);
+        final Context ctx = new Context();
+        ctx.setVariable("backgroundColor", template.getBackgroundColor());
+        ctx.setVariable("body", template.getBody());
+        if (imageName != null) {
+            ctx.setVariable("image", imageName);
+        }
+        return templateEngine.process(template.getType().getPath(), ctx);
     }
 
     private String getEmailRegistrationText(Template template, User receiver) {
@@ -102,8 +120,9 @@ public class TemplateService {
         }
 
         ctx.setVariable("backgroundColor", template.getBackgroundColor());
-        if (imageName != null)
+        if (imageName != null) {
             ctx.setVariable("image", imageName);
+        }
 
         String companyName = null;
         WarehouseCompany company = receiver.getWarehouseCompany();

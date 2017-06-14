@@ -6,7 +6,8 @@ package com.itechart.warehouse.mail;
 public enum TemplateEnum {
     BIRTHDAY("templates/birthdayTemplate"),
     EMAIL_SENDING_FAILED("templates/emailFailedNotificationTemplate"),
-    REGISTRATION("templates/registrationTemplate");
+    REGISTRATION("templates/registrationTemplate"),
+    DEFAULT("templates/defaultTemplate");
 
     private String path;
 
@@ -17,4 +18,5 @@ public enum TemplateEnum {
     public String getPath() {
         return path;
     }
+
 }
