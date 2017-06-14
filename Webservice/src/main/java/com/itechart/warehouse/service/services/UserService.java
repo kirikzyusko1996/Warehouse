@@ -46,4 +46,6 @@ public interface UserService {
     boolean hasRole(Long userId, UserRoleEnum role) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<RoleDTO> getRoles() throws DataAccessException;
+
+    void setSettingsPreset(Long userId, Long presetId) throws IllegalParametersException, DataAccessException;
 }

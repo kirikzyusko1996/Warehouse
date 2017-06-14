@@ -368,6 +368,9 @@
             <column name="deleted" type="date">
                 <constraints nullable="true"/>
             </column>
+            <column name="preset" type="SMALLINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="ulad_bondar" id="18">

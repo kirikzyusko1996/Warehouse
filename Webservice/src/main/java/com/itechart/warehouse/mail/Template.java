@@ -1,6 +1,7 @@
 package com.itechart.warehouse.mail;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,6 +15,7 @@ import java.util.List;
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 public class Template {
     private TemplateEnum type;
     private List<Long> receiverIds;

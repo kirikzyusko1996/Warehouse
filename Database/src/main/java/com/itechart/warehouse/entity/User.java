@@ -33,6 +33,16 @@ public class User {
     private List<GoodsStatus> goodsStatusList;
     private List<InvoiceStatus> invoiceStatusList;
     private Date deleted;
+    private Long presetId;
+
+    @Column(name = "preset")
+    public Long getPresetId() {
+        return presetId;
+    }
+
+    public void setPresetId(Long presetId) {
+        this.presetId = presetId;
+    }
 
     public Date getDeleted() {
         return deleted;

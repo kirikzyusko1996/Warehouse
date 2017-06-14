@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -38,12 +41,13 @@ public class EmailController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<EmailSendingResult> getActs(@RequestPart("template") Template template,
-                                                      @RequestPart("image") MultipartFile image) throws IllegalParametersException {
+    public ResponseEntity<EmailSendingResult> getActs(@RequestPart(value = "template") Template template,
+                                                      @RequestPart(value = "image", required = false) MultipartFile image) throws IllegalParametersException {
         logger.info("POST on /email, body: {}", template);
         EmailSendingResult result = emailSenderService.sendEmail(template, image);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
 
     @RequestMapping(value = "/templates", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)

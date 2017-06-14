@@ -20,6 +20,21 @@ public class UserDAO extends DAO<User> {
     }
 
 
+    public void setSettingsPreset(Long userId, Long presetId) throws GenericDAOException {
+        logger.info("Set preset, user id: {}, preset id: {}", userId, presetId);
+        Assert.notNull(userId == null, "User id is null");
+        Assert.notNull(presetId == null, "Preset id is null");
+
+        String queryHql = "UPDATE User user " +
+                " SET user.presetId = :presetId" +
+                " WHERE user.id = :userId";
+
+        Query<User> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("userId", userId);
+        query.setParameter("presetId", presetId);
+        query.executeUpdate();
+    }
+
     public User findUserByLogin(String login) throws GenericDAOException {
         logger.info("Find user, login: {}", login);
         Assert.notNull(login, "Login is null");

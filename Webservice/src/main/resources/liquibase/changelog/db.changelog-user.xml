@@ -18,6 +18,7 @@
             <column name="password" value="admin"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="2"/>
@@ -34,6 +35,7 @@
             <column name="password" value="supervisor"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="3"/>
@@ -50,6 +52,7 @@
             <column name="password" value="dispatcher"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="4"/>
@@ -66,6 +69,7 @@
             <column name="password" value="manager"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="5"/>
@@ -82,6 +86,7 @@
             <column name="password" value="controller"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="6"/>
@@ -98,6 +103,7 @@
             <column name="password" value="owner"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="7"/>
@@ -114,6 +120,7 @@
             <column name="password" value=""/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="8"/>
@@ -130,6 +137,7 @@
             <column name="password" value=""/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="9"/>
@@ -146,6 +154,7 @@
             <column name="password" value="1"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="10"/>
@@ -162,6 +171,7 @@
             <column name="password" value="root"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
+            <column name="preset" value="1"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

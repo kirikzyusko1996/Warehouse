@@ -51,4 +51,5 @@ public class UserDTO {
     private List<RoleDTO> roles;
     private Warehouse warehouse;
     private WarehouseCompany warehouseCompany;
+    private Long presetId;
 }

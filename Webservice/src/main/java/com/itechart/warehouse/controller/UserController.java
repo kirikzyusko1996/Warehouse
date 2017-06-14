@@ -133,8 +133,18 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> updateUser(@PathVariable(value = "id") Long id,
                                                      @Valid @RequestBody UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("POST on save/{}, DTO: {}", id, userDTO);
+        logger.info("PUT on /save/{}, DTO: {}", id, userDTO);
         userService.updateUser(id, userDTO);
+        return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/preset", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatusResponse> updateUser(@RequestParam(value = "id") Long id,
+                                                    @RequestParam(value = "preset") Long presetId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("PUT on /preset, user id: {}, preset if: {}", id, presetId);
+        userService.setSettingsPreset(id, presetId);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
 

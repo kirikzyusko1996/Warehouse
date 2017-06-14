@@ -1,5 +1,6 @@
 package com.itechart.warehouse.service.impl;
 
+import com.itechart.warehouse.constants.PresetEnum;
 import com.itechart.warehouse.constants.UserRoleEnum;
 import com.itechart.warehouse.dao.RoleDAO;
 import com.itechart.warehouse.dao.UserDAO;
@@ -358,6 +359,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userDTO.getEmail());
         user.setLogin(userDTO.getLogin());
         user.setPassword(userDTO.getPassword());
+        user.setPresetId(PresetEnum.DEFAULT());
 
         return user;
     }
@@ -544,6 +546,24 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    @Transactional
+    public void setSettingsPreset(Long userId, Long presetId) throws IllegalParametersException, DataAccessException {
+        logger.info("Set preset, user id: {}, preset id: {}", userId, presetId);
+        if (userId == null) {
+            throw new IllegalParametersException(ERROR_USER_ID_IS_NULL);
+        }
+        if (presetId == null) {
+            throw new IllegalParametersException("Preset id is null");
+        }
+        try {
+            this.userDAO.setSettingsPreset(userId, presetId);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+
+    }
+
     private UserDTO mapUserToDTO(User user) {
         Assert.notNull(user, "User is null");
 
@@ -563,6 +583,7 @@ public class UserServiceImpl implements UserService {
         userDTO.setPassword(user.getPassword());
         userDTO.setWarehouse(user.getWarehouse());
         userDTO.setWarehouseCompany(user.getWarehouseCompany());
+        userDTO.setPresetId(user.getPresetId());
 
         userDTO.setRoles(mapRoleListToDTOList(user.getRoles()));
 
