@@ -6,6 +6,7 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TransportCompanyDAO extends DAO<TransportCompany> {
@@ -26,5 +27,16 @@ public class TransportCompanyDAO extends DAO<TransportCompany> {
         query.setFirstResult(page);
         query.setMaxResults(count);
         return query.list();
+    }
+
+    public TransportCompany findByIdBeforeUpdate(Long id) throws GenericDAOException {
+        Optional<TransportCompany> optional = findById(id);
+        if (optional.isPresent()) {
+            TransportCompany company = optional.get();
+            hibernateTemplate.getSessionFactory().getCurrentSession().clear();
+            return company;
+        } else {
+            throw new GenericDAOException("Transport company not found");
+        }
     }
 }

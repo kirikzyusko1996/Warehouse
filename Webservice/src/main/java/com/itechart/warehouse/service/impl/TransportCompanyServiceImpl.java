@@ -183,7 +183,7 @@ public class TransportCompanyServiceImpl implements TransportCompanyService {
 
         TransportCompany updatedCompany;
         try {
-            TransportCompany companyToUpdate = retrieveCompanyById(id);
+            TransportCompany companyToUpdate = transportDAO.findByIdBeforeUpdate(id);
 
             dto.setId(id);
             TransportCompany company = mapToCompany(dto);
@@ -191,9 +191,8 @@ public class TransportCompanyServiceImpl implements TransportCompanyService {
             company.setWarehouseCompany(companyOfTransportCompany);
             updatedCompany = transportDAO.update(company);
 
-
-//            ElasticSearchTransportCompany elasticCompany = new ElasticSearchTransportCompany();
-//            elasticCompany.edit(companyToUpdate, updatedCompany);
+            ElasticSearchTransportCompany elasticCompany = new ElasticSearchTransportCompany();
+            elasticCompany.edit(companyToUpdate, updatedCompany);
         } catch (GenericDAOException e) {
             logger.error("Error while updating customer dto: ", e);
             throw new DataAccessException(e);
@@ -214,6 +213,9 @@ public class TransportCompanyServiceImpl implements TransportCompanyService {
             if (optional.isPresent()) {
                 TransportCompany company = optional.get();
                 transportDAO.delete(company);
+
+                ElasticSearchTransportCompany elasticCompany = new ElasticSearchTransportCompany();
+                elasticCompany.delete(company);
             } else {
                 logger.error("Transport dto with id {} not found", id);
                 throw new ResourceNotFoundException("Transport dto not found");

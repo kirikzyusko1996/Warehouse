@@ -8,4 +8,8 @@ public class GenericDAOException extends Exception {
     public GenericDAOException(String message, Exception e) {
         super(message, e, false, false);
     }
+
+    public GenericDAOException(String message) {
+        super(message);
+    }
 }

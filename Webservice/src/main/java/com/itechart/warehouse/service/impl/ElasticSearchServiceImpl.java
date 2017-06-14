@@ -4,14 +4,17 @@ import com.itechart.warehouse.dao.DriverDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Driver;
 import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import com.itechart.warehouse.service.elasticsearch.ElasticSearchDriver;
 import com.itechart.warehouse.service.elasticsearch.ElasticSearchTransportCompany;
+import com.itechart.warehouse.service.elasticsearch.ElasticSearchWarehouseCustomerCompany;
 import com.itechart.warehouse.service.elasticsearch.SimilarityWrapper;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
 import com.itechart.warehouse.service.services.ElasticSearchService;
 import com.itechart.warehouse.service.services.TransportCompanyService;
+import com.itechart.warehouse.service.services.WarehouseCustomerCompanyService;
 import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +34,11 @@ import java.util.List;
 public class ElasticSearchServiceImpl implements ElasticSearchService {
     private final Logger logger = LoggerFactory.getLogger(ElasticSearchServiceImpl.class);
     private ElasticSearchTransportCompany elasticSearchTransportCompany = new ElasticSearchTransportCompany();
+    private ElasticSearchWarehouseCustomerCompany elasticSearchCustomer = new ElasticSearchWarehouseCustomerCompany();
     private ElasticSearchDriver elasticSearchDriver = new ElasticSearchDriver();
     private DriverDAO driverDAO;
     private TransportCompanyService transportCompanyService;
+    private WarehouseCustomerCompanyService customerService;
 
     @Autowired
     public void setDriverDAO(DriverDAO driverDAO) {
@@ -45,6 +50,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         this.transportCompanyService = transportCompanyService;
     }
 
+    @Autowired
+    public void setCustomerService(WarehouseCustomerCompanyService service) {
+        this.customerService = service;
+    }
+
     @PostConstruct
     public void initElasticSearchTransportCompany() throws DataAccessException {
         logger.info("Start init action for es and transport company");
@@ -54,6 +64,16 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             elasticSearchTransportCompany.save(tr);
         }
         logger.info("Complete init for transport comapny (elastic search)");
+    }
+
+    @PostConstruct
+    public void initElasticSearchCustomer() throws DataAccessException {
+        logger.info("Start init action for es and customer companies");
+        List<WarehouseCustomerCompany> customers = customerService.findAllWarehouseCustomerCompanies(-1, -1);
+        for(WarehouseCustomerCompany customerCompany : customers){
+            elasticSearchCustomer.delete(customerCompany);
+            elasticSearchCustomer.save(customerCompany);
+        }
     }
 
     @PostConstruct
@@ -73,6 +93,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany){
         return elasticSearchTransportCompany.search(transportCompany);
+    }
+
+    @Override
+    public List<SimilarityWrapper<WarehouseCustomerCompany>> searchCustomers(WarehouseCustomerCompany customerCompany) {
+        return elasticSearchCustomer.search(customerCompany);
     }
 
     @Override

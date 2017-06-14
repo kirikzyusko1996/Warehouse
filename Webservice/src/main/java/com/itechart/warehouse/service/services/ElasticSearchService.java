@@ -2,6 +2,7 @@ package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.entity.Driver;
 import com.itechart.warehouse.entity.TransportCompany;
+import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import com.itechart.warehouse.service.elasticsearch.SimilarityWrapper;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
@@ -14,6 +15,8 @@ import java.util.List;
  */
 public interface ElasticSearchService {
     List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany);
+
+    List<SimilarityWrapper<WarehouseCustomerCompany>> searchCustomers(WarehouseCustomerCompany customerCompany);
 
     List<SimilarityWrapper<Driver>> searchDriver(Driver driver)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;

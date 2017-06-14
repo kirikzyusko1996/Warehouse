@@ -6,6 +6,8 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.WarehouseCustomerCompanyDTO;
 import com.itechart.warehouse.entity.WarehouseCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
+import com.itechart.warehouse.service.elasticsearch.ElasticSearchWarehouseCustomerCompany;
+import com.itechart.warehouse.service.elasticsearch.SimilarityWrapper;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCompanyService {
@@ -160,8 +163,10 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         try {
             WarehouseCustomerCompany customer = mapToCustomer(dto);
             customer.setWarehouseCompany(company);
-
             savedCompany = customerDAO.insert(customer);
+
+            ElasticSearchWarehouseCustomerCompany elasticCompany = new ElasticSearchWarehouseCustomerCompany();
+            elasticCompany.save(savedCompany);
         } catch (GenericDAOException e) {
             logger.error("Error while saving customer dto: ", e);
             throw new DataAccessException(e);
@@ -179,13 +184,16 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
         WarehouseCustomerCompany updatedCompany;
         try {
+            WarehouseCustomerCompany companyToUpdate = customerDAO.findByIdBeforeUpdate(id);
+
             dto.setId(id);
-
-                WarehouseCustomerCompany company = mapToCustomer(dto);
-                WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(companyId);
-                company.setWarehouseCompany(companyOfCustomer);
-
+            WarehouseCustomerCompany company = mapToCustomer(dto);
+            WarehouseCompany companyOfCustomer = companyService.findWarehouseCompanyById(companyId);
+            company.setWarehouseCompany(companyOfCustomer);
             updatedCompany = customerDAO.update(company);
+
+            ElasticSearchWarehouseCustomerCompany elasticCompany = new ElasticSearchWarehouseCustomerCompany();
+            elasticCompany.edit(companyToUpdate, updatedCompany);
         } catch (GenericDAOException e) {
             logger.error("Error while updating customer dto: ", e);
             throw new DataAccessException(e);
@@ -206,6 +214,9 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
             if (optional.isPresent()) {
                 WarehouseCustomerCompany customer = optional.get();
                 customerDAO.delete(customer);
+
+                ElasticSearchWarehouseCustomerCompany elasticCustomer = new ElasticSearchWarehouseCustomerCompany();
+                elasticCustomer.delete(customer);
             } else {
                 logger.error("Customer with id {} not found", id);
                 throw new ResourceNotFoundException("Customer not found");
@@ -218,16 +229,13 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
 
     @Override
     @PreAuthorize("hasPermission(#warehouseCompany.idWarehouseCompany, 'WarehouseCompany', 'GET')")
-    public List<WarehouseCustomerCompany> searchSimilarToCompanyForWarehouseCompany(WarehouseCustomerCompanyDTO customer, WarehouseCompany warehouseCompany) throws DataAccessException, IllegalParametersException {
-//        ElasticSearchTransportCompany searchTransportCompany = new ElasticSearchTransportCompany();
-//        TransportCompany company = mapToCompany(dto);
-//        company.setWarehouseCompany(warehouseCompany);
-//
-//        List<SimilarityWrapper<TransportCompany>> companiesByRelevance = searchTransportCompany.search(company);
-//        return companiesByRelevance.stream().map(SimilarityWrapper::getOjbect).collect(Collectors.toList());
+    public List<WarehouseCustomerCompany> searchSimilarToCompanyForWarehouseCompany(WarehouseCustomerCompanyDTO dto, WarehouseCompany warehouseCompany) throws DataAccessException, IllegalParametersException {
+        ElasticSearchWarehouseCustomerCompany searchCustomer = new ElasticSearchWarehouseCustomerCompany();
+        WarehouseCustomerCompany company = mapToCustomer(dto);
+        company.setWarehouseCompany(warehouseCompany);
 
-        // TODO: wait until elastic will be added
-        return findAllCustomersForWarehouseCompany(-1, -1, warehouseCompany.getIdWarehouseCompany());
+        List<SimilarityWrapper<WarehouseCustomerCompany>> companiesByRelevance = searchCustomer.search(company);
+        return companiesByRelevance.stream().map(SimilarityWrapper::getOjbect).collect(Collectors.toList());
     }
 
     @Override
@@ -248,6 +256,8 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         WarehouseCustomerCompany company = new WarehouseCustomerCompany();
         company.setId(dto.getId());
         company.setName(dto.getName());
+        company.setX(dto.getX());
+        company.setY(dto.getY());
 
         return company;
     }
@@ -257,6 +267,8 @@ public class WarehouseCustomerCompanyServiceImpl implements WarehouseCustomerCom
         WarehouseCustomerCompanyDTO dto = new WarehouseCustomerCompanyDTO();
         dto.setId(customer.getId());
         dto.setName(customer.getName());
+        dto.setX(customer.getX());
+        dto.setY(customer.getY());
         dto.setWarehouseCompanyId(customer.getWarehouseCompany().getIdWarehouseCompany());
 
         return dto;

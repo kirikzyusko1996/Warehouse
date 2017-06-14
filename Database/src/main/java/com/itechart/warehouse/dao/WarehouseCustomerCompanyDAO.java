@@ -1,11 +1,13 @@
 package com.itechart.warehouse.dao;
 
 import com.itechart.warehouse.dao.exception.GenericDAOException;
+import com.itechart.warehouse.entity.TransportCompany;
 import com.itechart.warehouse.entity.WarehouseCustomerCompany;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -26,5 +28,16 @@ public class WarehouseCustomerCompanyDAO extends DAO<WarehouseCustomerCompany> {
         query.setFirstResult(firstResult);
         query.setMaxResults(maxResults);
         return query.list();
+    }
+
+    public WarehouseCustomerCompany findByIdBeforeUpdate(Long id) throws GenericDAOException {
+        Optional<WarehouseCustomerCompany> optional = findById(id);
+        if (optional.isPresent()) {
+            WarehouseCustomerCompany company = optional.get();
+            hibernateTemplate.getSessionFactory().getCurrentSession().clear();
+            return company;
+        } else {
+            throw new GenericDAOException("Customer company not found");
+        }
     }
 }
