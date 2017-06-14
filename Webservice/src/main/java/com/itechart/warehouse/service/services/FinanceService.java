@@ -22,4 +22,5 @@ public interface FinanceService {
 
     List<PriceList> findPricesByDateForStorageSpaceType(Short idStorageSpaceType, LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException;
     List<PriceList> findPricesByDate(LocalDate startDate, LocalDate endDate, int skip, int limit) throws DataAccessException;
+    List<PriceList> findCurrentPrices() throws DataAccessException;
 }

@@ -116,4 +116,16 @@ public class FinanceController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
+    @RequestMapping(value = "/currentPrices", method = RequestMethod.GET)
+    public ResponseEntity<List<PriceList>> getCurrentPrices(){
+                logger.info("Getting current prices");
+                List<PriceList> priceList;
+                try{
+                    priceList = financeService.findCurrentPrices();
+                } catch (DataAccessException e) {
+                    logger.error("Error while retrieving prices: {}", e.getMessage());
+                    return new ResponseEntity<>(HttpStatus.CONFLICT);
+                }
+                return new ResponseEntity<>(priceList, HttpStatus.OK);
+    }
 }

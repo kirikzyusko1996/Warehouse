@@ -175,4 +175,17 @@ public class FinanceServiceImpl implements FinanceService{
             throw new DataAccessException(e.getCause());
         }
     }
+
+    public List<PriceList> findCurrentPrices() throws DataAccessException {
+        logger.info("Find current prices for company: {}", UserDetailsProvider.getUserDetails().getCompany());
+        try{
+            DetachedCriteria criteria = DetachedCriteria.forClass(PriceList.class);
+            criteria.add(Restrictions.eq("warehouseCompany", UserDetailsProvider.getUserDetails().getCompany()))
+                    .add(Restrictions.isNull("endTime"));
+            return priceListDAO.findAll(criteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("Error during search for current prices: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+    }
 }
