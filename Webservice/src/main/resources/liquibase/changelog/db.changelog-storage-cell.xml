@@ -1600,32 +1600,32 @@
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="18" />
+            <column name="id_goods"  value="10" />
         </insert>
 
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="18" />
+            <column name="id_goods"  value="10" />
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="18" />
+            <column name="id_goods"  value="10" />
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="18" />
+            <column name="id_goods"  value="10" />
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="18" />
+            <column name="id_goods"  value="10" />
         </insert>
     </changeSet>
 </databaseChangeLog>
