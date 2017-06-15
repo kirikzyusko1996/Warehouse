@@ -702,7 +702,6 @@ public class GoodsServiceImpl implements GoodsService {
                 throw new ResourceNotFoundException("Goods with id " + goodsId + " was not found");
             }
 
-            //if status is not one of listed then goods cant be put in storage cells
             if (!isStorable(goods)) {
                 return;
             }

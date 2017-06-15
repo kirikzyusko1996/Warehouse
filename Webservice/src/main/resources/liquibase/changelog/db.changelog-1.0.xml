@@ -360,7 +360,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="id_warehouse_company" type="BIGINT UNSIGNED">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="id_warehouse" type="BIGINT UNSIGNED">
                 <constraints nullable="true"/>

@@ -5,7 +5,7 @@
     <changeSet author="zyusko" id="user-role">
         <insert dbms="h2, mysql" tableName="user_role">
             <column name="id_user" value="1"/>
-            <column name="id_role" value="2"/>
+            <column name="id_role" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user_role">
             <column name="id_user" value="2"/>
@@ -27,6 +27,19 @@
             <column name="id_user" value="6"/>
             <column name="id_role" value="6"/>
         </insert>
+        <insert dbms="h2, mysql" tableName="user_role">
+            <column name="id_user" value="7"/>
+            <column name="id_role" value="3"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user_role">
+            <column name="id_user" value="8"/>
+            <column name="id_role" value="5"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="user_role">
+            <column name="id_user" value="9"/>
+            <column name="id_role" value="4"/>
+        </insert>
+
         <insert dbms="h2, mysql" tableName="user_role">
             <column name="id_user" value="10"/>
             <column name="id_role" value="1"/>
