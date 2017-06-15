@@ -135,7 +135,7 @@ public class WarehouseCompanyController {
         return new ResponseEntity<>(company, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save/{email:.+}", method = RequestMethod.POST)
+    @RequestMapping(value = "/save/{email:.+}", method = RequestMethod.POST, consumes = "application/json")
     public ResponseEntity<User> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany,
                                             @PathVariable String email){
         logger.info("POST on /company: save new company");

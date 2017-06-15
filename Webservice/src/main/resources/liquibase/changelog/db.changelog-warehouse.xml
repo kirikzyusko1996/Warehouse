@@ -13,7 +13,7 @@
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="2"/>
-            <column name="name" value="iTechArt"/>
+            <column name="name" value="Идеальный"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="53.888347"/>
             <column name="y" value="27.544358"/>
@@ -29,7 +29,7 @@
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="4"/>
-            <column name="name" value="Zaporozhje"/>
+            <column name="name" value="Запорожье"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="47.973980"/>
             <column name="y" value="4.117793"/>
@@ -37,7 +37,7 @@
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="5"/>
-            <column name="name" value="Yurmala"/>
+            <column name="name" value="Юрмала"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="50.719576"/>
             <column name="y" value="9.343523"/>
@@ -93,7 +93,7 @@
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="12"/>
-            <column name="name" value="Открытая площадка"/>
+            <column name="name" value="Ваш Склад"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="50.156302"/>
             <column name="y" value="25.692615"/>

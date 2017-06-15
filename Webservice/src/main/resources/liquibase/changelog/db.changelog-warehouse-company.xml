@@ -5,7 +5,7 @@
     <changeSet author="zyusko" id="warehouse-company">
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="1"/>
-            <column name="name" value="DreamStock"/>
+            <column name="name" value="Ваш Запас"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="48.152047"/>
             <column name="y" value="15.134961"/>
@@ -26,14 +26,14 @@
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="4"/>
-            <column name="name" value="AXEFXII"/>
+            <column name="name" value="Чистый Дом"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="47.973980"/>
             <column name="y" value="4.117793"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse_company">
             <column name="id_warehouse_company" value="5"/>
-            <column name="name" value="Кемпер"/>
+            <column name="name" value="Умный выбор"/>
             <column name="status" valueBoolean="true"/>
             <column name="x" value="50.719576"/>
             <column name="y" value="9.343523"/>
