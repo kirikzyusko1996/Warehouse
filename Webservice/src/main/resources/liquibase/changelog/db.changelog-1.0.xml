@@ -465,4 +465,26 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet author="alexey_maleyko" id="23">
+        <createTable tableName="company_price_list">
+            <column autoIncrement="true" name="id" type="BIGINT UNSIGNED">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="id_warehouse_company" type="INT UNSIGNED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="setting_time" type="TIMESTAMP NULL DEFAULT NULL">
+                <constraints nullable="true"/>
+            </column>
+            <column name="end_time" type="TIMESTAMP NULL DEFAULT NULL">
+                <constraints nullable="true"/>
+            </column>
+            <column name="price_per_month" type="DECIMAL(12, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="VARCHAR(250)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

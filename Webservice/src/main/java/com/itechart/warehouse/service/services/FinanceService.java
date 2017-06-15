@@ -10,7 +10,10 @@ import org.joda.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.List;
 
-
+/**
+ * Service for managing prices.
+ * Provides basic operations with prices such as creation, updating, searching.
+ */
 public interface FinanceService {
     //create new price or update existent
     void newPrice(PriceListDTO priceDTO) throws GenericDAOException;

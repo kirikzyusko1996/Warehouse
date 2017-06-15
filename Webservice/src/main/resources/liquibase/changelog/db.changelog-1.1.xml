@@ -123,4 +123,7 @@
                                  onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_invoice_status"
                                  referencedTableName="invoice_status"/>
     </changeSet>
+    <changeSet author="alexey_maleyko" id="101">
+        <addForeignKeyConstraint baseColumnNames="id_warehouse_company" baseTableName="company_price_list" constraintName="company_price_list_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse_company" referencedTableName="warehouse_company"/>
+    </changeSet>
 </databaseChangeLog>

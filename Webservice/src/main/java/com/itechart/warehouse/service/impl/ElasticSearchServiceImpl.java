@@ -55,7 +55,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         this.customerService = service;
     }
 
-   /* @PostConstruct
+    @PostConstruct
     public void initElasticSearchTransportCompany() throws DataAccessException {
         logger.info("Start init action for es and transport company");
         List<TransportCompany> list = transportCompanyService.findAllTransportCompanies(-1, -1);
@@ -88,7 +88,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             elasticSearchDriver.save(dr, idCompany);
         }
         logger.info("Complete init for driver (elastic search)");
-    }*/
+    }
 
     @Override
     public List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany){

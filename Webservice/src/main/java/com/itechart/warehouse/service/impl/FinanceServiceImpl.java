@@ -104,6 +104,7 @@ public class FinanceServiceImpl implements FinanceService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PriceList findPriceById(Long id) throws DataAccessException {
         logger.info("Find price by id: {}", id);
         try {

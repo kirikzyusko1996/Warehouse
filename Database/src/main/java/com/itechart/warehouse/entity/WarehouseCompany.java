@@ -15,6 +15,7 @@ public class WarehouseCompany {
     private Float y;
     private List<Warehouse> warehouses;
     private List<PriceList> priceList;
+    private List<CompanyPriceList> companyPriceList;
     private List<User> users;
     private List<WarehouseCompanyStatus> statuses;
     private List<TransportCompany> transportCompanies;
@@ -91,6 +92,16 @@ public class WarehouseCompany {
 
     public void setCustomerCompanies(List<WarehouseCustomerCompany> customerCompanies) {
         this.customerCompanies = customerCompanies;
+    }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "warehouseCompany", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<CompanyPriceList> getCompanyPriceList() {
+        return companyPriceList;
+    }
+
+    public void setCompanyPriceList(List<CompanyPriceList> companyPriceList) {
+        this.companyPriceList = companyPriceList;
     }
 
     @Id

@@ -116,6 +116,7 @@ public class FinanceController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
+
     @RequestMapping(value = "/currentPrices", method = RequestMethod.GET)
     public ResponseEntity<List<PriceList>> getCurrentPrices(){
                 logger.info("Getting current prices");
