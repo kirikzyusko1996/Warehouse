@@ -457,8 +457,8 @@
             <column name="start_date" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="due_date" type="date">
-                <constraints nullable="false"/>
+            <column name="due_date" type="date NULL DEFAULT NULL">
+                <constraints nullable="true"/>
             </column>
             <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>

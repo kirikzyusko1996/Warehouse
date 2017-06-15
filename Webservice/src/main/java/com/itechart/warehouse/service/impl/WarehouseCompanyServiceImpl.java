@@ -14,6 +14,7 @@ import com.itechart.warehouse.service.services.UserService;
 import com.itechart.warehouse.service.services.WarehouseCompanyService;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,6 +242,22 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
             if (result.isPresent()) {
                 result.get().setStatus(!result.get().getStatus());//so can recovery it, merely change status to opposite
                 warehouseCompanyDAO.update(result.get());
+                // update the old status if exists and add new status to warehouse company status table
+                WarehouseCompanyStatus companyStatus;
+                DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCompanyStatus.class);
+                criteria.add(Restrictions.eq("warehouseCompany", result.get()))
+                        .add(Restrictions.isNull("dueDate"));
+                List<WarehouseCompanyStatus> companyStatusList = statusDAO.findAll(criteria, -1, -1);
+                if(!companyStatusList.isEmpty()){
+                    companyStatus = companyStatusList.get(0);
+                    companyStatus.setDueDate(today());
+                    statusDAO.update(companyStatus);
+                }
+                WarehouseCompanyStatus newCompanyStatus = new WarehouseCompanyStatus();
+                newCompanyStatus.setWarehouseCompany(result.get());
+                newCompanyStatus.setStartDate(today());
+                newCompanyStatus.setStatus(result.get().getStatus());
+                statusDAO.insert(newCompanyStatus);
             }
         } catch (GenericDAOException e) {
             logger.error("Error during deleting act: {}", e.getMessage());
@@ -268,6 +285,20 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
         criteria.add(and);
 
         return statusDAO.findAll(criteria, -1, -1);
+    }
+
+    public List<WarehouseCompanyStatus> getCompanyStatusHistory(Long idCompany) throws DataAccessException {
+        List<WarehouseCompanyStatus> companyStatusList;
+        try {
+            DetachedCriteria criteria = DetachedCriteria.forClass(WarehouseCompanyStatus.class);
+            criteria.add(Restrictions.eq("warehouseCompany.idWarehouseCompany", idCompany))
+                    .addOrder(Order.desc("dueDate"));
+            companyStatusList = statusDAO.findAll(criteria, -1, -1);
+        }catch (GenericDAOException e) {
+            logger.error("Error while retrieving warehouse company status: {}", e.getMessage());
+            throw new DataAccessException(e.getCause());
+        }
+        return companyStatusList;
     }
 
     private Date today() {

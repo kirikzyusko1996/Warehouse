@@ -14,14 +14,14 @@
             <column name="id_warehouse_company_status" value="2"/>
             <column name="status" valueBoolean="false"/>
             <column name="start_date" value="2017-02-02"/>
-            <column name="due_date" value="2017-02-15"/>
+            <column name="due_date" value="null"/>
             <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
             <column name="id_warehouse_company_status" value="3"/>
             <column name="status" valueBoolean="true"/>
             <column name="start_date" value="2017-02-16"/>
-            <column name="due_date" value="2017-04-12"/>
+            <column name="due_date"/>
             <column name="id_warehouse_company" value="2"/>
         </insert>
         <insert tableName="warehouse_company_status">
@@ -49,7 +49,7 @@
             <column name="id_warehouse_company_status" value="7"/>
             <column name="status" valueBoolean="true"/>
             <column name="start_date" value="2017-01-20"/>
-            <column name="due_date" value="2017-03-01"/>
+            <column name="due_date"/>
             <column name="id_warehouse_company" value="1"/>
         </insert>
     </changeSet>

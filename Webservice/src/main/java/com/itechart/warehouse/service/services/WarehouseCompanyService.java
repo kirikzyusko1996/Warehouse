@@ -2,6 +2,7 @@ package com.itechart.warehouse.service.services;
 
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.entity.WarehouseCompanyStatus;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
@@ -43,4 +44,6 @@ public interface WarehouseCompanyService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean isExists(WarehouseCompany warehouseCompany) throws DataAccessException;
+
+    List<WarehouseCompanyStatus> getCompanyStatusHistory(Long idCompany) throws DataAccessException;
 }

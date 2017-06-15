@@ -2,6 +2,7 @@ package com.itechart.warehouse.controller;
 
 import com.itechart.warehouse.entity.User;
 import com.itechart.warehouse.entity.WarehouseCompany;
+import com.itechart.warehouse.entity.WarehouseCompanyStatus;
 import com.itechart.warehouse.security.UserDetailsProvider;
 import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
@@ -188,5 +189,18 @@ public class WarehouseCompanyController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}/statuses", method = RequestMethod.GET)
+    public ResponseEntity<List<WarehouseCompanyStatus>> getCompanyStatusHistory(@PathVariable Long id){
+        logger.info("GET on /company/id/statuses: by id {}", id);
+        List<WarehouseCompanyStatus> companyStatusList = new ArrayList<>();
+        try{
+           companyStatusList = warehouseCompanyService.getCompanyStatusHistory(id);
+        } catch (DataAccessException e){
+            logger.error("Error while retrieving company's statuses", e);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(companyStatusList, HttpStatus.OK);
     }
 }

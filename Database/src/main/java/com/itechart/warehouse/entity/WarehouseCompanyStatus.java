@@ -46,7 +46,7 @@ public class WarehouseCompanyStatus {
         this.startDate = startDate;
     }
 
-    @Column(name = "due_date", nullable = false)
+    @Column(name = "due_date")
     public Date getDueDate() {
         return dueDate;
     }
