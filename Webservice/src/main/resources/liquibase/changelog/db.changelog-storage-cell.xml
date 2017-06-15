@@ -130,31 +130,31 @@
             <column name="number" value="21"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="3"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="7"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="22"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="3"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="8"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="23"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="3"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="9"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="24"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="3"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="16"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="25"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="3"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="9"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="26"/>
@@ -166,7 +166,7 @@
             <column name="number" value="27"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="3"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="8"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="28"/>
@@ -203,7 +203,7 @@
             <column name="number" value="33"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="4"/>
-            <column name="id_goods" value="17"/>
+            <column name="id_goods" value="13"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="34"/>
@@ -514,13 +514,13 @@
             <column name="number" value="84"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="9"/>
-            <column name="id_goods" value="10"/>
+            <column name="id_goods" value="12"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="85"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="9"/>
-            <column name="id_goods" value="10"/>
+            <column name="id_goods" value="12"/>
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="86"/>
@@ -1600,14 +1600,14 @@
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="10" />
+            <column name="id_goods"  value="13" />
         </insert>
 
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="19"/>
             <column name="status" valueBoolean="true"/>
             <column name="id_storage_space" value="42"/>
-            <column name="id_goods"  value="10" />
+            <column name="id_goods"  value="14" />
         </insert>
         <insert dbms="h2, mysql" tableName="storage_cell">
             <column name="number" value="19"/>
