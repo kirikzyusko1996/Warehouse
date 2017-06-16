@@ -395,7 +395,7 @@ public class ReportServiceXLSXImpl implements ReportService {
         header.getCell(0).setCellStyle(style);
         header.createCell(1).setCellValue("Ответственное лицо");
         header.getCell(1).setCellStyle(style);
-        header.createCell(2).setCellValue("Стоимость");
+        header.createCell(2).setCellValue("Убытки");
         header.getCell(2).setCellStyle(style);
         //fill cells with data
         String name;
