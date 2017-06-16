@@ -9,6 +9,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="1"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="2"/>
@@ -16,6 +17,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="1"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="3"/>
@@ -23,6 +25,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="1"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -31,6 +34,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="2"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="5"/>
@@ -38,6 +42,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="2"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="6"/>
@@ -45,6 +50,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="2"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -53,6 +59,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="3"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="8"/>
@@ -60,6 +67,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="3"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="9"/>
@@ -67,6 +75,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="3"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="10"/>
@@ -74,6 +83,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="3"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -82,6 +92,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="4"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="12"/>
@@ -89,6 +100,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="4"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -97,6 +109,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="5"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="14"/>
@@ -104,6 +117,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="5"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -112,6 +126,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="6"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="16"/>
@@ -119,6 +134,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="6"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="17"/>
@@ -126,6 +142,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="6"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="18"/>
@@ -133,6 +150,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="6"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="19"/>
@@ -140,6 +158,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="6"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="20"/>
@@ -147,6 +166,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="6"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
 
@@ -156,13 +176,15 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="7"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="22"/>
             <column name="id_goods_status_name" value="2"/>
             <column name="id_user" value="1"/>
-            <column name="id_goods" value="8"/>
+            <column name="id_goods" value="7"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="23"/>
@@ -170,6 +192,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="7"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
 
@@ -180,6 +203,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="8"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="25"/>
@@ -187,6 +211,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="8"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="26"/>
@@ -194,6 +219,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="8"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
 
@@ -203,6 +229,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="9"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="28"/>
@@ -210,6 +237,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="9"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="29"/>
@@ -217,6 +245,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="9"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -225,6 +254,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="10"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="31"/>
@@ -232,6 +262,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="10"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="32"/>
@@ -239,6 +270,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="10"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -247,6 +279,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="11"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="34"/>
@@ -254,6 +287,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="11"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="35"/>
@@ -261,6 +295,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="11"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
 
@@ -270,6 +305,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="12"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="37"/>
@@ -277,6 +313,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="12"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="38"/>
@@ -284,6 +321,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="12"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -292,6 +330,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="13"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="40"/>
@@ -299,6 +338,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="13"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="41"/>
@@ -306,6 +346,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="13"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -314,6 +355,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="14"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="43"/>
@@ -321,6 +363,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="14"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="44"/>
@@ -328,6 +371,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="14"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -336,6 +380,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="15"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="46"/>
@@ -343,6 +388,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="15"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="47"/>
@@ -350,6 +396,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="15"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -358,6 +405,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="16"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="49"/>
@@ -365,6 +413,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="16"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="50"/>
@@ -372,6 +421,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="16"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -380,6 +430,7 @@
             <column name="id_user" value="7"/>
             <column name="id_goods" value="17"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="52"/>
@@ -387,6 +438,7 @@
             <column name="id_user" value="5"/>
             <column name="id_goods" value="17"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="53"/>
@@ -394,6 +446,7 @@
             <column name="id_user" value="9"/>
             <column name="id_goods" value="17"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
         <insert dbms="h2, mysql" tableName="goods_status">
@@ -402,6 +455,7 @@
             <column name="id_user" value="3"/>
             <column name="id_goods" value="18"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="55"/>
@@ -409,6 +463,7 @@
             <column name="id_user" value="8"/>
             <column name="id_goods" value="18"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="56"/>
@@ -416,6 +471,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="18"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
         <insert dbms="h2, mysql" tableName="goods_status">
             <column name="id_goods_status" value="57"/>
@@ -423,6 +479,7 @@
             <column name="id_user" value="4"/>
             <column name="id_goods" value="18"/>
             <column name="note" value=""/>
+            <column name="date" valueDate="now()"/>
         </insert>
 
     </changeSet>
