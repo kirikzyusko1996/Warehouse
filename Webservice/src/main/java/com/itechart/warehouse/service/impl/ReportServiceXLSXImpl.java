@@ -13,10 +13,7 @@ import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.services.ReportService;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -140,19 +137,24 @@ public class ReportServiceXLSXImpl implements ReportService {
             //generate rows with headers
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFCellStyle style = workbook.createCellStyle();
+            XSSFCellStyle reportNameStyle = workbook.createCellStyle();
+            XSSFFont reportNameFont = workbook.createFont();
+            reportNameFont.setFontHeightInPoints((short)16);
+            reportNameStyle.setFont(reportNameFont);
             style.setBorderBottom(BorderStyle.MEDIUM);
             XSSFSheet sheet = workbook.createSheet("1");
             sheet.setHorizontallyCenter(true);
             XSSFRow reportName = sheet.createRow(0);
             Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
-            reportName.createCell(0).setCellValue("Отчет о поступлении товаров на склад " +
-            warehouse.getName() + "  в период с " + reportDTO.getStartDate().toString() + " по "
-                    + reportDTO.getEndDate().toString());
+            reportName.createCell(0).setCellValue("Отчет о поступлении товаров на склад \"" +
+            warehouse.getName() + "\"  в период с " + reportDTO.getStartDate().toString("dd-MM-yyyy") + " по "
+                    + reportDTO.getEndDate().toString("dd-MM-yyyy"));
+            reportName.getCell(0).setCellStyle(reportNameStyle);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
             XSSFRow header = sheet.createRow(1);
             header.createCell(0).setCellValue("#");
             header.getCell(0).setCellStyle(style);
-            header.createCell(1).setCellValue("Дата/Время");
+            header.createCell(1).setCellValue("Время поступления товара на склад");
             header.getCell(1).setCellStyle(style);
             header.createCell(2).setCellValue("Наименование");
             header.getCell(2).setCellStyle(style);
@@ -261,12 +263,17 @@ public class ReportServiceXLSXImpl implements ReportService {
         //generate rows with headers
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFCellStyle style = workbook.createCellStyle();
+        XSSFCellStyle reportNameStyle = workbook.createCellStyle();
+        XSSFFont reportNameFont = workbook.createFont();
+        reportNameFont.setFontHeightInPoints((short)16);
+        reportNameStyle.setFont(reportNameFont);
         style.setBorderBottom(BorderStyle.MEDIUM);
         XSSFSheet sheet = workbook.createSheet("1");
         XSSFRow reportName = sheet.createRow(0);
         reportName.createCell(0).setCellValue("Отчет об убытках складов" +
-               " в период с " + startDate.toString() + " по "
-                + endDate.toString());
+               " в период с " + startDate.toString("dd-MM-yyyy") + " по "
+                + endDate.toString("dd-MM-yyyy"));
+        reportName.getCell(0).setCellStyle(reportNameStyle);
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
         sheet.setHorizontallyCenter(true);
         XSSFRow header = sheet.createRow(1);
@@ -369,14 +376,19 @@ public class ReportServiceXLSXImpl implements ReportService {
         //generate rows with headers
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFCellStyle style = workbook.createCellStyle();
+        XSSFCellStyle reportNameStyle = workbook.createCellStyle();
+        XSSFFont reportNameFont = workbook.createFont();
+        reportNameFont.setFontHeightInPoints((short)16);
+        reportNameStyle.setFont(reportNameFont);
         style.setBorderBottom(BorderStyle.MEDIUM);
         XSSFSheet sheet = workbook.createSheet("1");
         sheet.setHorizontallyCenter(true);
         XSSFRow reportName = sheet.createRow(0);
         Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
-        reportName.createCell(0).setCellValue("Отчет об убытках склада " +
-                warehouse.getName() + " по ответственным лицам в период с "
-                + reportDTO.getStartDate().toString() + " по " + reportDTO.getEndDate().toString());
+        reportName.createCell(0).setCellValue("Отчет об убытках склада \"" +
+                warehouse.getName() + "\" по ответственным лицам в период с "
+                + reportDTO.getStartDate().toString("dd-MM-yyyy") + " по " + reportDTO.getEndDate().toString("dd-MM-yyyy"));
+        reportName.getCell(0).setCellStyle(reportNameStyle);
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
         XSSFRow header = sheet.createRow(1);
         header.createCell(0).setCellValue("#");
@@ -538,14 +550,19 @@ public class ReportServiceXLSXImpl implements ReportService {
             //generate excel workbook
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFCellStyle style = workbook.createCellStyle();
+            XSSFCellStyle reportNameStyle = workbook.createCellStyle();
+            XSSFFont reportNameFont = workbook.createFont();
+            reportNameFont.setFontHeightInPoints((short)16);
+            reportNameStyle.setFont(reportNameFont);
             style.setBorderBottom(BorderStyle.MEDIUM);
             XSSFSheet sheet = workbook.createSheet("1");
             sheet.setHorizontallyCenter(true);
             XSSFRow reportName = sheet.createRow(0);
             Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
-            reportName.createCell(0).setCellValue("Отчет прибыли склада " +
-                    warehouse.getName() + " в период с "
-                    + reportDTO.getStartDate().toString() + " по " + reportDTO.getEndDate().toString());
+            reportName.createCell(0).setCellValue("Отчет прибыли склада \"" +
+                    warehouse.getName() + "\" в период с "
+                    + reportDTO.getStartDate().toString("dd-MM-yyyy") + " по " + reportDTO.getEndDate().toString("dd-MM-yyyy"));
+            reportName.getCell(0).setCellStyle(reportNameStyle);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
             XSSFRow header = sheet.createRow(1);
             header.createCell(0).setCellValue("Показатель");
