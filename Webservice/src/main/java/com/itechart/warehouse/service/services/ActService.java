@@ -28,7 +28,11 @@ public interface ActService {
 
     List<ActDTO> findActsForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    long getActsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
+    long getActsCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException;
+
+    List<ActDTO> findActsForCompany(Long warehouseCompanyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    long getActsCountForCompany(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException;
 
     List<ActDTO> findActsForWarehouseByCriteria(Long warehouseId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 

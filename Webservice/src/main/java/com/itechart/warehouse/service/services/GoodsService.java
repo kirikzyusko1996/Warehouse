@@ -30,7 +30,11 @@ public interface GoodsService {
 
     List<GoodsDTO> findActApplicableGoods(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
-    long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
+    long getGoodsCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException;
+
+    List<GoodsDTO> findGoodsForCompany(Long warehouseCompanyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    long getGoodsCountForCompany(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException;
 
     long getStoredGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException;
 

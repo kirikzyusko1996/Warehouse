@@ -24,6 +24,9 @@ import java.util.List;
 public class ActDAO extends DAO<Act> {
 
     private static final String ERROR_WAREHOUSE_ID_IS_NULL = "Warehouse id is null";
+    private static final String ERROR_WAREHOUSE_COMPANY_ID_IS_NULL = "Warehouse company id is null";
+
+
     private static final String DELETED = "deleted";
 
     public ActDAO() {
@@ -123,6 +126,25 @@ public class ActDAO extends DAO<Act> {
         return query.list();
     }
 
+    public List<Act> findActsByCompanyId(Long warehouseCompanyId, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find acts, first result: {}, max results: {}, warehouse company id: {}", firstResult, maxResults, warehouseCompanyId);
+        Assert.notNull(warehouseCompanyId, ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+
+        String queryHql = "SELECT DISTINCT act" +
+                " FROM Act act" +
+                " INNER JOIN Warehouse warehouse ON warehouse = act.warehouse " +
+                " INNER JOIN WarehouseCompany company ON warehouse.warehouseCompany = company" +
+                "  WHERE company.idWarehouseCompany = :warehouseCompanyId AND act.deleted IS NULL" +
+                " ORDER BY act.date DESC";
+
+        Query<Act> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseCompanyId", warehouseCompanyId);
+        query.setFirstResult(firstResult);
+        query.setMaxResults(maxResults);
+
+        return query.list();
+    }
+
 
     public List<Act> findByGoodsId(Long goodsId) throws GenericDAOException {
         logger.info("Find acts for goods, goods id: {}", goodsId);
@@ -139,7 +161,7 @@ public class ActDAO extends DAO<Act> {
         return query.list();
     }
 
-    public long getActsCount(Long warehouseId) throws GenericDAOException {
+    public long getActsCountByWarehouse(Long warehouseId) throws GenericDAOException {
         logger.info("Get goods count, warehouse id: {}", warehouseId);
         Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
 
@@ -154,6 +176,21 @@ public class ActDAO extends DAO<Act> {
         return query.getSingleResult();
     }
 
+    public long getActsCountByCompany(Long warehouseCompanyId) throws GenericDAOException {
+        logger.info("Get goods count, warehouse company id: {}", warehouseCompanyId);
+        Assert.notNull(warehouseCompanyId, ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+
+        String queryHql = "SELECT  count(DISTINCT act)" +
+                " FROM Act act" +
+                " INNER JOIN Warehouse warehouse ON warehouse = act.warehouse " +
+                " INNER JOIN WarehouseCompany company ON warehouse.warehouseCompany = company" +
+                " WHERE company.idWarehouseCompany = :warehouseCompanyId AND act.deleted IS NULL";
+
+        Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
+        query.setParameter("warehouseCompanyId", warehouseCompanyId);
+
+        return query.getSingleResult();
+    }
 
     public long getActsSearchCount(DetachedCriteria criteria) throws GenericDAOException {
         logger.info("Get acts search result count");

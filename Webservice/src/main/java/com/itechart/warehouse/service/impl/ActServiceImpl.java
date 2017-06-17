@@ -44,6 +44,7 @@ public class ActServiceImpl implements ActService {
 
     private static final String ERROR_ID_IS_NULL = "Id is null";
     private static final String ERROR_WAREHOUSE_ID_IS_NULL = "Warehouse id is null";
+    private static final String ERROR_WAREHOUSE_COMPANY_ID_IS_NULL = "Warehouse company id is null";
     private static final String ERROR_ACT_DTO_IS_NULL = "Act DTO is null";
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -167,14 +168,45 @@ public class ActServiceImpl implements ActService {
 
     @Override
     @Transactional(readOnly = true)
-    public long getActsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+    public long getActsCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException {
         logger.info("Get acts count for warehouse with id: {}", warehouseId);
         if (warehouseId == null) {
             throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
 
         try {
-            return actDAO.getActsCount(warehouseId);
+            return actDAO.getActsCountByWarehouse(warehouseId);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActDTO> findActsForCompany(Long warehouseCompanyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find acts, first result: {}, max results: {}, warehouse company id: {}", firstResult, maxResults, warehouseCompanyId);
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException(ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        }
+
+        try {
+            List<Act> actList = actDAO.findActsByCompanyId(warehouseCompanyId, firstResult, maxResults);
+            return mapActListToDTOList(actList);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getActsCountForCompany(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get acts count for warehouse company with id: {}", warehouseCompanyId);
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException(ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        }
+
+        try {
+            return actDAO.getActsCountByCompany(warehouseCompanyId);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }

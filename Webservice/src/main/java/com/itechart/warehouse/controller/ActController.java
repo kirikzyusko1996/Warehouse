@@ -44,15 +44,31 @@ public class ActController {
         this.actService = actService;
     }
 
-    @RequestMapping(value = "list/{warehouseId}", method = RequestMethod.GET,
+
+    @RequestMapping(value = "company/{warehouseCompanyId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ActDTO>> getActsForCompany(@PathVariable Long warehouseCompanyId,
+                                                @RequestParam(defaultValue = "-1") int page,
+                                                @RequestParam(defaultValue = "0") int count,
+                                                HttpServletResponse response,
+                                                boolean forCompany) throws DataAccessException, IllegalParametersException {
+        logger.info("GET on company/{}, page: {}, count: {}", warehouseCompanyId, page, count);
+        List<ActDTO> acts = actService.findActsForWarehouse(warehouseCompanyId, (page - 1) * count, count);
+        long actsCount = actService.getActsCountForWarehouse(warehouseCompanyId);
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(actsCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
+        return new ResponseEntity<>(acts, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "warehouse/{warehouseId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ActDTO>> getActs(@PathVariable Long warehouseId,
                                                 @RequestParam(defaultValue = "-1") int page,
                                                 @RequestParam(defaultValue = "0") int count,
                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException {
-        logger.info("GET on list/{}, page: {}, count: {}", warehouseId, page, count);
-        List<ActDTO> acts = actService.findActsForWarehouse(warehouseId, (page - 1) * count, count);
-        long actsCount = actService.getActsCount(warehouseId);
+        logger.info("GET on warehouse/{}, page: {}, count: {}", warehouseId, page, count);
+        List<ActDTO> acts = actService.findActsForCompany(warehouseId, (page - 1) * count, count);
+        long actsCount = actService.getActsCountForCompany(warehouseId);
         response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(actsCount));
         response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(acts, HttpStatus.OK);

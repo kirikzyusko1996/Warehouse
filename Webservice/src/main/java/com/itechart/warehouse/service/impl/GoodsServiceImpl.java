@@ -41,6 +41,7 @@ public class GoodsServiceImpl implements GoodsService {
     private static final String ERROR_ID_IS_NULL = "Id is null";
     private static final String ERROR_INVOICE_ID_IS_NULL = "Invoice id is null";
     private static final String ERROR_WAREHOUSE_ID_IS_NULL = "Warehouse id is null";
+    private static final String ERROR_WAREHOUSE_COMPANY_ID_IS_NULL = "Warehouse company id is null";
     private static final String ERROR_GOODS_IS_NULL = "Goods is null";
     private static final String ERROR_GOODS_ID_IS_NULL = "Goods id is null";
     private static final String ERROR_GOODS_DTO_IS_NULL = "Goods DTO is null";
@@ -211,14 +212,44 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasPermission(#warehouseId, 'Warehouse', 'GET')")
-    public long getGoodsCount(Long warehouseId) throws DataAccessException, IllegalParametersException {
+    public long getGoodsCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException {
         logger.info("Get goods count, warehouse id: {}", warehouseId);
         if (warehouseId == null) {
             throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
 
         try {
-            return goodsDAO.getGoodsCount(warehouseId);
+            return goodsDAO.getGoodsCountByWarehouse(warehouseId);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GoodsDTO> findGoodsForCompany(Long warehouseCompanyId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find goods, warehouse id: {}, first result {}, max results: {}", warehouseCompanyId, firstResult, maxResults);
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException(ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        }
+
+        try {
+            List<Goods> goodsList = goodsDAO.findByWarehouseCompanyId(warehouseCompanyId, firstResult, maxResults);
+            return mapGoodsListToDTOList(goodsList);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getGoodsCountForCompany(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException {
+        logger.info("Get goods count, warehouse company id: {}", warehouseCompanyId);
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException(ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        }
+        try {
+            return goodsDAO.getGoodsCountByWarehouseCompany(warehouseCompanyId);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }

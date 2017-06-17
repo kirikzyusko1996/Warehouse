@@ -61,11 +61,31 @@ public class GoodsController {
         } else {
             goods = goodsService.findGoodsForWarehouse(warehouseId, (page - 1) * count, count);
         }
-        long goodsCount = goodsService.getGoodsCount(warehouseId);
+        long goodsCount = goodsService.getGoodsCountForWarehouse(warehouseId);
         response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
         response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "company/{warehouseCompanyId}/list", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GoodsDTO>> getGoodsForCompany(@RequestParam(defaultValue = "-1") int page,
+                                                   @RequestParam(defaultValue = "-1") int count,
+                                                   @PathVariable Long warehouseCompanyId,
+                                                   HttpServletResponse response) throws DataAccessException, IllegalParametersException {
+        logger.info("GET on company/{}/list, page: {}, count: {}", warehouseCompanyId, page, count);
+        List<GoodsDTO> goods;
+        if (page == -1 && count == -1) {
+            goods = goodsService.findGoodsForCompany(warehouseCompanyId, -1, -1);
+        } else {
+            goods = goodsService.findGoodsForCompany(warehouseCompanyId, (page - 1) * count, count);
+        }
+        long goodsCount = goodsService.getGoodsCountForCompany(warehouseCompanyId);
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(goodsCount));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
+        return new ResponseEntity<>(goods, HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/invoice/{invoiceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
