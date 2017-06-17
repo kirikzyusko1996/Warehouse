@@ -184,7 +184,7 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
         User user = null;
         try {
             updatedWarehouseCompany = warehouseCompanyDAO.insert(warehouseCompany);
-            user = userService.createSupervisor(updatedWarehouseCompany.getIdWarehouseCompany());
+            user = userService.createOwner(updatedWarehouseCompany.getIdWarehouseCompany());
             user.setEmail(email);
             if (!emailSenderService.sendMessageAboutRegistration(user)) {
                 return null;

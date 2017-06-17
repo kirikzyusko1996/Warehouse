@@ -175,7 +175,7 @@ public class GoodsSearchQueryBuilder {
                     builder.addRestriction(QUERY_BEGIN + getStatusName(GoodsStatusEnum.STORED) + QUERY_MIDDLE + getStatusName(GoodsStatusEnum.WITHDRAWN) + QUERY_END);
                     break;
                 case MISMATCH_ACT:
-                    builder.addRestriction(QUERY_BEGIN + getStatusName(GoodsStatusEnum.REGISTERED));
+                    builder.addRestriction(QUERY_BEGIN + getStatusName(GoodsStatusEnum.REGISTERED) + QUERY_END);
                     break;
                 default:
                     break;

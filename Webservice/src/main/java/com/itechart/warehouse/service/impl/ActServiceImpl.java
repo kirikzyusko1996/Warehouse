@@ -206,7 +206,9 @@ public class ActServiceImpl implements ActService {
 
         ActSearchCriteria criteria = new ActSearchCriteria();
 
-        criteria.setType(findActTypeByName(dto.getType()));
+        if (dto.getType() != null) {
+            criteria.setType(findActTypeByName(dto.getType()));
+        }
         criteria.setFromDate(dto.getFromDate());
         criteria.setToDate(dto.getToDate());
         criteria.setCreatorLastName(dto.getCreatorLastName());

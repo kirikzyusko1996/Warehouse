@@ -30,7 +30,6 @@ import java.util.List;
 /**
  * REST controller for handling requests to user service.
  */
-//@CrossOrigin(origins = origins, maxAge = 3600)
 @RestController
 @RequestMapping(value = "/user")
 @Validated

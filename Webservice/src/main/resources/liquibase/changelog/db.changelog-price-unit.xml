@@ -7,10 +7,10 @@
             <column name="id_price_unit" value="1"/>
             <column name="name" value="руб"/>
         </insert>
-        <insert dbms="h2, mysql" tableName="price_unit">
-            <column name="id_price_unit" value="2"/>
-            <column name="name" value="долл"/>
-        </insert>
+        <!--<insert dbms="h2, mysql" tableName="price_unit">-->
+            <!--<column name="id_price_unit" value="2"/>-->
+            <!--<column name="name" value="долл"/>-->
+        <!--</insert>-->
 
     </changeSet>
 </databaseChangeLog>

@@ -112,10 +112,10 @@
         <intercept-url pattern='/web/invoice/**'
                        access="hasAnyRole('ROLE_OWNER','ROLE_SUPERVISOR','ROLE_DISPATCHER','ROLE_CONTROLLER','ROLE_MANAGER')"/>
         <intercept-url pattern='/web/user/*' access="isAuthenticated()" method="GET"/>
-
+        <intercept-url pattern='/web/user/preset*' access="isAuthenticated()" method="PUT"/>
         <intercept-url pattern='/web/user/**' access="hasAnyRole('ROLE_SUPERVISOR','ROLE_OWNER')"/>
         <intercept-url pattern='/web/tr-company/**' access="hasAnyRole('ROLE_OWNER','ROLE_SUPERVISOR','ROLE_DISPATCHER','ROLE_MANAGER')"/>
-        <intercept-url pattern='/web/customer/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_SUPERVISOR','ROLE_OWNER')"/>
+        <intercept-url pattern='/web/customer/**' access="hasAnyRole('ROLE_DISPATCHER','ROLE_SUPERVISOR','ROLE_OWNER','ROLE_MANAGER')"/>
         <intercept-url pattern='/web/finance/**' access="hasAnyRole('ROLE_ADMIN','ROLE_OWNER')"/>
         <intercept-url pattern='/web/report/**' access="hasAnyRole('ROLE_OWNER','ROLE_ADMIN')"/>
         <intercept-url pattern='/web/act/**' access="hasAnyRole('ROLE_MANAGER','ROLE_CONTROLLER','ROLE_OWNER')"/>

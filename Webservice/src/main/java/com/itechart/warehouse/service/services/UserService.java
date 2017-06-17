@@ -35,7 +35,7 @@ public interface UserService {
 
     User saveUser(Long companyId, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    User createSupervisor(Long warehouseId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    User createOwner(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     User updateUser(Long id, UserDTO userDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 

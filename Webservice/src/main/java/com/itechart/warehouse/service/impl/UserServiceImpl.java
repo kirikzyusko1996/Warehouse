@@ -325,7 +325,7 @@ public class UserServiceImpl implements UserService {
 
         WarehouseCompany warehouseCompany = warehouseCompanyService.findWarehouseCompanyById(warehouseCompanyId);
         updatableUser.setWarehouseCompany(warehouseCompany);
-
+        updatableUser.setLastName(warehouseCompany.getName());
     }
 
     private void validateRequiredFields(UserDTO userDTO) throws IllegalParametersException {
@@ -367,21 +367,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createSupervisor(Long warehouseId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Create supervisor, warehouse id: {}", warehouseId);
-        if (warehouseId == null) {
-            throw new IllegalParametersException("Warehouse id is null");
+    public User createOwner(Long warehouseCompanyId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Create owner, warehouse company id: {}", warehouseCompanyId);
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException("Warehouse company id is null");
         }
 
         try {
             User user = new User();
-            setWarehouseField(warehouseId, user);
 
-            Warehouse warehouse = warehouseService.findWarehouseById(warehouseId);
-            WarehouseCompany warehouseCompany = warehouse.getWarehouseCompany();
-            setWarehouseCompanyField(warehouseCompany.getIdWarehouseCompany(), user);
 
-            user.setLastName(warehouseCompany.getName());
+            setWarehouseCompanyField(warehouseCompanyId, user);
+
             user.setLogin(generateRandomCredentials(5));
             user.setPassword(generateRandomCredentials(5));
             //todo uncomment
@@ -389,7 +386,7 @@ public class UserServiceImpl implements UserService {
 //                    user.setPassword(encoder.encode(RandomStringUtils.randomAlphanumeric(5)));
 //                }
 
-            setRole(user, UserRoleEnum.ROLE_ADMIN);
+            setRole(user, UserRoleEnum.ROLE_OWNER);
             return userDAO.insert(user);
 
         } catch (GenericDAOException e) {

@@ -352,11 +352,11 @@
             <column name="street" type="VARCHAR(50)"/>
             <column name="house" type="VARCHAR(10)"/>
             <column name="apartment" type="VARCHAR(10)"/>
-            <column name="email" type="VARCHAR(30)"/>
-            <column name="login" type="VARCHAR(20)">
+            <column name="email" type="VARCHAR(50)"/>
+            <column name="login" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="password" type="VARCHAR(20)">
+            <column name="password" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="id_warehouse_company" type="BIGINT UNSIGNED">
@@ -470,7 +470,7 @@
             <column autoIncrement="true" name="id" type="BIGINT UNSIGNED">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="id_warehouse_company" type="INT UNSIGNED">
+            <column name="id_warehouse_company" type="BIGINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
             <column name="setting_time" type="TIMESTAMP NULL DEFAULT NULL">
