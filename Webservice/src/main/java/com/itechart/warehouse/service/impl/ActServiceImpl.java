@@ -269,7 +269,45 @@ public class ActServiceImpl implements ActService {
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
+    }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActDTO> findActsForWarehouseCompanyByCriteria(Long warehouseCompanyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
+        logger.info("Find acts, first result: {}, max results: {}, warehouse company id: {}, DTO: {}", firstResult, maxResults, warehouseCompanyId, actSearchDTO);
+        if (actSearchDTO == null) {
+            throw new IllegalParametersException("Act search DTO is null");
+        }
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException(ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        }
+
+        try {
+            ActSearchCriteria criteria = mapActSearchDTOToCriteria(actSearchDTO);
+            List<Act> actList = actDAO.findActsForWarehouseCompanyByCriteria(warehouseCompanyId, criteria, firstResult, maxResults);
+            return mapActListToDTOList(actList);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getCountOfActsForWarehouseCompanyByCriteria(Long warehouseCompanyId, ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException {
+        logger.info("Find acts count, warehouse company id: {}, DTO: {}", warehouseCompanyId, actSearchDTO);
+        if (actSearchDTO == null) {
+            throw new IllegalParametersException("Act search DTO is null");
+        }
+        if (warehouseCompanyId == null) {
+            throw new IllegalParametersException(ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        }
+
+        ActSearchCriteria criteria = mapActSearchDTOToCriteria(actSearchDTO);
+        try {
+            return actDAO.getCountOfActsForWarehouseCompanyByCriteria(warehouseCompanyId, criteria);
+        } catch (GenericDAOException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -472,6 +510,7 @@ public class ActServiceImpl implements ActService {
 
         if (act.getWarehouse() != null) {
             dto.setWarehouseId(act.getWarehouse().getIdWarehouse());
+            dto.setWarehouseName(act.getWarehouse().getName());
         }
         return dto;
     }

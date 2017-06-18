@@ -78,7 +78,7 @@ public class ActController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActDTO> getActsDTOs(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for act with id: {}", id);
+        logger.info("GET on /{}", id);
         ActDTO act = actService.findActDTOById(id);
         return new ResponseEntity<>(act, HttpStatus.OK);
     }
@@ -87,14 +87,14 @@ public class ActController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ActDTO>> getActsForGoods(@PathVariable Long goodsId)
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for acts of goods with id {}", goodsId);
+        logger.info("GET on /acts/{}", goodsId);
         return new ResponseEntity<>(actService.findActsForGoods(goodsId, -1, -1), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/acts", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<ActType>> getActTypes() throws DataAccessException {
-        logger.info("Handling request for units list");
+        logger.info("GET on /acts");
         List<ActType> actTypes = actService.getActTypes();
         return new ResponseEntity<>(actTypes, HttpStatus.OK);
     }
@@ -104,7 +104,7 @@ public class ActController {
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IdResponse> saveAct(@Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, RequestHandlingException, ResourceNotFoundException {
-        logger.info("Handling request for saving new act using DTO: {}", actDTO);
+        logger.info("POST on /save, DTO: {}", actDTO);
         Act savedAct = actService.saveAct(actDTO);
         if (savedAct != null)
             return new ResponseEntity<>(new IdResponse(savedAct.getId()), HttpStatus.CREATED);
@@ -116,7 +116,7 @@ public class ActController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StatusResponse> updateAct(@PathVariable(value = "id") Long id,
                                                     @Valid @RequestBody ActDTO actDTO) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for updating act with id: {} by DTO: {}", id, actDTO);
+        logger.info("PUT on /save/{}, DTO: {}", id, actDTO);
         actService.updateAct(id, actDTO);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
@@ -124,7 +124,7 @@ public class ActController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StatusResponse> deleteAct(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Handling request for deleting act with id: {}", id);
+        logger.info("DELETE on /delete/{}", id);
         actService.deleteAct(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.DELETED), HttpStatus.OK);
     }
@@ -137,9 +137,25 @@ public class ActController {
                                                  @RequestParam(defaultValue = "0") int count,
                                                  @RequestBody ActSearchDTO actSearchDTO,
                                                  HttpServletResponse response) throws DataAccessException, IllegalParametersException {
-        logger.info("Handling request for searching list of acts by field: {}, page: {}, count: {}", actSearchDTO, page, count);
+        logger.info("POST on /search/{}, page: {}, count: {}, DTO", warehouseId, actSearchDTO, page, count);
         List<ActDTO> acts = actService.findActsForWarehouseByCriteria(warehouseId, actSearchDTO, (page - 1) * count, count);
         long c = actService.getCountOfActsForWarehouseByCriteria(warehouseId, actSearchDTO);
+        response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(c));
+        response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
+        return new ResponseEntity<>(acts, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/search/company/{warehouseCompanyId}", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ActDTO>> findActsForCompany(@PathVariable Long warehouseCompanyId,
+                                                 @RequestParam(defaultValue = "-1") int page,
+                                                 @RequestParam(defaultValue = "0") int count,
+                                                 @RequestBody ActSearchDTO actSearchDTO,
+                                                 HttpServletResponse response) throws DataAccessException, IllegalParametersException {
+        logger.info("POST on /search/company/{}, page: {}, count: {}, DTO", warehouseCompanyId, actSearchDTO, page, count);
+        List<ActDTO> acts = actService.findActsForWarehouseCompanyByCriteria(warehouseCompanyId, actSearchDTO, (page - 1) * count, count);
+        long c = actService.getCountOfActsForWarehouseCompanyByCriteria(warehouseCompanyId, actSearchDTO);
         response.addHeader(HEADER_X_TOTAL_COUNT, String.valueOf(c));
         response.addHeader(HEADER_EXPOSE_HEADERS, HEADER_X_TOTAL_COUNT);
         return new ResponseEntity<>(acts, HttpStatus.OK);

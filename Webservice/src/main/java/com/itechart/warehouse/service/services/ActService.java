@@ -38,6 +38,10 @@ public interface ActService {
 
     long getCountOfActsForWarehouseByCriteria(Long warehouseId, ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException;
 
+    List<ActDTO> findActsForWarehouseCompanyByCriteria(Long warehouseCompanyId, ActSearchDTO actSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
+
+    long getCountOfActsForWarehouseCompanyByCriteria(Long warehouseCompanyId, ActSearchDTO actSearchDTO) throws DataAccessException, IllegalParametersException;
+
     WarehouseCompany findWarehouseCompanyOwnedBy(Long actId) throws IllegalParametersException, ResourceNotFoundException, DataAccessException;
 
     Warehouse findWarehouseOwnedBy(Long actId) throws ResourceNotFoundException, DataAccessException, IllegalParametersException;

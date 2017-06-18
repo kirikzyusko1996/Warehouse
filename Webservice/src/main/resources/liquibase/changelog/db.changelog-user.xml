@@ -102,7 +102,7 @@
             <column name="login" value="owner"/>
             <column name="password" value="owner"/>
             <column name="id_warehouse_company" value="10"/>
-            <column name="id_warehouse" value="10"/>
+            <!--<column name="id_warehouse" value="10"/>-->
             <column name="preset" value="1"/>
         </insert>
         <insert dbms="h2, mysql" tableName="user">

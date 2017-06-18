@@ -29,4 +29,5 @@ public class ActDTO {
     @NotBlank (message = "Note is blank")
     private String note;
     private Long warehouseId;
+    private String warehouseName;
 }

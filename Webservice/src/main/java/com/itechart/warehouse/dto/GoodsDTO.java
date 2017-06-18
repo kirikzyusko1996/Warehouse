@@ -47,6 +47,7 @@ public class GoodsDTO {
     @NotNull(message = "Price unit can not be empty")
     private PriceUnit priceUnit;
     private Long warehouseId;
+    private String warehouseName;
     private List<StorageCellDTO> cells;
     private GoodsStatusDTO currentStatus;
     private GoodsStatusDTO registeredStatus;

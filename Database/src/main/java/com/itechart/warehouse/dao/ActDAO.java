@@ -33,12 +33,45 @@ public class ActDAO extends DAO<Act> {
         super(Act.class);
     }
 
+
+    public List<Act> findActsForWarehouseCompanyByCriteria(Long warehouseCompanyId, ActSearchCriteria searchCriteria, int firstResult, int maxResults) throws GenericDAOException {
+        logger.info("Find acts, first result: {}, max results: {}, warehouse company id: {}, criteria: {}", firstResult, maxResults, warehouseCompanyId, searchCriteria);
+        Assert.notNull(warehouseCompanyId, ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        Assert.notNull(searchCriteria, "Search criteria id is null");
+
+        DetachedCriteria criteria = buildHibernateCriteria(searchCriteria);
+        addWarehouseRestriction(warehouseCompanyId, criteria);
+
+        criteria.setProjection(Projections.distinct(Projections.id()));
+        DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
+        criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
+        criteriaWithSubquery.addOrder(Order.desc("date"));
+
+        return findAll(criteriaWithSubquery, firstResult, maxResults);
+    }
+
+    public long getCountOfActsForWarehouseCompanyByCriteria(Long warehouseCompanyId, ActSearchCriteria searchCriteria) throws GenericDAOException {
+        logger.info("Get acts count, warehouse company id: {}, criteria: {}", warehouseCompanyId, searchCriteria);
+        Assert.notNull(warehouseCompanyId, ERROR_WAREHOUSE_COMPANY_ID_IS_NULL);
+        Assert.notNull(searchCriteria, "Search criteria id is null");
+
+        DetachedCriteria criteria = buildHibernateCriteria(searchCriteria);
+        addWarehouseRestriction(warehouseCompanyId, criteria);
+
+        criteria.setProjection(Projections.distinct(Projections.id()));
+        criteria.setProjection(Projections.rowCount());
+
+        return getCount(criteria);
+    }
+
+
     public List<Act> findActsForWarehouseByCriteria(Long warehouseId, ActSearchCriteria searchCriteria, int firstResult, int maxResults) throws GenericDAOException {
         logger.info("Find acts, first result: {}, max results: {}, warehouse id: {}, criteria: {}", firstResult, maxResults, warehouseId, searchCriteria);
         Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
         Assert.notNull(searchCriteria, "Search criteria id is null");
 
-        DetachedCriteria criteria = buildHibernateCriteria(warehouseId, searchCriteria);
+        DetachedCriteria criteria = buildHibernateCriteria(searchCriteria);
+        addWarehouseRestriction(warehouseId, criteria);
         criteria.setProjection(Projections.distinct(Projections.id()));
         DetachedCriteria criteriaWithSubquery = DetachedCriteria.forClass(Act.class);
         criteriaWithSubquery.add(Subqueries.propertyIn("id", criteria));
@@ -48,18 +81,19 @@ public class ActDAO extends DAO<Act> {
     }
 
     public long getCountOfActsForWarehouseByCriteria(Long warehouseId, ActSearchCriteria searchCriteria) throws GenericDAOException {
-        logger.info("Find acts, warehouse id: {}, criteria: {}", warehouseId, searchCriteria);
+        logger.info("Get acts count, warehouse id: {}, criteria: {}", warehouseId, searchCriteria);
         Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
         Assert.notNull(searchCriteria, "Search criteria id is null");
 
-        DetachedCriteria criteria = buildHibernateCriteria(warehouseId, searchCriteria);
+        DetachedCriteria criteria = buildHibernateCriteria(searchCriteria);
+        addWarehouseRestriction(warehouseId, criteria);
         criteria.setProjection(Projections.distinct(Projections.id()));
         criteria.setProjection(Projections.rowCount());
 
         return getCount(criteria);
     }
 
-    private DetachedCriteria buildHibernateCriteria(Long warehouseId, ActSearchCriteria searchCriteria) {
+    private DetachedCriteria buildHibernateCriteria(ActSearchCriteria searchCriteria) {
         DetachedCriteria criteria = DetachedCriteria.forClass(Act.class);
         if (searchCriteria.getType() != null) {
             criteria.add(Restrictions.eq("actType", searchCriteria.getType()));
@@ -80,9 +114,20 @@ public class ActDAO extends DAO<Act> {
         if (StringUtils.isNotBlank(searchCriteria.getCreatorPatronymic())) {
             criteria.add(Restrictions.like("user.patronymic", "%" + searchCriteria.getCreatorPatronymic() + "%"));
         }
+
+        criteria.add(Restrictions.isNull(DELETED));
+        return criteria;
+    }
+
+    private DetachedCriteria addWarehouseRestriction(Long warehouseId, DetachedCriteria criteria) {
         criteria
                 .createCriteria("warehouse").add(Restrictions.eq("idWarehouse", warehouseId));
-        criteria.add(Restrictions.isNull(DELETED));
+        return criteria;
+    }
+
+    private DetachedCriteria addWarehouseCompanyRestriction(Long warehouseCompanyId, DetachedCriteria criteria) {
+        criteria.createAlias("warehouse", "warehouse")
+                .createCriteria("warehouseCompany").add(Restrictions.eq("idWarehouseCompany", warehouseCompanyId));
         return criteria;
     }
 

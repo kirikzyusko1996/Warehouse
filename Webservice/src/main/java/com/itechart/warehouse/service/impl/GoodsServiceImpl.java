@@ -812,6 +812,8 @@ public class GoodsServiceImpl implements GoodsService {
             for (StorageCell cell : cells) {
                 cell.setGoods(null);
             }
+
+            setGoodsStatus(goodsId, GoodsStatusEnum.WITHDRAWN);
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
@@ -999,6 +1001,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         if (goods.getWarehouse() != null) {
             dto.setWarehouseId(goods.getWarehouse().getIdWarehouse());
+            dto.setWarehouseName(goods.getWarehouse().getName());
         }
 
         List<StorageCellDTO> cellDTOList = new ArrayList<>();
