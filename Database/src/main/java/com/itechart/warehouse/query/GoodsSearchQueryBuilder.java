@@ -201,6 +201,9 @@ public class GoodsSearchQueryBuilder {
 
 
     private GoodsSearchQueryBuilder addStatusRestriction(GoodsStatusSearchCriteria statusCriteria) {
+        if (statusCriteria.getName() == null) {
+            return this;
+        }
         statusRestrictionCounter++;
         builder.addJoin("INNER JOIN GoodsStatus status_" + statusRestrictionCounter + " ON status_" + statusRestrictionCounter + ".goods = goods");
         if (statusCriteria.getName() != null) {

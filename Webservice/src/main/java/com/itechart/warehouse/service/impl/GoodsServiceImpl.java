@@ -744,7 +744,7 @@ public class GoodsServiceImpl implements GoodsService {
             }
 
             for (StorageCellDTO cell : storageCells) {
-                if (!includeStorageCell(goods.getCells(), cell)){
+                if (!includeStorageCell(goods.getCells(), cell)) {
                     StorageCell storageCell = findStorageCellById(cell.getIdStorageCell());
                     if (storageCell != null) {
                         storageCell.setGoods(goods);
@@ -1202,8 +1202,9 @@ public class GoodsServiceImpl implements GoodsService {
         Assert.notNull(dto, "Search DTO is null");
 
         GoodsStatusSearchCriteria criteria = new GoodsStatusSearchCriteria();
-
-        criteria.setName(goodsStatusNameDAO.findGoodsStatusNameByName(dto.getName()));
+        if (dto.getName() != null) {
+            criteria.setName(goodsStatusNameDAO.findGoodsStatusNameByName(dto.getName()));
+        }
         criteria.setUserLastName(dto.getUserLastName());
         criteria.setUserFirstName(dto.getUserFirstName());
         criteria.setUserPatronymic(dto.getUserPatronymic());

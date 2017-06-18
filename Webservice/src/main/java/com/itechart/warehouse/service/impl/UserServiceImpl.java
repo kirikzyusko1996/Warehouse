@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
     private static final String ERROR_ID_IS_NULL = "Id is null";
     private static final String ERROR_UPDATABLE_USER_IS_NULL = "Updatable user is null";
     private static final String ERROR_ROLE_IS_NULL = "Role is null";
+    private static final String ERROR_WAREHOUSE_ID_IS_NULL = "Warehouse id is null";
 
     private UserDAO userDAO;
     private RoleDAO roleDAO;
@@ -179,7 +180,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> findUsersForWarehouse(Long warehouseId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException {
         logger.info("Find users, first result: {}, max results: {}, warehouse id: {}", firstResult, maxResults, warehouseId);
         if (warehouseId == null) {
-            throw new IllegalParametersException("Warehouse id is null");
+            throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
 
         try {
@@ -195,7 +196,7 @@ public class UserServiceImpl implements UserService {
     public long getUsersCountForWarehouse(Long warehouseId) throws DataAccessException, IllegalParametersException {
         logger.info("Get users count, warehouse id: {}", warehouseId);
         if (warehouseId == null) {
-            throw new IllegalParametersException("Warehouse id is null");
+            throw new IllegalParametersException(ERROR_WAREHOUSE_ID_IS_NULL);
         }
 
         try {
@@ -310,7 +311,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void setWarehouseField(Long warehouseId, User updatableUser) throws DataAccessException, IllegalParametersException {
-        Assert.notNull(warehouseId, "Warehouse id is null");
+        Assert.notNull(warehouseId, ERROR_WAREHOUSE_ID_IS_NULL);
         Assert.notNull(updatableUser, ERROR_UPDATABLE_USER_IS_NULL);
 
         if (warehouseId != null) {
@@ -325,7 +326,6 @@ public class UserServiceImpl implements UserService {
 
         WarehouseCompany warehouseCompany = warehouseCompanyService.findWarehouseCompanyById(warehouseCompanyId);
         updatableUser.setWarehouseCompany(warehouseCompany);
-        updatableUser.setLastName(warehouseCompany.getName());
     }
 
     private void validateRequiredFields(UserDTO userDTO) throws IllegalParametersException {
@@ -376,11 +376,13 @@ public class UserServiceImpl implements UserService {
         try {
             User user = new User();
 
-
             setWarehouseCompanyField(warehouseCompanyId, user);
 
             user.setLogin(generateRandomCredentials(5));
             user.setPassword(generateRandomCredentials(5));
+            WarehouseCompany company = warehouseCompanyService.findWarehouseCompanyById(warehouseCompanyId);
+            user.setLastName(company.getName());
+
             //todo uncomment
 //                if (StringUtils.isNotBlank(user.getPassword())) {
 //                    user.setPassword(encoder.encode(RandomStringUtils.randomAlphanumeric(5)));
