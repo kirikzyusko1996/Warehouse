@@ -4,6 +4,7 @@ import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.WarehouseReportDTO;
 import com.itechart.warehouse.entity.Goods;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.services.ReportService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDate;
@@ -65,6 +66,8 @@ public class ReportController {
             reportService.getWarehousesLossReport(reportDTO.getStartDate(), reportDTO.getEndDate(), response.getOutputStream());
         }  catch (GenericDAOException e) {
             logger.error("Warehouse Loss Report generation failed: {}", e.getMessage());
+        } catch (RequestHandlingException e) {
+            logger.error("Loss Report generation failed: {}", e.getMessage());
         }
     }
 
@@ -78,7 +81,7 @@ public class ReportController {
             response.setHeader("Content-Disposition", "attachment; filename=WarehouseLossReport.xlsx");
             reportService.getWarehouseLossReportWithLiableEmployees(reportDTO,
                     response.getOutputStream());
-        }  catch (GenericDAOException e) {
+        }  catch (Exception e) {
             logger.error("Warehouse loss report with liable employees generation failed: {}", e.getMessage());
         }
     }

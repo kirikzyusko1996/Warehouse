@@ -13,6 +13,8 @@ public class ReceiptReportItem {
     private String quantity;
     private String shipperName;
     private String senderName;
+    private String quantityUnitName;
+    private String price;
 
     public String getUserName() {
         return userName;
@@ -60,5 +62,21 @@ public class ReceiptReportItem {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+    public String getQuantityUnitName(){
+        return quantityUnitName;
+    }
+
+    public void setQuantityUnitName(String quantityUnitName){
+        this.quantityUnitName = quantityUnitName;
+    }
+
+    public String getPrice(){
+        return price;
+    }
+
+    public void setPrice(String price){
+        this.price = price;
     }
 }

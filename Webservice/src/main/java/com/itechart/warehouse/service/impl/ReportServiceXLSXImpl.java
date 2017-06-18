@@ -9,9 +9,13 @@ import com.itechart.warehouse.dto.ReceiptReportItem;
 import com.itechart.warehouse.dto.WarehouseReportDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
+import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
+import com.itechart.warehouse.service.exception.RequestHandlingException;
 import com.itechart.warehouse.service.services.ReportService;
+import com.mysql.cj.xdevapi.TableImpl;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.hibernate.criterion.Criterion;
@@ -26,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +39,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceXLSXImpl implements ReportService {
@@ -107,23 +113,20 @@ public class ReportServiceXLSXImpl implements ReportService {
             goodsStatusList = goodsStatusDAO.findAll(criteria, 0, 0);
             Iterator<GoodsStatus> iterator = goodsStatusList.iterator();
             GoodsStatus goodsStatus;
-            ReceiptReportItem reportItem = new ReceiptReportItem();
             User user;
             Goods goods;
             while(iterator.hasNext()){
                 goodsStatus = iterator.next();
-                List<StorageCell> storageCellList = goodsStatus.getGoods().getCells();
-                if(storageCellList == null || storageCellList.isEmpty()){
-                    continue;
-                }
-                if(goodsStatus.getGoods().getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse()
-                        .equals(reportDTO.getIdWarehouse())){
+                if(goodsStatus.getGoods().getWarehouse().getIdWarehouse().equals(reportDTO.getIdWarehouse())){
+                    ReceiptReportItem reportItem = new ReceiptReportItem();
                     user = goodsStatus.getUser();
                     goods = goodsStatus.getGoods();
                     reportItem.setDate(goodsStatus.getDate());
                     reportItem.setGoodsName(goods.getName());
-                    reportItem.setQuantity(goods.getQuantity().toString());
+                    reportItem.setQuantity(goods.getQuantity().stripTrailingZeros().toPlainString());
                     reportItem.setUserName(user.getFirstName() + " " + user.getLastName());
+                    reportItem.setQuantityUnitName(goods.getQuantityUnit().getName());
+                    reportItem.setPrice(goods.getPrice().toPlainString());
                 //    reportItem.setShipperName(goods.getIncomingInvoice().getSupplierCompany().getName());
               //      reportItem.setSenderName(goods.getIncomingInvoice().getTransportCompany().getName());
                     reportItemList.add(reportItem);
@@ -136,14 +139,34 @@ public class ReportServiceXLSXImpl implements ReportService {
 
             //generate rows with headers
             XSSFWorkbook workbook = new XSSFWorkbook();
+            //style for cells of the last raw and of the table header
             XSSFCellStyle style = workbook.createCellStyle();
+            style.setBorderBottom(BorderStyle.MEDIUM);
+            style.setBorderRight(BorderStyle.THIN);
+            style.setBorderLeft(BorderStyle.THIN);
+            //style for the report name
             XSSFCellStyle reportNameStyle = workbook.createCellStyle();
             XSSFFont reportNameFont = workbook.createFont();
             reportNameFont.setFontHeightInPoints((short)16);
             reportNameStyle.setFont(reportNameFont);
-            style.setBorderBottom(BorderStyle.MEDIUM);
+            //Style for row number cells
+            XSSFCellStyle rowNumberStyle = workbook.createCellStyle();
+            rowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+            rowNumberStyle.setBorderLeft(BorderStyle.THIN);
+            rowNumberStyle.setBorderRight(BorderStyle.THIN);
+            //Style for information cells
+            XSSFCellStyle infoCellStyle = workbook.createCellStyle();
+            infoCellStyle.setBorderRight(BorderStyle.THIN);
+            infoCellStyle.setBorderLeft(BorderStyle.THIN);
             XSSFSheet sheet = workbook.createSheet("1");
             sheet.setHorizontallyCenter(true);
+            //create last row number style
+            XSSFCellStyle lastRowNumberStyle = workbook.createCellStyle();
+            lastRowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+            lastRowNumberStyle.setBorderLeft(BorderStyle.THIN);
+            lastRowNumberStyle.setBorderRight(BorderStyle.THIN);
+            lastRowNumberStyle.setBorderBottom(BorderStyle.MEDIUM);
+            //create report sheet
             XSSFRow reportName = sheet.createRow(0);
             Warehouse warehouse = warehouseDAO.findById(reportDTO.getIdWarehouse()).get();
             reportName.createCell(0).setCellValue("Отчет о поступлении товаров на склад \"" +
@@ -152,43 +175,62 @@ public class ReportServiceXLSXImpl implements ReportService {
             reportName.getCell(0).setCellStyle(reportNameStyle);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
             XSSFRow header = sheet.createRow(1);
-            header.createCell(0).setCellValue("#");
-            header.getCell(0).setCellStyle(style);
+            header.createCell(0).setCellValue("№");
+            header.getCell(0).setCellStyle(lastRowNumberStyle);
             header.createCell(1).setCellValue("Время поступления товара на склад");
             header.getCell(1).setCellStyle(style);
             header.createCell(2).setCellValue("Наименование");
             header.getCell(2).setCellStyle(style);
             header.createCell(3).setCellValue("Количество");
             header.getCell(3).setCellStyle(style);
-            header.createCell(4).setCellValue("Ответственное лицо");
+            header.createCell(4).setCellValue("Единицы измерения");
             header.getCell(4).setCellStyle(style);
+            header.createCell(5).setCellValue("Стоимость(рубли)");
+            header.getCell(5).setCellStyle(style);
+            header.createCell(6).setCellValue("Ответственное лицо");
+            header.getCell(6).setCellStyle(style);
 //            header.createCell(5).setCellValue("Отправитель");
 //            header.getCell(5).setCellStyle(style);
 //            header.createCell(6).setCellValue("Перевозчик");
 //            header.getCell(6).setCellStyle(style);
             //fill cells with data
+            ReceiptReportItem reportItem;
             for(int i = 0; i < reportItemList.size(); i++){
                 XSSFRow row = sheet.createRow(i+2);
                 reportItem = reportItemList.get(i);
-                row.createCell(0).setCellValue(i+1);
+                row.createCell(0).setCellValue(String.valueOf(i+1)+".");
+                row.getCell(0).setCellStyle(rowNumberStyle);
                 row.createCell(1).setCellValue(reportItem.getDate());
+                row.getCell(1).setCellStyle(infoCellStyle);
                 row.createCell(2).setCellValue(reportItem.getGoodsName());
+                row.getCell(2).setCellStyle(infoCellStyle);
                 row.createCell(3).setCellValue(reportItem.getQuantity());
-                row.createCell(4).setCellValue(reportItem.getUserName());
+                row.getCell(3).setCellStyle(infoCellStyle);
+                row.createCell(4).setCellValue(reportItem.getQuantityUnitName());
+                row.getCell(4).setCellStyle(infoCellStyle);
+                row.createCell(5).setCellValue(reportItem.getPrice());
+                row.getCell(5).setCellStyle(infoCellStyle);
+                row.createCell(6).setCellValue(reportItem.getUserName());
+                row.getCell(6).setCellStyle(infoCellStyle);
              //   row.createCell(5).setCellValue(reportItem.getSenderName());
              //   row.createCell(6).setCellValue(reportItem.getShipperName());
                 if(i == reportItemList.size() - 1){
-                    row.getCell(0).setCellStyle(style);
+                    row.getCell(0).setCellStyle(lastRowNumberStyle);
                     row.getCell(1).setCellStyle(style);
                     row.getCell(2).setCellStyle(style);
                     row.getCell(3).setCellStyle(style);
                     row.getCell(4).setCellStyle(style);
+                    row.getCell(5).setCellStyle(style);
+                    row.getCell(6).setCellStyle(style);
                 }
             }
             sheet.autoSizeColumn(1);
             sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
             sheet.autoSizeColumn(4);
+            sheet.autoSizeColumn(5);
+            sheet.autoSizeColumn(6);
+            sheet.autoSizeColumn(0,true);
             workbook.write(outputStream);
         } catch (GenericDAOException e) {
             logger.error("Goods status search error: {}", e.getMessage());
@@ -207,7 +249,7 @@ public class ReportServiceXLSXImpl implements ReportService {
 
     @Override
     @Transactional(readOnly = true)
-    public void getWarehousesLossReport(LocalDate startDate, LocalDate endDate, ServletOutputStream out) throws GenericDAOException {
+    public void getWarehousesLossReport(LocalDate startDate, LocalDate endDate, ServletOutputStream out) throws GenericDAOException, RequestHandlingException {
         logger.info("getWarehousesLossReport from {} to {}", startDate, endDate);
         List<ActType> actTypeList;
         List<Act> actList;
@@ -230,8 +272,11 @@ public class ReportServiceXLSXImpl implements ReportService {
                 Restrictions.le("date", endTimestamp)));
         actList = actDAO.findAll(criteria, 0, 0);
         criteria = DetachedCriteria.forClass(Warehouse.class);
-
-        criteria.add(Restrictions.eq("warehouseCompany", UserDetailsProvider.getUserDetails().getCompany()));
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if(userDetails == null){
+            throw new RequestHandlingException("Can not retrieve user details via UserDetailsProvider");
+        }
+        criteria.add(Restrictions.eq("warehouseCompany", userDetails.getCompany()));
 
         warehouseList = warehouseDAO.findAll(criteria, 0, 0);
         Iterator<Act> iterator = actList.iterator();
@@ -245,11 +290,7 @@ public class ReportServiceXLSXImpl implements ReportService {
             act = iterator.next();
             goodsList = act.getGoods();
             for(Goods goods : goodsList){
-                List<StorageCell> storageCellList = goods.getCells();
-                if(storageCellList == null || storageCellList.isEmpty()){
-                    continue;
-                }
-                idWarehouse = goods.getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse();
+                idWarehouse = goods.getWarehouse().getIdWarehouse();
                 if(mapWarehouseLoss.containsKey(idWarehouse)){
                     mapWarehouseLoss.put(idWarehouse, (mapWarehouseLoss.get(idWarehouse)).add(goods.getPrice()));
                 }
@@ -262,12 +303,31 @@ public class ReportServiceXLSXImpl implements ReportService {
 
         //generate rows with headers
         XSSFWorkbook workbook = new XSSFWorkbook();
+        //style for cells of the last raw and of the table header
         XSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.MEDIUM);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        //style for the report name
         XSSFCellStyle reportNameStyle = workbook.createCellStyle();
         XSSFFont reportNameFont = workbook.createFont();
         reportNameFont.setFontHeightInPoints((short)16);
         reportNameStyle.setFont(reportNameFont);
-        style.setBorderBottom(BorderStyle.MEDIUM);
+        //Style for row number cells
+        XSSFCellStyle rowNumberStyle = workbook.createCellStyle();
+        rowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+        rowNumberStyle.setBorderLeft(BorderStyle.THIN);
+        rowNumberStyle.setBorderRight(BorderStyle.THIN);
+        //Style for information cells
+        XSSFCellStyle infoCellStyle = workbook.createCellStyle();
+        infoCellStyle.setBorderRight(BorderStyle.THIN);
+        infoCellStyle.setBorderLeft(BorderStyle.THIN);
+        //create last row number style
+        XSSFCellStyle lastRowNumberStyle = workbook.createCellStyle();
+        lastRowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+        lastRowNumberStyle.setBorderLeft(BorderStyle.THIN);
+        lastRowNumberStyle.setBorderRight(BorderStyle.THIN);
+        lastRowNumberStyle.setBorderBottom(BorderStyle.MEDIUM);
         XSSFSheet sheet = workbook.createSheet("1");
         XSSFRow reportName = sheet.createRow(0);
         reportName.createCell(0).setCellValue("Отчет об убытках складов" +
@@ -277,23 +337,26 @@ public class ReportServiceXLSXImpl implements ReportService {
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
         sheet.setHorizontallyCenter(true);
         XSSFRow header = sheet.createRow(1);
-        header.createCell(0).setCellValue("#");
-        header.getCell(0).setCellStyle(style);
+        header.createCell(0).setCellValue("№");
+        header.getCell(0).setCellStyle(lastRowNumberStyle);
         header.createCell(1).setCellValue("Название склада");
         header.getCell(1).setCellStyle(style);
-        header.createCell(2).setCellValue("Убытки");
+        header.createCell(2).setCellValue("Убытки (рубли)");
         header.getCell(2).setCellStyle(style);
         //fill cells with data
         BigDecimal totalLoss = new BigDecimal("0");
         for(int i = 0; i < warehouseList.size(); i++){
             XSSFRow row = sheet.createRow(i+2);
-            row.createCell(0).setCellValue(i+1);
+            row.createCell(0).setCellValue(String.valueOf(i+1)+".");
+            row.getCell(0).setCellStyle(rowNumberStyle);
             row.createCell(1).setCellValue(warehouseList.get(i).getName());
+            row.getCell(1).setCellStyle(infoCellStyle);
             row.createCell(2).setCellValue(
                     mapWarehouseLoss.get(warehouseList.get(i).getIdWarehouse()).toPlainString());
+            row.getCell(2).setCellStyle(infoCellStyle);
             totalLoss = totalLoss.add(mapWarehouseLoss.get(warehouseList.get(i).getIdWarehouse()));
             if(i == warehouseList.size() - 1){
-                row.getCell(0).setCellStyle(style);
+                row.getCell(0).setCellStyle(lastRowNumberStyle);
                 row.getCell(1).setCellStyle(style);
                 row.getCell(2).setCellStyle(style);
             }
@@ -303,6 +366,7 @@ public class ReportServiceXLSXImpl implements ReportService {
         totalRow.createCell(2).setCellValue(totalLoss.toPlainString());
         sheet.autoSizeColumn(1);
         sheet.autoSizeColumn(2);
+        sheet.autoSizeColumn(0,true);
 
         try {
             workbook.write(out);
@@ -321,13 +385,12 @@ public class ReportServiceXLSXImpl implements ReportService {
 
     @Override
     @Transactional(readOnly = true)
-    public void getWarehouseLossReportWithLiableEmployees(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws GenericDAOException {
+    public void getWarehouseLossReportWithLiableEmployees(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) throws GenericDAOException, RequestHandlingException {
         logger.info("getWarehouse {} Loss Report With Liable Employees from {} to {}",
                 reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
 
         List<ActType> actTypeList;
         List<Act> actList;
-        List<LossReportItem> lossReportItemList = new ArrayList<>();
         Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
         Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
@@ -337,13 +400,17 @@ public class ReportServiceXLSXImpl implements ReportService {
         criteria.add(Restrictions.or(restriction1, restriction2));
         actTypeList = actTypeDAO.findAll(criteria, 0, 0);
         criteria = DetachedCriteria.forClass(Act.class);
+        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
+        if(userDetails == null){
+            throw new RequestHandlingException("Can not retrieve user details via UserDetailsProvider");
+        }
         criteria.add(Restrictions.in("actType", actTypeList))
                 .createAlias("user", "u")
-                .add(Restrictions.eq("u.warehouseCompany", UserDetailsProvider.getUserDetails().getCompany()))
+                .add(Restrictions.eq("u.warehouseCompany", userDetails.getCompany()))
                 .add(Restrictions.and(
                         Restrictions.ge("date", startTimestamp),
                         Restrictions.le("date", endTimestamp)));
-        actList = actDAO.findAll(criteria, 0, 0);
+        actList = actDAO.findAll(criteria, 0, 0).stream().distinct().collect(Collectors.toList());
         Iterator<Act> iterator = actList.iterator();
         Act act;
         BigDecimal totalLoss = new BigDecimal("0");
@@ -351,12 +418,9 @@ public class ReportServiceXLSXImpl implements ReportService {
         List<User> responsiblePersonList = new ArrayList<>();
         while(iterator.hasNext()){
             act = iterator.next();
-            for(Goods goods : act.getGoods()) {
-                List<StorageCell> storageCellList = goods.getCells();
-                if(storageCellList == null || storageCellList.isEmpty()){
-                    continue;
-                }
-                if (goods.getCells().get(0).getStorageSpace().getWarehouse().getIdWarehouse().equals(reportDTO.getIdWarehouse())) {
+            List<Goods> goodsList = act.getGoods().stream().distinct().collect(Collectors.toList());
+            for(Goods goods : goodsList) {
+                if (goods.getWarehouse().getIdWarehouse().equals(reportDTO.getIdWarehouse())) {
                     if(mapPersonLoss.containsKey(act.getUser())){
                         mapPersonLoss.put(act.getUser(), mapPersonLoss.get(act.getUser()).add(goods.getPrice()));
                     }
@@ -369,18 +433,34 @@ public class ReportServiceXLSXImpl implements ReportService {
             }
         }
 
-        if(lossReportItemList.isEmpty()){
-            logger.info("No records found for given parameters");
-        }
-
         //generate rows with headers
         XSSFWorkbook workbook = new XSSFWorkbook();
+        //style for cells of the last raw and of the table header
         XSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.MEDIUM);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        //style for the report name
         XSSFCellStyle reportNameStyle = workbook.createCellStyle();
         XSSFFont reportNameFont = workbook.createFont();
         reportNameFont.setFontHeightInPoints((short)16);
         reportNameStyle.setFont(reportNameFont);
-        style.setBorderBottom(BorderStyle.MEDIUM);
+        //Style for row number cells
+        XSSFCellStyle rowNumberStyle = workbook.createCellStyle();
+        rowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+        rowNumberStyle.setBorderLeft(BorderStyle.THIN);
+        rowNumberStyle.setBorderRight(BorderStyle.THIN);
+        //Style for information cells
+        XSSFCellStyle infoCellStyle = workbook.createCellStyle();
+        infoCellStyle.setBorderRight(BorderStyle.THIN);
+        infoCellStyle.setBorderLeft(BorderStyle.THIN);
+        //create last row number style
+        XSSFCellStyle lastRowNumberStyle = workbook.createCellStyle();
+        lastRowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+        lastRowNumberStyle.setBorderLeft(BorderStyle.THIN);
+        lastRowNumberStyle.setBorderRight(BorderStyle.THIN);
+        lastRowNumberStyle.setBorderBottom(BorderStyle.MEDIUM);
+
         XSSFSheet sheet = workbook.createSheet("1");
         sheet.setHorizontallyCenter(true);
         XSSFRow reportName = sheet.createRow(0);
@@ -391,22 +471,25 @@ public class ReportServiceXLSXImpl implements ReportService {
         reportName.getCell(0).setCellStyle(reportNameStyle);
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
         XSSFRow header = sheet.createRow(1);
-        header.createCell(0).setCellValue("#");
-        header.getCell(0).setCellStyle(style);
+        header.createCell(0).setCellValue("№");
+        header.getCell(0).setCellStyle(lastRowNumberStyle);
         header.createCell(1).setCellValue("Ответственное лицо");
         header.getCell(1).setCellStyle(style);
-        header.createCell(2).setCellValue("Убытки");
+        header.createCell(2).setCellValue("Зафиксированная сумма убытков (рубли)");
         header.getCell(2).setCellStyle(style);
         //fill cells with data
         String name;
         for(int i = 0; i < responsiblePersonList.size(); i++){
             name = responsiblePersonList.get(i).getFirstName() + " " + responsiblePersonList.get(i).getLastName();
             XSSFRow row = sheet.createRow(i+2);
-            row.createCell(0).setCellValue(i+1);
+            row.createCell(0).setCellValue(String.valueOf(i+1)+".");
+            row.getCell(0).setCellStyle(rowNumberStyle);
             row.createCell(1).setCellValue(name);
+            row.getCell(1).setCellStyle(style);
             row.createCell(2).setCellValue(mapPersonLoss.get(responsiblePersonList.get(i)).toPlainString());
+            row.getCell(2).setCellStyle(style);
             if(i == responsiblePersonList.size() - 1){
-                row.getCell(0).setCellStyle(style);
+                row.getCell(0).setCellStyle(lastRowNumberStyle);
                 row.getCell(1).setCellStyle(style);
                 row.getCell(2).setCellStyle(style);
             }
@@ -416,6 +499,7 @@ public class ReportServiceXLSXImpl implements ReportService {
         totalRow.createCell(2).setCellValue(totalLoss.toPlainString());
         sheet.autoSizeColumn(1);
         sheet.autoSizeColumn(2);
+        sheet.autoSizeColumn(0,true);
 
         try {
             workbook.write(outputStream);
@@ -436,7 +520,7 @@ public class ReportServiceXLSXImpl implements ReportService {
     public void getWarehouseProfitReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream) {
         logger.info("getWarehousesProfitReport for warehouse id {} from {} to {}",
                 reportDTO.getIdWarehouse(), reportDTO.getStartDate(), reportDTO.getEndDate());
-        List<Goods> goodsList = null;
+        List<Goods> goodsList;
         Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
         Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
                 .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
@@ -454,25 +538,32 @@ public class ReportServiceXLSXImpl implements ReportService {
             criteria.add(Restrictions.in("name", GoodsStatusEnum.LOST_BY_WAREHOUSE_COMPANY.toString(),
                     GoodsStatusEnum.RECYCLED.toString(), GoodsStatusEnum.STOLEN.toString()));
             List<GoodsStatusName> statusNamesCancellingFees = goodsStatusNameDAO.findAll(criteria, 0, 0);
+           // DetachedCriteria goodsCriteria = DetachedCriteria.forClass(Goods.class);
+            DetachedCriteria storedGoodsStatusCriteria = DetachedCriteria.forClass(GoodsStatus.class);
+            DetachedCriteria movedOutGoodsStatusCriteria = DetachedCriteria.forClass(GoodsStatus.class);
+            DetachedCriteria goodsStatusesCancellingFeesCriteria = DetachedCriteria.forClass(GoodsStatus.class);
+            //select all goods which were stored before endDate
+            storedGoodsStatusCriteria.add(Restrictions.eq("goodsStatusName", storedStatusName))
+                    .add(Restrictions.and(
+                            Restrictions.le("date", endTimestamp)));
+            List<GoodsStatus> storedGoodsStatusList = goodsStatusDAO.findAll(storedGoodsStatusCriteria, -1, -1);
+            Set<Goods> storedGoods = storedGoodsStatusList.stream().map(status -> status.getGoods()).collect(Collectors.toSet());
+            //select all goods which were moved out before startDate
+            movedOutGoodsStatusCriteria.add(Restrictions.eq("goodsStatusName", movedOutStatusName))
+                    .add(Restrictions.le("date", startTimestamp));
+            List<GoodsStatus> movedOutGoodsStatusList = goodsStatusDAO.findAll(movedOutGoodsStatusCriteria, -1 , -1);
+            Set<Goods> movedOutGoods = movedOutGoodsStatusList.stream().map(status -> status.getGoods()).collect(Collectors.toSet());
+            //select all goods for which payment is not received
+            goodsStatusesCancellingFeesCriteria.add(Restrictions.in("goodsStatusName", statusNamesCancellingFees));
+            List<GoodsStatus> goodsStatusesCancellingFeesList = goodsStatusDAO.findAll(goodsStatusesCancellingFeesCriteria, -1 ,-1);
+            Set<Goods> unpaidGoods = goodsStatusesCancellingFeesList.stream().map(status -> status.getGoods()).collect(Collectors.toSet());
+            storedGoods.removeAll(movedOutGoods);
+            storedGoods.removeAll(unpaidGoods);
 
-            String selectProfitGoodsQuery = "SELECT goods FROM Goods AS goods " +
-                    " INNER JOIN GoodsStatus AS goodsStatus ON goodsStatus.goods = goods " +
-                    " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
-                    " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
-                    " WHERE warehouse.idWarehouse = :idWarehouse AND (goodsStatus.goodsStatusName = :storedStatusName " +
-                    " AND goodsStatus.date < :endTimestamp) AND goods NOT IN (SELECT DISTINCT gs1.goods from GoodsStatus AS gs1 " +
-                    " WHERE (gs1.goodsStatusName = :movedOutStatusName " +
-                    " AND gs1.date < :startTimestamp)) AND goods NOT IN " +
-                    "(SELECT DISTINCT gs.goods from GoodsStatus AS gs where gs.goodsStatusName in (:statusNamesCancellingFees)) " +
-                    " GROUP BY goods.id";
+            goodsList = storedGoods.stream().filter(goods -> goods.getWarehouse().getIdWarehouse().equals(reportDTO.getIdWarehouse()))
+                    .collect(Collectors.toList());
+
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("idWarehouse", reportDTO.getIdWarehouse());
-            parameters.put("storedStatusName", storedStatusName);
-            parameters.put("movedOutStatusName", movedOutStatusName);
-            parameters.put("startTimestamp", startTimestamp);
-            parameters.put("endTimestamp" , endTimestamp);
-            parameters.put("statusNamesCancellingFees", statusNamesCancellingFees);
-            goodsList = goodsDAO.findByQuery(selectProfitGoodsQuery, parameters, -1, -1);
             BigDecimal totalRevenue = new BigDecimal("0");
             BigDecimal totalExpenses = new BigDecimal("0");
             BigDecimal profit = new BigDecimal("0");
@@ -484,7 +575,11 @@ public class ReportServiceXLSXImpl implements ReportService {
             LocalDate storedDate;
 
             for(Goods goods : goodsList){
-                priceList = goods.getCells().get(0).getStorageSpace().getStorageSpaceType().getPriceList();
+                List<StorageCell> cellList = goods.getCells();
+                if(cellList.isEmpty()){
+                    continue;
+                }
+                priceList = cellList.get(0).getStorageSpace().getStorageSpaceType().getPriceList();
                 //find status stored for current goods
                 for(GoodsStatus gs : goods.getStatuses()){
                     if(gs.getGoodsStatusName().getName().equals(GoodsStatusEnum.STORED.toString())){
@@ -519,28 +614,24 @@ public class ReportServiceXLSXImpl implements ReportService {
                 else {
                     movedOutDate = (new DateTime(movedOutGoodsStatus.getDate().getTime())).toLocalDate();
                 }
-                int numberOfDays = Days.daysBetween(reportDTO.getStartDate(), movedOutDate).getDays();
+                int numberOfDays = Days.daysBetween(new LocalDate(storedGoodsStatus.getDate().getTime()), movedOutDate).getDays();
                 //count income
                 totalRevenue = totalRevenue.add(price.getDailyPrice().multiply(new BigDecimal(numberOfDays)));
             }
             //count loss
-            String selectLossGoodsQuery = "SELECT goods FROM Goods AS goods " +
-                    " INNER JOIN GoodsStatus AS goodsStatus ON goodsStatus.goods = goods " +
-                    " INNER JOIN Invoice invoice ON goods.incomingInvoice = invoice" +
-                    " INNER JOIN Warehouse warehouse ON invoice.warehouse = warehouse" +
-                    " WHERE warehouse.idWarehouse = :idWarehouse AND goods IN " +
-                    "(SELECT DISTINCT gs.goods from GoodsStatus AS gs where gs.goodsStatusName in (:statusNamesCancellingFees) " +
-                    " AND gs.date > :startTimestamp AND gs.date < :endTimestamp) " +
-                    " GROUP BY goods.id";
             goodsList.clear();
             parameters.clear();
             statusNamesCancellingFees.removeIf(goodsStatusName
                     -> goodsStatusName.getName().equals(GoodsStatusEnum.RECYCLED.toString()));
-            parameters.put("idWarehouse", reportDTO.getIdWarehouse());
-            parameters.put("startTimestamp", startTimestamp);
-            parameters.put("endTimestamp" , endTimestamp);
-            parameters.put("statusNamesCancellingFees", statusNamesCancellingFees);
-            goodsList = goodsDAO.findByQuery(selectLossGoodsQuery, parameters, -1, -1);
+            DetachedCriteria lossGoodsStatusCriteria = DetachedCriteria.forClass(GoodsStatus.class);
+            lossGoodsStatusCriteria.add(Restrictions.and(
+                    Restrictions.ge("date", startTimestamp),
+                    Restrictions.le("date", endTimestamp)))
+                    .add(Restrictions.in("goodsStatusName", statusNamesCancellingFees));
+            List<GoodsStatus> lossGoodsStatusList = goodsStatusDAO.findAll(lossGoodsStatusCriteria, -1, -1);
+            goodsList = lossGoodsStatusList.stream().distinct().map(status -> status.getGoods())
+                    .collect(Collectors.toList());
+            //goodsList = goodsDAO.findByQuery(selectLossGoodsQuery, parameters, -1, -1);
             for(Goods goods : goodsList){
                 totalExpenses = totalExpenses.add(goods.getPrice());
             }
@@ -567,7 +658,7 @@ public class ReportServiceXLSXImpl implements ReportService {
             XSSFRow header = sheet.createRow(1);
             header.createCell(0).setCellValue("Показатель");
             header.getCell(0).setCellStyle(style);
-            header.createCell(1).setCellValue("Сумма");
+            header.createCell(1).setCellValue("Сумма (рубли)");
             header.getCell(1).setCellStyle(style);
 
             XSSFRow row = sheet.createRow(2);
@@ -580,13 +671,14 @@ public class ReportServiceXLSXImpl implements ReportService {
 
             row = sheet.createRow(4);
             row.createCell(0).setCellValue("Прибыль");
+            row.getCell(0).setCellStyle(style);
             row.createCell(1).setCellValue(profit.toPlainString());
+            row.getCell(1).setCellStyle(style);
 
-            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(0,true);
             sheet.autoSizeColumn(1);
 
             workbook.write(outputStream);
-
         } catch (GenericDAOException e) {
             logger.error("GenericDAOException: {}", e.getMessage());
         }
