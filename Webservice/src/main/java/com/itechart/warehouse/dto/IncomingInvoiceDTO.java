@@ -24,7 +24,7 @@ public class IncomingInvoiceDTO {
     private String transportName;
     private DriverDTO driver;
     private String description;
-    private Integer goodsEntryCount;
+    private String goodsEntryCount;
     private String dispatcher;
     private List<GoodsDTO> goods;
     private String status;

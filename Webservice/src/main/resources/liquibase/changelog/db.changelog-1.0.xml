@@ -177,7 +177,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="id_driver" type="BIGINT UNSIGNED"/>
-            <column name="goods_entry_count" type="INT"/>
+            <column name="goods_entry_count" type="VARCHAR(64)"/>
             <column name="batch_description" type="VARCHAR(100)"/>
             <column name="id_current_status" type="BIGINT UNSIGNED">
                 <constraints nullable="true"/>

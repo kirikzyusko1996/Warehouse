@@ -13,7 +13,7 @@ public class Invoice {
     private Date issueDate;
     private String transportNumber;
     private String transportName;
-    private Integer goodsEntryCount;
+    private String goodsEntryCount;
     private String description;
     private TransportCompany transportCompany;
     private Warehouse warehouse;
@@ -101,11 +101,11 @@ public class Invoice {
     }
 
     @Column(name = "goods_entry_count")
-    public Integer getGoodsEntryCount() {
+    public String getGoodsEntryCount() {
         return goodsEntryCount;
     }
 
-    public void setGoodsEntryCount(Integer goodsEntryCount) {
+    public void setGoodsEntryCount(String goodsEntryCount) {
         this.goodsEntryCount = goodsEntryCount;
     }
 

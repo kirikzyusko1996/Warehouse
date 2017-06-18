@@ -23,7 +23,7 @@ public class OutgoingInvoiceDTO {
     private String transportName;
     private DriverDTO driver;
     private String description;
-    private Integer goodsEntryCount;
+    private String goodsEntryCount;
     private String manager;
     private List<GoodsDTO> goods;
     private String status;
