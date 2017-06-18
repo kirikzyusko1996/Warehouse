@@ -23,7 +23,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+
+import static com.itechart.warehouse.util.Host.host;
 
 /**
  * Service Layer for working with elastic search framework
@@ -55,7 +62,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         this.customerService = service;
     }
 
-  /*  @PostConstruct
     public void initElasticSearchTransportCompany() throws DataAccessException {
         logger.info("Start init action for es and transport company");
         List<TransportCompany> list = transportCompanyService.findAllTransportCompanies(-1, -1);
@@ -66,7 +72,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         logger.info("Complete init for transport comapny (elastic search)");
     }
 
-    @PostConstruct
     public void initElasticSearchCustomer() throws DataAccessException {
         logger.info("Start init action for es and customer companies");
         List<WarehouseCustomerCompany> customers = customerService.findAllWarehouseCustomerCompanies(-1, -1);
@@ -76,7 +81,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         }
     }
 
-    @PostConstruct
     public void initElasticSearchDriver()  throws DataAccessException, GenericDAOException,
             IllegalParametersException, ResourceNotFoundException {
         logger.info("Start init action for es and driver");
@@ -88,10 +92,45 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             elasticSearchDriver.save(dr, idCompany);
         }
         logger.info("Complete init for driver (elastic search)");
-    }*/
+    }
+
+    @PostConstruct
+    public void init(){
+        clearElasticSearchData();
+        try {
+            initElasticSearchCustomer();
+            initElasticSearchDriver();
+            initElasticSearchTransportCompany();
+        } catch (DataAccessException|ResourceNotFoundException|GenericDAOException|IllegalParametersException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public void clearElasticSearchData() {
+        logger.info("Clear Elastic Search Data");
+        URL url = null;
+        try {
+            url = new URL("http://localhost:9200/*");
+        } catch (MalformedURLException exception) {
+            logger.error(exception.getMessage());
+        }
+        HttpURLConnection httpURLConnection = null;
+        try {
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestProperty("Content-Type",
+                    "application/x-www-form-urlencoded");
+            httpURLConnection.setRequestMethod("DELETE");
+        } catch (IOException exception) {
+            logger.error(exception.getMessage());
+        } finally {
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
+        }
+    }
 
     @Override
-    public List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany){
+    public List<SimilarityWrapper<TransportCompany>> searchTransportCompany(TransportCompany transportCompany) {
         return elasticSearchTransportCompany.search(transportCompany);
     }
 
@@ -102,7 +141,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SimilarityWrapper<Driver>> searchDriver(Driver driver)throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public List<SimilarityWrapper<Driver>> searchDriver(Driver driver) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         Long idCompany = transportCompanyService.findWarehouseCompanyByTransportId(driver.getId()).getIdWarehouseCompany();
         return elasticSearchDriver.search(driver, idCompany);
     }
