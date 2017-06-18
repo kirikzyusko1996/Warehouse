@@ -93,12 +93,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException, RequestHandlingException {
         logger.info("GET on /{}: {}", id);
-        WarehouseCompanyUserDetails userDetails = UserDetailsProvider.getUserDetails();
-        WarehouseCompany company = userDetails.getCompany();
-        UserDTO user;
-        if (company != null) {
-            user = userService.findUserDTOById(id);
-        } else throw new RequestHandlingException(EXCEPTION_MESSAGE_COULD_NOT_RETRIEVE);
+        UserDTO user = userService.findUserDTOById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
