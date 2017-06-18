@@ -49,6 +49,7 @@ public class ReportServiceXLSXImpl implements ReportService {
     private ActDAO actDAO;
     private GoodsDAO goodsDAO;
     private WarehouseDAO warehouseDAO;
+    private WarehouseCompanyStatusDAO warehouseCompanyStatusDAO;
 
     @Autowired
     public void setGoodsStatusDAO(GoodsStatusDAO goodsStatusDAO) {
@@ -78,6 +79,11 @@ public class ReportServiceXLSXImpl implements ReportService {
     @Autowired
     public void setGoodsDAO(GoodsDAO goodsDAO) {
         this.goodsDAO = goodsDAO;
+    }
+
+    @Autowired
+    public void WarehouseCompanyStatusDAO(WarehouseCompanyStatusDAO warehouseCompanyStatusDAO) {
+        this.warehouseCompanyStatusDAO = warehouseCompanyStatusDAO;
     }
 
     public ReportServiceXLSXImpl(){
@@ -692,5 +698,215 @@ public class ReportServiceXLSXImpl implements ReportService {
                 logger.error("Error closing ServletOutputStream: {}", e.getMessage());
             }
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void getSiteOwnerReport(WarehouseReportDTO reportDTO, ServletOutputStream outputStream){
+        logger.info("get site owner report for period from {} to {}", reportDTO.getStartDate(), reportDTO.getEndDate());
+        Timestamp startTimestamp = new Timestamp(reportDTO.getStartDate().toDateTimeAtStartOfDay().getMillis());
+        Timestamp endTimestamp =  new Timestamp(reportDTO.getEndDate().toDateTimeAtStartOfDay()
+                .withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).getMillis());
+        //quantity of clients who were active during the period between startTimestamp and endTimestamp
+        List<WarehouseCompanyStatus> companyStatusList = new ArrayList<>();
+        DetachedCriteria statusCriteria = DetachedCriteria.forClass(WarehouseCompanyStatus.class);
+        statusCriteria.add(Restrictions.and(Restrictions.ge("startDate", startTimestamp),
+                Restrictions.le("startDate", endTimestamp)));
+        try {
+            companyStatusList = warehouseCompanyStatusDAO.findAll(statusCriteria, -1, -1);
+        } catch (GenericDAOException e) {
+            logger.error("GenericDAOException: {}", e.getMessage());
+        }
+        List<WarehouseCompany> activeWarehouseCompanies = companyStatusList.stream().filter(status -> status.getStatus().equals(true))
+                .map(status -> status.getWarehouseCompany()).distinct().collect(Collectors.toList());
+        //quantity of new clients
+        List<WarehouseCompany> newClients = activeWarehouseCompanies.stream().filter(
+                company -> company.getStatuses().stream().filter(
+                        status -> !status.getStartDate().before(startTimestamp) &&
+                status.getStatus().equals(true)).findAny().isPresent()).collect(Collectors.toList());
+        int newClientsQuantity = newClients.size();
+        //lost clients quantity
+        List<WarehouseCompany> lostClients = companyStatusList.stream().filter(status -> {
+            if(status.getDueDate() == null && status.getStatus().equals(false)){
+                return true;
+            }
+            if(status.getDueDate() == null){
+                return false;
+            }
+            return status.getDueDate().after(endTimestamp) && status.getStatus().equals(false);
+        }).map(status -> status.getWarehouseCompany()).distinct().collect(Collectors.toList());
+        int lostClientsQuantity = lostClients.size();
+
+        //profit report
+        BigDecimal profit = new BigDecimal("0");
+        List<WarehouseCompanyStatus> activeStatuses = companyStatusList.stream()
+                .filter(status -> status.getStatus().equals(true)).distinct().collect(Collectors.toList());
+        for(WarehouseCompanyStatus status : activeStatuses){
+            List<CompanyPriceList> priceList = status.getWarehouseCompany().getCompanyPriceList();
+            LocalDate statusEndTime;
+            if(status.getDueDate() == null || status.getDueDate().after(endTimestamp)){
+                statusEndTime = new LocalDate(endTimestamp.getTime());
+            }
+            else{
+                statusEndTime = new LocalDate(status.getDueDate().getTime());
+            }
+            int daysActive = Days.daysBetween(new LocalDate(status.getStartDate().getTime()),
+                    statusEndTime).getDays();
+            for(CompanyPriceList price : priceList){
+                if(price.getStartTime().before(status.getStartDate()) && (price.getEndTime() == null || price.getEndTime().after(endTimestamp))){
+                    profit = profit.add(price.getPricePerMonth().multiply(new BigDecimal(daysActive)));
+                    break;
+                }
+            }
+        }
+        //generate rows with headers
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        //style for cells of the last raw and of the table header
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.MEDIUM);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        //style for the report name
+        XSSFCellStyle reportNameStyle = workbook.createCellStyle();
+        XSSFFont reportNameFont = workbook.createFont();
+        reportNameFont.setFontHeightInPoints((short)18);
+        reportNameStyle.setFont(reportNameFont);
+        //Style for table prephrase
+        XSSFCellStyle prehraseStyle = workbook.createCellStyle();
+        reportNameFont.setFontHeightInPoints((short)14);
+        prehraseStyle.setFont(reportNameFont);
+        //Style for row number cells
+        XSSFCellStyle rowNumberStyle = workbook.createCellStyle();
+        rowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+        rowNumberStyle.setBorderLeft(BorderStyle.THIN);
+        rowNumberStyle.setBorderRight(BorderStyle.THIN);
+        //Style for information cells
+        XSSFCellStyle infoCellStyle = workbook.createCellStyle();
+        infoCellStyle.setBorderRight(BorderStyle.THIN);
+        infoCellStyle.setBorderLeft(BorderStyle.THIN);
+        //create last row number style
+        XSSFCellStyle lastRowNumberStyle = workbook.createCellStyle();
+        lastRowNumberStyle.setAlignment(HorizontalAlignment.RIGHT);
+        lastRowNumberStyle.setBorderLeft(BorderStyle.THIN);
+        lastRowNumberStyle.setBorderRight(BorderStyle.THIN);
+        lastRowNumberStyle.setBorderBottom(BorderStyle.MEDIUM);
+
+        XSSFSheet newClientSheet = workbook.createSheet("Новые клиенты");
+        newClientSheet.setHorizontallyCenter(true);
+
+        String reportNameString = "Статистика системы \"Warehouse\" в период с " + reportDTO.getStartDate().toString("dd-MM-yyyy") +
+                " по " + reportDTO.getEndDate().toString("dd-MM-yyyy");
+        XSSFRow reportName1 = newClientSheet.createRow(0);
+        reportName1.createCell(0).setCellValue(reportNameString);
+        reportName1.getCell(0).setCellStyle(reportNameStyle);
+        newClientSheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 14));
+        XSSFRow newClientPrephrase = newClientSheet.createRow(4);
+        newClientPrephrase.createCell(0).setCellValue("В отчетный период компания приобрела следующих клиентов");
+        newClientPrephrase.getCell(0).setCellStyle(prehraseStyle);
+        newClientSheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 8));
+
+        XSSFRow newClientHeader = newClientSheet.createRow(5);
+        newClientHeader.createCell(0).setCellValue("№");
+        newClientHeader.getCell(0).setCellStyle(lastRowNumberStyle);
+        newClientHeader.createCell(1).setCellValue("Наименование компании");
+        newClientHeader.getCell(1).setCellStyle(style);
+        newClientHeader.createCell(2).setCellValue("Количество складов компании");
+        newClientHeader.getCell(2).setCellStyle(style);
+
+        for(int i = 0; i < newClients.size(); i++){
+            XSSFRow row = newClientSheet.createRow(i+6);
+            row.createCell(0).setCellValue(String.valueOf(i+1)+".");
+            row.getCell(0).setCellStyle(rowNumberStyle);
+            row.createCell(1).setCellValue(newClients.get(i).getName());
+            row.getCell(1).setCellStyle(style);
+            row.createCell(2).setCellValue(newClients.get(i).getWarehouses().size());
+            row.getCell(2).setCellStyle(style);
+            if(i == newClients.size() - 1){
+                row.getCell(0).setCellStyle(lastRowNumberStyle);
+                row.getCell(1).setCellStyle(style);
+                row.getCell(2).setCellStyle(style);
+            }
+        }
+        XSSFRow lastRow = newClientSheet.createRow(newClients.size() + 6);
+        lastRow.createCell(1).setCellValue("ВСЕГО НОВЫХ КЛИЕНТОВ:");
+        lastRow.createCell(2).setCellValue(newClientsQuantity);
+
+        XSSFSheet lostClientSheet = workbook.createSheet("Потерянные клиенты");
+        XSSFRow reportName2 = lostClientSheet.createRow(0);
+        reportName2.createCell(0).setCellValue(reportNameString);
+        reportName2.getCell(0).setCellStyle(reportNameStyle);
+        lostClientSheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 14));
+
+        XSSFRow lostClientPrephrase = lostClientSheet.createRow(4);
+        lostClientPrephrase.createCell(0).setCellValue("По состоянию на "
+                + reportDTO.getEndDate().toString("dd-MM-yyyy") + " услуги компании не использовали следующиее клиенты");
+        lostClientPrephrase.getCell(0).setCellStyle(prehraseStyle);
+        lostClientSheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 8));
+
+        XSSFRow lostClientHeader = lostClientSheet.createRow(5);
+        lostClientHeader.createCell(0).setCellValue("№");
+        lostClientHeader.getCell(0).setCellStyle(lastRowNumberStyle);
+        lostClientHeader.createCell(1).setCellValue("Наименование компании");
+        lostClientHeader.getCell(1).setCellStyle(style);
+        lostClientHeader.createCell(2).setCellValue("Количество складов компании");
+        lostClientHeader.getCell(2).setCellStyle(style);
+
+        for(int i = 0; i < lostClients.size(); i++){
+            XSSFRow row = lostClientSheet.createRow(i+6);
+            row.createCell(0).setCellValue(String.valueOf(i+1)+".");
+            row.getCell(0).setCellStyle(rowNumberStyle);
+            row.createCell(1).setCellValue(lostClients.get(i).getName());
+            row.getCell(1).setCellStyle(style);
+            row.createCell(2).setCellValue(lostClients.get(i).getWarehouses().size());
+            row.getCell(2).setCellStyle(style);
+            if(i == lostClients.size() - 1){
+                row.getCell(0).setCellStyle(lastRowNumberStyle);
+                row.getCell(1).setCellStyle(style);
+                row.getCell(2).setCellStyle(style);
+            }
+        }
+        XSSFRow summaryRow = lostClientSheet.createRow(lostClients.size() + 6);
+        summaryRow.createCell(1).setCellValue("ВСЕГО ПОТЕРЯНО КЛИЕНТОВ:");
+        summaryRow.createCell(2).setCellValue(lostClientsQuantity);
+
+        XSSFSheet profitSheet = workbook.createSheet("Прибыль");
+        XSSFRow reportName3 = profitSheet.createRow(0);
+        reportName3.createCell(0).setCellValue(reportNameString);
+        reportName3.getCell(0).setCellStyle(reportNameStyle);
+        profitSheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 14));
+
+        XSSFRow profitPrephrase = profitSheet.createRow(4);
+        profitPrephrase.createCell(0).setCellValue("Прибыль компании составила " + profit.toPlainString() + " руб.");
+        profitPrephrase.getCell(0).setCellStyle(prehraseStyle);
+        profitSheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 8));
+
+        newClientSheet.autoSizeColumn(0,true);
+        newClientSheet.autoSizeColumn(1);
+        newClientSheet.autoSizeColumn(2);
+        newClientSheet.autoSizeColumn(3);
+
+        lostClientSheet.autoSizeColumn(0,true);
+        lostClientSheet.autoSizeColumn(1);
+        lostClientSheet.autoSizeColumn(2);
+        lostClientSheet.autoSizeColumn(3);
+
+        profitSheet.autoSizeColumn(0,true);
+        profitSheet.autoSizeColumn(1);
+        profitSheet.autoSizeColumn(2);
+        profitSheet.autoSizeColumn(3);
+
+        try{
+        workbook.write(outputStream);
+    } catch (IOException e) {
+        logger.error("Error generating Warehouse Loss Report With Liable Employees: {}", e.getMessage());
+    }finally {
+        try {
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            logger.error("Error closing ServletOutputStream: {}", e.getMessage());
+        }
+    }
+
     }
 }

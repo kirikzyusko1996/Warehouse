@@ -107,4 +107,18 @@ public class ReportController {
             logger.error("Can't parse String to LocalDate: {}", e.getMessage());
         }
     }
+    @RequestMapping(value = "/siteOwnerReport", method = RequestMethod.POST,
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public void getSiteOwnerReport(@Valid @RequestBody WarehouseReportDTO reportDTO, HttpServletResponse response) throws IOException {
+        logger.info("creating site owner report for input: {}", reportDTO);
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=siteOwnerReport.xlsx");
+            reportService.getSiteOwnerReport(reportDTO,
+                    response.getOutputStream());
+        }  catch (Exception e) {
+            logger.error("site owner report generation failed: {}", e.getMessage());
+        }
+    }
 }
