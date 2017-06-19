@@ -318,13 +318,25 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GoodsDTO> findGoodsDTOsForInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    public List<GoodsDTO> findGoodsDTOsForIncomingInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("Find goods, invoice id: {}", invoiceId);
         if (invoiceId == null) {
             throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
         }
 
         List<Goods> goods = findGoodsForIncomingInvoice(invoiceId, -1, -1);
+        return mapGoodsListToDTOList(goods);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GoodsDTO> findGoodsDTOsForOutgoingInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Find goods, invoice id: {}", invoiceId);
+        if (invoiceId == null) {
+            throw new IllegalParametersException(ERROR_INVOICE_ID_IS_NULL);
+        }
+
+        List<Goods> goods = findGoodsForOutgoingInvoice(invoiceId, -1, -1);
         return mapGoodsListToDTOList(goods);
     }
 
@@ -490,7 +502,7 @@ public class GoodsServiceImpl implements GoodsService {
                         //if all amount is affected by act
                         goodsInActList.add(initialGoods);
                         setGoodsStatus(initialGoods.getId(), GoodsStatusEnum.valueOf(statusName));
-                        removeGoodsFromStorage(initialGoods.getId());
+                        removeGoodsFromStorage(initialGoods);
                     } else {
                         Goods goodsInAct = createGoodsForAct(initialGoods, goodsDTO);
                         if (goodsInAct != null) {
@@ -535,7 +547,31 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Price covered by act can not be greater than initial value");
         }
 
-        return goodsDAO.insert(goodsInAct);
+        Goods goods = goodsDAO.insert(goodsInAct);
+        copyStatuses(initialGoods.getStatuses(), goods);
+        return goods;
+    }
+
+
+    private List<GoodsStatus> copyStatuses(List<GoodsStatus> statuses, Goods goods) throws GenericDAOException {
+        Assert.notNull(statuses, "Statuses is null");
+        List<GoodsStatus> newStatuses = new ArrayList<>();
+        for (GoodsStatus status : statuses) {
+
+            GoodsStatus newStatus = new GoodsStatus();
+            newStatus.setGoodsStatusName(status.getGoodsStatusName());
+            newStatus.setDate(status.getDate());
+            newStatus.setUser(status.getUser());
+            newStatus.setNote(status.getNote());
+            newStatus.setGoods(goods);
+            newStatuses.add(newStatus);
+            goodsStatusDAO.insert(newStatus);
+
+            if (status.getGoodsStatusName().getName().equals(GoodsStatusEnum.REGISTERED.toString())){
+                goods.setRegisteredStatus(newStatus);
+            }
+        }
+        return newStatuses;
     }
 
     private Goods createGoodsForInvoice(Goods initialGoods, GoodsDTO goodsInInvoiceDTO, Invoice invoice) throws GenericDAOException, IllegalParametersException {
@@ -569,9 +605,10 @@ public class GoodsServiceImpl implements GoodsService {
             throw new IllegalParametersException("Quantity in invoice can not be greater than initial value");
         }
 
-        return goodsDAO.insert(goodsInInvoice);
+        Goods goods = goodsDAO.insert(goodsInInvoice);
+        copyStatuses(initialGoods.getStatuses(), goods);
+        return goods;
     }
-
 
     private String getGoodsStatusNameForAct(String actTypeName) {
         Assert.notNull(actTypeName, "Act type name is null");
@@ -626,7 +663,7 @@ public class GoodsServiceImpl implements GoodsService {
             Goods goods = goodsDAO.getById(id);
             if (goods != null) {
                 goods.setDeleted(new java.sql.Date(DateTime.now().toDate().getTime()));
-                removeGoodsFromStorage(id);
+                removeGoodsFromStorage(goods);
             } else {
                 throw new ResourceNotFoundException("Goods with id " + id + " was not found");
             }
@@ -657,7 +694,7 @@ public class GoodsServiceImpl implements GoodsService {
 
                 GoodsStatus goodsStatus = buildGoodsStatus(status.toString());
                 goodsStatus.setGoods(goods);
-              goodsStatusDAO.insert(goodsStatus);
+                goodsStatusDAO.insert(goodsStatus);
                 updateGoodsAfterStatusUpdated(goods, goodsStatus);
 
                 return goodsStatus;
@@ -669,7 +706,7 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    private void updateGoodsAfterStatusUpdated(Goods goods, GoodsStatus goodsStatus) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+    private void updateGoodsAfterStatusUpdated(Goods goods, GoodsStatus goodsStatus) throws IllegalParametersException {
         Assert.notNull(goods, ERROR_GOODS_IS_NULL);
         Assert.notNull(goods, "Goods status is null");
 
@@ -683,9 +720,9 @@ public class GoodsServiceImpl implements GoodsService {
             goods.setMovedOutStatus(goodsStatus);
         }
 
-        if (!goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.STORED.toString())) {
-            removeGoodsFromStorage(goods.getId());
-        }
+//        if (!goodsStatus.getGoodsStatusName().getName().equals(GoodsStatusEnum.STORED.toString())) {
+//            removeGoodsFromStorage(goods);
+//        }
     }
 
     private GoodsStatus buildGoodsStatus(String statusName) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
@@ -793,31 +830,41 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     @Transactional
     @PreAuthorize("hasPermission(#goodsId, 'Goods', 'UPDATE')")
-    public void removeGoodsFromStorage(Long goodsId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("Remove goods from storage, id {}", goodsId);
+    public void withdrawGoods(Long goodsId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("Withdraw goods, id {}", goodsId);
         if (goodsId == null) {
             throw new IllegalParametersException(ERROR_GOODS_ID_IS_NULL);
         }
 
         try {
             Goods goods = goodsDAO.getById(goodsId);
-            if (goods == null) {
-                throw new ResourceNotFoundException("Goods with id " + goodsId + " was not found");
-            }
-            //if status is not stored then can not be removed from storage
+
             if (!isStored(goods)) {
                 return;
             }
-            List<StorageCell> cells = goods.getCells();
-            for (StorageCell cell : cells) {
-                cell.setGoods(null);
-            }
 
-            setGoodsStatus(goodsId, GoodsStatusEnum.WITHDRAWN);
+            this.removeGoodsFromStorage(goods);
+//            this.setGoodsStatus(goodsId, GoodsStatusEnum.WITHDRAWN);
+
         } catch (GenericDAOException e) {
             throw new DataAccessException(e.getMessage(), e);
         }
+
     }
+
+    private void removeGoodsFromStorage(Goods goods) throws IllegalParametersException {
+        logger.info("Remove goods from storage, goods {}", goods);
+        if (goods == null) {
+            throw new IllegalParametersException(ERROR_GOODS_IS_NULL);
+        }
+        List<StorageCell> cells = goods.getCells();
+        if (CollectionUtils.isNotEmpty(cells)) {
+            for (StorageCell cell : cells) {
+                cell.setGoods(null);
+            }
+        }
+    }
+
 
     @Override
     @Transactional
@@ -868,7 +915,7 @@ public class GoodsServiceImpl implements GoodsService {
                         initialGoods.setOutgoingInvoice(invoice);
                         goodsInInvoiceList.add(initialGoods);
                         setGoodsStatus(initialGoods.getId(), GoodsStatusEnum.WITHDRAWN);
-                        removeGoodsFromStorage(initialGoods.getId());
+                        removeGoodsFromStorage(initialGoods);
                     } else {
                         Goods goodsInAct = createGoodsForInvoice(initialGoods, goodsDTO, invoice);
                         if (goodsInAct != null) {
@@ -986,6 +1033,18 @@ public class GoodsServiceImpl implements GoodsService {
         dto.setWeightUnit(goods.getWeightUnit());
         dto.setQuantityUnit(goods.getQuantityUnit());
         dto.setPriceUnit(goods.getPriceUnit());
+
+        Invoice incomingInvoice;
+        if ((incomingInvoice = goods.getIncomingInvoice()) != null){
+            dto.setIncomingInvoiceNumber(incomingInvoice.getNumber());
+            dto.setIncomingInvoiceDate(incomingInvoice.getIssueDate());
+        }
+
+        Invoice outgoingInvoice;
+        if ((outgoingInvoice = goods.getOutgoingInvoice()) != null){
+            dto.setOutgoingInvoiceNumber(outgoingInvoice.getNumber());
+            dto.setOutgoingInvoiceDate(outgoingInvoice.getIssueDate());
+        }
 
         if (goods.getCurrentStatus() != null) {
             dto.setCurrentStatus(mapGoodsStatusToDTO(goods.getCurrentStatus()));

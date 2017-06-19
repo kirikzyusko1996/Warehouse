@@ -87,11 +87,19 @@ public class GoodsController {
     }
 
 
-    @RequestMapping(value = "/invoice/{invoiceId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/invoice/in/{invoiceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<GoodsDTO>> getGoodsForInvoice(@PathVariable Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
-        logger.info("GET on /invoice/{}", invoiceId);
-        List<GoodsDTO> goods = goodsService.findGoodsDTOsForInvoice(invoiceId);
+    public ResponseEntity<List<GoodsDTO>> getGoodsForIncomingInvoice(@PathVariable Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("GET on /invoice/in/{}", invoiceId);
+        List<GoodsDTO> goods = goodsService.findGoodsDTOsForIncomingInvoice(invoiceId);
+        return new ResponseEntity<>(goods, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invoice/out/{invoiceId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GoodsDTO>> getGoodsForOutgoingInvoice(@PathVariable Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("GET on /invoice/out/{}", invoiceId);
+        List<GoodsDTO> goods = goodsService.findGoodsDTOsForOutgoingInvoice(invoiceId);
         return new ResponseEntity<>(goods, HttpStatus.OK);
     }
 
@@ -276,7 +284,7 @@ public class GoodsController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<StatusResponse> removeGoodsFromStorage(@PathVariable(value = "id") Long id) throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         logger.info("PUT on /remove/{}", id);
-        goodsService.removeGoodsFromStorage(id);
+        goodsService.withdrawGoods(id);
         return new ResponseEntity<>(new StatusResponse(StatusEnum.UPDATED), HttpStatus.OK);
     }
 }

@@ -15,6 +15,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,4 +53,9 @@ public class GoodsDTO {
     private GoodsStatusDTO currentStatus;
     private GoodsStatusDTO registeredStatus;
     private GoodsStatusDTO movedOutStatus;
+    private String incomingInvoiceNumber;
+    private Date incomingInvoiceDate;
+    private String outgoingInvoiceNumber;
+    private Date outgoingInvoiceDate;
+
 }

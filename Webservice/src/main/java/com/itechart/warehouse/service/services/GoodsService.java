@@ -46,7 +46,9 @@ public interface GoodsService {
 
     List<Goods> findGoodsForOutgoingInvoice(Long invoiceId, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    List<GoodsDTO> findGoodsDTOsForInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    List<GoodsDTO> findGoodsDTOsForIncomingInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+
+    List<GoodsDTO> findGoodsDTOsForOutgoingInvoice(Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     List<GoodsDTO> findGoodsForWarehouseByCriteria(Long warehouseId, GoodsSearchDTO goodsSearchDTO, int firstResult, int maxResults) throws DataAccessException, IllegalParametersException;
 
@@ -70,7 +72,7 @@ public interface GoodsService {
 
     void putGoodsInCells(Long goodsId, List<StorageCellDTO> storageCells) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
-    void removeGoodsFromStorage(Long goodsId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
+    void withdrawGoods(Long goodsId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     void setOutgoingInvoice(List<Long> goodsIds, Long invoiceId) throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
