@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -117,9 +118,14 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         HttpURLConnection httpURLConnection = null;
         try {
             httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
+            httpURLConnection.setDoOutput(true);
             httpURLConnection.setRequestMethod("DELETE");
+            httpURLConnection.connect();
+            OutputStreamWriter out = new OutputStreamWriter(
+                    httpURLConnection.getOutputStream());
+            httpURLConnection.getResponseCode();
+            httpURLConnection.getResponseMessage();
+            out.close();
         } catch (IOException exception) {
             logger.error(exception.getMessage());
         } finally {
