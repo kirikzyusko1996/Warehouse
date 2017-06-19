@@ -189,6 +189,11 @@ public class WarehouseCompanyServiceImpl implements WarehouseCompanyService {
             if (!emailSenderService.sendMessageAboutRegistration(user)) {
                 return null;
             }
+            WarehouseCompanyStatus newCompanyStatus = new WarehouseCompanyStatus();
+            newCompanyStatus.setWarehouseCompany(updatedWarehouseCompany);
+            newCompanyStatus.setStartDate(today());
+            newCompanyStatus.setStatus(true);
+            statusDAO.insert(newCompanyStatus);
         } catch (GenericDAOException e) {
             logger.error("Error during saving WarehouseCompany: {}", e.getMessage());
             throw new DataAccessException(e.getCause());

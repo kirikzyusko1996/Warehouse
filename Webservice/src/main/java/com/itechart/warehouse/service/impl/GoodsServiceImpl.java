@@ -657,7 +657,7 @@ public class GoodsServiceImpl implements GoodsService {
 
                 GoodsStatus goodsStatus = buildGoodsStatus(status.toString());
                 goodsStatus.setGoods(goods);
-                goodsStatusDAO.insert(goodsStatus);
+              goodsStatusDAO.insert(goodsStatus);
                 updateGoodsAfterStatusUpdated(goods, goodsStatus);
 
                 return goodsStatus;

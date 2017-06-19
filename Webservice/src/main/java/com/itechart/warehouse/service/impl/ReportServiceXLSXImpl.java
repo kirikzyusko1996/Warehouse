@@ -117,6 +117,7 @@ public class ReportServiceXLSXImpl implements ReportService {
                     .add(Restrictions.and(Restrictions.ge("date", startTimestamp),
                             Restrictions.le("date", endTimestamp)));
             goodsStatusList = goodsStatusDAO.findAll(criteria, 0, 0);
+            goodsStatusList = goodsStatusList.stream().distinct().collect(Collectors.toList());
             Iterator<GoodsStatus> iterator = goodsStatusList.iterator();
             GoodsStatus goodsStatus;
             User user;

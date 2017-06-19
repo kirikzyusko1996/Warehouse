@@ -25,18 +25,18 @@
     <include file="liquibase/changelog/db.changelog-price-unit.xml"/>
     <include file="liquibase/changelog/db.changelog-quantity-unit.xml"/>
     <include file="liquibase/changelog/db.changelog-weight-unit.xml"/>
-    <include file="liquibase/changelog/db.changelog-invoice.xml"/>
+    <!--<include file="liquibase/changelog/db.changelog-invoice.xml"/>-->
     <include file="liquibase/changelog/db.changelog-invoice-status-name.xml"/>
-    <include file="liquibase/changelog/db.changelog-invoice-status.xml"/>
-    <include file="liquibase/changelog/db.changelog-goods.xml"/>
+    <!--<include file="liquibase/changelog/db.changelog-invoice-status.xml"/>-->
+    <!--<include file="liquibase/changelog/db.changelog-goods.xml"/>-->
     <include file="liquibase/changelog/db.changelog-act-type.xml"/>
-    <include file="liquibase/changelog/db.changelog-act.xml"/>
+    <!--<include file="liquibase/changelog/db.changelog-act.xml"/>-->
     <include file="liquibase/changelog/db.changelog-storage-cell.xml"/>
     <include file="liquibase/changelog/db.changelog-goods-status-name.xml"/>
-    <include file="liquibase/changelog/db.changelog-goods-status.xml"/>
-    <include file="liquibase/changelog/db.changelog-act-goods.xml"/>
-    <include file="liquibase/changelog/db.changelog-goods-2.xml"/>
-    <include file="liquibase/changelog/db.changelog-invoice-update.xml"/>
+    <!--<include file="liquibase/changelog/db.changelog-goods-status.xml"/>-->
+    <!--<include file="liquibase/changelog/db.changelog-act-goods.xml"/>
+    <include file="liquibase/changelog/db.changelog-goods-2.xml"/>-->
+    <!--<include file="liquibase/changelog/db.changelog-invoice-update.xml"/>-->
 
 
 </databaseChangeLog>

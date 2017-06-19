@@ -743,21 +743,16 @@ public class InvoiceServiceImpl implements InvoiceService {
             goodsList = invoice.getOutgoingGoods();
         }
 
-        GoodsStatusEnum goodsStatus = parseGoodsStatusByInvoiceStatus(statusName);
-        for (Goods goods : goodsList) {
-            goodsService.setGoodsStatus(goods.getId(), goodsStatus);
+        if (!statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
+            GoodsStatusEnum goodsStatus = parseGoodsStatusByInvoiceStatus(statusName);
+            for (Goods goods : goodsList) {
+                goodsService.setGoodsStatus(goods.getId(), goodsStatus);
+            }
         }
     }
 
     private GoodsStatusEnum parseGoodsStatusByInvoiceStatus(String statusName) {
-        GoodsStatusEnum goodsStatus;
-        if (statusName.equals(InvoiceStatusEnum.COMPLETED.toString())) {
-            goodsStatus = GoodsStatusEnum.STORED;
-        } else {
-            goodsStatus = GoodsStatusEnum.valueOf(statusName);
-        }
-
-        return goodsStatus;
+        return GoodsStatusEnum.valueOf(statusName);
     }
 
     private boolean isIncoming(String statusName) {

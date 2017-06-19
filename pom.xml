@@ -130,6 +130,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
+                    <port>8081</port>
                     <path>/web</path>
                     <mode>both</mode>
                     <!--<contextFile>${project.basedir}\web\src\formatter\webapp\META_INF\context.xml</contextFile>-->
