@@ -134,8 +134,8 @@ public class ReportServiceXLSXImpl implements ReportService {
                     reportItem.setUserName(user.getFirstName() + " " + user.getLastName());
                     reportItem.setQuantityUnitName(goods.getQuantityUnit().getName());
                     reportItem.setPrice(goods.getPrice().toPlainString());
-                //    reportItem.setShipperName(goods.getIncomingInvoice().getSupplierCompany().getName());
-              //      reportItem.setSenderName(goods.getIncomingInvoice().getTransportCompany().getName());
+                   reportItem.setShipperName(goods.getIncomingInvoice().getSupplierCompany().getName());
+                   reportItem.setSenderName(goods.getIncomingInvoice().getTransportCompany().getName());
                     reportItemList.add(reportItem);
                 }
             }
@@ -196,10 +196,10 @@ public class ReportServiceXLSXImpl implements ReportService {
             header.getCell(5).setCellStyle(style);
             header.createCell(6).setCellValue("Ответственное лицо");
             header.getCell(6).setCellStyle(style);
-//            header.createCell(5).setCellValue("Отправитель");
-//            header.getCell(5).setCellStyle(style);
-//            header.createCell(6).setCellValue("Перевозчик");
-//            header.getCell(6).setCellStyle(style);
+           header.createCell(7).setCellValue("Отправитель");
+           header.getCell(7).setCellStyle(style);
+           header.createCell(8).setCellValue("Перевозчик");
+           header.getCell(8).setCellStyle(style);
             //fill cells with data
             ReceiptReportItem reportItem;
             for(int i = 0; i < reportItemList.size(); i++){
@@ -219,8 +219,10 @@ public class ReportServiceXLSXImpl implements ReportService {
                 row.getCell(5).setCellStyle(infoCellStyle);
                 row.createCell(6).setCellValue(reportItem.getUserName());
                 row.getCell(6).setCellStyle(infoCellStyle);
-             //   row.createCell(5).setCellValue(reportItem.getSenderName());
-             //   row.createCell(6).setCellValue(reportItem.getShipperName());
+               row.createCell(7).setCellValue(reportItem.getSenderName());
+               row.getCell(7).setCellStyle(infoCellStyle);
+               row.createCell(8).setCellValue(reportItem.getShipperName());
+               row.getCell(8).setCellStyle(infoCellStyle);
                 if(i == reportItemList.size() - 1){
                     row.getCell(0).setCellStyle(lastRowNumberStyle);
                     row.getCell(1).setCellStyle(style);
@@ -229,6 +231,8 @@ public class ReportServiceXLSXImpl implements ReportService {
                     row.getCell(4).setCellStyle(style);
                     row.getCell(5).setCellStyle(style);
                     row.getCell(6).setCellStyle(style);
+                    row.getCell(7).setCellStyle(style);
+                    row.getCell(8).setCellStyle(style);
                 }
             }
             sheet.autoSizeColumn(1);
@@ -237,6 +241,8 @@ public class ReportServiceXLSXImpl implements ReportService {
             sheet.autoSizeColumn(4);
             sheet.autoSizeColumn(5);
             sheet.autoSizeColumn(6);
+            sheet.autoSizeColumn(7);
+            sheet.autoSizeColumn(8);
             sheet.autoSizeColumn(0,true);
             workbook.write(outputStream);
         } catch (GenericDAOException e) {
