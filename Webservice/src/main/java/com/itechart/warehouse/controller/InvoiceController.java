@@ -4,6 +4,7 @@ import com.itechart.warehouse.controller.error.RequestHandlingError;
 import com.itechart.warehouse.controller.response.IdResponse;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.dto.IncomingInvoiceDTO;
+import com.itechart.warehouse.dto.InvoicesCountDTO;
 import com.itechart.warehouse.dto.OutgoingInvoiceDTO;
 import com.itechart.warehouse.entity.*;
 import com.itechart.warehouse.security.UserDetailsProvider;
@@ -75,6 +76,21 @@ public class InvoiceController {
             return new ResponseEntity<>(invoices, HttpStatus.OK);
         } else {
             logger.error("Failed to retrieve authenticated user while retrieving outgoing invoices");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @RequestMapping(value = "/count", method = RequestMethod.GET)
+    public ResponseEntity<InvoicesCountDTO> readInvoicesCount()
+            throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
+        logger.info("GET on /invoice/count: read invoices count");
+
+        WarehouseCompanyUserDetails principal = UserDetailsProvider.getUserDetails();
+        if (principal != null) {
+            InvoicesCountDTO count = invoiceService.findInvoicesCount(principal);
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        } else {
+            logger.error("Failed to retrieve authenticated user while retrieving invoices count");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }

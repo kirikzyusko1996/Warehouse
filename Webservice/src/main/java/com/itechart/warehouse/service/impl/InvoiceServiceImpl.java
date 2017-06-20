@@ -171,6 +171,27 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#principal.user.warehouseCompany.idWarehouseCompany, 'Warehouse', 'GET')")
+    public InvoicesCountDTO findInvoicesCount(WarehouseCompanyUserDetails principal)
+            throws DataAccessException {
+        logger.info("Find invoices count");
+
+        try {
+            InvoicesCountDTO countDTO = new InvoicesCountDTO();
+            Long count = findInvoicesCountForUser(principal);
+            countDTO.setCount(count);
+
+            System.out.println(countDTO.getCount());
+
+            return countDTO;
+        } catch (GenericDAOException e) {
+            logger.error("Error during counting invoices: {}", e);
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Invoice findInvoiceById(Long id) throws DataAccessException {
         logger.info("Find dto by id #{}", id);
 
@@ -523,6 +544,25 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         return invoices;
+    }
+
+    private Long findInvoicesCountForUser(WarehouseCompanyUserDetails principal) throws GenericDAOException {
+        Long count = 0L;
+        User user = principal.getUser();
+        Long companyId = principal.getCompany().getIdWarehouseCompany();
+        if (user.hasRole("ROLE_CONTROLLER")) {
+            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatusForController(companyId);
+        }
+        if (user.hasRole("ROLE_DISPATCHER")) {
+            String status = "RELEASE_ALLOWED";
+            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatus(companyId, status);
+        }
+        if (user.hasRole("ROLE_MANAGER")) {
+            String status = "CHECKED";
+            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatus(companyId, status);
+        }
+
+        return count;
     }
 
     private List<Invoice> retrieveAllInvoices() throws GenericDAOException {
