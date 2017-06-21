@@ -39,15 +39,15 @@
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="3"/>
-            <column name="first_name" value="Алексей"/>
-            <column name="last_name" value="Малейко"/>
+            <column name="first_name" value="Кирик"/>
+            <column name="last_name" value="Зюсько"/>
             <column name="patronymic" value=""/>
             <column name="date_of_birth" value="1997-12-12"/>
             <column name="city" value="Минск"/>
             <column name="street" value="Независимости"/>
             <column name="house" value="54"/>
             <column name="apartment" value="19"/>
-            <column name="email" value="a.maleiko@yandex.by"/>
+            <column name="email" value="zyusko.kirik@gmail.com"/>
             <column name="login" value="dispatcher"/>
             <column name="password" value="dispatcher"/>
             <column name="id_warehouse_company" value="10"/>
@@ -73,8 +73,8 @@
         </insert>
         <insert dbms="h2, mysql" tableName="user">
             <column name="id_user" value="5"/>
-            <column name="last_name" value="Пинчук"/>
-            <column name="first_name" value="Анна"/>
+            <column name="last_name" value="Гилимович"/>
+            <column name="first_name" value="Александр"/>
             <column name="patronymic" value=""/>
             <column name="date_of_birth" value="1996-11-21"/>
             <column name="city" value="Минск"/>
@@ -152,23 +152,6 @@
             <column name="email" value="stal129@tut.by"/>
             <column name="login" value="manager2"/>
             <column name="password" value="manager2"/>
-            <column name="id_warehouse_company" value="10"/>
-            <column name="id_warehouse" value="10"/>
-            <column name="preset" value="1"/>
-        </insert>
-        <insert dbms="h2, mysql" tableName="user">
-            <column name="id_user" value="10"/>
-            <column name="first_name" value=""/>
-            <column name="last_name" value="root"/>
-            <column name="patronymic" value=""/>
-            <column name="date_of_birth" value="1970-04-22"/>
-            <column name="city" value="Минск"/>
-            <column name="street" value="Жилуновича"/>
-            <column name="house" value="10"/>
-            <column name="apartment" value="17"/>
-            <column name="email" value=""/>
-            <column name="login" value="root"/>
-            <column name="password" value="root"/>
             <column name="id_warehouse_company" value="10"/>
             <column name="id_warehouse" value="10"/>
             <column name="preset" value="1"/>

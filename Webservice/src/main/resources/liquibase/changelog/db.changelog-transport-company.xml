@@ -46,7 +46,7 @@
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="6"/>
-            <column name="name" value="Карты"/>
+            <column name="name" value="Elastic"/>
             <column name="is_trusted" valueBoolean="true"/>
             <column name="login" value="tr_company_6"/>
             <column name="password" value="p@@ssword"/>
@@ -70,7 +70,7 @@
         </insert>
         <insert tableName="transport_company">
             <column name="id_transport_company" value="9"/>
-            <column name="name" value="Паркер"/>
+            <column name="name" value="Ecolines"/>
             <column name="is_trusted" valueBoolean="true"/>
             <column name="login" value="tr_company_9"/>
             <column name="password" value="p@@ssword"/>
@@ -83,6 +83,14 @@
             <column name="login" value="tr_company_10"/>
             <column name="password" value="p@@ssword"/>
             <column name="id_warehouse_company" value="6"/>
+        </insert>
+        <insert tableName="transport_company">
+            <column name="id_transport_company" value="11"/>
+            <column name="name" value="Ecmalines"/>
+            <column name="is_trusted" valueBoolean="false"/>
+            <column name="login" value="tr_comp"/>
+            <column name="password" value="p@@ssword"/>
+            <column name="id_warehouse_company" value="10"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
