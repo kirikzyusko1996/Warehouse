@@ -181,8 +181,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             Long count = findInvoicesCountForUser(principal);
             countDTO.setCount(count);
 
-            System.out.println(countDTO.getCount());
-
             return countDTO;
         } catch (GenericDAOException e) {
             logger.error("Error during counting invoices: {}", e);
@@ -204,31 +202,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         } catch (GenericDAOException e) {
             logger.error("Error while finding dto by id: ", e);
             throw new DataAccessException(e);
-        }
-
-        return invoice;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Invoice findInvoiceByNumber(String number) throws DataAccessException {
-        logger.info("Find dto by number {}", number);
-
-        Invoice invoice = null;
-
-        if (StringUtils.isNotEmpty(number)) {
-            try {
-                DetachedCriteria criteria = DetachedCriteria.forClass(Invoice.class);
-                criteria.add(Restrictions.eq("number", number));
-
-                List<Invoice> invoices = invoiceDAO.findAll(criteria, -1, -1);
-                if (CollectionUtils.isNotEmpty(invoices)) {
-                    invoice = invoices.get(0);
-                }
-            } catch (GenericDAOException e) {
-                logger.error("Error while finding dto by number: ", e);
-                throw new DataAccessException(e);
-            }
         }
 
         return invoice;
@@ -496,6 +469,23 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
+    public Boolean invoiceExistsByNumber(String number) throws DataAccessException {
+        logger.error("Determine if dto #{} exists", number);
+
+        try {
+            if (findInvoiceByNumber(number) != null) {
+                return true;
+            }
+        } catch (GenericDAOException e) {
+            logger.error("Error while determine if dto exists", e);
+            throw new DataAccessException(e);
+        }
+
+        return false;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Warehouse findWarehouseByInvoiceId(Long invoiceId)
             throws IllegalParametersException, DataAccessException, ResourceNotFoundException {
         logger.info("Find warehouse of dto with id {}", invoiceId);
@@ -512,18 +502,34 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice.getWarehouse();
     }
 
+    private Invoice findInvoiceByNumber(String number) throws DataAccessException, GenericDAOException {
+        Invoice invoice = null;
+
+        if (StringUtils.isNotEmpty(number)) {
+            DetachedCriteria criteria = DetachedCriteria.forClass(Invoice.class);
+            criteria.add(Restrictions.eq("number", number));
+
+            List<Invoice> invoices = invoiceDAO.findAll(criteria, -1, -1);
+            if (CollectionUtils.isNotEmpty(invoices)) {
+                invoice = invoices.get(0);
+            }
+        }
+
+        return invoice;
+    }
+
     private List<Invoice> findIncomingInvoicesForUser(WarehouseCompanyUserDetails principal, int page, int count)
             throws GenericDAOException {
         List<Invoice> invoices = new ArrayList<>();
         User user = principal.getUser();
-        Long companyId = principal.getCompany().getIdWarehouseCompany();
+        Long warehouseId = principal.getWarehouse().getIdWarehouse();
         if (user.hasRole("ROLE_CONTROLLER")) {
             String status = "REGISTERED_INCOMING";
-            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(warehouseId, status, page, count));
         }
         if (user.hasRole("ROLE_MANAGER")) {
             String status = "CHECKED";
-            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(warehouseId, status, page, count));
         }
 
         return invoices;
@@ -533,14 +539,14 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws GenericDAOException {
         List<Invoice> invoices = new ArrayList<>();
         User user = principal.getUser();
-        Long companyId = principal.getCompany().getIdWarehouseCompany();
+        Long warehouseId = principal.getWarehouse().getIdWarehouse();
         if (user.hasRole("ROLE_CONTROLLER")) {
             String status = "REGISTERED_OUTGOING";
-            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(warehouseId, status, page, count));
         }
         if (user.hasRole("ROLE_DISPATCHER")) {
             String status = "RELEASE_ALLOWED";
-            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(companyId, status, page, count));
+            invoices.addAll(invoiceDAO.findInvoicesByWarehouseIdAndStatus(warehouseId, status, page, count));
         }
 
         return invoices;
@@ -549,17 +555,17 @@ public class InvoiceServiceImpl implements InvoiceService {
     private Long findInvoicesCountForUser(WarehouseCompanyUserDetails principal) throws GenericDAOException {
         Long count = 0L;
         User user = principal.getUser();
-        Long companyId = principal.getCompany().getIdWarehouseCompany();
+        Long warehouseId = principal.getWarehouse().getIdWarehouse();
         if (user.hasRole("ROLE_CONTROLLER")) {
-            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatusForController(companyId);
+            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatusForController(warehouseId);
         }
         if (user.hasRole("ROLE_DISPATCHER")) {
             String status = "RELEASE_ALLOWED";
-            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatus(companyId, status);
+            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatus(warehouseId, status);
         }
         if (user.hasRole("ROLE_MANAGER")) {
             String status = "CHECKED";
-            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatus(companyId, status);
+            count += invoiceDAO.findInvoicesCountByWarehouseIdAndStatus(warehouseId, status);
         }
 
         return count;
@@ -777,7 +783,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException {
         String statusName = invoice.getCurrentStatus().getStatusName().getName();
         List<Goods> goodsList;
-        if (isIncoming(statusName)){
+        if (isIncoming(statusName)) {
             goodsList = invoice.getIncomingGoods();
         } else {
             goodsList = invoice.getOutgoingGoods();

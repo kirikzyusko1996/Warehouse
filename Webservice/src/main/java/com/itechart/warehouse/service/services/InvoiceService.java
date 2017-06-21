@@ -12,6 +12,7 @@ import com.itechart.warehouse.security.WarehouseCompanyUserDetails;
 import com.itechart.warehouse.service.exception.DataAccessException;
 import com.itechart.warehouse.service.exception.IllegalParametersException;
 import com.itechart.warehouse.service.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,8 +26,6 @@ public interface InvoiceService {
     InvoicesCountDTO findInvoicesCount(WarehouseCompanyUserDetails principal) throws DataAccessException;
 
     Invoice findInvoiceById(Long id) throws DataAccessException;
-
-    Invoice findInvoiceByNumber(String number) throws DataAccessException;
 
     IncomingInvoiceDTO findIncomingInvoiceForCompanyById(Long id, Long companyId) throws DataAccessException, ResourceNotFoundException, IllegalParametersException, GenericDAOException;
 
@@ -53,6 +52,9 @@ public interface InvoiceService {
             throws DataAccessException, IllegalParametersException, ResourceNotFoundException;
 
     boolean invoiceExists(Invoice invoice) throws DataAccessException;
+
+    @Transactional(readOnly = true)
+    Boolean invoiceExistsByNumber(String number) throws DataAccessException;
 
     Warehouse findWarehouseByInvoiceId(Long invoiceId) throws IllegalParametersException, DataAccessException, ResourceNotFoundException;
 }

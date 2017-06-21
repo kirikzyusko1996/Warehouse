@@ -64,7 +64,7 @@ public class Invoice {
         this.id = id;
     }
 
-    @Column(name = "number", nullable = false)
+    @Column(name = "number", nullable = false, unique = true)
     public String getNumber() {
         return number;
     }

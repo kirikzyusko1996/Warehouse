@@ -160,7 +160,7 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="number" type="VARCHAR(30)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="issue_date" type="date">
                 <constraints nullable="false"/>
