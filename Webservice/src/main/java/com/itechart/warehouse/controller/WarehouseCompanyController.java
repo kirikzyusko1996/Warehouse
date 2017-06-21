@@ -14,10 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,8 +138,8 @@ public class WarehouseCompanyController {
         return new ResponseEntity<>(company, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save/{email:.+}", method = RequestMethod.POST, consumes = "application/json")
-    public ResponseEntity<User> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany,
+    @RequestMapping(value = "/save/{email:.+}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Void> saveCompany(@Valid @RequestBody WarehouseCompany warehouseCompany,
                                             @PathVariable String email){
         logger.info("POST on /company: save new company");
         User user;
@@ -151,7 +153,7 @@ public class WarehouseCompanyController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
