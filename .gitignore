@@ -6,3 +6,6 @@ target
 *.iml
 *.iws
 *.log
+/Database/src/main/resources/liquibase/mysql/liquibase-mysql.properties
+/Webservice/src/main/resources/application.properties
+/Webservice/src/main/resources/log4j.properties

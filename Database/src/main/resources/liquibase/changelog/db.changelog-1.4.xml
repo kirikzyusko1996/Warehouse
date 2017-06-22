@@ -1,0 +1,31 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Changing tables encoding -->
+
+    <changeSet author="ulad_bondar" id="100">
+        <sql>ALTER TABLE act CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE act_type CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE driver CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE goods CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE goods_status CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE goods_status_name CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE invoice CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE invoice_status CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE invoice_status_name CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE price_list CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE name CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE storage_cell CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE storage_space CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE storage_space_type CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE transport_company CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE unit CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE user CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE user_role CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE warehouse CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE warehouse_company CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+        <sql>ALTER TABLE warehouse_customer_company CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci'</sql>
+    </changeSet>
+</databaseChangeLog>

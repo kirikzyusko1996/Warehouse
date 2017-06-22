@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">Registration</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body th:style="'background-color: #ffffff;'">
+
+<div>Здравствуйте! Спасибо за регистрацию в нашем сервисе. Данные для входа:
+    <br>
+    Логин: <span th:text="${login}"></span>
+    <br>
+    Пароль: <span th:text="${password}"></span>
+</div>
+
+</body>
+</html>

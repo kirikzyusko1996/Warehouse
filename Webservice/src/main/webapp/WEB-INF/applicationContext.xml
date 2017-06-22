@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+    <bean id="propertyPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:application.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="${spring.datasource.url}"/>
+        <property name="username" value="${spring.datasource.username}"/>
+        <property name="password" value="${spring.datasource.password}"/>
+    </bean>
+
+    <import resource="dataSource-dev.xml"/>
+    <import resource="dataSource-production.xml"/>
+    <import resource="security-context.xml"/>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="packagesToScan" value="com.itechart.warehouse.entity"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="hibernate.max_fetch_depth">3</prop>
+                <prop key="hibernate.jdЬc.fetch_size">30</prop>
+                <prop key="hibernate.jdbc.batch_size">10</prop>
+                <!--<prop key="hibernate.show_sql">true</prop>-->
+                <!--<prop key="hbm2ddl.auto">create</prop>-->
+            </props>
+        </property>
+    </bean>
+
+    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    <!--Validation-->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"></bean>
+    <bean id="methodValidationPostProcessor"
+          class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor">
+        <property name="validator" ref="validator"/>
+    </bean>
+    <!--emails-->
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${spring.email.host}"/>
+        <property name="port" value="${spring.email.port}"/>
+        <property name="username" value="${spring.email.username}"/>
+        <property name="password" value="${spring.email.password}"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtp</prop>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+            </props>
+        </property>
+    </bean>
+    <!--templates-->
+    <bean id="htmlTemplateResolver" class="org.thymeleaf.templateresolver.ClassLoaderTemplateResolver">
+        <property name="cacheable" value="false"/>
+        <property name="characterEncoding" value="UTF-8"/>
+        <property name="templateMode" value="HTML"/>
+        <property name="suffix" value=".html"/>
+    </bean>
+    <bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
+        <property name="templateResolver" ref="htmlTemplateResolver"/>
+    </bean>
+    <!--scheduling-->
+    <bean name="retryJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.itechart.warehouse.scheduler.RetrySendingJob"/>
+        <property name="durability" value="true"/>
+    </bean>
+    <bean name="retryScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobDetails" ref="retryJob"/>
+        <property name="waitForJobsToCompleteOnShutdown" value="true"/>
+    </bean>
+
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="5000000" />
+    </bean>
+
+    <task:annotation-driven/>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <context:component-scan
+            base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl, com.itechart.warehouse.mail, com.itechart.warehouse.scheduler"/>
+
+
+</beans>

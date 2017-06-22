@@ -1,0 +1,68 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="ulad_bondar" id="invoice-status">
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="1"/>
+            <column name="id_status_name" value="1"/>
+            <column name="id_user" value="5"/>
+            <column name="id_invoice" value="1"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="2"/>
+            <column name="id_status_name" value="2"/>
+            <column name="id_user" value="4"/>
+            <column name="id_invoice" value="2"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="3"/>
+            <column name="id_status_name" value="3"/>
+            <column name="id_user" value="3"/>
+            <column name="id_invoice" value="3"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="4"/>
+            <column name="id_status_name" value="4"/>
+            <column name="id_user" value="2"/>
+            <column name="id_invoice" value="4"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="5"/>
+            <column name="id_status_name" value="5"/>
+            <column name="id_user" value="1"/>
+            <column name="id_invoice" value="5"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="6"/>
+            <column name="id_status_name" value="1"/>
+            <column name="id_user" value="5"/>
+            <column name="id_invoice" value="6"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="7"/>
+            <column name="id_status_name" value="2"/>
+            <column name="id_user" value="4"/>
+            <column name="id_invoice" value="7"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="8"/>
+            <column name="id_status_name" value="3"/>
+            <column name="id_user" value="3"/>
+            <column name="id_invoice" value="8"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="9"/>
+            <column name="id_status_name" value="4"/>
+            <column name="id_user" value="2"/>
+            <column name="id_invoice" value="9"/>
+        </insert>
+        <insert tableName="invoice_status">
+            <column name="id_invoice_status" value="10"/>
+            <column name="id_status_name" value="5"/>
+            <column name="id_user" value="1"/>
+            <column name="id_invoice" value="10"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

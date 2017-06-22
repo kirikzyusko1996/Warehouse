@@ -36,7 +36,6 @@ CREATE TABLE `user`(
   `street` VARCHAR(50),
   `house` VARCHAR(10),
   `apartment` VARCHAR(10),
-  `id_company` BIGINT UNSIGNED NOT NULL,
   `email` VARCHAR(30) UNIQUE,
   `login` VARCHAR(20) NOT NULL UNIQUE,
   `password` VARCHAR(20) NOT NULL,
@@ -47,7 +46,7 @@ CREATE TABLE `user`(
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
 
 
-CREATE TABLE `role`(
+CREATE TABLE `name`(
   `id_role` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(20) UNIQUE NOT NULL,
 
@@ -61,7 +60,7 @@ CREATE TABLE `user_role`(
 
   PRIMARY KEY(`id_user_role`),
   FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`),
-  FOREIGN KEY (`id_role`) REFERENCES `role`(`id_role`)
+  FOREIGN KEY (`id_role`) REFERENCES `name`(`id_role`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
 
 
@@ -118,11 +117,13 @@ CREATE TABLE `storage_space_type`(
 CREATE TABLE `price_list`(
   `id_price_list` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_storage_space_type` SMALLINT UNSIGNED NOT NULL,
-  `setting_time` TIMESTAMP NOT NULL,
+  `end_time` TIMESTAMP NULL DEFAULT NULL,
   `daily_price` DECIMAL(12,2) NOT NULL,
+  `id_warehouse_company` BIGINT UNSIGNED NOT NULL,
 
   PRIMARY KEY(`id_price_list`),
-  FOREIGN KEY (`id_storage_space_type`) REFERENCES `storage_space_type`(`id_storage_space_type`)
+  FOREIGN KEY (`id_storage_space_type`) REFERENCES `storage_space_type`(`id_storage_space_type`),
+  FOREIGN KEY (`id_warehouse_company`) REFERENCES `warehouse_company`(`id_warehouse_company`)
 ) DEFAULT CHARSET utf8mb4 ENGINE InnoDB;
 
 

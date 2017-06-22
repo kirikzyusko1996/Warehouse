@@ -1,0 +1,131 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="gilimovich" id="act">
+
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="1"/>
+            <column name="id_act_type" value="2"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="4"/>
+            <column name="id_warehouse" value="10"/>
+        </insert>
+
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="2"/>
+            <column name="id_act_type" value="3"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="5"/>
+            <column name="id_warehouse" value="10"/>
+        </insert>
+
+        <insert dbms="h2, mysql" tableName="act">
+            <column name="id_act" value="3"/>
+            <column name="id_act_type" value="1"/>
+            <column name="date" valueDate="now()"/>
+            <column name="id_user" value="4"/>
+            <column name="id_warehouse" value="10"/>
+        </insert>
+
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="5"/>-->
+            <!--<column name="id_act_type" value="1"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="3"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="6"/>-->
+            <!--<column name="id_act_type" value="2"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="4"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="7"/>-->
+            <!--<column name="id_act_type" value="3"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="5"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="8"/>-->
+            <!--<column name="id_act_type" value="4"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="5"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="9"/>-->
+            <!--<column name="id_act_type" value="1"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="10"/>-->
+            <!--<column name="id_act_type" value="2"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="5"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="11"/>-->
+            <!--<column name="id_act_type" value="1"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="12"/>-->
+            <!--<column name="id_act_type" value="2"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="13"/>-->
+            <!--<column name="id_act_type" value="3"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="14"/>-->
+            <!--<column name="id_act_type" value="4"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="15"/>-->
+            <!--<column name="id_act_type" value="1"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="16"/>-->
+            <!--<column name="id_act_type" value="2"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="17"/>-->
+            <!--<column name="id_act_type" value="3"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+        <!--<insert dbms="h2, mysql" tableName="act">-->
+            <!--<column name="id_act" value="18"/>-->
+            <!--<column name="id_act_type" value="4"/>-->
+            <!--<column name="date" valueDate="now()"/>-->
+            <!--<column name="id_user" value="10"/>-->
+            <!--<column name="id_warehouse" value="10"/>-->
+        <!--</insert>-->
+    </changeSet>
+</databaseChangeLog>

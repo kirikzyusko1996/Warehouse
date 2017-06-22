@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.driver_class">org.h2.Driver</property>
+        <property name="connection.url">jdbc:h2:mem:warehouse</property>
+        <property name="connection.username">sa</property>
+        <property name="connection.password"/>
+        <property name="connection.pool_size">1</property>
+        <property name="current_session_context_class">thread</property>
+        <property name="show_sql">true</property>
+        <property name="dialect">org.hibernate.dialect.H2Dialect</property>
+        <property name="hbm2ddl.auto">create</property>
+        <mapping class="com.itechart.warehouse.entity.Act"/>
+        <mapping class="com.itechart.warehouse.entity.ActType"/>
+        <mapping class="com.itechart.warehouse.entity.Driver"/>
+        <mapping class="com.itechart.warehouse.entity.Goods"/>
+        <mapping class="com.itechart.warehouse.entity.GoodsStatus"/>
+        <mapping class="com.itechart.warehouse.entity.GoodsStatusName"/>
+        <mapping class="com.itechart.warehouse.entity.Invoice"/>
+        <mapping class="com.itechart.warehouse.entity.InvoiceStatus"/>
+        <mapping class="com.itechart.warehouse.entity.InvoiceStatusName"/>
+        <mapping class="com.itechart.warehouse.entity.PriceList"/>
+        <mapping class="com.itechart.warehouse.entity.Role"/>
+        <mapping class="com.itechart.warehouse.entity.StorageCell"/>
+        <mapping class="com.itechart.warehouse.entity.StorageSpace"/>
+        <mapping class="com.itechart.warehouse.entity.StorageSpaceType"/>
+        <mapping class="com.itechart.warehouse.entity.TransportCompany"/>
+        <mapping class="com.itechart.warehouse.entity.Unit"/>
+        <mapping class="com.itechart.warehouse.entity.User"/>
+        <mapping class="com.itechart.warehouse.entity.UserRole"/>
+        <mapping class="com.itechart.warehouse.entity.Warehouse"/>
+        <mapping class="com.itechart.warehouse.entity.WarehouseCompany"/>
+        <mapping class="com.itechart.warehouse.entity.WarehouseCustomerCompany"/>
+    </session-factory>
+</hibernate-configuration>

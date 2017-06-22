@@ -1,0 +1,49 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="zyusko" id="warehouse-company">
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="1"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2017-01-01"/>
+            <column name="due_date" value="2017-02-01"/>
+            <column name="id_warehouse_company" value="2"/>
+        </insert>
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="2"/>
+            <column name="status" valueBoolean="false"/>
+            <column name="start_date" value="2017-02-02"/>
+            <column name="due_date" value="null"/>
+            <column name="id_warehouse_company" value="2"/>
+        </insert>
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="4"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2016-12-12"/>
+            <column name="due_date" value="2017-01-20"/>
+            <column name="id_warehouse_company" value="8"/>
+        </insert>
+        <!--<insert tableName="warehouse_company_status">-->
+            <!--<column name="id_warehouse_company_status" value="5"/>-->
+            <!--<column name="status" valueBoolean="true"/>-->
+            <!--<column name="start_date" value="2017-03-03"/>-->
+            <!--<column name="due_date" value="2017-10-15"/>-->
+            <!--<column name="id_warehouse_company" value="null"/>-->
+        <!--</insert>-->
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="6"/>
+            <column name="status" valueBoolean="false"/>
+            <column name="start_date" value="2017-01-21"/>
+            <column name="due_date" value="2017-03-02"/>
+            <column name="id_warehouse_company" value="3"/>
+        </insert>
+        <insert tableName="warehouse_company_status">
+            <column name="id_warehouse_company_status" value="7"/>
+            <column name="status" valueBoolean="true"/>
+            <column name="start_date" value="2017-01-20"/>
+            <column name="due_date"/>
+            <column name="id_warehouse_company" value="1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
