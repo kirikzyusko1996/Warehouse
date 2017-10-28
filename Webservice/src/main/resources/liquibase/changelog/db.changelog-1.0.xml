@@ -113,7 +113,9 @@
             <column name="id_moved_out_status" type="BIGINT UNSIGNED">
                 <constraints nullable="true"/>
             </column>
-
+            <column name="id_strategy" type="BIGINT UNSIGNED">
+                <constraints nullable="true"/>
+            </column>
 
 
 
@@ -484,6 +486,19 @@
             </column>
             <column name="comment" type="VARCHAR(250)">
                 <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="kirill_zyusko" id="24">
+        <createTable tableName="strategy">
+            <column autoIncrement="true" name="id_strategy" type="BIGINT UNSIGNED">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>

@@ -7,11 +7,13 @@ import com.itechart.warehouse.entity.GoodsStatusName;
 import com.itechart.warehouse.query.GoodsSearchCriteria;
 import com.itechart.warehouse.query.GoodsSearchQueryBuilder;
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -269,6 +271,22 @@ public class GoodsDAO extends DAO<Goods> {
         Query<Long> query = hibernateTemplate.getSessionFactory().getCurrentSession().createQuery(queryHql);
         query.setParameter(PARAMETER_WAREHOUSE_ID, warehouseId);
         return query.getSingleResult();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Transactional
+    public Goods getGoodsByIdWithInvoices(Long goodsId) {
+        Goods goods = hibernateTemplate.get(Goods.class, goodsId);
+        /**
+         * Since by default the toys are not loaded, we call the hibernate
+         * template's initialize method to populate the toys list of that
+         * respective child.
+         */
+        hibernateTemplate.initialize(goods.getOutgoingInvoice());
+        hibernateTemplate.initialize(goods.getIncomingInvoice());
+        return goods;
     }
 
     private String getStatusName(GoodsStatusEnum status) {

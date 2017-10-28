@@ -105,7 +105,7 @@
     <task:annotation-driven/>
     <tx:annotation-driven transaction-manager="transactionManager"/>
     <context:component-scan
-            base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl, com.itechart.warehouse.mail, com.itechart.warehouse.scheduler"/>
+            base-package="com.itechart.warehouse.dao, com.itechart.warehouse.service.impl, com.itechart.warehouse.service.forecasting, com.itechart.warehouse.mail, com.itechart.warehouse.scheduler"/>
 
 
 </beans>

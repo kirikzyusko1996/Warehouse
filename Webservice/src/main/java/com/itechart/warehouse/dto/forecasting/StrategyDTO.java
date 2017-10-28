@@ -1,5 +1,6 @@
-package com.itechart.warehouse.dto;
+package com.itechart.warehouse.dto.forecasting;
 
+import com.itechart.warehouse.entity.Strategy;
 import lombok.*;
 
 /**
@@ -15,5 +16,6 @@ public class StrategyDTO {
     private Integer price;
     private Integer daysUntilRelease;
     private Integer daysKeeping;
-    
+    private Category category;
+    private Strategy strategy;
 }

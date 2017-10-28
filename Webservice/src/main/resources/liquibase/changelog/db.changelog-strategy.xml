@@ -1,0 +1,35 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="kirill_zyusko" id="strategy">
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Скидка"/>
+            <column name="description" value="Предоставьте скидку на товар, чтобы привлечь внимание клиентов"/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Реклама"/>
+            <column name="description" value="Предпочтительной тактикой в реализации товара является усиление его рекламы в обществе."/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Розыгрыш"/>
+            <column name="description" value="Если есть возможность пропиарить магазин, то почему бы просто так не разыграть товар? Магазин получит много внимания со стороны общественности, что в будущем значительно увеличит прибыль."/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Подарок"/>
+            <column name="description" value="Дайте небольшой подарок клиенту, связанный с этим товаром (например, флешка к телефону)."/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Привелегии магазина"/>
+            <column name="description" value="Предоставьте скидку на последующие покупки в вашем магазине."/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Демо использование"/>
+            <column name="description" value="Для того, чтобы клиенту понять: необходим ли ему данный товар или нет, можно дать некоторое время бесплатно поиспользовать данный товар. Очень часто, после использования товара пользователь к нему привыкает и непременно его покупает."/>
+        </insert>
+        <insert dbms="h2, mysql" tableName="strategy">
+            <column name="name" value="Игровая акция"/>
+            <column name="description" value="Для более быстрой реализации товара магазины часто прибегают к способу рекламной игры, которая заключается в розыгрыше определённых товаров, при покупке данного товара и регистрации игрового кода для принятия участия в игре. Далее случайным образом из всех зарегистрировавшихся номеров выбираются несколько, которые и являются победившими."/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

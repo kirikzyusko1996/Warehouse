@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -44,10 +45,12 @@ public class Goods {
     private GoodsStatus registeredStatus;
     @JsonIgnore
     private GoodsStatus movedOutStatus;
+    @JsonIgnore
+    private Strategy strategy;
 
     public Goods() {
     }
-
+//цена, количестводнейреализации, категория товара, ?количество => стратегия
     public Goods(Goods goods) {
         if (goods == null) return;
         this.id = goods.id;
@@ -269,5 +272,15 @@ public class Goods {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_strategy")
+    public Strategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 }

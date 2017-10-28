@@ -15,5 +15,8 @@
     <changeSet author="gilimovich" id="invoice_warehouse_ibfk_1">
         <addForeignKeyConstraint baseColumnNames="id_warehouse" baseTableName="invoice" constraintName="invoice_warehouse_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_warehouse" referencedTableName="warehouse"/>
     </changeSet>
+    <changeSet author="kirill_zyusko" id="goods_strategy_ibfk_1">
+        <addForeignKeyConstraint baseColumnNames="id_strategy" baseTableName="goods" constraintName="goods_strategy_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id_strategy" referencedTableName="strategy"/>
+    </changeSet>
 
 </databaseChangeLog>
