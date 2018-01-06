@@ -106,7 +106,7 @@ public class ForecastingServiceImpl implements ForecastingService {
 
     private int listGoodsToCSV() throws GenericDAOException, IOException {
         List<Goods> goodsList = strategyService.getListForLearning();
-        initClassifiers();
+        initClassifiers();//todo: be here or replace to train method?
         File f = new ClassPathResource(PATH_TO_TRAIN_DATA).getFile();
 
         FileWriter writer = new FileWriter(f);
@@ -136,7 +136,8 @@ public class ForecastingServiceImpl implements ForecastingService {
 
 //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
         int labelIndex = 3;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
-        int numClasses = strategyService.getQuantityStrategies();     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
+        //todo: +1, т.к. 0-ая стратегия нигде не исполльзуется (или id в БД нумеровать с нуля по дефолту)
+        int numClasses = strategyService.getQuantityStrategies()+1;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
 
         final int numInputs = labelIndex;
         int outputNum = numClasses;
@@ -227,8 +228,8 @@ public class ForecastingServiceImpl implements ForecastingService {
         int labelIndex = 3;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
         int numClasses = 7;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
 
-        final int numInputs = labelIndex;//todo: reference
-        int outputNum = numClasses;//todo: reference
+        final int numInputs = labelIndex;
+        int outputNum = numClasses;
         int iterations = 1000;
         int epochs = 15;
         long seed = 6;
