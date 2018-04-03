@@ -98,7 +98,7 @@ public class ForecastingServiceImpl implements ForecastingService {
     }
 
     @Transactional(readOnly = true)
-    private long getCountKeepingDays(Goods goods) throws GenericDAOException {
+    long getCountKeepingDays(Goods goods) throws GenericDAOException {
         Goods goodsWithInvoices = goodsDAO.getGoodsByIdWithInvoices(goods.getId());
         long diff = goodsWithInvoices.getOutgoingInvoice().getIssueDate().getTime() - goodsWithInvoices.getIncomingInvoice().getIssueDate().getTime();
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);

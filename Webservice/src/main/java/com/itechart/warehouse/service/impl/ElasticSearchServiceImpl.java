@@ -95,7 +95,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         logger.info("Complete init for driver (elastic search)");
     }
 
-    @PostConstruct
+/*    @PostConstruct
     public void init(){
         clearElasticSearchData();
         try {
@@ -105,7 +105,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         } catch (DataAccessException|ResourceNotFoundException|GenericDAOException|IllegalParametersException e) {
             logger.error(e.getMessage());
         }
-    }
+    }*/
 
     public void clearElasticSearchData() {
         logger.info("Clear Elastic Search Data");

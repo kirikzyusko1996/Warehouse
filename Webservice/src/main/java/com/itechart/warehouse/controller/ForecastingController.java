@@ -49,13 +49,11 @@ public class ForecastingController {
             strategyService.getListForLearning();
             try {
                 forecastingService.train();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (IOException | InterruptedException e) {
+                logger.error(e.getMessage());
             }
         } catch (GenericDAOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         /*StrategyDTO strategyDTO = new StrategyDTO();
         strategyDTO.setCategory(Category.RARELY);
