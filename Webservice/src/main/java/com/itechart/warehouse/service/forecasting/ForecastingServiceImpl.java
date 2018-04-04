@@ -27,10 +27,12 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -59,14 +62,30 @@ import java.util.stream.Collectors;
 public class ForecastingServiceImpl implements ForecastingService {
     private static final String PATH_TO_MODEL = "warehouse_neural_network.zip";
     private static final String PATH_TO_TRAIN_DATA = "/DataExamplesWarehouse/data.csv";
-    private static final String PATH_TO_TEST_DATA = "/DataExamplesWarehouse/warehouse_test2.csv";
+    private static final String PATH_TO_TEST_DATA = "/DataExamplesWarehouse/warehouse.csv";
 
     private static Logger log = LoggerFactory.getLogger(ForecastingServiceImpl.class);
     private StrategyService strategyService;
     private GoodsDAO goodsDAO;
     private StrategyDAO strategyDAO;
     //private static Map<Integer,String> category = readEnumCSV("/DataExamplesWarehouse/category.csv");
-    private static Map<Integer, String> classifiers = readEnumCSV("/DataExamplesWarehouse/classifiers.csv");
+    private Map<Integer, String> classifiers = readEnumCSV("/DataExamplesWarehouse/classifiers.csv");
+
+    private MultiLayerNetwork network;
+
+    @PostConstruct
+    public void init() {
+        try {
+            network = load();
+        } catch (IOException e) { // file not exist -> train model
+            log.error(e.getMessage());
+            try {
+                train();
+            } catch (GenericDAOException | IOException | InterruptedException e1) {
+                log.error(e1.getMessage());
+            }
+        }
+    }
 
     @Autowired
     public void setStrategyDAO(StrategyDAO strategyDAO) {
@@ -83,8 +102,16 @@ public class ForecastingServiceImpl implements ForecastingService {
         this.strategyService = strategyService;
     }
 
-    public Strategy getStrategyByGoods() {
-        return new Strategy(1l, "Скидка", "Не более 5%");
+    public Strategy getStrategyByGoods(Long idGoods) {
+        try {
+            Goods goods = goodsDAO.getById(idGoods);
+            long a = getStrategyId(goods);
+            Optional<Strategy> strategy = strategyDAO.findById(1l);
+            return strategy.orElse(null);
+        } catch (GenericDAOException e) {
+            log.error(e.getMessage());
+        }
+        return null;
     }
 
     @Transactional(readOnly = true)
@@ -92,13 +119,13 @@ public class ForecastingServiceImpl implements ForecastingService {
         DetachedCriteria criteria = DetachedCriteria.forClass(Strategy.class);
         List<Strategy> strategies = strategyDAO.findAll(criteria, -1, -1);
         classifiers.clear();
-        for(Strategy strategy: strategies) {
+        for(Strategy strategy : strategies) {
             classifiers.put(Math.toIntExact(strategy.getIdStrategy()), strategy.getName());
         }
     }
 
     @Transactional(readOnly = true)
-    long getCountKeepingDays(Goods goods) throws GenericDAOException {
+    public long getCountKeepingDays(Goods goods) {
         Goods goodsWithInvoices = goodsDAO.getGoodsByIdWithInvoices(goods.getId());
         long diff = goodsWithInvoices.getOutgoingInvoice().getIssueDate().getTime() - goodsWithInvoices.getIncomingInvoice().getIssueDate().getTime();
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
@@ -106,7 +133,7 @@ public class ForecastingServiceImpl implements ForecastingService {
 
     private int listGoodsToCSV() throws GenericDAOException, IOException {
         List<Goods> goodsList = strategyService.getListForLearning();
-        initClassifiers();//todo: be here or replace to train method?
+        initClassifiers();
         File f = new ClassPathResource(PATH_TO_TRAIN_DATA).getFile();
 
         FileWriter writer = new FileWriter(f);
@@ -127,17 +154,17 @@ public class ForecastingServiceImpl implements ForecastingService {
             writer.write("\n");
         }
         writer.close();
-        return goodsList == null ? 0 : goodsList.size();
+        return goodsList.size();
     }
 
     @Override
     public void train() throws GenericDAOException, IOException, InterruptedException {
         int batchSizeTraining = listGoodsToCSV();
 
-//Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
+        //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
         int labelIndex = 3;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
-        //todo: +1, т.к. 0-ая стратегия нигде не исполльзуется (или id в БД нумеровать с нуля по дефолту)
-        int numClasses = strategyService.getQuantityStrategies()+1;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
+        // +1, т.к. 0-ая стратегия нигде не исполльзуется (или id в БД нумеровать с нуля по дефолту)
+        int numClasses = strategyService.getQuantityStrategies() + 1;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
 
         final int numInputs = labelIndex;
         int outputNum = numClasses;
@@ -147,7 +174,7 @@ public class ForecastingServiceImpl implements ForecastingService {
 
         //test data
         int batchSizeTest = 10;
-        DataSet testData = readCSVDataset("/DataExamplesWarehouse/warehouse.csv",
+        DataSet testData = readCSVDataset(PATH_TO_TEST_DATA,
                 batchSizeTest, labelIndex, numClasses);
         //int batchSizeTraining = 17;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
         DataSet trainingData = readCSVDataset(PATH_TO_TRAIN_DATA,
@@ -155,7 +182,7 @@ public class ForecastingServiceImpl implements ForecastingService {
 
         // make the data model for records prior to normalization, because it
         // changes the data.
-        Map<Integer, Map<String, Object>> animals = makeAnimalsForTesting(testData);
+        Map<Integer, Map<String, Object>> animals = makeStrategyForTesting(testData);
 
         //We need to normalize our data. We'll use NormalizeStandardize (which gives us mean 0, unit variance):
         DataNormalization normalizer = new NormalizerStandardize();
@@ -191,6 +218,8 @@ public class ForecastingServiceImpl implements ForecastingService {
                 model.fit(trainingData);
             }
 
+            reload(model);
+
             INDArray output = model.output(testData.getFeatureMatrix());
 
             //evaluate the model on the test set
@@ -202,7 +231,7 @@ public class ForecastingServiceImpl implements ForecastingService {
             logAnimals(animals);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 
@@ -220,142 +249,33 @@ public class ForecastingServiceImpl implements ForecastingService {
         return ModelSerializer.restoreMultiLayerNetwork(locationToSave);
     }
 
-    private void reload_restart() {
+    private void reload(MultiLayerNetwork model) throws IOException {
+        save(model);
+        load();
     }
 
-    /*public static void main(String[] args) throws Exception {
-        //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
-        int labelIndex = 3;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
-        int numClasses = 7;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
-
-        final int numInputs = labelIndex;
-        int outputNum = numClasses;
-        int iterations = 1000;
-        int epochs = 15;
-        long seed = 6;
-
-        //test data
-        int batchSizeTest = 10;
-        DataSet testData = readCSVDataset("/DataExamplesWarehouse/warehouse.csv",
-            batchSizeTest, labelIndex, numClasses);
-        int batchSizeTraining = 17;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
-        DataSet trainingData = readCSVDataset(
-            "/DataExamplesWarehouse/warehouse_train.csv",
-            batchSizeTraining, labelIndex, numClasses);
-
-        // make the data model for records prior to normalization, because it
-        // changes the data.
-        Map<Integer, Map<String, Object>> animals = makeAnimalsForTesting(testData);
-
-        //We need to normalize our data. We'll use NormalizeStandardize (which gives us mean 0, unit variance):
-        DataNormalization normalizer = new NormalizerStandardize();
-        normalizer.fit(trainingData);           //Collect the statistics (mean/stdev) from the training data. This does not modify the input data
-        normalizer.transform(trainingData);     //Apply normalization to the training data
-        normalizer.transform(testData);         //Apply normalization to the test data. This is using statistics calculated from the *training* set
-
-        try {
-            File locationToSave = new File("warehouse_neural_network.zip");
-            if(!locationToSave.exists()) {
-                log.info("Build model....");
-                MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                    .seed(seed)
-                    .iterations(iterations)
-                    .activation(Activation.TANH)
-                    .weightInit(WeightInit.XAVIER)
-                    //.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                    //.updater(Updater.NESTEROVS)
-                    .learningRate(0.1)
-                    .regularization(true).l2(1e-4)
-                    .list()
-                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(4).build())
-                    .layer(1, new DenseLayer.Builder().nIn(4).nOut(4).build())
-                    .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .activation(Activation.SOFTMAX).nIn(4).nOut(outputNum).build())
-                    .backprop(true).pretrain(false)
-                    .build();
-
-                //run the model
-                MultiLayerNetwork model = new MultiLayerNetwork(conf);
-                model.init();
-                model.setListeners(new ScoreIterationListener(100));
-
-                for (int i = 0; i < epochs; i++) {
-                    model.fit(trainingData);
-                }
-
-
-                *//*SAVE MODEL*//*
-                // boolean save Updater
-                boolean saveUpdater = true;
-                // ModelSerializer needs modelname, Location, saveUpdater
-                ModelSerializer.writeModel(model,locationToSave,saveUpdater);
-
-
-                //evaluate the model on the test set
-                Evaluation eval = new Evaluation(numClasses);
-                INDArray output = model.output(testData.getFeatureMatrix());
-
-                eval.eval(testData.getLabels(), output);
-                log.info(eval.stats());
-
-                setFittedClassifiers(output, animals);
-                logAnimals(animals);
-
-
-
-
-                log.info("Model was loaded...");
-                MultiLayerNetwork restored = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
-                model.getLabels();
-
-                output = restored.output(testData.getFeatureMatrix());
-
-                //evaluate the model on the test set
-                eval = new Evaluation(numClasses);
-                eval.eval(testData.getLabels(), output);
-                log.info(eval.stats());
-
-                setFittedClassifiers(output, animals);
-                logAnimals(animals);
-
-                System.out.println("Saved and loaded parameters are equal:      " + model.params().equals(restored.params()));
-                System.out.println("Saved and loaded configurations are equal:  " + model.getLayerWiseConfigurations().equals(restored.getLayerWiseConfigurations()));
-
-            } else { //load neural network
-                log.info("Model was loaded...");
-                MultiLayerNetwork model = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
-                model.getLabels();
-
-                INDArray output = model.output(testData.getFeatureMatrix());
-
-                //evaluate the model on the test set
-                Evaluation eval = new Evaluation(numClasses);
-                eval.eval(testData.getLabels(), output);
-                log.info(eval.stats());
-
-                setFittedClassifiers(output, animals);
-                logAnimals(animals);
-            }
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-*/
-
-    public static void logAnimals(Map<Integer, Map<String, Object>> animals) {
+    private static void logAnimals(Map<Integer, Map<String, Object>> animals) {
         for (Map<String, Object> a : animals.values())
             log.info(a.toString());
     }
 
-    public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals) {
+    private void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals) {
         for (int i = 0; i < output.rows(); i++) {
             System.out.println(output.slice(i) + "| Max value is: " + maxIndex(getFloatArrayFromSlice(output.slice(i))));
             // set the classification from the fitted results
             animals.get(i).put("classifier",
                     classifiers.get(maxIndex(getFloatArrayFromSlice(output.slice(i)))));
         }
+    }
+
+    private long getStrategyId(Goods goods) {
+        DataNormalization normalizer = new NormalizerStandardize();
+        float[] row = {6.20f, 438f, 20f};
+        INDArray data = Nd4j.create(row);
+        DataSet testData = new DataSet(data, data);
+        //normalizer.transform(testData);
+        INDArray output = network.output(testData.getFeatureMatrix());
+        return maxIndex(getFloatArrayFromSlice(output.slice(0)));
     }
 
     /**
@@ -366,7 +286,7 @@ public class ForecastingServiceImpl implements ForecastingService {
      * @param rowSlice
      * @return
      */
-    public static float[] getFloatArrayFromSlice(INDArray rowSlice) {
+    private float[] getFloatArrayFromSlice(INDArray rowSlice) {
         float[] result = new float[rowSlice.columns()];
         for (int i = 0; i < rowSlice.columns(); i++) {
             result[i] = rowSlice.getFloat(i);
@@ -381,7 +301,7 @@ public class ForecastingServiceImpl implements ForecastingService {
      * @param values
      * @return
      */
-    public static int maxIndex(float[] values) {
+    private int maxIndex(float[] values) {
         int maxIndex = 0;
         for (int i = 1; i < values.length; i++) {
             float newNumber = values[i];
@@ -399,27 +319,27 @@ public class ForecastingServiceImpl implements ForecastingService {
      * @param testData
      * @return
      */
-    public static Map<Integer, Map<String, Object>> makeAnimalsForTesting(DataSet testData) {
-        Map<Integer, Map<String, Object>> animals = new HashMap<>();
+    private Map<Integer, Map<String, Object>> makeStrategyForTesting(DataSet testData) {
+        Map<Integer, Map<String, Object>> strategies = new HashMap<>();
 
         INDArray features = testData.getFeatureMatrix();
         for (int i = 0; i < features.rows(); i++) {
             INDArray slice = features.slice(i);
-            Map<String, Object> animal = new HashMap();
+            Map<String, Object> strategy = new HashMap();
 
             //set the attributes
-            animal.put("price", slice.getFloat(0));
-            animal.put("releaseDays", slice.getInt(1));
+            strategy.put("price", slice.getFloat(0));
+            strategy.put("releaseDays", slice.getInt(1));
             //animal.put("category", category.get(slice.getInt(2)));
-            animal.put("quantity", slice.getInt(2));
+            strategy.put("quantity", slice.getInt(2));
 
-            animals.put(i, animal);
+            strategies.put(i, strategy);
         }
-        return animals;
+        return strategies;
 
     }
 
-    public static Map<Integer, String> readEnumCSV(String csvFileClasspath) {
+    private Map<Integer, String> readEnumCSV(String csvFileClasspath) {
         try {
             List<String> lines = IOUtils.readLines(new ClassPathResource(csvFileClasspath).getInputStream());
             Map<Integer, String> enums = new HashMap<>();
@@ -446,10 +366,8 @@ public class ForecastingServiceImpl implements ForecastingService {
      * @throws IOException
      * @throws InterruptedException
      */
-    private static DataSet readCSVDataset(
-            String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
+    private DataSet readCSVDataset(String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
             throws IOException, InterruptedException {
-
         RecordReader rr = new CSVRecordReader();
         System.out.println(new ClassPathResource(csvFileClasspath).getFile());
         rr.initialize(new FileSplit(new ClassPathResource(csvFileClasspath).getFile()));

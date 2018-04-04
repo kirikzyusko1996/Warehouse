@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -40,11 +41,11 @@ public class ForecastingController {
         this.strategyService = strategyService;
     }
 
-    @RequestMapping(value = "/getStrategyByNeuralNetwork", method = RequestMethod.GET)
-    public ResponseEntity<Strategy> getStrategyByNeuralNetwork(){
+    @RequestMapping(value = "/strategy", method = RequestMethod.GET)
+    public ResponseEntity<Strategy> getStrategyByNeuralNetwork(@RequestParam(defaultValue = "-1") long idGoods){
         logger.info("Request for getting strategy.");
 
-        Strategy strategy = forecastingService.getStrategyByGoods();
+        Strategy strategy = forecastingService.getStrategyByGoods(idGoods);
         try {
             strategyService.getListForLearning();
             try {

@@ -9,6 +9,6 @@ import java.io.IOException;
  * Created by Lenovo on 07.10.2017.
  */
 public interface ForecastingService {
-    Strategy getStrategyByGoods();
+    Strategy getStrategyByGoods(Long idGoods);
     void train() throws GenericDAOException, IOException, InterruptedException;
 }
