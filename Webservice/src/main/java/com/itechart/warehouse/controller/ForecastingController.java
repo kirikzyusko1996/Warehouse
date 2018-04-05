@@ -48,11 +48,6 @@ public class ForecastingController {
         Strategy strategy = forecastingService.getStrategyByGoods(idGoods);
         try {
             strategyService.getListForLearning();
-            try {
-                forecastingService.train();
-            } catch (IOException | InterruptedException e) {
-                logger.error(e.getMessage());
-            }
         } catch (GenericDAOException e) {
             logger.error(e.getMessage());
         }

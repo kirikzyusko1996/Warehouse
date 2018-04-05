@@ -91,7 +91,7 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<?> saveWarehouse(@Valid @RequestBody Warehouse warehouse){
+    public ResponseEntity saveWarehouse(@Valid @RequestBody Warehouse warehouse){
         logger.info("POST on /warehouse: save new warehouse");
 
         try{
@@ -105,7 +105,7 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/save/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody Warehouse warehouse){
+    public ResponseEntity updateWarehouse(@PathVariable Long id, @Valid @RequestBody Warehouse warehouse){
         logger.info("PUT on /warehouse/{}: update warehouse", id);
 
         try{
@@ -125,7 +125,7 @@ public class WarehouseController {
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteWarehouse(@PathVariable Long id){
+    public ResponseEntity deleteWarehouse(@PathVariable Long id){
         logger.info("DELETE on /company/{}: delete company", id);
 
         try {

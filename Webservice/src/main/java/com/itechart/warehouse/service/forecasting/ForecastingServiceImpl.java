@@ -1,13 +1,13 @@
 package com.itechart.warehouse.service.forecasting;
 
 import com.itechart.warehouse.dao.GoodsDAO;
-import com.itechart.warehouse.dao.InvoiceDAO;
 import com.itechart.warehouse.dao.StrategyDAO;
 import com.itechart.warehouse.dao.exception.GenericDAOException;
 import com.itechart.warehouse.entity.Goods;
-import com.itechart.warehouse.entity.Invoice;
 import com.itechart.warehouse.entity.Strategy;
 import com.itechart.warehouse.service.services.StrategyService;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -24,10 +24,8 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.util.ModelSerializer;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
@@ -81,6 +79,7 @@ public class ForecastingServiceImpl implements ForecastingService {
             log.error(e.getMessage());
             try {
                 train();
+                load();
             } catch (GenericDAOException | IOException | InterruptedException e1) {
                 log.error(e1.getMessage());
             }
@@ -105,8 +104,8 @@ public class ForecastingServiceImpl implements ForecastingService {
     public Strategy getStrategyByGoods(Long idGoods) {
         try {
             Goods goods = goodsDAO.getById(idGoods);
-            long a = getStrategyId(goods);
-            Optional<Strategy> strategy = strategyDAO.findById(1l);
+            long strategyId = getStrategyId(goods);
+            Optional<Strategy> strategy = strategyDAO.findById(strategyId);
             return strategy.orElse(null);
         } catch (GenericDAOException e) {
             log.error(e.getMessage());
@@ -136,44 +135,33 @@ public class ForecastingServiceImpl implements ForecastingService {
         initClassifiers();
         File f = new ClassPathResource(PATH_TO_TRAIN_DATA).getFile();
 
-        FileWriter writer = new FileWriter(f);
-        for (Goods goods : goodsList) {
-            if (goods.getOutgoingInvoice() == null) {
-                continue;
+        try (FileWriter writer = new FileWriter(f)) {
+            for (Goods goods : goodsList) {
+                if (goods.getOutgoingInvoice() == null) {
+                    continue;
+                }
+                String recordRow = new LearnUnit(goods).toLearnRecord();
+                writer.write(recordRow);
+                writer.write("\n");
             }
-            List<String> data = new ArrayList<>();
-            data.add(String.valueOf(goods.getPrice()));
-            data.add(String.valueOf(getCountKeepingDays(goods)));
-            //data.add(goods.)todo: category of goods
-            data.add(String.valueOf(goods.getQuantity().intValue()));
-            data.add(String.valueOf(goods.getStrategy().getIdStrategy()));
-
-            String collect = data.stream().collect(Collectors.joining(","));
-
-            writer.write(collect);
-            writer.write("\n");
         }
-        writer.close();
+
         return goodsList.size();
     }
 
     @Override
     public void train() throws GenericDAOException, IOException, InterruptedException {
         int batchSizeTraining = listGoodsToCSV();
-
         //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
         int labelIndex = 3;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
         // +1, т.к. 0-ая стратегия нигде не исполльзуется (или id в БД нумеровать с нуля по дефолту)
         int numClasses = strategyService.getQuantityStrategies() + 1;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
-
-        final int numInputs = labelIndex;
-        int outputNum = numClasses;
         int iterations = 1000;
         int epochs = 15;
         long seed = 6;
-
         //test data
         int batchSizeTest = 10;
+
         DataSet testData = readCSVDataset(PATH_TO_TEST_DATA,
                 batchSizeTest, labelIndex, numClasses);
         //int batchSizeTraining = 17;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
@@ -202,10 +190,10 @@ public class ForecastingServiceImpl implements ForecastingService {
                     .learningRate(0.1)
                     .regularization(true).l2(1e-4)
                     .list()
-                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(4).build())
+                    .layer(0, new DenseLayer.Builder().nIn(labelIndex).nOut(4).build())
                     .layer(1, new DenseLayer.Builder().nIn(4).nOut(4).build())
                     .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .activation(Activation.SOFTMAX).nIn(4).nOut(outputNum).build())
+                            .activation(Activation.SOFTMAX).nIn(4).nOut(numClasses).build())
                     .backprop(true).pretrain(false)
                     .build();
 
@@ -238,9 +226,8 @@ public class ForecastingServiceImpl implements ForecastingService {
     private void save(MultiLayerNetwork model) throws IOException {
         log.info("Model was saved...");
         File locationToSave = new File(PATH_TO_MODEL);
-        boolean saveUpdater = true;
         // ModelSerializer needs modelname, Location, saveUpdater
-        ModelSerializer.writeModel(model, locationToSave, saveUpdater);
+        ModelSerializer.writeModel(model, locationToSave, true);
     }
 
     private MultiLayerNetwork load() throws IOException {
@@ -255,13 +242,15 @@ public class ForecastingServiceImpl implements ForecastingService {
     }
 
     private static void logAnimals(Map<Integer, Map<String, Object>> animals) {
-        for (Map<String, Object> a : animals.values())
-            log.info(a.toString());
+        for (Map<String, Object> a : animals.values()) {
+            String view = a.toString();
+            log.info(view);
+        }
     }
 
     private void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals) {
         for (int i = 0; i < output.rows(); i++) {
-            System.out.println(output.slice(i) + "| Max value is: " + maxIndex(getFloatArrayFromSlice(output.slice(i))));
+            log.info(output.slice(i) + "| Max value is: " + maxIndex(getFloatArrayFromSlice(output.slice(i))));
             // set the classification from the fitted results
             animals.get(i).put("classifier",
                     classifiers.get(maxIndex(getFloatArrayFromSlice(output.slice(i)))));
@@ -270,11 +259,20 @@ public class ForecastingServiceImpl implements ForecastingService {
 
     private long getStrategyId(Goods goods) {
         DataNormalization normalizer = new NormalizerStandardize();
-        float[] row = {6.20f, 438f, 20f};
-        INDArray data = Nd4j.create(row);
+        INDArray data = new LearnUnit(goods).toPredictionRecord();
+        DataSet testDataFile = null;
+        try {
+            testDataFile = readCSVDataset(PATH_TO_TRAIN_DATA,
+                    10, 3, 8);
+        } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage());
+        } 
         DataSet testData = new DataSet(data, data);
-        //normalizer.transform(testData);
+        
+        normalizer.fit(testDataFile);
+        normalizer.transform(testData);
         INDArray output = network.output(testData.getFeatureMatrix());
+
         return maxIndex(getFloatArrayFromSlice(output.slice(0)));
     }
 
@@ -283,8 +281,8 @@ public class ForecastingServiceImpl implements ForecastingService {
      * provide some more examples on how to convert INDArray to types that are more java
      * centric.
      *
-     * @param rowSlice
-     * @return
+     * @param rowSlice INDArray - contains slice of learn record
+     * @return Float array - converted INDArray to float[]
      */
     private float[] getFloatArrayFromSlice(INDArray rowSlice) {
         float[] result = new float[rowSlice.columns()];
@@ -298,8 +296,8 @@ public class ForecastingServiceImpl implements ForecastingService {
      * find the maximum item index. This is used when the data is fitted and we
      * want to determine which class to assign the test row to
      *
-     * @param values
-     * @return
+     * @param values float[] - sample of data
+     * @return Integer - position of maximal value
      */
     private int maxIndex(float[] values) {
         int maxIndex = 0;
@@ -316,22 +314,17 @@ public class ForecastingServiceImpl implements ForecastingService {
      * take the dataset loaded for the matric and make the record model out of it so
      * we can correlate the fitted classifier to the record.
      *
-     * @param testData
-     * @return
+     * @param testData DataSet source of initial test data
+     * @return JSON string views of data
      */
     private Map<Integer, Map<String, Object>> makeStrategyForTesting(DataSet testData) {
         Map<Integer, Map<String, Object>> strategies = new HashMap<>();
 
         INDArray features = testData.getFeatureMatrix();
+        LearnUnit learnUnit = new LearnUnit();
         for (int i = 0; i < features.rows(); i++) {
             INDArray slice = features.slice(i);
-            Map<String, Object> strategy = new HashMap();
-
-            //set the attributes
-            strategy.put("price", slice.getFloat(0));
-            strategy.put("releaseDays", slice.getInt(1));
-            //animal.put("category", category.get(slice.getInt(2)));
-            strategy.put("quantity", slice.getInt(2));
+            Map<String, Object> strategy = learnUnit.toView(slice);
 
             strategies.put(i, strategy);
         }
@@ -349,7 +342,7 @@ public class ForecastingServiceImpl implements ForecastingService {
             }
             return enums;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return null;
         }
 
@@ -358,20 +351,67 @@ public class ForecastingServiceImpl implements ForecastingService {
     /**
      * used for testing and training
      *
-     * @param csvFileClasspath
-     * @param batchSize
-     * @param labelIndex
-     * @param numClasses
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
+     * @param csvFileClasspath String - path in filesystem to csv file with data
+     * @param batchSize Integer
+     * @param labelIndex Integer
+     * @param numClasses Integer - count of decision, that neural network can predict
+     * @return DataSet data from csv file
+     * @throws IOException when file not found
+     * @throws InterruptedException when file cannot read
      */
     private DataSet readCSVDataset(String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
             throws IOException, InterruptedException {
         RecordReader rr = new CSVRecordReader();
-        System.out.println(new ClassPathResource(csvFileClasspath).getFile());
         rr.initialize(new FileSplit(new ClassPathResource(csvFileClasspath).getFile()));
         DataSetIterator iterator = new RecordReaderDataSetIterator(rr, batchSize, labelIndex, numClasses);
         return iterator.next();
+    }
+
+    @Data
+    @NoArgsConstructor
+    private class LearnUnit {
+        private Float price;
+        private Long countKeepingDays;
+        private Long quantity;
+        private Long strategy;
+
+        LearnUnit(Goods goods) {
+            this.price = goods.getPrice().floatValue();
+            this.countKeepingDays = ForecastingServiceImpl.this.getCountKeepingDays(goods);
+            this.quantity = goods.getQuantity().longValue();
+            Optional<Strategy> optionalStrategy = Optional.ofNullable(goods.getStrategy());
+            this.strategy = optionalStrategy.isPresent() ? optionalStrategy.get().getIdStrategy() : null;
+        }
+
+        String toLearnRecord() {
+            List<String> data = new ArrayList<>();
+            data.add(String.valueOf(price));
+            data.add(String.valueOf(countKeepingDays));
+            //data.add(goods.)todo: category of goods
+            data.add(String.valueOf(quantity));
+            data.add(String.valueOf(strategy));
+
+            return data.stream().collect(Collectors.joining(","));
+        }
+
+        INDArray toPredictionRecord() {
+            INDArray data = Nd4j.zeros(2, 3);
+            data.putScalar(0, 0, price);           //Set value at row i, column i1 to value x
+            data.putScalar(0, 1, countKeepingDays);
+            data.putScalar(0, 1, quantity);
+
+            return data;
+        }
+
+        Map<String, Object> toView(INDArray slice) {
+            Map<String, Object> strategyView = new HashMap<>();
+
+            //set the attributes
+            strategyView.put("price", slice.getFloat(0));
+            strategyView.put("releaseDays", slice.getInt(1));
+            strategyView.put("quantity", slice.getInt(2));
+
+            return strategyView;
+        }
     }
 }
