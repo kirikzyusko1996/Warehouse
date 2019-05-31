@@ -10,6 +10,7 @@
             <column name="x" value="48.152047"/>
             <column name="y" value="15.134961"/>
             <column name="id_warehouse_company" value="1"/>
+            <column name="created_at" value="2018-06-28 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="2"/>
@@ -18,6 +19,7 @@
             <column name="x" value="53.888347"/>
             <column name="y" value="27.544358"/>
             <column name="id_warehouse_company" value="1"/>
+            <column name="created_at" value="2018-04-26 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="3"/>
@@ -26,6 +28,7 @@
             <column name="x" value="45.775647"/>
             <column name="y" value="1.929985"/>
             <column name="id_warehouse_company" value="1"/>
+            <column name="created_at" value="2018-07-21 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="4"/>
@@ -34,6 +37,7 @@
             <column name="x" value="47.973980"/>
             <column name="y" value="4.117793"/>
             <column name="id_warehouse_company" value="2"/>
+            <column name="created_at" value="2018-01-26 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="5"/>
@@ -42,6 +46,7 @@
             <column name="x" value="50.719576"/>
             <column name="y" value="9.343523"/>
             <column name="id_warehouse_company" value="3"/>
+            <column name="created_at" value="2018-09-13 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="6"/>
@@ -50,6 +55,7 @@
             <column name="x" value="53.210644"/>
             <column name="y" value="12.155012"/>
             <column name="id_warehouse_company" value="3"/>
+            <column name="created_at" value="2018-07-09 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="7"/>
@@ -58,6 +64,7 @@
             <column name="x" value="53.034011"/>
             <column name="y" value="15.134961"/>
             <column name="id_warehouse_company" value="3"/>
+            <column name="created_at" value="2017-11-18 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="8"/>
@@ -74,6 +81,7 @@
             <column name="x" value="47.538542"/>
             <column name="y" value="18.267145"/>
             <column name="id_warehouse_company" value="4"/>
+            <column name="created_at" value="2018-04-26 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="10"/>
@@ -82,6 +90,7 @@
             <column name="x" value="45.111921"/>
             <column name="y" value="10.180885"/>
             <column name="id_warehouse_company" value="10"/>
+            <column name="created_at" value="2018-03-03 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="11"/>
@@ -90,6 +99,7 @@
             <column name="x" value="50.420880"/>
             <column name="y" value="21.761530"/>
             <column name="id_warehouse_company" value="10"/>
+            <column name="created_at" value="2019-02-18 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="12"/>
@@ -98,6 +108,7 @@
             <column name="x" value="50.156302"/>
             <column name="y" value="25.692615"/>
             <column name="id_warehouse_company" value="10"/>
+            <column name="created_at" value="2018-03-08 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="13"/>
@@ -106,6 +117,7 @@
             <column name="x" value="51.156302"/>
             <column name="y" value="27.692615"/>
             <column name="id_warehouse_company" value="10"/>
+            <column name="created_at" value="2018-02-02 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="14"/>
@@ -114,6 +126,7 @@
             <column name="x" value="53.156302"/>
             <column name="y" value="24.692615"/>
             <column name="id_warehouse_company" value="10"/>
+            <column name="created_at" value="2017-12-12 22:56:48"/>
         </insert>
         <insert dbms="h2, mysql" tableName="warehouse">
             <column name="id_warehouse" value="15"/>
@@ -122,6 +135,7 @@
             <column name="x" value="51.156302"/>
             <column name="y" value="23.692615"/>
             <column name="id_warehouse_company" value="10"/>
+            <column name="created_at" value="2018-03-18 22:56:48"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
