@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Table (name = "warehouse")
 public class Warehouse {
     private Long idWarehouse;
     private String name;

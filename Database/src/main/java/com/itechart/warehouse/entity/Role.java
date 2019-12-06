@@ -13,6 +13,7 @@ import java.util.List;
 @Entity
 @ToString(exclude = "users")
 @EqualsAndHashCode(exclude = "users")
+@Table (name = "role")
 public class Role {
     private Short idRole;
     private String name;

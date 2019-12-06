@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
+@Table (name = "driver")
 public class Driver {
     private Long id;
     private String fullName;
