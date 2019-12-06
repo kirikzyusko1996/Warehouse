@@ -1,0 +1,4 @@
+sklearn
+Flask
+mysql-connector
+matplotlib

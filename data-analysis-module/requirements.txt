@@ -1,5 +1,0 @@
-sklearn
-falcon
-cython
-waitress
-matplotlib
