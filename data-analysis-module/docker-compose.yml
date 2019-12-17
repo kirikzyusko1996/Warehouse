@@ -15,3 +15,12 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
     - ./db:/docker-entrypoint-initdb.d/:ro
+
+  flyway:
+    image: arojunior/flyway:5.2.4
+    command: "wait-for-it --timeout=60 --strict db:3306 -- flyway migrate"
+    volumes:
+      - ./flyway/config:/flyway/conf
+      - ./flyway/sql:/flyway/sql
+    depends_on:
+      - db
