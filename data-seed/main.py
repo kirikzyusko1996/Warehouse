@@ -4,7 +4,7 @@ import os
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 
-file_path = os.path.join(os.path.dirname(__file__), 'SELECT_x_y_FROM_warehouse_WHERE_cca2_RU__201912171059.csv')
+file_path = os.path.join(os.path.dirname(__file__), 'SELECT_x_y_FROM_warehouse_WHERE_cca2_BY__201912171033.csv')
 data_frames = pd.read_csv(file_path)
 
 x = data_frames['x']
@@ -25,7 +25,7 @@ for i in range(len(x)):
 
 print(X)
 
-cluster = AgglomerativeClustering(n_clusters=20, affinity='euclidean', linkage='ward')
+cluster = AgglomerativeClustering(n_clusters=6, affinity='euclidean', linkage='ward')
 cluster.fit_predict(X)
 
 plt.scatter(X[:,0], X[:,1], c=cluster.labels_, cmap='rainbow')
