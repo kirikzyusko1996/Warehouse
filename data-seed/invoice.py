@@ -1,19 +1,23 @@
 import datetime
 import pandas as pd
 
-dt = datetime.datetime(1999, 1, 1)
-end = datetime.datetime(2019, 12, 31)
+dt = datetime.datetime(2015, 9, 1)
+end = datetime.datetime(2020, 1, 1)
 step = datetime.timedelta(days=1)
 
 date = []
 input = []
 output = []
 
+df = pd.read_csv("original-data.csv", delimiter=';')
+
+qty = list(df['qty'])
+
 k = 0
 while dt < end:
     date.append(dt.strftime('%Y-%m-%d'))
-    input.append(k)
-    output.append(k)
+    input.append(qty[k])
+    output.append(qty[k])
     k += 1
     dt += step
 
