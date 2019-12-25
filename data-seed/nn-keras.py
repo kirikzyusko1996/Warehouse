@@ -10,7 +10,7 @@ import numpy as np
 # load dataset
 dataframe = read_csv("series-transformed.csv")
 dataset = dataframe.values
-
+# todo: data scaling?
 X = dataset[:, 2:77]
 print(X)
 y = dataframe['output']
@@ -30,15 +30,15 @@ model.add(Dense(1, kernel_initializer='normal'))
 model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
 model.fit(X_train, y_train,
-          epochs=2000,
+          epochs=20000,
           verbose=1,
           validation_data=(X_test, y_test))
 score = model.evaluate(X_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
-# 1828
-x_input = np.array([1,1814,1815,1816,1817,1818,1819,1820,1821,1822,1823,1824,1825,1826,1827,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+# 194687
+x_input = np.array([0,476101,222575,176819,265509,327873,285899,316216,312975,268789,211129,222943,374590,383625,351943,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0])
 x_input = x_input.reshape((1, input_size))
 yhat = model.predict(x_input, verbose=0)
 print(yhat)
