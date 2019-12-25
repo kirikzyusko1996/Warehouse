@@ -8,8 +8,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
+from numpy.random import seed
+seed(1)
+
 import tensorflow
-tensorflow.random.set_seed(123)
+tensorflow.random.set_seed(2)
 
 # load dataset
 dataframe = read_csv("series-transformed.csv")
@@ -40,19 +43,23 @@ model.add(Dense(1, kernel_initializer='normal'))
 model.compile(loss='mse', optimizer='adam')
 
 model.fit(X_train, y_train,
-          epochs=2000,
+          epochs=55000,
           verbose=1,
           validation_data=(X_test, y_test))
 score = model.evaluate(X_test, y_test, verbose=0)
 # print('Test loss:', score[0])
 # print('Test accuracy:', score[1])
 
-# 194687
-x_input = np.array(scaler.transform([[0,476101,222575,176819,265509,327873,285899,316216,312975,268789,211129,222943,374590,383625,351943,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0]]))
+# 163418
+x_input = np.array(scaler.transform([[0,251651,330914,426493,328758,287274,398647,367155,320362,316503,283214,335058,327631,223894,306459,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0]]))
 yhat = model.predict(x_input, verbose=0)
 print(yhat)
 
+# 194687
 # 203000.00 - 2000 epoch/normalized
 # 195594.27 - 20000 epoch/not normalized
 # 346240.53 - 20000 epoch/normalized
 # yyyyyy.yy - 200000 epoch/normalized
+
+# 163418
+# 163348.62 - 55000 epochs/normalized
