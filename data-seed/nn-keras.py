@@ -1,11 +1,14 @@
 from pandas import read_csv
 from keras.models import Sequential
 from keras.layers import Dense
+from keras import regularizers
+from keras.layers import Dropout
 import matplotlib.pyplot as plt
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
@@ -22,7 +25,13 @@ dataset = dataframe.values
 X = dataset[:, 2:77]
 y = dataframe['output']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train, X_test = np.split(X, [int(.7 * len(X))])
+y_train, y_test = np.split(y, [int(.7 * len(y))])
+# X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+n_splits = int((len(X_train)-3) / 3)
+tscv = TimeSeriesSplit(n_splits=n_splits)
+print(n_splits)
 
 scaler = StandardScaler()
 scaler.fit(X_train)
@@ -33,20 +42,31 @@ X_test = scaler.transform(X_test)
 input_size = X.shape[1]
 
 model = Sequential()
-model.add(Dense(input_size, input_dim=input_size, kernel_initializer='normal', activation='relu'))
-# model.add(Dense(int(input_size * 2), kernel_initializer='normal', activation='relu'))
-model.add(Dense(int(input_size * 1.5), kernel_initializer='normal', activation='relu'))
-model.add(Dense(input_size, kernel_initializer='normal', activation='relu'))
-model.add(Dense(int(input_size * 0.5), kernel_initializer='normal', activation='relu'))
-model.add(Dense(1, kernel_initializer='normal'))
+model.add(Dense(int(input_size * 1.5), input_dim=input_size, kernel_initializer='normal', kernel_regularizer=regularizers.l2(0.01), activation='relu', name='hidden_1'))
+#model.add(Dropout(0.5, name='dropout_1'))
+model.add(Dense(input_size, kernel_initializer='normal', activation='relu', kernel_regularizer=regularizers.l2(0.01), name='hidden_2'))
+#model.add(Dropout(0.5, name='dropout_2'))
+# model.add(Dense(int(input_size * 0.5), kernel_initializer='normal', activation='relu', kernel_regularizer=regularizers.l2(0.01), name='hidden_3'))
+#model.add(Dropout(0.5, name='dropout_3'))
+model.add(Dense(1, kernel_initializer='normal', kernel_regularizer=regularizers.l2(0.01), name='output_layer'))
 
 # Compile model
 model.compile(loss='mse', optimizer='adam')
 
-model.fit(X_train, y_train,
-          epochs=55000,
-          verbose=1,
-          validation_data=(X_test, y_test))
+print(model.summary())
+
+history = None
+for train_index, test_index in tscv.split(X_train):
+    Xx_train, Xx_test = X_train[train_index], X_train[test_index]
+    yy_train, yy_test = y_train[train_index], y_train[test_index]
+    history = model.fit(Xx_train, yy_train,
+              epochs=20,
+              verbose=0,
+              validation_data=(Xx_test, yy_test))
+
+loss_values = history.history['loss']
+epochs = range(1, len(loss_values)+1)
+
 score = model.evaluate(X_test, y_test, verbose=0)
 
 # 163418
@@ -61,7 +81,7 @@ sum = 0
 index = []
 for i in range(len(yhat)):
     percentage = (yhat[i][0]-y[i]) / yhat[i][0] * 100
-    print(f'Predicted: {yhat[i][0]}, Real: {y[i]}, error: {yhat[i][0]-y[i]}, percentage: {percentage}')
+    # print(f'Predicted: {yhat[i][0]}, Real: {y[i]}, error: {yhat[i][0]-y[i]}, percentage: {percentage}')
     sum += abs(percentage)
     index.append(i)
 
