@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
+import mplleaflet
 
 file_path = os.path.join(os.path.dirname(__file__), 'SELECT_x_y_FROM_warehouse_WHERE_cca2_BY__201912171033.csv')
 data_frames = pd.read_csv(file_path)
@@ -15,9 +16,9 @@ y = list(y)
 
 # 2
 fig, ax = plt.subplots()
-ax.scatter(x, y)
+ax.scatter(y, x)
 
-plt.show()
+mplleaflet.show()
 
 X = np.array([[x[0], y[0]]])
 for i in range(len(x)):
@@ -25,9 +26,9 @@ for i in range(len(x)):
 
 print(X)
 
-cluster = AgglomerativeClustering(n_clusters=6, affinity='euclidean', linkage='ward')
+cluster = AgglomerativeClustering(n_clusters=300, affinity='euclidean', linkage='ward')
 cluster.fit_predict(X)
 
-plt.scatter(X[:,0], X[:,1], c=cluster.labels_, cmap='rainbow')
+plt.scatter(X[:,1], X[:,0], c=cluster.labels_, cmap='rainbow')
 
-plt.show()
+mplleaflet.show()
