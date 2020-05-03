@@ -1,6 +1,5 @@
 from typing import List, Dict
 from flask import Flask
-import mysql.connector
 import json
 
 app = Flask(__name__)
@@ -24,9 +23,23 @@ def favorite_colors() -> List[Dict]:
     return results
 
 
-@app.route('/')
-def index() -> str:
-    return json.dumps({'favorite_colors': favorite_colors()})
+@app.route('/web/web/forecast/series')
+def series() -> str:
+    return json.dumps({
+        'real': [650, 470, 557, 489, 743, 312, 0, 683, 511, 569, 472, 774, 324, 0],
+        'expected': [649, 472, 557, 487, 745, 315, 0, 687, 513, 567, 474, 771, 324, 0, 621, 455, 561, 472, 711, 329, 0],
+        'error': 0.019283
+    })
+
+
+@app.route('/web/web/forecast/constructor')
+def constructor() -> str:
+    return json.dumps({'favorite_colors': ['red', 'blue', 'green']})
+
+
+@app.route('/web/web/forecast/tracker')
+def tracker() -> str:
+    return json.dumps({'favorite_colors': ['red', 'blue', 'green']})
 
 
 if __name__ == '__main__':
