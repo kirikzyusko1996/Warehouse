@@ -7,10 +7,15 @@ services:
   #  ports:
   #  - "5000:5000"
 
+  #gateway:
+  #  build: ./gateway
+  #  ports:
+  #  - "3200:3200"
+
   db:
     image: mysql:5.7
     ports:
-    - "32000:3306"
+    - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
