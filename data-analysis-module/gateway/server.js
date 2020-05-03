@@ -2,7 +2,7 @@ const express = require('express');
 const proxy = require('http-proxy').createProxyServer({});
 
 // const
-const port = 4200;
+const port = 3200;
 const host = '0.0.0.0';
 
 // app
