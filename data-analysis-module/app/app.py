@@ -1,11 +1,23 @@
+import pandas as pd
+from datetime import datetime, timedelta
 from typing import List, Dict
-from flask import Flask
+from flask import Flask, request
 import mysql.connector
 import json
 import numpy as np
+from sklearn.metrics import mean_absolute_error
+
 
 app = Flask(__name__)
 
+config = {
+    'user': 'root',
+    'password': 'root',
+    'host': 'localhost',
+    'port': '3306',
+    'database': 'warehouse'
+}
+connection = mysql.connector.connect(**config)
 
 def favorite_colors() -> List[Dict]:
     config = {
@@ -27,11 +39,45 @@ def favorite_colors() -> List[Dict]:
 
 @app.route('/web/web/forecast/series')
 def series() -> str:
+    id_warehouse = request.args.get('idWarehouse')
+    cursor = connection.cursor()
+
+    date = datetime.today() - timedelta(days=28)  # last 14 as real + 14 for prediction "real"
+
+    # TODO: remove SQL-injection attack
+    cursor.execute("""
+        SELECT date(goods_status.date) as day, SUM(goods.quantity) as amount FROM goods
+        INNER JOIN goods_status ON goods.id_goods = goods_status.id_goods
+        INNER JOIN invoice ON invoice.id_invoice = goods.id_outgoing_invoice
+        WHERE goods.id_moved_out_status IS NOT NULL AND goods_status.id_goods_status_name = 12 AND invoice.id_warehouse = @warehouse_id AND goods_status.`date` >= '@date'
+        GROUP BY day
+    """.replace('@warehouse_id', id_warehouse).replace('@date', str(date)))
+
+    results = {}
+    last_trend = []
+
+    for (day, amount) in cursor:
+        results[str(day)] = float(amount)
+
+    for i in range(28):
+        date = datetime.today() - timedelta(days=28 - i + 1)
+        key = str(date).split(" ")[0]
+        try:
+            last_trend.append(results[key])
+        except: # key does not exist
+            last_trend.append(0)
+
+    cursor.close()
+
+    real = last_trend[-14:]
+    # TODO: import Neural network and make calculation for 21 day
+    expected = [649, 472, 557, 487, 745, 315, 0, 687, 513, 567, 474, 771, 324, 0, 621, 455, 561, 472, 711, 329, 0]
     # warehouse_id
     return json.dumps({
-        'real': [650, 470, 557, 489, 743, 312, 0, 683, 511, 569, 472, 774, 324, 0],
-        'expected': [649, 472, 557, 487, 745, 315, 0, 687, 513, 567, 474, 771, 324, 0, 621, 455, 561, 472, 711, 329, 0],
-        'error': 0.019283
+        'real': real,
+        'expected': expected,
+        # TODO: calculate mean absolute percentage error
+        'error': mean_absolute_error(real, expected[0:14]),
     })
 
 
@@ -47,22 +93,52 @@ def constructor() -> str:
 
 @app.route('/web/web/forecast/constructor/initial-values')
 def initial_values() -> str:
+    id_warehouse = request.args.get('idWarehouse')
+    cursor = connection.cursor()
+
+    date = datetime.today() - timedelta(days=14)  # last 14 days
+
+    # TODO: remove SQL-injection attack
+    cursor.execute("""
+        SELECT date(goods_status.date) as day, SUM(goods.quantity) as amount FROM goods
+        INNER JOIN goods_status ON goods.id_goods = goods_status.id_goods
+        INNER JOIN invoice ON invoice.id_invoice = goods.id_outgoing_invoice
+        WHERE goods.id_moved_out_status IS NOT NULL AND goods_status.id_goods_status_name = 12 AND invoice.id_warehouse = @warehouse_id AND goods_status.`date` >= '@date'
+        GROUP BY day
+    """.replace('@warehouse_id', id_warehouse).replace('@date', str(date)))
+
+    results = {}
+    last_trend = []
+
+    for (day, amount) in cursor:
+        results[str(day)] = float(amount)
+
+    for i in range(14):
+        date = datetime.today() - timedelta(days=14 - i + 1)
+        key = str(date).split(" ")[0]
+        try:
+            last_trend.append(results[key])
+        except: # key does not exist
+            last_trend.append(0)
+
+    cursor.close()
+
     # warehouse_id
     return json.dumps({
-        'day1': 650,
-        'day2': 470,
-        'day3': 557,
-        'day4': 489,
-        'day5': 743,
-        'day6': 312,
-        'day7': 0,
-        'day8': 683,
-        'day9': 511,
-        'day10': 569,
-        'day11': 472,
-        'day12': 774,
-        'day13': 324,
-        'day14': 0,
+        'day1': last_trend[0],
+        'day2': last_trend[1],
+        'day3': last_trend[2],
+        'day4': last_trend[3],
+        'day5': last_trend[4],
+        'day6': last_trend[5],
+        'day7': last_trend[6],
+        'day8': last_trend[7],
+        'day9': last_trend[8],
+        'day10': last_trend[9],
+        'day11': last_trend[10],
+        'day12': last_trend[11],
+        'day13': last_trend[12],
+        'day14': last_trend[13],
         'lat': 53.8868861,
         'lng': 27.542942,
         'dailyPrice': 45,
