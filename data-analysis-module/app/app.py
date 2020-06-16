@@ -121,6 +121,17 @@ def initial_values() -> str:
         except: # key does not exist
             last_trend.append(0)
 
+    cursor.execute("""
+        SELECT warehouse.x as lng, warehouse.y as ltd, AVG(price_list.daily_price) as daily_price FROM warehouse
+        INNER JOIN warehouse_company ON warehouse.id_warehouse_company = warehouse_company.id_warehouse_company
+        INNER JOIN price_list ON warehouse_company.id_warehouse_company = price_list.id_warehouse_company
+        WHERE warehouse.id_warehouse = @warehouse_id
+        GROUP BY warehouse.id_warehouse
+    """.replace('@warehouse_id', id_warehouse))
+
+    results = [(lng, ltd, daily_price) for (lng, ltd, daily_price) in cursor]
+    (lng, ltd, daily_price) = results[0]
+
     cursor.close()
 
     # warehouse_id
@@ -139,9 +150,9 @@ def initial_values() -> str:
         'day12': last_trend[11],
         'day13': last_trend[12],
         'day14': last_trend[13],
-        'lat': 53.8868861,
-        'lng': 27.542942,
-        'dailyPrice': 45,
+        'lat': float(ltd),
+        'lng': float(lng),
+        'dailyPrice': float(daily_price),
     })
 
 
